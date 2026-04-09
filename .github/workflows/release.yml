@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: Trigger integration tests in monorepo
         run: |
-          gh api repos/devhelmhq/cli-artifacts/dispatches \
+          gh api repos/devhelmhq/mono/dispatches \
             -f event_type=surface_release \
             -f "client_payload[repo]=${{ github.repository }}" \
             -f "client_payload[tag]=${{ github.ref_name }}" \
