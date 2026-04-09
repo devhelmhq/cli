@@ -96,12 +96,13 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: ${{ secrets.LINEAR_API_KEY }}" \
             -d '{
-              "query": "mutation($input: IssueCreateInput!) { issueCreate(input: $input) { success } }",
+              "query": "mutation($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { identifier url } } }",
               "variables": {
                 "input": {
                   "teamId": "${{ vars.LINEAR_RELEASES_TEAM_ID }}",
+                  "projectId": "${{ vars.LINEAR_RELEASES_PROJECT_ID }}",
                   "title": "Released: CLI v${{ steps.version.outputs.version }}",
-                  "description": "Release: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}\nCI: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  "description": "**Release:** https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}\n**CI run:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\n**Commit:** ${{ github.sha }}"
                 }
               }
             }'
@@ -115,7 +116,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: ${{ secrets.LINEAR_API_KEY }}" \
             -d '{
-              "query": "mutation($input: IssueCreateInput!) { issueCreate(input: $input) { success } }",
+              "query": "mutation($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { identifier url } } }",
               "variables": {
                 "input": {
                   "teamId": "${{ vars.LINEAR_CONTENT_TEAM_ID }}",
