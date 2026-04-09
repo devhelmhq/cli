@@ -47,9 +47,10 @@ export const MONITORS: ResourceConfig = {
     {key: 'id', header: 'ID'},
     {key: 'name', header: 'NAME'},
     {key: 'type', header: 'TYPE'},
-    {key: 'status', header: 'STATUS'},
-    {key: 'url', header: 'URL'},
-    {key: 'frequencySeconds', header: 'FREQUENCY_S'},
+    {key: 'enabled', header: 'ENABLED'},
+    {key: 'frequencySeconds', header: 'FREQ(s)'},
+    {key: 'regions', header: 'REGIONS'},
+    {key: 'managedBy', header: 'MANAGED'},
   ],
   createFlags: {
     name: Flags.string({description: desc('CreateMonitorRequest', 'name'), required: true}),

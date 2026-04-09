@@ -52,6 +52,7 @@ function formatTable(data: unknown, columns?: ColumnDef[]): string {
       if (c.get) return c.get(r)
       const val = r[c.key]
       if (val === null || val === undefined) return ''
+      if (Array.isArray(val)) return val.join(', ')
       return String(val)
     }))
   }
