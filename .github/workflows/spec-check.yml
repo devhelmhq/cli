@@ -1,0 +1,31 @@
+name: Spec Check
+
+on:
+  repository_dispatch:
+    types: [spec_updated]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+      - name: Report result
+        if: failure()
+        run: |
+          gh issue create \
+            --title "⚠️ API spec change broke CLI build" \
+            --body "The monorepo pushed a spec update that caused CI failures in the CLI repo.\n\nDiff summary:\n\`\`\`\n${{ github.event.client_payload.diff_summary }}\n\`\`\`\n\nWorkflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

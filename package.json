@@ -1,0 +1,72 @@
+{
+  "name": "devhelm",
+  "version": "0.1.0",
+  "description": "DevHelm CLI — manage monitors, deployments, and infrastructure as code",
+  "author": "DevHelm <hello@devhelm.io>",
+  "license": "MIT",
+  "homepage": "https://github.com/devhelmhq/cli",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devhelmhq/cli.git"
+  },
+  "bugs": "https://github.com/devhelmhq/cli/issues",
+  "type": "module",
+  "bin": {
+    "devhelm": "./bin/run.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "oclif.manifest.json"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b && oclif manifest",
+    "lint": "eslint src/ test/",
+    "lint:fix": "eslint src/ test/ --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "postpack": "rm -f oclif.manifest.json",
+    "prepack": "npm run build"
+  },
+  "oclif": {
+    "bin": "devhelm",
+    "dirname": "devhelm",
+    "commands": {
+      "strategy": "pattern",
+      "target": "./dist/commands"
+    },
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-not-found"
+    ],
+    "topicSeparator": " "
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "devhelm",
+    "monitoring",
+    "cli",
+    "uptime",
+    "infrastructure-as-code",
+    "devops"
+  ],
+  "dependencies": {
+    "@oclif/core": "^4.10.5",
+    "@oclif/plugin-help": "^6.2.43",
+    "@oclif/plugin-not-found": "^3.2.80"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.58.1",
+    "@typescript-eslint/parser": "^8.58.1",
+    "eslint": "^10.2.0",
+    "oclif": "^4.23.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  }
+}
