@@ -22,7 +22,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -b && oclif manifest",
+    "typegen": "openapi-typescript docs/openapi/monitoring-api.json -o src/lib/api.generated.ts",
+    "descgen": "node scripts/extract-descriptions.mjs",
+    "build": "npm run typegen && npm run descgen && tsc -b && oclif manifest",
     "lint": "eslint src/ test/",
     "lint:fix": "eslint src/ test/ --fix",
     "test": "vitest run",
@@ -61,6 +63,7 @@
     "@oclif/plugin-not-found": "^3.2.80",
     "chalk": "^5.6.2",
     "cli-table3": "^0.6.5",
+    "openapi-fetch": "^0.17.0",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
@@ -69,6 +72,7 @@
     "@typescript-eslint/parser": "^8.58.1",
     "eslint": "^10.2.0",
     "oclif": "^4.23.0",
+    "openapi-typescript": "^7.13.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4"
   }

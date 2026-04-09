@@ -1,6 +1,6 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {SingleResponse} from '../../lib/api-client.js'
+import {checkedFetch} from '../../lib/api-client.js'
 
 export default class ApiKeysRevoke extends Command {
   static description = 'Revoke an API key'
@@ -11,7 +11,8 @@ export default class ApiKeysRevoke extends Command {
   async run() {
     const {args, flags} = await this.parse(ApiKeysRevoke)
     const client = buildClient(flags)
-    await client.post<SingleResponse<unknown>>(`/api/v1/api-keys/${args.id}/revoke`)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await checkedFetch(client.POST(`/api/v1/api-keys/${args.id}/revoke` as any, {} as any))
     this.log(`API key '${args.id}' revoked.`)
   }
 }

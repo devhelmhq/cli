@@ -1,6 +1,6 @@
 import {Command, Flags} from '@oclif/core'
 import {globalFlags} from '../../lib/base-command.js'
-import {ApiClient, SingleResponse} from '../../lib/api-client.js'
+import {createApiClient, checkedFetch} from '../../lib/api-client.js'
 import {saveContext, resolveApiUrl} from '../../lib/auth.js'
 import * as readline from 'node:readline'
 
@@ -22,11 +22,14 @@ export default class AuthLogin extends Command {
 
     const apiUrl = flags['api-url'] || resolveApiUrl()
     this.log('Validating token...')
-    const client = new ApiClient({baseUrl: apiUrl, token})
+    const client = createApiClient({baseUrl: apiUrl, token})
     try {
-      const me = await client.get<SingleResponse<{email: string}>>('/platform/me')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const me = await checkedFetch(client.GET('/platform/me' as any, {} as any))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const email = (me as any)?.data?.email ?? (me as any)?.email
       saveContext({name: flags.name, apiUrl, token}, true)
-      this.log(`\nAuthenticated as ${me.content.email}`)
+      this.log(`\nAuthenticated as ${email}`)
       this.log(`Context '${flags.name}' saved to ~/.devhelm/contexts.json`)
     } catch {
       this.error('Invalid token. Authentication failed.', {exit: 2})

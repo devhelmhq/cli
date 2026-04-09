@@ -5,8 +5,9 @@ on:
     types: [spec_updated]
 
 permissions:
-  contents: read
+  contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   check-compatibility:
@@ -17,15 +18,50 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      - name: Download latest OpenAPI spec from monorepo
+        run: |
+          gh api repos/devhelmhq/mono/contents/docs/openapi/monitoring-api.yaml \
+            -H "Accept: application/vnd.github.raw+json" \
+            -o docs/openapi/monitoring-api.json
+        env:
+          GH_TOKEN: ${{ secrets.MONOREPO_DISPATCH_TOKEN }}
+
       - run: npm ci
       - run: npm run build
       - run: npm test
 
-      - name: Report result
+      - name: Check for type changes
+        id: diff
+        run: |
+          if git diff --quiet src/lib/api.generated.ts docs/openapi/monitoring-api.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open PR with updated types
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          branch="chore/update-api-types-$(date +%Y%m%d%H%M%S)"
+          git checkout -b "$branch"
+          git add src/lib/api.generated.ts docs/openapi/monitoring-api.json
+          git commit -m "chore: update generated API types from latest spec"
+          git push -u origin "$branch"
+          gh pr create \
+            --title "chore: update generated API types" \
+            --body "Auto-generated from latest OpenAPI spec in the monorepo." \
+            --base main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report failure
         if: failure()
         run: |
           gh issue create \
             --title "⚠️ API spec change broke CLI build" \
-            --body "The monorepo pushed a spec update that caused CI failures in the CLI repo.\n\nDiff summary:\n\`\`\`\n${{ github.event.client_payload.diff_summary }}\n\`\`\`\n\nWorkflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            --body "The monorepo pushed a spec update that caused CI failures.\n\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

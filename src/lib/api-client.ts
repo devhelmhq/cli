@@ -1,37 +1,7 @@
-export interface ApiClientOptions {
-  baseUrl: string
-  token: string
-  orgId?: string
-  verbose?: boolean
-}
+import createClient, {type Middleware} from 'openapi-fetch'
+import type {paths, components} from './api.generated.js'
 
-export interface ApiError {
-  status: number
-  message: string
-  details?: unknown
-}
-
-export interface PageResponse<T> {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number
-  size: number
-}
-
-export interface CursorPage<T> {
-  content: T[]
-  cursor?: string
-  hasMore: boolean
-}
-
-export interface TableResponse<T> {
-  content: T[]
-}
-
-export interface SingleResponse<T> {
-  content: T
-}
+export type {paths, components}
 
 export class ApiRequestError extends Error {
   constructor(
@@ -54,86 +24,65 @@ export class ApiRequestError extends Error {
   }
 }
 
-export class ApiClient {
-  private baseUrl: string
-  private token: string
-  private orgId: string
-  private verbose: boolean
+// Backward-compatible wrapper types matching the API response shapes
+export interface TableResponse<T> {
+  data: T[]
+  hasNext?: boolean
+  hasPrev?: boolean
+}
 
-  constructor(options: ApiClientOptions) {
-    this.baseUrl = options.baseUrl.replace(/\/$/, '')
-    this.token = options.token
-    this.orgId = options.orgId ?? '1'
-    this.verbose = options.verbose ?? false
-  }
+export interface CursorPage<T> {
+  data: T[]
+  hasNext?: boolean
+  hasPrev?: boolean
+}
 
-  private headers(): Record<string, string> {
-    return {
-      Authorization: `Bearer ${this.token}`,
+export interface SingleResponse<T> {
+  data: T
+}
+
+export function createApiClient(opts: {
+  baseUrl: string
+  token: string
+  orgId?: string
+  workspaceId?: string
+  verbose?: boolean
+}) {
+  const client = createClient<paths>({
+    baseUrl: opts.baseUrl.replace(/\/$/, ''),
+    headers: {
+      Authorization: `Bearer ${opts.token}`,
       'Content-Type': 'application/json',
-      'x-phelm-org-id': this.orgId,
-      'x-phelm-workspace-id': '1',
+      'x-phelm-org-id': opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
+      'x-phelm-workspace-id': opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID ?? '1',
+    },
+  })
+
+  if (opts.verbose) {
+    const logger: Middleware = {
+      async onRequest({request}) {
+        process.stderr.write(`${request.method} ${request.url}\n`)
+        return request
+      },
     }
+    client.use(logger)
   }
 
-  private async request<T>(method: string, path: string, body?: unknown): Promise<T> {
-    const url = `${this.baseUrl}${path}`
+  return client
+}
 
-    if (this.verbose) {
-      process.stderr.write(`${method} ${url}\n`)
-    }
+export type ApiClient = ReturnType<typeof createApiClient>
 
-    const response = await fetch(url, {
-      method,
-      headers: this.headers(),
-      body: body ? JSON.stringify(body) : undefined,
-    })
-
-    if (!response.ok) {
-      const text = await response.text()
-      throw new ApiRequestError(response.status, response.statusText, text)
-    }
-
-    if (response.status === 204) {
-      return undefined as T
-    }
-
-    return response.json() as Promise<T>
+/**
+ * Unwrap an openapi-fetch response: returns `data` on success, throws `ApiRequestError` on failure.
+ * Every client.GET / POST / PUT / DELETE call should be wrapped with this.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function checkedFetch<T>(promise: Promise<{data?: T; error?: any; response: Response}>): Promise<T> {
+  const {data, error, response} = await promise
+  if (error || !response.ok) {
+    const body = typeof error === 'object' ? JSON.stringify(error) : String(error ?? 'Unknown error')
+    throw new ApiRequestError(response.status, response.statusText, body)
   }
-
-  async get<T>(path: string): Promise<T> {
-    return this.request<T>('GET', path)
-  }
-
-  async post<T>(path: string, body?: unknown): Promise<T> {
-    return this.request<T>('POST', path, body)
-  }
-
-  async put<T>(path: string, body: unknown): Promise<T> {
-    return this.request<T>('PUT', path, body)
-  }
-
-  async patch<T>(path: string, body: unknown): Promise<T> {
-    return this.request<T>('PATCH', path, body)
-  }
-
-  async delete(path: string): Promise<void> {
-    return this.request<void>('DELETE', path)
-  }
-
-  async fetchAllPages<T>(basePath: string, pageSize = 50): Promise<T[]> {
-    const all: T[] = []
-    let page = 0
-    let totalPages = 1
-
-    while (page < totalPages) {
-      const sep = basePath.includes('?') ? '&' : '?'
-      const resp = await this.get<PageResponse<T>>(`${basePath}${sep}page=${page}&size=${pageSize}`)
-      all.push(...resp.content)
-      totalPages = resp.totalPages
-      page++
-    }
-
-    return all
-  }
+  return data as T
 }

@@ -1,5 +1,5 @@
 import {Command, Flags} from '@oclif/core'
-import {ApiClient} from './api-client.js'
+import {createApiClient, type ApiClient} from './api-client.js'
 import {resolveToken, resolveApiUrl} from './auth.js'
 import {AuthError} from './errors.js'
 import {formatOutput, OutputFormat, ColumnDef} from './output.js'
@@ -26,7 +26,7 @@ export function buildClient(flags: {
 
   const baseUrl = flags['api-url'] || resolveApiUrl()
 
-  return new ApiClient({baseUrl, token, verbose: flags.verbose})
+  return createApiClient({baseUrl, token, verbose: flags.verbose})
 }
 
 export function display(

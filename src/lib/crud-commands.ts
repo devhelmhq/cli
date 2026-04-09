@@ -1,7 +1,7 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient, display} from './base-command.js'
+import {checkedFetch} from './api-client.js'
 import {ColumnDef} from './output.js'
-import {TableResponse, SingleResponse} from './api-client.js'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFlag = any
@@ -14,6 +14,7 @@ export interface ResourceConfig {
   columns: ColumnDef[]
   createFlags?: Record<string, AnyFlag>
   updateFlags?: Record<string, AnyFlag>
+  bodyBuilder?: (flags: Record<string, unknown>) => Record<string, unknown>
 }
 
 export function createListCommand(config: ResourceConfig) {
@@ -25,8 +26,11 @@ export function createListCommand(config: ResourceConfig) {
     async run() {
       const {flags} = await this.parse(ListCmd)
       const client = buildClient(flags)
-      const resp = await client.get<TableResponse<Record<string, unknown>>>(config.apiPath)
-      display(this, resp.content, flags.output, config.columns)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const resp = await checkedFetch(client.GET(config.apiPath as any, {} as any))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const items = (resp as any)?.data ?? resp
+      display(this, items, flags.output, config.columns)
     }
   }
 
@@ -45,8 +49,11 @@ export function createGetCommand(config: ResourceConfig) {
       const {args, flags} = await this.parse(GetCmd)
       const client = buildClient(flags)
       const id = args[idLabel]
-      const resp = await client.get<SingleResponse<Record<string, unknown>>>(`${config.apiPath}/${id}`)
-      display(this, resp.content, flags.output)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const resp = await checkedFetch(client.GET(`${config.apiPath}/${id}` as any, {} as any))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const item = (resp as any)?.data ?? resp
+      display(this, item, flags.output)
     }
   }
 
@@ -63,9 +70,13 @@ export function createCreateCommand(config: ResourceConfig) {
     async run() {
       const {flags} = await this.parse(CreateCmd)
       const client = buildClient(flags)
-      const body = extractResourceFlags(flags, Object.keys(resourceFlags))
-      const resp = await client.post<SingleResponse<Record<string, unknown>>>(config.apiPath, body)
-      display(this, resp.content, flags.output)
+      const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
+      const body = config.bodyBuilder ? config.bodyBuilder(raw) : raw
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const resp = await checkedFetch(client.POST(config.apiPath as any, {body: body as any}))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const item = (resp as any)?.data ?? resp
+      display(this, item, flags.output)
     }
   }
 
@@ -85,9 +96,13 @@ export function createUpdateCommand(config: ResourceConfig) {
       const {args, flags} = await this.parse(UpdateCmd)
       const client = buildClient(flags)
       const id = args[idLabel]
-      const body = extractResourceFlags(flags, Object.keys(resourceFlags))
-      const resp = await client.put<SingleResponse<Record<string, unknown>>>(`${config.apiPath}/${id}`, body)
-      display(this, resp.content, flags.output)
+      const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
+      const body = config.bodyBuilder ? config.bodyBuilder(raw) : raw
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const resp = await checkedFetch(client.PUT(`${config.apiPath}/${id}` as any, {body: body as any}))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const item = (resp as any)?.data ?? resp
+      display(this, item, flags.output)
     }
   }
 
@@ -106,7 +121,8 @@ export function createDeleteCommand(config: ResourceConfig) {
       const {args, flags} = await this.parse(DeleteCmd)
       const client = buildClient(flags)
       const id = args[idLabel]
-      await client.delete(`${config.apiPath}/${id}`)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await checkedFetch(client.DELETE(`${config.apiPath}/${id}` as any, {} as any))
       this.log(`${config.name} '${id}' deleted.`)
     }
   }
