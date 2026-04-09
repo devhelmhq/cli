@@ -56,6 +56,29 @@ export function saveContext(context: AuthContext, setCurrent = true): void {
   writeContextsFile(file)
 }
 
+export function removeContext(name: string): boolean {
+  const file = readContextsFile()
+  if (!file || !(name in file.contexts)) return false
+
+  delete file.contexts[name]
+  if (file.current === name) {
+    const remaining = Object.keys(file.contexts)
+    file.current = remaining[0] ?? ''
+  }
+
+  writeContextsFile(file)
+  return true
+}
+
+export function setCurrentContext(name: string): boolean {
+  const file = readContextsFile()
+  if (!file || !(name in file.contexts)) return false
+
+  file.current = name
+  writeContextsFile(file)
+  return true
+}
+
 function readContextsFile(): ContextsFile | undefined {
   if (!existsSync(CONTEXTS_PATH)) return undefined
   return JSON.parse(readFileSync(CONTEXTS_PATH, 'utf8'))

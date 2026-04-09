@@ -5,7 +5,6 @@ import {dirname, join} from 'node:path'
 
 export default class Version extends Command {
   static override description = 'Print the CLI version'
-
   static override examples = ['<%= config.bin %> version']
 
   async run(): Promise<void> {
