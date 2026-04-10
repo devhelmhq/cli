@@ -1,0 +1,166 @@
+version: "1"
+
+defaults:
+  monitors:
+    frequency: 60
+    enabled: true
+    regions: [us-east, eu-west]
+
+tags:
+  - name: production
+    color: "#EF4444"
+  - name: api
+    color: "#3B82F6"
+
+environments:
+  - name: Production
+    slug: production
+    isDefault: true
+  - name: Staging
+    slug: staging
+
+secrets:
+  - key: bearer-token
+    value: secret-value-123
+
+alertChannels:
+  - name: ops-slack
+    type: slack
+    config:
+      webhookUrl: https://hooks.slack.com/services/T000/B000/xxx
+  - name: eng-email
+    type: email
+    config:
+      recipients:
+        - eng@company.com
+        - oncall@company.com
+  - name: pagerduty-critical
+    type: pagerduty
+    config:
+      routingKey: service-key-abc
+
+notificationPolicies:
+  - name: critical-escalation
+    enabled: true
+    priority: 1
+    escalation:
+      steps:
+        - channels: [ops-slack]
+          delayMinutes: 0
+        - channels: [pagerduty-critical]
+          delayMinutes: 5
+          requireAck: true
+
+webhooks:
+  - url: https://hooks.company.com/devhelm
+    events: [monitor.down, monitor.recovered, incident.created]
+    description: Internal webhook for status page
+
+resourceGroups:
+  - name: API Services
+    description: Core API monitors
+    defaultFrequency: 30
+    defaultRegions: [us-east, us-west, eu-west]
+    monitors: [API Health, DNS Check]
+    defaultAlertChannels: [ops-slack]
+    defaultEnvironment: production
+    healthThresholdType: PERCENTAGE
+    healthThresholdValue: 80
+
+monitors:
+  - name: Website
+    type: HTTP
+    config:
+      url: https://www.company.com
+      method: GET
+      verifyTls: true
+    tags: [production]
+    alertChannels: [ops-slack]
+    environment: production
+    assertions:
+      - type: StatusCodeAssertion
+        config:
+          expected: "200"
+          operator: equals
+        severity: fail
+      - type: ResponseTimeAssertion
+        config:
+          thresholdMs: 2000
+        severity: warn
+      - type: SslExpiryAssertion
+        config:
+          minDaysRemaining: 30
+        severity: warn
+
+  - name: API Health
+    type: HTTP
+    config:
+      url: https://api.company.com/health
+      method: GET
+    frequency: 30
+    tags: [production, api]
+    alertChannels: [ops-slack, pagerduty-critical]
+    auth:
+      type: BearerAuthConfig
+      secret: bearer-token
+    incidentPolicy:
+      triggerRules:
+        - type: consecutive_failures
+          count: 3
+          scope: per_region
+          severity: down
+        - type: response_time
+          thresholdMs: 5000
+          scope: any_region
+          severity: degraded
+          aggregationType: p95
+      confirmation:
+        type: multi_region
+        minRegionsFailing: 2
+        maxWaitSeconds: 120
+      recovery:
+        consecutiveSuccesses: 2
+        minRegionsPassing: 2
+        cooldownMinutes: 5
+
+  - name: DNS Check
+    type: DNS
+    config:
+      hostname: company.com
+      recordTypes: [A, AAAA, MX]
+    frequency: 300
+    assertions:
+      - type: DnsResolvesAssertion
+        severity: fail
+
+  - name: TCP Database
+    type: TCP
+    config:
+      host: db.internal.company.com
+      port: 5432
+    frequency: 60
+
+  - name: ICMP Gateway
+    type: ICMP
+    config:
+      host: gateway.company.com
+    frequency: 60
+
+  - name: Worker Heartbeat
+    type: HEARTBEAT
+    config:
+      expectedInterval: 120
+      gracePeriod: 300
+
+  - name: MCP Assistant
+    type: MCP_SERVER
+    config:
+      command: npx
+      args: ["-y", "@company/mcp-server"]
+    frequency: 300
+
+dependencies:
+  - service: github
+    alertSensitivity: INCIDENTS_ONLY
+  - service: cloudflare
+    alertSensitivity: ALL

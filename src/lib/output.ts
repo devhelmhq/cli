@@ -3,6 +3,7 @@ import {stringify as yamlStringify} from 'yaml'
 
 export type OutputFormat = 'table' | 'json' | 'yaml'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- contravariant T makes unknown impractical here
 export interface ColumnDef<T = any> {
   header: string
   get: (row: T) => string

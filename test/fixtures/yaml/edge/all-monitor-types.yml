@@ -1,0 +1,48 @@
+monitors:
+  - name: HTTP Monitor
+    type: HTTP
+    config:
+      url: https://example.com
+      method: POST
+      customHeaders:
+        X-Custom: value
+      requestBody: '{"health": true}'
+      contentType: application/json
+      verifyTls: true
+
+  - name: DNS Monitor
+    type: DNS
+    config:
+      hostname: example.com
+      recordTypes: [A, AAAA, CNAME, MX, NS, TXT]
+      nameservers: ["8.8.8.8", "1.1.1.1"]
+      timeoutMs: 5000
+
+  - name: TCP Monitor
+    type: TCP
+    config:
+      host: db.example.com
+      port: 5432
+      timeoutMs: 3000
+
+  - name: ICMP Monitor
+    type: ICMP
+    config:
+      host: gateway.example.com
+      packetCount: 5
+      timeoutMs: 2000
+
+  - name: Heartbeat Monitor
+    type: HEARTBEAT
+    config:
+      expectedInterval: 60
+      gracePeriod: 120
+
+  - name: MCP Monitor
+    type: MCP_SERVER
+    config:
+      command: node
+      args: ["server.js", "--port", "3000"]
+      env:
+        NODE_ENV: production
+        API_KEY: test-key

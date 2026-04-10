@@ -1,6 +1,6 @@
 import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../lib/base-command.js'
-import {checkedFetch} from '../lib/api-client.js'
+import {typedGet} from '../lib/typed-api.js'
 import {formatOutput, OutputFormat} from '../lib/output.js'
 
 export default class Status extends Command {
@@ -11,10 +11,8 @@ export default class Status extends Command {
   async run() {
     const {flags} = await this.parse(Status)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.GET('/api/v1/dashboard/overview' as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const overview = (resp as any)?.data ?? resp
+    const resp = await typedGet<{data?: Record<string, Record<string, unknown>>}>(client, '/api/v1/dashboard/overview')
+    const overview = resp.data ?? {}
 
     const format = flags.output as OutputFormat
     if (format === 'json' || format === 'yaml') {
@@ -32,7 +30,7 @@ export default class Status extends Command {
     this.log(`    Uptime (24h): ${u24}%    Uptime (30d): ${u30}%`)
     this.log('')
     this.log('  Incidents')
-    this.log(`    Active: ${i.active ?? 0}    Resolved today: ${i.resolvedToday ?? 0}    MTTR (30d): ${i.mttr30d != null ? `${Math.round(i.mttr30d / 60)}m` : '–'}`)
+    this.log(`    Active: ${i.active ?? 0}    Resolved today: ${i.resolvedToday ?? 0}    MTTR (30d): ${i.mttr30d != null ? `${Math.round(Number(i.mttr30d) / 60)}m` : '–'}`)
     this.log('')
   }
 }

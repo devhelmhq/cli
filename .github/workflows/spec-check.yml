@@ -31,10 +31,13 @@ jobs:
       - run: npm run build
       - run: npm test
 
+      - name: Regenerate types from spec
+        run: npm run typegen
+
       - name: Check for type changes
         id: diff
         run: |
-          if git diff --quiet src/lib/api.generated.ts docs/openapi/monitoring-api.json; then
+          if git diff --quiet src/lib/api.generated.ts docs/openapi/; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"

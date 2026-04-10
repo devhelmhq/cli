@@ -77,11 +77,10 @@ export type ApiClient = ReturnType<typeof createApiClient>
  * Unwrap an openapi-fetch response: returns `data` on success, throws `ApiRequestError` on failure.
  * Every client.GET / POST / PUT / DELETE call should be wrapped with this.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function checkedFetch<T>(promise: Promise<{data?: T; error?: any; response: Response}>): Promise<T> {
+export async function checkedFetch<T>(promise: Promise<{data?: T; error?: unknown; response: Response}>): Promise<T> {
   const {data, error, response} = await promise
   if (error || !response.ok) {
-    const body = typeof error === 'object' ? JSON.stringify(error) : String(error ?? 'Unknown error')
+    const body = typeof error === 'object' && error !== null ? JSON.stringify(error) : String(error ?? 'Unknown error')
     throw new ApiRequestError(response.status, response.statusText, body)
   }
   return data as T

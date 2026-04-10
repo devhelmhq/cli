@@ -1,0 +1,131 @@
+/**
+ * Tests for the handler registry and handler completeness.
+ * Verifies that:
+ *   1. Every HandledResourceType has a registered handler
+ *   2. Handler metadata (refType, listPath, configKey) is correct
+ *   3. fetchAll, getRefKey, getApiRefKey, getApiId, deletePath return expected values
+ */
+import {describe, it, expect} from 'vitest'
+import {HANDLER_MAP, getHandler, allHandlers} from '../../src/lib/yaml/handlers.js'
+import type {HandledResourceType} from '../../src/lib/yaml/types.js'
+import {YAML_SECTION_KEYS} from '../../src/lib/yaml/schema.js'
+
+const ALL_HANDLED_TYPES: HandledResourceType[] = [
+  'tag', 'environment', 'secret', 'alertChannel',
+  'notificationPolicy', 'webhook', 'resourceGroup',
+  'monitor', 'dependency',
+]
+
+describe('handler registry', () => {
+  it('HANDLER_MAP has an entry for every HandledResourceType', () => {
+    for (const type of ALL_HANDLED_TYPES) {
+      expect(HANDLER_MAP[type], `missing handler for ${type}`).toBeDefined()
+      expect(HANDLER_MAP[type].resourceType).toBe(type)
+    }
+  })
+
+  it('getHandler returns the correct handler', () => {
+    for (const type of ALL_HANDLED_TYPES) {
+      const h = getHandler(type)
+      expect(h.resourceType).toBe(type)
+    }
+  })
+
+  it('allHandlers returns all 9 handlers', () => {
+    const handlers = allHandlers()
+    expect(handlers).toHaveLength(9)
+    const types = new Set(handlers.map((h) => h.resourceType))
+    for (const type of ALL_HANDLED_TYPES) {
+      expect(types.has(type), `allHandlers() missing ${type}`).toBe(true)
+    }
+  })
+
+  it('every handler configKey is a valid YAML_SECTION_KEY', () => {
+    for (const handler of allHandlers()) {
+      expect(
+        (YAML_SECTION_KEYS as readonly string[]).includes(handler.configKey),
+        `${handler.resourceType}.configKey="${handler.configKey}" is not in YAML_SECTION_KEYS`,
+      ).toBe(true)
+    }
+  })
+
+  it('every handler has a fetchAll method', () => {
+    for (const handler of allHandlers()) {
+      expect(typeof handler.fetchAll, `${handler.resourceType} missing fetchAll`).toBe('function')
+    }
+  })
+})
+
+describe('handler metadata', () => {
+  it.each([
+    ['tag', 'tags', 'tags', '/api/v1/tags'],
+    ['environment', 'environments', 'environments', '/api/v1/environments'],
+    ['secret', 'secrets', 'secrets', '/api/v1/secrets'],
+    ['alertChannel', 'alertChannels', 'alertChannels', '/api/v1/alert-channels'],
+    ['notificationPolicy', 'notificationPolicies', 'notificationPolicies', '/api/v1/notification-policies'],
+    ['webhook', 'webhooks', 'webhooks', '/api/v1/webhooks'],
+    ['resourceGroup', 'resourceGroups', 'resourceGroups', '/api/v1/resource-groups'],
+    ['monitor', 'monitors', 'monitors', '/api/v1/monitors'],
+    ['dependency', 'dependencies', 'dependencies', '/api/v1/service-subscriptions'],
+  ] as const)('%s → refType=%s, configKey=%s, listPath=%s', (type, refType, configKey, listPath) => {
+    const h = getHandler(type)
+    expect(h.refType).toBe(refType)
+    expect(h.configKey).toBe(configKey)
+    expect(h.listPath).toBe(listPath)
+  })
+})
+
+describe('handler getRefKey', () => {
+  it('tag uses name', () => expect(getHandler('tag').getRefKey({name: 'prod'})).toBe('prod'))
+  it('environment uses slug', () => expect(getHandler('environment').getRefKey({slug: 'staging', name: 'S'})).toBe('staging'))
+  it('secret uses key', () => expect(getHandler('secret').getRefKey({key: 'api-key', value: 'x'})).toBe('api-key'))
+  it('alertChannel uses name', () => expect(getHandler('alertChannel').getRefKey({name: 'slack'})).toBe('slack'))
+  it('notificationPolicy uses name', () => expect(getHandler('notificationPolicy').getRefKey({name: 'p'})).toBe('p'))
+  it('webhook uses url', () => expect(getHandler('webhook').getRefKey({url: 'https://x.com'})).toBe('https://x.com'))
+  it('resourceGroup uses name', () => expect(getHandler('resourceGroup').getRefKey({name: 'API'})).toBe('API'))
+  it('monitor uses name', () => expect(getHandler('monitor').getRefKey({name: 'M'})).toBe('M'))
+  it('dependency uses service slug', () => expect(getHandler('dependency').getRefKey({service: 'gh'})).toBe('gh'))
+})
+
+describe('handler getApiRefKey + getApiId', () => {
+  it('tag extracts name and id', () => {
+    const h = getHandler('tag')
+    expect(h.getApiRefKey({name: 'prod', id: 'tag-1'})).toBe('prod')
+    expect(h.getApiId({id: 'tag-1'})).toBe('tag-1')
+  })
+
+  it('environment extracts slug and id', () => {
+    const h = getHandler('environment')
+    expect(h.getApiRefKey({slug: 'staging'})).toBe('staging')
+    expect(h.getApiId({id: 'env-1'})).toBe('env-1')
+  })
+
+  it('monitor extracts name, id, and managedBy', () => {
+    const h = getHandler('monitor')
+    expect(h.getApiRefKey({name: 'M'})).toBe('M')
+    expect(h.getApiId({id: 'mon-1'})).toBe('mon-1')
+    expect(h.getManagedBy!({managedBy: 'CLI'})).toBe('CLI')
+  })
+
+  it('dependency extracts slug and subscriptionId', () => {
+    const h = getHandler('dependency')
+    expect(h.getApiRefKey({slug: 'gh'})).toBe('gh')
+    expect(h.getApiId({subscriptionId: 'sub-1'})).toBe('sub-1')
+  })
+})
+
+describe('handler deletePath', () => {
+  it.each([
+    ['tag', '/api/v1/tags/id-1'],
+    ['environment', '/api/v1/environments/id-1'],
+    ['secret', '/api/v1/secrets/id-1'],
+    ['alertChannel', '/api/v1/alert-channels/id-1'],
+    ['notificationPolicy', '/api/v1/notification-policies/id-1'],
+    ['webhook', '/api/v1/webhooks/id-1'],
+    ['resourceGroup', '/api/v1/resource-groups/id-1'],
+    ['monitor', '/api/v1/monitors/id-1'],
+    ['dependency', '/api/v1/service-subscriptions/id-1'],
+  ] as const)('%s → %s', (type, expectedPath) => {
+    expect(getHandler(type).deletePath('id-1')).toBe(expectedPath)
+  })
+})

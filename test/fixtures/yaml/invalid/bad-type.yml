@@ -1,0 +1,5 @@
+monitors:
+  - name: Bad Type
+    type: WEBSOCKET
+    config:
+      url: wss://example.com

@@ -29,11 +29,14 @@ export function buildClient(flags: {
   return createApiClient({baseUrl, token, verbose: flags.verbose})
 }
 
+const VALID_FORMATS = new Set<string>(['table', 'json', 'yaml'])
+
 export function display(
   command: Command,
   data: unknown,
   format: string,
   columns?: ColumnDef[],
 ): void {
+  if (!VALID_FORMATS.has(format)) format = 'table'
   command.log(formatOutput(data, format as OutputFormat, columns))
 }

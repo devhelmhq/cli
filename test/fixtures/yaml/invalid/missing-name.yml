@@ -1,0 +1,5 @@
+monitors:
+  - type: HTTP
+    config:
+      url: https://example.com
+      method: GET

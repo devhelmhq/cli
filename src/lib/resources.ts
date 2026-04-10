@@ -86,7 +86,7 @@ export const MONITORS: ResourceConfig<MonitorDto> = {
     method: Flags.string({description: desc('HttpMonitorConfig', 'method'), options: HTTP_METHODS}),
     port: Flags.string({description: desc('TcpMonitorConfig', 'port', 'TCP port to connect to')}),
   },
-  bodyBuilder: (raw): CreateMonitorRequest | Record<string, unknown> => {
+  bodyBuilder: (raw) => {
     const monitorType = raw.type as MonitorType | undefined
     if (monitorType) {
       const body: CreateMonitorRequest = {
@@ -99,7 +99,7 @@ export const MONITORS: ResourceConfig<MonitorDto> = {
       if (raw.regions) {
         body.regions = String(raw.regions).split(',').map((s) => s.trim()).filter(Boolean)
       }
-      return body as unknown as Record<string, unknown>
+      return body
     }
     const body: Record<string, unknown> = {}
     if (raw.name !== undefined) body.name = raw.name
@@ -111,22 +111,28 @@ export const MONITORS: ResourceConfig<MonitorDto> = {
   },
 }
 
+/**
+ * Generated config types extend `Record<string, never>` (OAS generator artifact for
+ * abstract base class MonitorConfig), which prevents direct object literal assignment.
+ * The single cast at the end is the narrowest workaround.
+ */
 function buildMonitorConfig(type: MonitorType, raw: Record<string, unknown>): CreateMonitorRequest['config'] {
+  const method: HttpMethod = (raw.method as HttpMethod) || 'GET'
   switch (type) {
     case 'HTTP':
-      return {url: String(raw.url ?? ''), method: (raw.method as HttpMethod) || 'GET'} as unknown as Schemas['HttpMonitorConfig']
+      return {url: String(raw.url ?? ''), method} as CreateMonitorRequest['config']
     case 'TCP':
-      return {host: String(raw.url ?? ''), port: raw.port ? Number(raw.port) : 443} as unknown as Schemas['TcpMonitorConfig']
+      return {host: String(raw.url ?? ''), port: raw.port ? Number(raw.port) : 443} as CreateMonitorRequest['config']
     case 'DNS':
-      return {hostname: String(raw.url ?? '')} as unknown as Schemas['DnsMonitorConfig']
+      return {hostname: String(raw.url ?? '')} as CreateMonitorRequest['config']
     case 'ICMP':
-      return {host: String(raw.url ?? '')} as unknown as Schemas['IcmpMonitorConfig']
+      return {host: String(raw.url ?? '')} as CreateMonitorRequest['config']
     case 'HEARTBEAT':
-      return {expectedInterval: 60, gracePeriod: 60} as unknown as Schemas['HeartbeatMonitorConfig']
+      return {expectedInterval: 60, gracePeriod: 60} as CreateMonitorRequest['config']
     case 'MCP_SERVER':
-      return {command: String(raw.url ?? '')} as unknown as Schemas['McpServerMonitorConfig']
+      return {command: String(raw.url ?? '')} as CreateMonitorRequest['config']
     default:
-      return {url: String(raw.url ?? ''), method: 'GET'} as unknown as Schemas['HttpMonitorConfig']
+      return {url: String(raw.url ?? ''), method: 'GET'} as CreateMonitorRequest['config']
   }
 }
 
@@ -152,14 +158,14 @@ export const INCIDENTS: ResourceConfig<IncidentDto> = {
     'monitor-id': Flags.string({description: desc('CreateManualIncidentRequest', 'monitorId')}),
     body: Flags.string({description: desc('CreateManualIncidentRequest', 'body')}),
   },
-  bodyBuilder: (raw): Record<string, unknown> => {
+  bodyBuilder: (raw) => {
     const body: CreateManualIncidentRequest = {
       title: String(raw.title),
       severity: raw.severity as IncidentSeverity,
     }
     if (raw['monitor-id'] !== undefined) body.monitorId = String(raw['monitor-id'])
     if (raw.body !== undefined) body.body = String(raw.body)
-    return body as unknown as Record<string, unknown>
+    return body
   },
 }
 
@@ -190,7 +196,7 @@ export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
     config: Flags.string({description: 'Channel-specific configuration as JSON'}),
     'webhook-url': Flags.string({description: desc('SlackChannelConfig', 'webhookUrl', 'Slack/Discord/Teams webhook URL')}),
   },
-  bodyBuilder: (raw): Record<string, unknown> => {
+  bodyBuilder: (raw) => {
     let config: CreateAlertChannelRequest['config'] | undefined
     if (raw.config) {
       config = JSON.parse(String(raw.config)) as CreateAlertChannelRequest['config']
@@ -203,8 +209,8 @@ export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
         config = {channelType} as CreateAlertChannelRequest['config']
       }
     }
-    const body: Record<string, unknown> = {}
-    if (raw.name !== undefined) body.name = raw.name
+    const body: Partial<CreateAlertChannelRequest> = {}
+    if (raw.name !== undefined) body.name = String(raw.name)
     if (config !== undefined) body.config = config
     return body
   },
@@ -230,7 +236,7 @@ export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
     'channel-ids': Flags.string({description: desc('EscalationStep', 'channelIds', 'Comma-separated alert channel IDs')}),
     enabled: Flags.boolean({description: desc('UpdateNotificationPolicyRequest', 'enabled'), allowNo: true}),
   },
-  bodyBuilder: (raw): Record<string, unknown> => {
+  bodyBuilder: (raw) => {
     const channelIds = raw['channel-ids']
       ? String(raw['channel-ids']).split(',').map((s) => s.trim()).filter(Boolean)
       : []
@@ -240,7 +246,7 @@ export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
       enabled: (raw.enabled as boolean) ?? true,
       priority: 0,
     }
-    return body as unknown as Record<string, unknown>
+    return body
   },
 }
 
@@ -345,13 +351,13 @@ export const WEBHOOKS: ResourceConfig<WebhookEndpointDto> = {
     events: Flags.string({description: desc('UpdateWebhookEndpointRequest', 'subscribedEvents')}),
     description: Flags.string({description: desc('UpdateWebhookEndpointRequest', 'description')}),
   },
-  bodyBuilder: (raw): Record<string, unknown> => {
-    const body: Record<string, unknown> = {}
-    if (raw.url !== undefined) body.url = raw.url
+  bodyBuilder: (raw) => {
+    const body: Partial<Schemas['CreateWebhookEndpointRequest']> = {}
+    if (raw.url !== undefined) body.url = String(raw.url)
     if (raw.events !== undefined) {
       body.subscribedEvents = String(raw.events).split(',').map((s) => s.trim()).filter(Boolean)
     }
-    if (raw.description !== undefined) body.description = raw.description
+    if (raw.description !== undefined) body.description = String(raw.description)
     return body
   },
 }
@@ -371,10 +377,10 @@ export const API_KEYS: ResourceConfig<ApiKeyDto> = {
     name: Flags.string({description: desc('CreateApiKeyRequest', 'name'), required: true}),
     'expires-at': Flags.string({description: desc('CreateApiKeyRequest', 'expiresAt')}),
   },
-  bodyBuilder: (raw): Record<string, unknown> => {
+  bodyBuilder: (raw) => {
     const body: CreateApiKeyRequest = {name: String(raw.name)}
     if (raw['expires-at'] !== undefined) body.expiresAt = String(raw['expires-at'])
-    return body as unknown as Record<string, unknown>
+    return body
   },
 }
 

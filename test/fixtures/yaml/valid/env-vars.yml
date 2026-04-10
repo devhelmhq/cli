@@ -1,0 +1,12 @@
+monitors:
+  - name: Prod Monitor
+    type: HTTP
+    config:
+      url: ${APP_URL:-https://default.example.com}
+      method: GET
+
+alertChannels:
+  - name: slack-channel
+    type: slack
+    config:
+      webhookUrl: ${SLACK_WEBHOOK:-https://hooks.slack.com/default}

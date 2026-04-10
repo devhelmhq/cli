@@ -1,0 +1,10 @@
+monitors:
+  - name: Needs Token
+    type: HTTP
+    config:
+      url: https://example.com
+      method: GET
+
+secrets:
+  - key: api-key
+    value: ${MISSING_SECRET_VALUE}

@@ -1,6 +1,6 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {checkedFetch} from '../../lib/api-client.js'
+import {typedPost} from '../../lib/typed-api.js'
 
 export default class NotificationPoliciesTest extends Command {
   static description = 'Test a notification policy'
@@ -11,8 +11,7 @@ export default class NotificationPoliciesTest extends Command {
   async run() {
     const {args, flags} = await this.parse(NotificationPoliciesTest)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await checkedFetch(client.POST(`/api/v1/notification-policies/${args.id}/test` as any, {} as any))
+    await typedPost(client, `/api/v1/notification-policies/${args.id}/test`)
     this.log('Test dispatch sent.')
   }
 }

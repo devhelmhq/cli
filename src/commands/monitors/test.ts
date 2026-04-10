@@ -1,6 +1,6 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../lib/base-command.js'
-import {checkedFetch} from '../../lib/api-client.js'
+import {typedPost} from '../../lib/typed-api.js'
 
 export default class MonitorsTest extends Command {
   static description = 'Run an ad-hoc test for a monitor'
@@ -12,10 +12,7 @@ export default class MonitorsTest extends Command {
     const {args, flags} = await this.parse(MonitorsTest)
     const client = buildClient(flags)
     this.log('Running test...')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.POST(`/api/v1/monitors/${args.id}/test` as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = (resp as any)?.data ?? resp
-    display(this, result, flags.output)
+    const resp = await typedPost<{data?: Record<string, unknown>}>(client, `/api/v1/monitors/${args.id}/test`)
+    display(this, resp.data ?? resp, flags.output)
   }
 }

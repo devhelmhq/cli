@@ -1,43 +1,112 @@
 import {Command, Flags} from '@oclif/core'
 import {existsSync, writeFileSync} from 'node:fs'
 
-const TEMPLATE = `# devhelm.yml — DevHelm monitor configuration
+const TEMPLATE = `# devhelm.yml — DevHelm monitoring-as-code configuration
 # Docs: https://docs.devhelm.io/cli/configuration
+# Run "devhelm validate" to check, "devhelm deploy" to apply.
+version: "1"
+
+# defaults:
+#   monitors:
+#     frequency: 60
+#     regions: [us-east, eu-west]
+#     enabled: true
+
+tags:
+  - name: production
+    color: "#EF4444"
+
+# environments:
+#   - name: Production
+#     slug: production
+#     isDefault: true
+
+# secrets:
+#   - key: bearer-token
+#     value: \${API_TOKEN}
+
+alertChannels:
+  - name: ops-slack
+    type: slack
+    config:
+      webhookUrl: \${SLACK_WEBHOOK_URL:-https://hooks.slack.com/services/REPLACE_ME}
+
+# notificationPolicies:
+#   - name: critical-escalation
+#     enabled: true
+#     priority: 1
+#     escalation:
+#       steps:
+#         - channels: [ops-slack]
+#           delayMinutes: 0
+
+# webhooks:
+#   - url: https://hooks.example.com/devhelm
+#     events: [monitor.down, monitor.recovered]
+
+# resourceGroups:
+#   - name: API Services
+#     monitors: [API Health Check]
 
 monitors:
   - name: Website Health Check
     type: HTTP
-    url: https://example.com
-    interval: 60
-    regions:
-      - us-east-1
-      - eu-west-1
+    config:
+      url: https://example.com
+      method: GET
+      verifyTls: true
+    frequency: 60
+    regions: [us-east, eu-west]
+    tags: [production]
+    alertChannels: [ops-slack]
     assertions:
-      - type: STATUS_CODE
-        operator: EQUALS
-        value: "200"
-      - type: RESPONSE_TIME
-        operator: LESS_THAN
-        value: "2000"
-    alertChannels:
-      - default-slack
+      - type: StatusCodeAssertion
+        config:
+          expected: "200"
+          operator: equals
+        severity: fail
+      - type: ResponseTimeAssertion
+        config:
+          thresholdMs: 2000
+        severity: warn
+      - type: SslExpiryAssertion
+        config:
+          minDaysRemaining: 30
+        severity: warn
 
-  # - name: API Endpoint
+  # - name: API Health Check
   #   type: HTTP
-  #   url: https://api.example.com/health
-  #   method: GET
-  #   interval: 30
-  #   timeout: 10000
+  #   config:
+  #     url: https://api.example.com/health
+  #     method: GET
+  #   frequency: 30
 
   # - name: DNS Check
   #   type: DNS
-  #   url: example.com
-  #   interval: 300
+  #   config:
+  #     hostname: example.com
+  #     recordTypes: [A, AAAA, MX]
+  #   frequency: 300
+  #   assertions:
+  #     - type: DnsResolvesAssertion
+  #       severity: fail
 
-  # - name: Heartbeat
+  # - name: Heartbeat Worker
   #   type: HEARTBEAT
-  #   interval: 120
-  #   grace: 300
+  #   config:
+  #     expectedInterval: 120
+  #     gracePeriod: 300
+
+  # - name: MCP Assistant
+  #   type: MCP_SERVER
+  #   config:
+  #     command: npx
+  #     args: ["-y", "@company/mcp-server"]
+  #   frequency: 300
+
+# dependencies:
+#   - service: github
+#     alertSensitivity: INCIDENTS_ONLY
 `
 
 export default class Init extends Command {
@@ -60,8 +129,13 @@ export default class Init extends Command {
       this.error(`${flags.path} already exists. Use --force to overwrite.`, {exit: 1})
     }
 
-    writeFileSync(flags.path, TEMPLATE)
+    try {
+      writeFileSync(flags.path, TEMPLATE)
+    } catch (err) {
+      this.error(`Failed to write ${flags.path}: ${err instanceof Error ? err.message : String(err)}`, {exit: 1})
+    }
     this.log(`Created ${flags.path}`)
-    this.log('Edit the file, then run `devhelm validate` to check it.')
+    this.log('Edit the file, then run "devhelm validate" to check it.')
+    this.log('When ready, run "devhelm deploy" to apply it to your DevHelm account.')
   }
 }

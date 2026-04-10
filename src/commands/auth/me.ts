@@ -1,7 +1,23 @@
 import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {checkedFetch} from '../../lib/api-client.js'
+import {typedGet} from '../../lib/typed-api.js'
 import {formatOutput, OutputFormat} from '../../lib/output.js'
+
+interface AuthMeResponse {
+  data?: {
+    key?: {id?: string; name?: string; createdAt?: string; expiresAt?: string; lastUsedAt?: string}
+    organization?: {id?: number; name?: string}
+    plan?: {
+      tier?: string
+      subscriptionStatus?: string
+      trialActive?: boolean
+      trialExpiresAt?: string
+      usage?: Record<string, number>
+      entitlements?: Record<string, {value: number}>
+    }
+    rateLimits?: {requestsPerMinute?: number; remaining?: number; windowMs?: number}
+  }
+}
 
 export default class AuthMe extends Command {
   static description = 'Show current API key identity, organization, plan, and rate limits'
@@ -11,10 +27,8 @@ export default class AuthMe extends Command {
   async run() {
     const {flags} = await this.parse(AuthMe)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.GET('/api/v1/auth/me' as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const me = (resp as any)?.data ?? resp
+    const resp = await typedGet<AuthMeResponse>(client, '/api/v1/auth/me')
+    const me = resp.data
 
     const format = flags.output as OutputFormat
     if (format === 'json' || format === 'yaml') {
@@ -22,10 +36,10 @@ export default class AuthMe extends Command {
       return
     }
 
-    const k = me.key ?? {}
-    const o = me.organization ?? {}
-    const p = me.plan ?? {}
-    const r = me.rateLimits ?? {}
+    const k = me?.key ?? {}
+    const o = me?.organization ?? {}
+    const p = me?.plan ?? {}
+    const r = me?.rateLimits ?? {}
 
     this.log('')
     this.log('  API Key')
@@ -42,8 +56,8 @@ export default class AuthMe extends Command {
     this.log('  Rate Limits')
     this.log(`    Limit: ${r.requestsPerMinute ?? '–'} req/min    Remaining: ${r.remaining ?? '–'}    Window: ${r.windowMs ? `${r.windowMs / 1000}s` : '–'}`)
 
-    const usage = p.usage as Record<string, number> | undefined
-    const entitlements = p.entitlements as Record<string, {value: number}> | undefined
+    const usage = p.usage
+    const entitlements = p.entitlements
     if (usage && entitlements) {
       this.log('')
       this.log('  Usage')

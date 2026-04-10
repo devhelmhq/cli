@@ -1,0 +1,11 @@
+tags:
+  - name: backend
+    color: "#6366F1"
+
+monitors:
+  - name: Backend API
+    type: HTTP
+    config:
+      url: https://api.example.com
+      method: GET
+    tags: [backend]
