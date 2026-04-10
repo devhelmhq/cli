@@ -18,10 +18,10 @@ export default class AuthContextList extends Command {
       token: ctx.token.slice(0, 8) + '...' + ctx.token.slice(-4),
     }))
     display(this, data, flags.output, [
-      {key: 'current', header: ''},
-      {key: 'name', header: 'NAME'},
-      {key: 'api-url', header: 'API URL'},
-      {key: 'token', header: 'TOKEN'},
+      {header: '', get: (r: Record<string, string>) => r.current ?? ''},
+      {header: 'NAME', get: (r: Record<string, string>) => r.name ?? ''},
+      {header: 'API URL', get: (r: Record<string, string>) => r['api-url'] ?? ''},
+      {header: 'TOKEN', get: (r: Record<string, string>) => r.token ?? ''},
     ])
   }
 }

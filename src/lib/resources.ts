@@ -11,6 +11,18 @@ function desc(schema: string, field: string, fallback?: string): string {
 // ── Derived types from OpenAPI spec ────────────────────────────────────
 type Schemas = components['schemas']
 
+type MonitorDto = Schemas['MonitorDto']
+type IncidentDto = Schemas['IncidentDto']
+type AlertChannelDto = Schemas['AlertChannelDto']
+type NotificationPolicyDto = Schemas['NotificationPolicyDto']
+type EnvironmentDto = Schemas['EnvironmentDto']
+type SecretDto = Schemas['SecretDto']
+type TagDto = Schemas['TagDto']
+type ResourceGroupDto = Schemas['ResourceGroupDto']
+type WebhookEndpointDto = Schemas['WebhookEndpointDto']
+type ApiKeyDto = Schemas['ApiKeyDto']
+type ServiceSubscriptionDto = Schemas['ServiceSubscriptionDto']
+
 type MonitorType = Schemas['CreateMonitorRequest']['type']
 type HttpMethod = Schemas['HttpMonitorConfig']['method']
 type IncidentSeverity = Schemas['CreateManualIncidentRequest']['severity']
@@ -26,7 +38,6 @@ const HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HE
 const INCIDENT_SEVERITIES: IncidentSeverity[] = ['DOWN', 'DEGRADED', 'MAINTENANCE']
 const CHANNEL_TYPES = ['SLACK', 'EMAIL', 'PAGERDUTY', 'OPSGENIE', 'DISCORD', 'TEAMS', 'WEBHOOK'] as const
 
-// Jackson @JsonSubTypes uses lowercase names, not the class names from the OpenAPI spec
 const CHANNEL_TYPE_MAP: Record<string, string> = {
   SLACK: 'slack',
   EMAIL: 'email',
@@ -39,18 +50,18 @@ const CHANNEL_TYPE_MAP: Record<string, string> = {
 
 // ── Resource definitions ───────────────────────────────────────────────
 
-export const MONITORS: ResourceConfig = {
+export const MONITORS: ResourceConfig<MonitorDto> = {
   name: 'monitor',
   plural: 'monitors',
   apiPath: '/api/v1/monitors',
   columns: [
-    {key: 'id', header: 'ID'},
-    {key: 'name', header: 'NAME'},
-    {key: 'type', header: 'TYPE'},
-    {key: 'enabled', header: 'ENABLED'},
-    {key: 'frequencySeconds', header: 'FREQ(s)'},
-    {key: 'regions', header: 'REGIONS'},
-    {key: 'managedBy', header: 'MANAGED'},
+    {header: 'ID', get: (r) => r.id ?? ''},
+    {header: 'NAME', get: (r) => r.name ?? ''},
+    {header: 'TYPE', get: (r) => r.type ?? ''},
+    {header: 'ENABLED', get: (r) => String(r.enabled ?? '')},
+    {header: 'FREQ(s)', get: (r) => String(r.frequencySeconds ?? '')},
+    {header: 'REGIONS', get: (r) => (r.regions ?? []).join(', ')},
+    {header: 'MANAGED', get: (r) => r.managedBy ?? ''},
   ],
   createFlags: {
     name: Flags.string({description: desc('CreateMonitorRequest', 'name'), required: true}),
@@ -100,8 +111,6 @@ export const MONITORS: ResourceConfig = {
   },
 }
 
-// openapi-typescript generates MonitorConfig as Record<string, never> (empty base),
-// so the intersection types need casting through the concrete schema types.
 function buildMonitorConfig(type: MonitorType, raw: Record<string, unknown>): CreateMonitorRequest['config'] {
   switch (type) {
     case 'HTTP':
@@ -121,17 +130,17 @@ function buildMonitorConfig(type: MonitorType, raw: Record<string, unknown>): Cr
   }
 }
 
-export const INCIDENTS: ResourceConfig = {
+export const INCIDENTS: ResourceConfig<IncidentDto> = {
   name: 'incident',
   plural: 'incidents',
   apiPath: '/api/v1/incidents',
   columns: [
-    {key: 'id', header: 'ID'},
-    {key: 'title', header: 'TITLE'},
-    {key: 'status', header: 'STATUS'},
-    {key: 'severity', header: 'SEVERITY'},
-    {key: 'monitorName', header: 'MONITOR'},
-    {key: 'startedAt', header: 'STARTED'},
+    {header: 'ID', get: (r) => r.id ?? ''},
+    {header: 'TITLE', get: (r) => r.title ?? ''},
+    {header: 'STATUS', get: (r) => r.status ?? ''},
+    {header: 'SEVERITY', get: (r) => r.severity ?? ''},
+    {header: 'MONITOR', get: (r) => r.monitorName ?? ''},
+    {header: 'STARTED', get: (r) => r.startedAt ?? ''},
   ],
   createFlags: {
     title: Flags.string({description: desc('CreateManualIncidentRequest', 'title'), required: true}),
@@ -154,15 +163,16 @@ export const INCIDENTS: ResourceConfig = {
   },
 }
 
-export const ALERT_CHANNELS: ResourceConfig = {
+export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
   name: 'alert channel',
   plural: 'alert-channels',
   apiPath: '/api/v1/alert-channels',
   columns: [
-    {key: 'id', header: 'ID'},
-    {key: 'name', header: 'NAME'},
-    {key: 'type', header: 'TYPE'},
-    {key: 'enabled', header: 'ENABLED'},
+    {header: 'ID', get: (r) => r.id},
+    {header: 'NAME', get: (r) => r.name},
+    {header: 'TYPE', get: (r) => r.channelType},
+    {header: 'LAST DELIVERY', get: (r) => r.lastDeliveryAt ?? ''},
+    {header: 'STATUS', get: (r) => r.lastDeliveryStatus ?? ''},
   ],
   createFlags: {
     name: Flags.string({description: desc('CreateAlertChannelRequest', 'name'), required: true}),
@@ -200,15 +210,15 @@ export const ALERT_CHANNELS: ResourceConfig = {
   },
 }
 
-export const NOTIFICATION_POLICIES: ResourceConfig = {
+export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
   name: 'notification policy',
   plural: 'notification-policies',
   apiPath: '/api/v1/notification-policies',
   columns: [
-    {key: 'id', header: 'ID'},
-    {key: 'name', header: 'NAME'},
-    {key: 'enabled', header: 'ENABLED'},
-    {key: 'severity', header: 'SEVERITY'},
+    {header: 'ID', get: (r) => r.id ?? ''},
+    {header: 'NAME', get: (r) => r.name ?? ''},
+    {header: 'ENABLED', get: (r) => String(r.enabled ?? '')},
+    {header: 'PRIORITY', get: (r) => String(r.priority ?? '')},
   ],
   createFlags: {
     name: Flags.string({description: desc('CreateNotificationPolicyRequest', 'name'), required: true}),
@@ -234,16 +244,16 @@ export const NOTIFICATION_POLICIES: ResourceConfig = {
   },
 }
 
-export const ENVIRONMENTS: ResourceConfig = {
+export const ENVIRONMENTS: ResourceConfig<EnvironmentDto> = {
   name: 'environment',
   plural: 'environments',
   apiPath: '/api/v1/environments',
   idField: 'slug',
   columns: [
-    {key: 'slug', header: 'SLUG'},
-    {key: 'name', header: 'NAME'},
-    {key: 'color', header: 'COLOR'},
-    {key: 'variableCount', header: 'VARIABLES'},
+    {header: 'SLUG', get: (r) => r.slug ?? ''},
+    {header: 'NAME', get: (r) => r.name ?? ''},
+    {header: 'MONITORS', get: (r) => String(r.monitorCount ?? 0)},
+    {header: 'DEFAULT', get: (r) => String(r.isDefault ?? false)},
   ],
   createFlags: {
     name: Flags.string({description: desc('CreateEnvironmentRequest', 'name'), required: true}),
@@ -256,16 +266,15 @@ export const ENVIRONMENTS: ResourceConfig = {
   },
 }
 
-export const SECRETS: ResourceConfig = {
+export const SECRETS: ResourceConfig<SecretDto> = {
   name: 'secret',
   plural: 'secrets',
   apiPath: '/api/v1/secrets',
   idField: 'key',
   columns: [
-    {key: 'key', header: 'KEY'},
-    {key: 'environmentSlug', header: 'ENVIRONMENT'},
-    {key: 'createdAt', header: 'CREATED'},
-    {key: 'updatedAt', header: 'UPDATED'},
+    {header: 'KEY', get: (r) => r.key ?? ''},
+    {header: 'CREATED', get: (r) => r.createdAt ?? ''},
+    {header: 'UPDATED', get: (r) => r.updatedAt ?? ''},
   ],
   createFlags: {
     key: Flags.string({description: desc('CreateSecretRequest', 'key'), required: true}),
@@ -277,15 +286,14 @@ export const SECRETS: ResourceConfig = {
   },
 }
 
-export const TAGS: ResourceConfig = {
+export const TAGS: ResourceConfig<TagDto> = {
   name: 'tag',
   plural: 'tags',
   apiPath: '/api/v1/tags',
   columns: [
-    {key: 'id', header: 'ID'},
-    {key: 'name', header: 'NAME'},
-    {key: 'color', header: 'COLOR'},
-    {key: 'monitorCount', header: 'MONITORS'},
+    {header: 'ID', get: (r) => r.id ?? ''},
+    {header: 'NAME', get: (r) => r.name ?? ''},
+    {header: 'COLOR', get: (r) => r.color ?? ''},
   ],
   createFlags: {
     name: Flags.string({description: desc('CreateTagRequest', 'name'), required: true}),
@@ -297,15 +305,15 @@ export const TAGS: ResourceConfig = {
   },
 }
 
-export const RESOURCE_GROUPS: ResourceConfig = {
+export const RESOURCE_GROUPS: ResourceConfig<ResourceGroupDto> = {
   name: 'resource group',
   plural: 'resource-groups',
   apiPath: '/api/v1/resource-groups',
   columns: [
-    {key: 'id', header: 'ID'},
-    {key: 'name', header: 'NAME'},
-    {key: 'description', header: 'DESCRIPTION'},
-    {key: 'healthStatus', header: 'HEALTH'},
+    {header: 'ID', get: (r) => r.id ?? ''},
+    {header: 'NAME', get: (r) => r.name ?? ''},
+    {header: 'DESCRIPTION', get: (r) => r.description ?? ''},
+    {header: 'HEALTH', get: (r) => r.health?.status ?? ''},
   ],
   createFlags: {
     name: Flags.string({description: desc('CreateResourceGroupRequest', 'name'), required: true}),
@@ -317,15 +325,15 @@ export const RESOURCE_GROUPS: ResourceConfig = {
   },
 }
 
-export const WEBHOOKS: ResourceConfig = {
+export const WEBHOOKS: ResourceConfig<WebhookEndpointDto> = {
   name: 'webhook',
   plural: 'webhooks',
   apiPath: '/api/v1/webhooks',
   columns: [
-    {key: 'id', header: 'ID'},
-    {key: 'url', header: 'URL'},
-    {key: 'enabled', header: 'ENABLED'},
-    {key: 'events', header: 'EVENTS'},
+    {header: 'ID', get: (r) => r.id ?? ''},
+    {header: 'URL', get: (r) => r.url ?? ''},
+    {header: 'ENABLED', get: (r) => String(r.enabled ?? '')},
+    {header: 'EVENTS', get: (r) => (r.subscribedEvents ?? []).join(', ')},
   ],
   createFlags: {
     url: Flags.string({description: desc('CreateWebhookEndpointRequest', 'url'), required: true}),
@@ -348,17 +356,16 @@ export const WEBHOOKS: ResourceConfig = {
   },
 }
 
-export const API_KEYS: ResourceConfig = {
+export const API_KEYS: ResourceConfig<ApiKeyDto> = {
   name: 'API key',
   plural: 'api-keys',
   apiPath: '/api/v1/api-keys',
   columns: [
-    {key: 'id', header: 'ID'},
-    {key: 'name', header: 'NAME'},
-    {key: 'prefix', header: 'PREFIX'},
-    {key: 'status', header: 'STATUS'},
-    {key: 'lastUsedAt', header: 'LAST USED'},
-    {key: 'createdAt', header: 'CREATED'},
+    {header: 'ID', get: (r) => String(r.id ?? '')},
+    {header: 'NAME', get: (r) => r.name ?? ''},
+    {header: 'KEY', get: (r) => r.key ?? ''},
+    {header: 'LAST USED', get: (r) => r.lastUsedAt ?? ''},
+    {header: 'CREATED', get: (r) => r.createdAt ?? ''},
   ],
   createFlags: {
     name: Flags.string({description: desc('CreateApiKeyRequest', 'name'), required: true}),
@@ -371,15 +378,15 @@ export const API_KEYS: ResourceConfig = {
   },
 }
 
-export const DEPENDENCIES: ResourceConfig = {
+export const DEPENDENCIES: ResourceConfig<ServiceSubscriptionDto> = {
   name: 'dependency',
   plural: 'dependencies',
   apiPath: '/api/v1/service-subscriptions',
   columns: [
-    {key: 'id', header: 'ID'},
-    {key: 'serviceName', header: 'SERVICE'},
-    {key: 'serviceSlug', header: 'SLUG'},
-    {key: 'alertSensitivity', header: 'SENSITIVITY'},
-    {key: 'status', header: 'STATUS'},
+    {header: 'ID', get: (r) => r.subscriptionId ?? ''},
+    {header: 'SERVICE', get: (r) => r.name ?? ''},
+    {header: 'SLUG', get: (r) => r.slug ?? ''},
+    {header: 'STATUS', get: (r) => r.overallStatus ?? ''},
+    {header: 'ENABLED', get: (r) => String(r.enabled ?? '')},
   ],
 }

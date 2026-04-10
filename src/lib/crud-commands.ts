@@ -6,12 +6,12 @@ import {ColumnDef} from './output.js'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFlag = any
 
-export interface ResourceConfig {
+export interface ResourceConfig<T = any> {
   name: string
   plural: string
   apiPath: string
   idField?: string
-  columns: ColumnDef[]
+  columns: ColumnDef<T>[]
   createFlags?: Record<string, AnyFlag>
   updateFlags?: Record<string, AnyFlag>
   bodyBuilder?: (flags: Record<string, unknown>) => Record<string, unknown>

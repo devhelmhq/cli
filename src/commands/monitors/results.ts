@@ -19,12 +19,12 @@ export default class MonitorsResults extends Command {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const items = (resp as any)?.data ?? resp
     display(this, items, flags.output, [
-      {key: 'id', header: 'ID'},
-      {key: 'status', header: 'STATUS'},
-      {key: 'responseTime', header: 'RESPONSE TIME'},
-      {key: 'statusCode', header: 'CODE'},
-      {key: 'region', header: 'REGION'},
-      {key: 'checkedAt', header: 'CHECKED AT'},
+      {header: 'ID', get: (r: Record<string, unknown>) => String(r.id ?? '')},
+      {header: 'STATUS', get: (r: Record<string, unknown>) => String(r.status ?? '')},
+      {header: 'RESPONSE TIME', get: (r: Record<string, unknown>) => String(r.responseTime ?? '')},
+      {header: 'CODE', get: (r: Record<string, unknown>) => String(r.statusCode ?? '')},
+      {header: 'REGION', get: (r: Record<string, unknown>) => String(r.region ?? '')},
+      {header: 'CHECKED AT', get: (r: Record<string, unknown>) => String(r.checkedAt ?? '')},
     ])
   }
 }

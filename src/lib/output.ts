@@ -3,11 +3,10 @@ import {stringify as yamlStringify} from 'yaml'
 
 export type OutputFormat = 'table' | 'json' | 'yaml'
 
-export interface ColumnDef {
-  key: string
+export interface ColumnDef<T = any> {
   header: string
+  get: (row: T) => string
   width?: number
-  get?: (row: Record<string, unknown>) => string
 }
 
 export function formatOutput(
@@ -35,9 +34,15 @@ function formatTable(data: unknown, columns?: ColumnDef[]): string {
   }
 
   if (!columns) {
-    columns = Object.keys(data[0] as object).map((key) => ({
-      key,
+    const keys = Object.keys(data[0] as object)
+    columns = keys.map((key) => ({
       header: key.toUpperCase(),
+      get: (row: Record<string, unknown>) => {
+        const val = row[key]
+        if (val === null || val === undefined) return ''
+        if (Array.isArray(val)) return val.join(', ')
+        return String(val)
+      },
     }))
   }
 
@@ -47,14 +52,7 @@ function formatTable(data: unknown, columns?: ColumnDef[]): string {
   })
 
   for (const row of data) {
-    const r = row as Record<string, unknown>
-    table.push(columns!.map((c) => {
-      if (c.get) return c.get(r)
-      const val = r[c.key]
-      if (val === null || val === undefined) return ''
-      if (Array.isArray(val)) return val.join(', ')
-      return String(val)
-    }))
+    table.push(columns!.map((c) => c.get(row)))
   }
 
   return table.toString()
