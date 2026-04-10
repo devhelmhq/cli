@@ -3,13 +3,13 @@ import {globalFlags, buildClient} from '../../lib/base-command.js'
 import {checkedFetch} from '../../lib/api-client.js'
 import {formatOutput, OutputFormat} from '../../lib/output.js'
 
-export default class AuthWhoami extends Command {
+export default class AuthMe extends Command {
   static description = 'Show current API key identity, organization, plan, and rate limits'
-  static examples = ['<%= config.bin %> auth whoami', '<%= config.bin %> auth whoami --output json']
+  static examples = ['<%= config.bin %> auth me', '<%= config.bin %> auth me --output json']
   static flags = {...globalFlags}
 
   async run() {
-    const {flags} = await this.parse(AuthWhoami)
+    const {flags} = await this.parse(AuthMe)
     const client = buildClient(flags)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resp = await checkedFetch(client.GET('/api/v1/auth/me' as any, {} as any))
