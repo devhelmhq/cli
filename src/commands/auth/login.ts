@@ -6,7 +6,7 @@ import * as readline from 'node:readline'
 
 export default class AuthLogin extends Command {
   static description = 'Authenticate with the DevHelm API'
-  static examples = ['<%= config.bin %> auth login', '<%= config.bin %> auth login --token sk_live_...']
+  static examples = ['<%= config.bin %> auth login', '<%= config.bin %> auth login --token dh_live_...']
   static flags = {
     ...globalFlags,
     token: Flags.string({description: 'API token (skips interactive prompt)'}),
@@ -25,12 +25,18 @@ export default class AuthLogin extends Command {
     const client = createApiClient({baseUrl: apiUrl, token})
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const me = await checkedFetch(client.GET('/platform/me' as any, {} as any))
+      const resp = await checkedFetch(client.GET('/api/v1/auth/me' as any, {} as any))
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const email = (me as any)?.data?.email ?? (me as any)?.email
+      const me = (resp as any)?.data ?? resp
+
       saveContext({name: flags.name, apiUrl, token}, true)
-      this.log(`\nAuthenticated as ${email}`)
-      this.log(`Context '${flags.name}' saved to ~/.devhelm/contexts.json`)
+      this.log('')
+      this.log(`  Authenticated successfully.`)
+      this.log(`  Organization: ${me.organization?.name ?? 'unknown'} (ID: ${me.organization?.id ?? '?'})`)
+      this.log(`  Key:          ${me.key?.name ?? 'unknown'}`)
+      this.log(`  Plan:         ${me.plan?.tier ?? 'unknown'}`)
+      this.log('')
+      this.log(`  Context '${flags.name}' saved to ~/.devhelm/contexts.json`)
     } catch {
       this.error('Invalid token. Authentication failed.', {exit: 2})
     }
