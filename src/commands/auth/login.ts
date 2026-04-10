@@ -23,6 +23,9 @@ export default class AuthLogin extends Command {
     const apiUrl = flags['api-url'] || resolveApiUrl()
     this.log('Validating token...')
     const client = createApiClient({baseUrl: apiUrl, token})
+
+    // Try /api/v1/auth/me first (API key — returns rich identity info).
+    // Falls back to /api/v1/dashboard/overview for non-API-key tokens (dev tokens, JWTs).
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resp = await checkedFetch(client.GET('/api/v1/auth/me' as any, {} as any))
@@ -36,6 +39,18 @@ export default class AuthLogin extends Command {
       this.log(`  Key:          ${me.key?.name ?? 'unknown'}`)
       this.log(`  Plan:         ${me.plan?.tier ?? 'unknown'}`)
       this.log('')
+      this.log(`  Context '${flags.name}' saved to ~/.devhelm/contexts.json`)
+      return
+    } catch {
+      // /auth/me failed — might be a non-API-key token; try basic validation
+    }
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await checkedFetch(client.GET('/api/v1/dashboard/overview' as any, {} as any))
+      saveContext({name: flags.name, apiUrl, token}, true)
+      this.log('')
+      this.log(`  Authenticated successfully.`)
       this.log(`  Context '${flags.name}' saved to ~/.devhelm/contexts.json`)
     } catch {
       this.error('Invalid token. Authentication failed.', {exit: 2})
