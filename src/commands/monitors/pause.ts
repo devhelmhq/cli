@@ -1,6 +1,6 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {checkedFetch} from '../../lib/api-client.js'
+import {checkedFetch, unwrap, type Schemas} from '../../lib/api-client.js'
 
 export default class MonitorsPause extends Command {
   static description = 'Pause a monitor'
@@ -11,10 +11,8 @@ export default class MonitorsPause extends Command {
   async run() {
     const {args, flags} = await this.parse(MonitorsPause)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.POST(`/api/v1/monitors/${args.id}/pause` as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const monitor = (resp as any)?.data ?? resp
+    const resp = await checkedFetch(client.POST('/api/v1/monitors/{id}/pause', {params: {path: {id: args.id}}}))
+    const monitor = unwrap<Schemas['MonitorDto']>(resp)
     this.log(`Monitor '${monitor.name}' paused.`)
   }
 }

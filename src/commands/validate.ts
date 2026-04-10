@@ -6,6 +6,7 @@ interface MonitorConfig {
   name?: string
   type?: string
   url?: string
+  frequency?: number
   interval?: number
 }
 
@@ -13,7 +14,7 @@ interface DevhelmConfig {
   monitors?: MonitorConfig[]
 }
 
-const VALID_TYPES = new Set(['HTTP', 'DNS', 'TCP', 'ICMP', 'HEARTBEAT'])
+const VALID_TYPES = new Set(['HTTP', 'DNS', 'TCP', 'ICMP', 'HEARTBEAT', 'MCP_SERVER'])
 
 export default class Validate extends Command {
   static description = 'Validate a devhelm.yml configuration file'
@@ -63,8 +64,9 @@ export default class Validate extends Command {
           errors.push(`${prefix}: "url" is required for ${m.type} monitors`)
         }
 
-        if (m.interval !== undefined && (typeof m.interval !== 'number' || m.interval < 10)) {
-          errors.push(`${prefix}: "interval" must be a number >= 10`)
+        const freq = m.frequency ?? m.interval
+        if (freq !== undefined && (typeof freq !== 'number' || freq < 10)) {
+          errors.push(`${prefix}: "frequency" must be a number >= 10`)
         }
       }
     }

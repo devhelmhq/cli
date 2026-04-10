@@ -11,8 +11,10 @@ export default class NotificationPoliciesTest extends Command {
   async run() {
     const {args, flags} = await this.parse(NotificationPoliciesTest)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await checkedFetch(client.POST(`/api/v1/notification-policies/${args.id}/test` as any, {} as any))
+    await checkedFetch(client.POST('/api/v1/notification-policies/{id}/test', {
+      params: {path: {id: args.id}},
+      body: {},
+    }))
     this.log('Test dispatch sent.')
   }
 }

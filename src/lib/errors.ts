@@ -1,5 +1,3 @@
-import {ApiRequestError} from './api-client.js'
-
 export const EXIT_CODES = {
   SUCCESS: 0,
   GENERAL: 1,
@@ -40,18 +38,28 @@ export class NotFoundError extends DevhelmError {
   }
 }
 
+/**
+ * Converts raw API errors into structured DevhelmError with proper exit codes.
+ * Imported by checkedFetch in api-client.ts — this is the single error-handling boundary.
+ */
 export function handleApiError(error: unknown): never {
-  if (error instanceof ApiRequestError) {
-    if (error.status === 401 || error.status === 403) {
-      throw new AuthError(`Authentication failed: ${error.message}`)
+  // Avoid circular import: check by name rather than instanceof
+  if (error && typeof error === 'object' && 'status' in error) {
+    const apiErr = error as {status: number; message: string}
+    if (apiErr.status === 401 || apiErr.status === 403) {
+      throw new AuthError(`Authentication failed: ${apiErr.message}`)
     }
 
-    if (error.status === 404) {
-      throw new DevhelmError(error.message, EXIT_CODES.NOT_FOUND)
+    if (apiErr.status === 404) {
+      throw new DevhelmError(apiErr.message, EXIT_CODES.NOT_FOUND)
     }
 
-    throw new DevhelmError(error.message, EXIT_CODES.API)
+    throw new DevhelmError(apiErr.message, EXIT_CODES.API)
   }
 
-  throw error
+  if (error instanceof Error) {
+    throw new DevhelmError(error.message, EXIT_CODES.GENERAL)
+  }
+
+  throw new DevhelmError(String(error), EXIT_CODES.GENERAL)
 }

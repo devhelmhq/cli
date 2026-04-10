@@ -2523,6 +2523,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current API key identity
+         * @description Returns the authenticated API key's metadata, organization, billing plan, entitlements with usage, and current rate-limit quota. Only available for API key authentication (Bearer dh_live_...).
+         */
+        get: operations["me_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/audit-log": {
         parameters: {
             query?: never;
@@ -2648,32 +2668,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        Actor: Record<string, never>;
-        ApiKey: components["schemas"]["Actor"] & {
-            /** Format: int32 */
-            orgId?: number;
-            /** Format: int32 */
-            keyId?: number;
-        };
-        Internal: components["schemas"]["Actor"];
-        OrgContext: {
-            /** Format: int32 */
-            id?: number;
-            /** @enum {string} */
-            role?: "OWNER" | "ADMIN" | "MEMBER";
-        };
-        UI: components["schemas"]["Actor"] & {
-            userContext?: components["schemas"]["UserContext"];
-            orgContext?: components["schemas"]["OrgContext"];
-            /** Format: int32 */
-            workspaceId?: number | null;
-        };
-        UserContext: {
-            /** Format: int32 */
-            id?: number;
-            /** @enum {string} */
-            role?: "SUPERADMIN" | "ADMIN" | "USER";
-        };
         CreateSubscriptionRequest: {
             /** Format: int32 */
             priceId?: number;
@@ -5882,6 +5876,94 @@ export interface components {
             hasNext?: boolean;
             hasPrev?: boolean;
         };
+        /** @description Identity, organization, plan, and rate-limit info for the authenticated API key */
+        AuthMeResponse: {
+            key?: components["schemas"]["KeyInfo"];
+            organization?: components["schemas"]["OrgInfo"];
+            plan?: components["schemas"]["PlanInfo"];
+            rateLimits?: components["schemas"]["RateLimitInfo"];
+        };
+        /** @description API key metadata */
+        KeyInfo: {
+            /**
+             * Format: int32
+             * @description Key ID
+             */
+            id?: number;
+            /** @description Human-readable key name */
+            name?: string;
+            /**
+             * Format: date-time
+             * @description When the key was created
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description When the key expires (null = never)
+             */
+            expiresAt?: string | null;
+            /**
+             * Format: date-time
+             * @description Last time the key was used
+             */
+            lastUsedAt?: string | null;
+        };
+        /** @description Organization the key belongs to */
+        OrgInfo: {
+            /**
+             * Format: int32
+             * @description Organization ID
+             */
+            id?: number;
+            /** @description Organization name */
+            name?: string;
+        };
+        /** @description Billing plan and entitlement state */
+        PlanInfo: {
+            /**
+             * @description Resolved plan tier
+             * @enum {string}
+             */
+            tier?: "FREE" | "STARTER" | "PRO" | "TEAM" | "BUSINESS" | "ENTERPRISE";
+            /** @description Subscription status (null if no subscription) */
+            subscriptionStatus?: string | null;
+            /** @description Whether the org is on a trial */
+            trialActive?: boolean;
+            /**
+             * Format: date-time
+             * @description Trial expiry (null if not trialing)
+             */
+            trialExpiresAt?: string | null;
+            /** @description Entitlement limits keyed by entitlement name */
+            entitlements?: {
+                [key: string]: components["schemas"]["EntitlementDto"];
+            };
+            /** @description Current usage counters keyed by entitlement name */
+            usage?: {
+                [key: string]: number;
+            };
+        };
+        /** @description Rate-limit quota for the current sliding window */
+        RateLimitInfo: {
+            /**
+             * Format: int64
+             * @description Maximum requests allowed per window
+             */
+            requestsPerMinute?: number;
+            /**
+             * Format: int64
+             * @description Requests remaining in the current window
+             */
+            remaining?: number;
+            /**
+             * Format: int64
+             * @description Sliding window size in milliseconds
+             */
+            windowMs?: number;
+        };
+        SingleValueResponseAuthMeResponse: {
+            data?: components["schemas"]["AuthMeResponse"];
+        };
         AuditEventDto: {
             /** Format: int64 */
             id?: number;
@@ -5997,9 +6079,7 @@ export type $defs = Record<string, never>;
 export interface operations {
     updateSubscription: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -6026,9 +6106,7 @@ export interface operations {
     };
     updateOrgDetails: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -6054,9 +6132,7 @@ export interface operations {
     };
     advanceStage: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -6080,9 +6156,7 @@ export interface operations {
     };
     me: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -6102,9 +6176,7 @@ export interface operations {
     };
     updateProfile: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -6128,9 +6200,7 @@ export interface operations {
     };
     getNotificationPreferences: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -6150,9 +6220,7 @@ export interface operations {
     };
     updateNotificationPreferences: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -6176,9 +6244,7 @@ export interface operations {
     };
     getWorkspace: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 workspaceId: number;
@@ -6200,9 +6266,7 @@ export interface operations {
     };
     updateWorkspace: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 workspaceId: number;
@@ -6228,9 +6292,7 @@ export interface operations {
     };
     deleteWorkspace: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 workspaceId: number;
@@ -6250,9 +6312,7 @@ export interface operations {
     };
     updateUser: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 userId: number;
@@ -6278,9 +6338,7 @@ export interface operations {
     };
     updateOrganization: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -6306,9 +6364,7 @@ export interface operations {
     };
     updateMemberRole: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -6333,9 +6389,7 @@ export interface operations {
     };
     get: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 workspaceId: number;
@@ -6357,9 +6411,7 @@ export interface operations {
     };
     update: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 workspaceId: number;
@@ -6385,9 +6437,7 @@ export interface operations {
     };
     delete: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 workspaceId: number;
@@ -6407,9 +6457,7 @@ export interface operations {
     };
     get_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6431,9 +6479,7 @@ export interface operations {
     };
     update_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6459,9 +6505,7 @@ export interface operations {
     };
     delete_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6481,9 +6525,7 @@ export interface operations {
     };
     update_2: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6509,9 +6551,7 @@ export interface operations {
     };
     delete_2: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6531,9 +6571,7 @@ export interface operations {
     };
     update_3: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 key: string;
@@ -6559,9 +6597,7 @@ export interface operations {
     };
     delete_3: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 key: string;
@@ -6581,8 +6617,7 @@ export interface operations {
     };
     get_2: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
+            query?: {
                 includeMetrics?: boolean;
             };
             header?: never;
@@ -6606,9 +6641,7 @@ export interface operations {
     };
     update_4: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6634,9 +6667,7 @@ export interface operations {
     };
     delete_4: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6656,9 +6687,7 @@ export interface operations {
     };
     get_3: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -6678,9 +6707,7 @@ export interface operations {
     };
     update_5: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -6704,9 +6731,7 @@ export interface operations {
     };
     markRead: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: number;
@@ -6726,9 +6751,7 @@ export interface operations {
     };
     markAllRead: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -6746,9 +6769,7 @@ export interface operations {
     };
     getById: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6770,9 +6791,7 @@ export interface operations {
     };
     update_6: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6798,9 +6817,7 @@ export interface operations {
     };
     delete_5: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6820,9 +6837,7 @@ export interface operations {
     };
     get_4: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 /** @description Monitor UUID */
@@ -6854,9 +6869,7 @@ export interface operations {
     };
     update_7: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 /** @description Monitor UUID */
@@ -6901,9 +6914,7 @@ export interface operations {
     };
     update_8: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 monitorId: string;
@@ -6929,9 +6940,7 @@ export interface operations {
     };
     set: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 monitorId: string;
@@ -6957,9 +6966,7 @@ export interface operations {
     };
     remove: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 monitorId: string;
@@ -6979,9 +6986,7 @@ export interface operations {
     };
     update_9: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 monitorId: string;
@@ -7008,9 +7013,7 @@ export interface operations {
     };
     remove_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 monitorId: string;
@@ -7031,9 +7034,7 @@ export interface operations {
     };
     setChannels: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 monitorId: string;
@@ -7059,9 +7060,7 @@ export interface operations {
     };
     get_5: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -7083,9 +7082,7 @@ export interface operations {
     };
     update_10: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -7111,9 +7108,7 @@ export interface operations {
     };
     delete_6: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -7133,9 +7128,7 @@ export interface operations {
     };
     changeStatus: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 userId: number;
@@ -7159,9 +7152,7 @@ export interface operations {
     };
     changeRole: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 userId: number;
@@ -7185,9 +7176,7 @@ export interface operations {
     };
     getById_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -7209,9 +7198,7 @@ export interface operations {
     };
     update_11: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -7237,9 +7224,7 @@ export interface operations {
     };
     delete_7: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -7259,9 +7244,7 @@ export interface operations {
     };
     get_6: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 slug: string;
@@ -7283,9 +7266,7 @@ export interface operations {
     };
     update_12: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 slug: string;
@@ -7311,9 +7292,7 @@ export interface operations {
     };
     delete_8: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 slug: string;
@@ -7333,9 +7312,7 @@ export interface operations {
     };
     update_13: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -7361,9 +7338,7 @@ export interface operations {
     };
     delete_9: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -7657,8 +7632,7 @@ export interface operations {
     };
     create_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
+            query?: {
                 ifNotExists?: boolean;
             };
             header?: never;
@@ -7684,8 +7658,7 @@ export interface operations {
     };
     list: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
+            query?: {
                 limit?: number;
             };
             header?: never;
@@ -7709,9 +7682,7 @@ export interface operations {
     };
     createSubscriptionTransaction: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -7737,9 +7708,7 @@ export interface operations {
     };
     quickMonitor: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -7763,9 +7732,7 @@ export interface operations {
     };
     completeSetup: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -7789,9 +7756,7 @@ export interface operations {
     };
     analyzeUrl: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -7815,9 +7780,7 @@ export interface operations {
     };
     accept: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -7866,7 +7829,6 @@ export interface operations {
     listWorkspaces: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -7890,9 +7852,7 @@ export interface operations {
     };
     createWorkspace: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -7918,9 +7878,7 @@ export interface operations {
     };
     listMembers: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -7942,9 +7900,7 @@ export interface operations {
     };
     addMember: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -7970,9 +7926,7 @@ export interface operations {
     };
     reEnableAdapter: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 serviceId: string;
@@ -7995,7 +7949,6 @@ export interface operations {
     list_1: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -8017,9 +7970,7 @@ export interface operations {
     };
     create_2: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8044,7 +7995,6 @@ export interface operations {
     list_2: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -8066,9 +8016,7 @@ export interface operations {
     };
     create_3: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8092,9 +8040,7 @@ export interface operations {
     };
     test: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8120,9 +8066,7 @@ export interface operations {
     };
     rotateSigningSecret: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8142,9 +8086,7 @@ export interface operations {
     };
     rotateDek: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8165,7 +8107,6 @@ export interface operations {
     list_3: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -8187,9 +8128,7 @@ export interface operations {
     };
     create_4: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8213,9 +8152,7 @@ export interface operations {
     };
     subscribe: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 slug: string;
@@ -8241,9 +8178,7 @@ export interface operations {
     };
     list_4: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8263,9 +8198,7 @@ export interface operations {
     };
     create_5: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8289,9 +8222,7 @@ export interface operations {
     };
     list_5: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8311,9 +8242,7 @@ export interface operations {
     };
     create_6: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8337,9 +8266,7 @@ export interface operations {
     };
     addMember_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8365,9 +8292,7 @@ export interface operations {
     };
     list_6: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8387,9 +8312,7 @@ export interface operations {
     };
     create_7: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8413,9 +8336,7 @@ export interface operations {
     };
     test_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8441,9 +8362,7 @@ export interface operations {
     };
     acknowledge: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8466,7 +8385,6 @@ export interface operations {
     list_7: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 /** @description Filter by enabled state */
                 enabled?: boolean;
                 /** @description Filter by monitor type */
@@ -8500,9 +8418,7 @@ export interface operations {
     };
     create_8: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8526,9 +8442,7 @@ export interface operations {
     };
     add: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 monitorId: string;
@@ -8554,9 +8468,7 @@ export interface operations {
     };
     testExisting: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8578,9 +8490,7 @@ export interface operations {
     };
     getMonitorTags: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8602,9 +8512,7 @@ export interface operations {
     };
     addMonitorTags: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8630,9 +8538,7 @@ export interface operations {
     };
     removeMonitorTags: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8656,9 +8562,7 @@ export interface operations {
     };
     rotateToken: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8680,9 +8584,7 @@ export interface operations {
     };
     resume: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8704,9 +8606,7 @@ export interface operations {
     };
     pause: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -8728,9 +8628,7 @@ export interface operations {
     };
     testAdHoc: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8754,9 +8652,7 @@ export interface operations {
     };
     bulkAction: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8780,8 +8676,7 @@ export interface operations {
     };
     list_8: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
+            query?: {
                 /** @description Filter by monitor UUID */
                 monitorId?: string;
                 /** @description Filter by status: 'active' or 'upcoming' */
@@ -8806,9 +8701,7 @@ export interface operations {
     };
     create_9: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8832,9 +8725,7 @@ export interface operations {
     };
     list_9: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8854,9 +8745,7 @@ export interface operations {
     };
     create_10: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8880,9 +8769,7 @@ export interface operations {
     };
     revoke: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 inviteId: number;
@@ -8902,9 +8789,7 @@ export interface operations {
     };
     resend: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 inviteId: number;
@@ -8927,7 +8812,6 @@ export interface operations {
     list_10: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 params: components["schemas"]["IncidentFilterParams"];
             };
             header?: never;
@@ -8949,9 +8833,7 @@ export interface operations {
     };
     create_11: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8975,9 +8857,7 @@ export interface operations {
     };
     addUpdate: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -9003,9 +8883,7 @@ export interface operations {
     };
     resolve: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -9087,9 +8965,7 @@ export interface operations {
     };
     list_11: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9109,9 +8985,7 @@ export interface operations {
     };
     create_12: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9135,9 +9009,7 @@ export interface operations {
     };
     list_12: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9157,9 +9029,7 @@ export interface operations {
     };
     create_13: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9183,9 +9053,7 @@ export interface operations {
     };
     revoke_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: number;
@@ -9207,9 +9075,7 @@ export interface operations {
     };
     regenerate: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: number;
@@ -9231,9 +9097,7 @@ export interface operations {
     };
     retry: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -9256,7 +9120,6 @@ export interface operations {
     list_13: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -9278,9 +9141,7 @@ export interface operations {
     };
     create_14: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9304,9 +9165,7 @@ export interface operations {
     };
     test_2: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -9328,9 +9187,7 @@ export interface operations {
     };
     testConfig: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9381,9 +9238,7 @@ export interface operations {
     };
     updateAlertSensitivity: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -9409,9 +9264,7 @@ export interface operations {
     };
     delete_10: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: number;
@@ -9431,9 +9284,7 @@ export interface operations {
     };
     update_14: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: number;
@@ -9653,9 +9504,7 @@ export interface operations {
     };
     listActive: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -9677,9 +9526,7 @@ export interface operations {
     };
     cancel: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -9700,7 +9547,6 @@ export interface operations {
     getUpcomingCharge: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 priceId: number;
             };
             header?: never;
@@ -9724,9 +9570,7 @@ export interface operations {
     };
     getManagementUrls: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -9748,9 +9592,7 @@ export interface operations {
     };
     getCustomerAuthToken: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -9772,9 +9614,7 @@ export interface operations {
     };
     getEntitlements: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -9797,7 +9637,6 @@ export interface operations {
     searchOrganizations: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 query: string;
                 paginationParams: components["schemas"]["PaginationParams"];
             };
@@ -9820,9 +9659,7 @@ export interface operations {
     };
     myOrgs: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9842,9 +9679,7 @@ export interface operations {
     };
     stream: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9865,7 +9700,6 @@ export interface operations {
     listUsers: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -9887,9 +9721,7 @@ export interface operations {
     };
     getStats: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9910,7 +9742,6 @@ export interface operations {
     listOrgs: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -9932,9 +9763,7 @@ export interface operations {
     };
     getAdapterHealth: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -9954,8 +9783,7 @@ export interface operations {
     };
     listDeliveries: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
+            query?: {
                 limit?: number;
             };
             header?: never;
@@ -9979,9 +9807,7 @@ export interface operations {
     };
     getSigningSecretInfo: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -10271,9 +10097,7 @@ export interface operations {
     };
     list_14: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -10293,9 +10117,7 @@ export interface operations {
     };
     get_8: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -10317,9 +10139,7 @@ export interface operations {
     };
     unsubscribe: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -10339,9 +10159,7 @@ export interface operations {
     };
     getHealth: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -10363,8 +10181,7 @@ export interface operations {
     };
     list_15: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
+            query?: {
                 unreadOnly?: boolean;
                 page?: number;
                 size?: number;
@@ -10388,9 +10205,7 @@ export interface operations {
     };
     unreadCount: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -10410,9 +10225,7 @@ export interface operations {
     };
     listDispatches: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -10435,7 +10248,6 @@ export interface operations {
     listByIncident: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 /** @description UUID of the incident to inspect */
                 incident_id: string;
             };
@@ -10458,9 +10270,7 @@ export interface operations {
     };
     getById_2: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -10483,7 +10293,6 @@ export interface operations {
     listVersions: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -10507,9 +10316,7 @@ export interface operations {
     };
     getVersion: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -10532,8 +10339,7 @@ export interface operations {
     };
     getUptime: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
+            query?: {
                 /** @description Time window for uptime calculation */
                 window?: "24h" | "7d" | "30d" | "90d";
             };
@@ -10585,8 +10391,7 @@ export interface operations {
     };
     getResults: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
+            query?: {
                 /** @description Start of time range (ISO 8601, inclusive); defaults to 24 hours ago */
                 from?: string;
                 /** @description End of time range (ISO 8601, inclusive); defaults to now */
@@ -10651,8 +10456,7 @@ export interface operations {
     };
     getSummary: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
+            query?: {
                 /** @description Chart window: 24h returns hourly buckets, 7d/30d/90d return daily buckets */
                 chartWindow?: "24h" | "7d" | "30d" | "90d";
             };
@@ -10705,7 +10509,6 @@ export interface operations {
     list_16: {
         parameters: {
             query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -10747,9 +10550,7 @@ export interface operations {
     };
     get_9: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -10771,9 +10572,7 @@ export interface operations {
     };
     overview: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -10811,10 +10610,29 @@ export interface operations {
             };
         };
     };
+    me_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseAuthMeResponse"];
+                };
+            };
+        };
+    };
     list_18: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
+            query?: {
                 action?: string;
                 actorId?: number;
                 resourceType?: string;
@@ -10842,9 +10660,7 @@ export interface operations {
     };
     listAttempts: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -10866,9 +10682,7 @@ export interface operations {
     };
     listDeliveries_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -10890,9 +10704,7 @@ export interface operations {
     };
     delete_11: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -10912,9 +10724,7 @@ export interface operations {
     };
     removeMember: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 orgId: number;
@@ -10935,9 +10745,7 @@ export interface operations {
     };
     removeMember_1: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -10958,9 +10766,7 @@ export interface operations {
     };
     remove_2: {
         parameters: {
-            query: {
-                actor: components["schemas"]["ApiKey"] | components["schemas"]["Internal"] | components["schemas"]["UI"];
-            };
+            query?: never;
             header?: never;
             path: {
                 userId: number;

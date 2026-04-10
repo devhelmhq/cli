@@ -8,7 +8,7 @@ monitors:
   - name: Website Health Check
     type: HTTP
     url: https://example.com
-    interval: 60
+    frequency: 60
     regions:
       - us-east-1
       - eu-west-1
@@ -26,17 +26,17 @@ monitors:
   #   type: HTTP
   #   url: https://api.example.com/health
   #   method: GET
-  #   interval: 30
+  #   frequency: 30
   #   timeout: 10000
 
   # - name: DNS Check
   #   type: DNS
   #   url: example.com
-  #   interval: 300
+  #   frequency: 300
 
   # - name: Heartbeat
   #   type: HEARTBEAT
-  #   interval: 120
+  #   frequency: 120
   #   grace: 300
 `
 

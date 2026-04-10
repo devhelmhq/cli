@@ -1,7 +1,9 @@
 import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {checkedFetch} from '../../lib/api-client.js'
-import {formatOutput, OutputFormat} from '../../lib/output.js'
+import {checkedFetch, unwrap, type Schemas} from '../../lib/api-client.js'
+import {formatOutput, type OutputFormat} from '../../lib/output.js'
+
+type AuthMeResponse = Schemas['AuthMeResponse']
 
 export default class AuthMe extends Command {
   static description = 'Show current API key identity, organization, plan, and rate limits'
@@ -11,10 +13,8 @@ export default class AuthMe extends Command {
   async run() {
     const {flags} = await this.parse(AuthMe)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.GET('/api/v1/auth/me' as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const me = (resp as any)?.data ?? resp
+    const resp = await checkedFetch(client.GET('/api/v1/auth/me'))
+    const me = unwrap<AuthMeResponse>(resp)
 
     const format = flags.output as OutputFormat
     if (format === 'json' || format === 'yaml') {

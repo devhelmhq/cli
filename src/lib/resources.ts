@@ -30,7 +30,6 @@ type IncidentSeverity = Schemas['CreateManualIncidentRequest']['severity']
 type CreateMonitorRequest = Schemas['CreateMonitorRequest']
 type CreateManualIncidentRequest = Schemas['CreateManualIncidentRequest']
 type CreateAlertChannelRequest = Schemas['CreateAlertChannelRequest']
-type CreateNotificationPolicyRequest = Schemas['CreateNotificationPolicyRequest']
 type CreateApiKeyRequest = Schemas['CreateApiKeyRequest']
 
 const MONITOR_TYPES: MonitorType[] = ['HTTP', 'DNS', 'TCP', 'ICMP', 'HEARTBEAT', 'MCP_SERVER']
@@ -193,7 +192,11 @@ export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
   bodyBuilder: (raw): Record<string, unknown> => {
     let config: CreateAlertChannelRequest['config'] | undefined
     if (raw.config) {
-      config = JSON.parse(String(raw.config)) as CreateAlertChannelRequest['config']
+      try {
+        config = JSON.parse(String(raw.config)) as CreateAlertChannelRequest['config']
+      } catch {
+        throw new Error('Invalid JSON for --config flag. Expected valid JSON string.')
+      }
     } else {
       const typeKey = String(raw.type || 'SLACK').toUpperCase()
       const channelType = CHANNEL_TYPE_MAP[typeKey] ?? 'slack'
@@ -231,16 +234,14 @@ export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
     enabled: Flags.boolean({description: desc('UpdateNotificationPolicyRequest', 'enabled'), allowNo: true}),
   },
   bodyBuilder: (raw): Record<string, unknown> => {
-    const channelIds = raw['channel-ids']
-      ? String(raw['channel-ids']).split(',').map((s) => s.trim()).filter(Boolean)
-      : []
-    const body: CreateNotificationPolicyRequest = {
-      name: String(raw.name),
-      escalation: {steps: [{channelIds, delayMinutes: 0}]},
-      enabled: (raw.enabled as boolean) ?? true,
-      priority: 0,
+    const body: Record<string, unknown> = {}
+    if (raw.name !== undefined) body.name = String(raw.name)
+    if (raw.enabled !== undefined) body.enabled = raw.enabled
+    if (raw['channel-ids'] !== undefined) {
+      const channelIds = String(raw['channel-ids']).split(',').map((s) => s.trim()).filter(Boolean)
+      body.escalation = {steps: [{channelIds, delayMinutes: 0}]}
     }
-    return body as unknown as Record<string, unknown>
+    return body
   },
 }
 
@@ -258,7 +259,7 @@ export const ENVIRONMENTS: ResourceConfig<EnvironmentDto> = {
   createFlags: {
     name: Flags.string({description: desc('CreateEnvironmentRequest', 'name'), required: true}),
     slug: Flags.string({description: desc('CreateEnvironmentRequest', 'slug'), required: true}),
-    color: Flags.string({description: desc('CreateTagRequest', 'color', 'Color hex code')}),
+    color: Flags.string({description: desc('CreateEnvironmentRequest', 'color', 'Color hex code')}),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateEnvironmentRequest', 'name')}),

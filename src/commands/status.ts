@@ -1,7 +1,9 @@
 import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../lib/base-command.js'
-import {checkedFetch} from '../lib/api-client.js'
-import {formatOutput, OutputFormat} from '../lib/output.js'
+import {checkedFetch, unwrap, type Schemas} from '../lib/api-client.js'
+import {formatOutput, type OutputFormat} from '../lib/output.js'
+
+type DashboardOverview = Schemas['DashboardOverviewDto']
 
 export default class Status extends Command {
   static description = 'Show dashboard overview'
@@ -11,10 +13,8 @@ export default class Status extends Command {
   async run() {
     const {flags} = await this.parse(Status)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.GET('/api/v1/dashboard/overview' as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const overview = (resp as any)?.data ?? resp
+    const resp = await checkedFetch(client.GET('/api/v1/dashboard/overview'))
+    const overview = unwrap<DashboardOverview>(resp)
 
     const format = flags.output as OutputFormat
     if (format === 'json' || format === 'yaml') {

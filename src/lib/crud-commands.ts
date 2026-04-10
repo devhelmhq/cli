@@ -1,12 +1,12 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient, display} from './base-command.js'
-import {checkedFetch} from './api-client.js'
-import {ColumnDef} from './output.js'
+import {checkedFetch, unwrap} from './api-client.js'
+import type {ColumnDef} from './output.js'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFlag = any
 
-export interface ResourceConfig<T = any> {
+export interface ResourceConfig<T = unknown> {
   name: string
   plural: string
   apiPath: string
@@ -17,7 +17,15 @@ export interface ResourceConfig<T = any> {
   bodyBuilder?: (flags: Record<string, unknown>) => Record<string, unknown>
 }
 
-export function createListCommand(config: ResourceConfig) {
+/*
+ * The CRUD factory uses dynamic path construction (config.apiPath + id interpolation),
+ * which can't be statically verified against the openapi-fetch `paths` type.
+ * The `as any` here is intentional and confined to this single file.
+ * Response typing flows through ResourceConfig<T> generics and ColumnDef<T>.
+ */
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createListCommand(config: ResourceConfig<any>) {
   class ListCmd extends Command {
     static description = `List all ${config.plural}`
     static examples = [`<%= config.bin %> ${config.plural} list`]
@@ -28,16 +36,15 @@ export function createListCommand(config: ResourceConfig) {
       const client = buildClient(flags)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resp = await checkedFetch(client.GET(config.apiPath as any, {} as any))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const items = (resp as any)?.data ?? resp
-      display(this, items, flags.output, config.columns)
+      display(this, unwrap(resp), flags.output, config.columns)
     }
   }
 
   return ListCmd
 }
 
-export function createGetCommand(config: ResourceConfig) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createGetCommand(config: ResourceConfig<any>) {
   const idLabel = config.idField ?? 'id'
   class GetCmd extends Command {
     static description = `Get a ${config.name} by ${idLabel}`
@@ -51,16 +58,15 @@ export function createGetCommand(config: ResourceConfig) {
       const id = args[idLabel]
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resp = await checkedFetch(client.GET(`${config.apiPath}/${id}` as any, {} as any))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const item = (resp as any)?.data ?? resp
-      display(this, item, flags.output)
+      display(this, unwrap(resp), flags.output)
     }
   }
 
   return GetCmd
 }
 
-export function createCreateCommand(config: ResourceConfig) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createCreateCommand(config: ResourceConfig<any>) {
   const resourceFlags = config.createFlags ?? {}
   class CreateCmd extends Command {
     static description = `Create a new ${config.name}`
@@ -73,17 +79,16 @@ export function createCreateCommand(config: ResourceConfig) {
       const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
       const body = config.bodyBuilder ? config.bodyBuilder(raw) : raw
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const resp = await checkedFetch(client.POST(config.apiPath as any, {body: body as any}))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const item = (resp as any)?.data ?? resp
-      display(this, item, flags.output)
+      const resp = await checkedFetch(client.POST(config.apiPath as any, {body} as any))
+      display(this, unwrap(resp), flags.output)
     }
   }
 
   return CreateCmd
 }
 
-export function createUpdateCommand(config: ResourceConfig) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createUpdateCommand(config: ResourceConfig<any>) {
   const idLabel = config.idField ?? 'id'
   const resourceFlags = config.updateFlags ?? config.createFlags ?? {}
   class UpdateCmd extends Command {
@@ -99,17 +104,16 @@ export function createUpdateCommand(config: ResourceConfig) {
       const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
       const body = config.bodyBuilder ? config.bodyBuilder(raw) : raw
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const resp = await checkedFetch(client.PUT(`${config.apiPath}/${id}` as any, {body: body as any}))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const item = (resp as any)?.data ?? resp
-      display(this, item, flags.output)
+      const resp = await checkedFetch(client.PUT(`${config.apiPath}/${id}` as any, {body} as any))
+      display(this, unwrap(resp), flags.output)
     }
   }
 
   return UpdateCmd
 }
 
-export function createDeleteCommand(config: ResourceConfig) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createDeleteCommand(config: ResourceConfig<any>) {
   const idLabel = config.idField ?? 'id'
   class DeleteCmd extends Command {
     static description = `Delete a ${config.name}`

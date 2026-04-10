@@ -1,7 +1,9 @@
 import createClient, {type Middleware} from 'openapi-fetch'
 import type {paths, components} from './api.generated.js'
+import {handleApiError} from './errors.js'
 
 export type {paths, components}
+export type Schemas = components['schemas']
 
 export class ApiRequestError extends Error {
   constructor(
@@ -24,23 +26,6 @@ export class ApiRequestError extends Error {
   }
 }
 
-// Backward-compatible wrapper types matching the API response shapes
-export interface TableResponse<T> {
-  data: T[]
-  hasNext?: boolean
-  hasPrev?: boolean
-}
-
-export interface CursorPage<T> {
-  data: T[]
-  hasNext?: boolean
-  hasPrev?: boolean
-}
-
-export interface SingleResponse<T> {
-  data: T
-}
-
 export function createApiClient(opts: {
   baseUrl: string
   token: string
@@ -48,14 +33,19 @@ export function createApiClient(opts: {
   workspaceId?: string
   verbose?: boolean
 }) {
+  const orgId = opts.orgId ?? process.env.DEVHELM_ORG_ID
+  const workspaceId = opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID
+
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${opts.token}`,
+    'Content-Type': 'application/json',
+  }
+  if (orgId) headers['x-phelm-org-id'] = orgId
+  if (workspaceId) headers['x-phelm-workspace-id'] = workspaceId
+
   const client = createClient<paths>({
     baseUrl: opts.baseUrl.replace(/\/$/, ''),
-    headers: {
-      Authorization: `Bearer ${opts.token}`,
-      'Content-Type': 'application/json',
-      'x-phelm-org-id': opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
-      'x-phelm-workspace-id': opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID ?? '1',
-    },
+    headers,
   })
 
   if (opts.verbose) {
@@ -74,15 +64,25 @@ export function createApiClient(opts: {
 export type ApiClient = ReturnType<typeof createApiClient>
 
 /**
- * Unwrap an openapi-fetch response: returns `data` on success, throws `ApiRequestError` on failure.
- * Every client.GET / POST / PUT / DELETE call should be wrapped with this.
+ * Unwrap an openapi-fetch response: returns `data` on success, throws on failure.
+ * Routes API errors through handleApiError for structured exit codes.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function checkedFetch<T>(promise: Promise<{data?: T; error?: any; response: Response}>): Promise<T> {
+export async function checkedFetch<T>(promise: Promise<{data?: T; error?: unknown; response: Response}>): Promise<T> {
   const {data, error, response} = await promise
   if (error || !response.ok) {
     const body = typeof error === 'object' ? JSON.stringify(error) : String(error ?? 'Unknown error')
-    throw new ApiRequestError(response.status, response.statusText, body)
+    handleApiError(new ApiRequestError(response.status, response.statusText, body))
   }
   return data as T
+}
+
+/**
+ * Unwrap the `{ data: T }` envelope used by SingleValueResponse / TableValueResult.
+ * Returns the inner payload when present, or the full response if not wrapped.
+ */
+export function unwrap<T>(resp: unknown): T {
+  if (resp && typeof resp === 'object' && 'data' in resp) {
+    return (resp as {data: T}).data
+  }
+  return resp as T
 }

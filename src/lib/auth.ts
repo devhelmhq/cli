@@ -81,13 +81,17 @@ export function setCurrentContext(name: string): boolean {
 
 function readContextsFile(): ContextsFile | undefined {
   if (!existsSync(CONTEXTS_PATH)) return undefined
-  return JSON.parse(readFileSync(CONTEXTS_PATH, 'utf8'))
+  try {
+    return JSON.parse(readFileSync(CONTEXTS_PATH, 'utf8'))
+  } catch {
+    return undefined
+  }
 }
 
 function writeContextsFile(file: ContextsFile): void {
   if (!existsSync(CONFIG_DIR)) {
-    mkdirSync(CONFIG_DIR, {recursive: true})
+    mkdirSync(CONFIG_DIR, {recursive: true, mode: 0o700})
   }
 
-  writeFileSync(CONTEXTS_PATH, JSON.stringify(file, null, 2))
+  writeFileSync(CONTEXTS_PATH, JSON.stringify(file, null, 2), {mode: 0o600})
 }

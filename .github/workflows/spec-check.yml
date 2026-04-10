@@ -27,6 +27,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.MONOREPO_DISPATCH_TOKEN }}
 
+      - name: Validate spec is valid JSON
+        run: python3 -c "import json; json.load(open('docs/openapi/monitoring-api.json'))"
+
       - run: npm ci
       - run: npm run build
       - run: npm test
@@ -34,7 +37,7 @@ jobs:
       - name: Check for type changes
         id: diff
         run: |
-          if git diff --quiet src/lib/api.generated.ts docs/openapi/monitoring-api.json; then
+          if git diff --quiet src/lib/api.generated.ts src/lib/descriptions.generated.ts docs/openapi/monitoring-api.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -47,7 +50,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           branch="chore/update-api-types-$(date +%Y%m%d%H%M%S)"
           git checkout -b "$branch"
-          git add src/lib/api.generated.ts docs/openapi/monitoring-api.json
+          git add src/lib/api.generated.ts src/lib/descriptions.generated.ts docs/openapi/monitoring-api.json
           git commit -m "chore: update generated API types from latest spec"
           git push -u origin "$branch"
           gh pr create \

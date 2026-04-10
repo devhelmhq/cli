@@ -1,6 +1,6 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {checkedFetch} from '../../lib/api-client.js'
+import {checkedFetch, unwrap} from '../../lib/api-client.js'
 
 export default class AlertChannelsTest extends Command {
   static description = 'Send a test notification to an alert channel'
@@ -11,10 +11,8 @@ export default class AlertChannelsTest extends Command {
   async run() {
     const {args, flags} = await this.parse(AlertChannelsTest)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.POST(`/api/v1/alert-channels/${args.id}/test` as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = (resp as any)?.data ?? resp
-    this.log(result.success ? 'Test notification sent successfully.' : 'Test notification failed.')
+    const resp = await checkedFetch(client.POST('/api/v1/alert-channels/{id}/test', {params: {path: {id: args.id}}}))
+    const result = unwrap<{success?: boolean}>(resp)
+    this.log(result?.success ? 'Test notification sent successfully.' : 'Test notification failed.')
   }
 }
