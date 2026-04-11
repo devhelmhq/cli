@@ -16,7 +16,8 @@ const OUT_PATH = resolve(__dirname, '../src/lib/descriptions.generated.ts');
 const spec = JSON.parse(readFileSync(SPEC_PATH, 'utf8'));
 const schemas = spec.components?.schemas ?? {};
 
-// Schemas we care about for CLI flag descriptions
+// Schemas we care about for CLI flag descriptions.
+// Keep in sync with MUST_HAVE in tests/spec/test_openapi_descriptions.py (monorepo).
 const TARGET_SCHEMAS = [
   'CreateMonitorRequest', 'UpdateMonitorRequest',
   'CreateManualIncidentRequest',
@@ -29,6 +30,7 @@ const TARGET_SCHEMAS = [
   'CreateWebhookEndpointRequest', 'UpdateWebhookEndpointRequest',
   'CreateApiKeyRequest', 'UpdateApiKeyRequest',
   'ResolveIncidentRequest', 'MonitorTestRequest',
+  'AcquireDeployLockRequest',
   'HttpMonitorConfig', 'TcpMonitorConfig', 'DnsMonitorConfig',
   'IcmpMonitorConfig', 'HeartbeatMonitorConfig', 'McpServerMonitorConfig',
   'SlackChannelConfig', 'DiscordChannelConfig', 'EmailChannelConfig',

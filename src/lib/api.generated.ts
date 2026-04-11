@@ -2736,145 +2736,278 @@ export interface components {
             /** Format: int32 */
             priceId?: number;
         };
+        /** @description Associated billing plan; null when not requested */
         BillingPlanDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Unique billing plan identifier
+             */
             id?: number;
+            /** @description Paddle product identifier */
             paddleId?: string;
+            /** @description Billing plan display name */
             name?: string;
+            /** @description Plan description */
             description?: string | null;
+            /** @description Available prices for this plan; null when not requested */
             prices?: components["schemas"]["BillingPriceDto"][] | null;
         } | null;
+        /** @description Price details for this line item */
         BillingPriceDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Unique billing price identifier
+             */
             id?: number;
+            /** @description Paddle price identifier */
             paddleId?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Price amount in smallest currency unit (e.g. cents)
+             */
             amount?: number;
-            /** @enum {string} */
+            /**
+             * @description Billing interval (MONTH or YEAR)
+             * @enum {string}
+             */
             interval?: "DAY" | "WEEK" | "MONTH" | "YEAR";
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of intervals between billing cycles
+             */
             intervalCount?: number;
+            /** @description Price description */
             description?: string | null;
             billingPlan?: components["schemas"]["BillingPlanDto"];
         };
+        /** @description Line items included in this subscription */
         ItemDto: {
             billingPrice?: components["schemas"]["BillingPriceDto"];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Quantity of this price
+             */
             quantity?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Line item total in smallest currency unit
+             */
             amount?: number;
         };
         SingleValueResponseSubscriptionDto: {
             data?: components["schemas"]["SubscriptionDto"];
         };
+        /** @description Current billing subscription details */
         SubscriptionDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Internal subscription identifier
+             */
             id?: number;
+            /** @description Paddle subscription identifier */
             paddleId?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the subscription was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the subscription was last updated
+             */
             updatedAt?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization this subscription belongs to
+             */
             organizationId?: number;
-            /** @enum {string} */
+            /**
+             * @description Current subscription status
+             * @enum {string}
+             */
             status?: "ACTIVE" | "CANCELED" | "PAST_DUE" | "PAUSED" | "TRIALING";
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Next billing date; null when cancelled or expired
+             */
             nextBilledAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Scheduled cancellation date; null if no cancellation pending
+             */
             willCancelAt?: string | null;
+            /** @description Line items included in this subscription */
             items?: components["schemas"]["ItemDto"][];
         };
         UpdateOrgDetailsRequest: {
+            /** @description New organization name (max 200 chars) */
             name: string;
-            /** Format: email */
+            /**
+             * Format: email
+             * @description New billing and contact email address
+             */
             email: string;
+            /** @description Team size range (e.g. 1-10, 11-50) */
             size?: string;
+            /** @description Industry vertical (e.g. SaaS, Fintech) */
             industry?: string;
+            /** @description Organization website URL (max 255 chars) */
             websiteUrl?: string;
         };
+        /** @description Organization account details */
         OrganizationDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Unique organization identifier
+             */
             id?: number;
+            /** @description Organization name */
             name?: string;
+            /** @description Billing and contact email */
             email?: string | null;
+            /** @description Team size range (e.g. 1-10, 11-50) */
             size?: string | null;
+            /** @description Industry vertical (e.g. SaaS, Fintech) */
             industry?: string | null;
+            /** @description Organization website URL */
             websiteUrl?: string | null;
         };
         SingleValueResponseOrganizationDto: {
             data?: components["schemas"]["OrganizationDto"];
         };
+        /** @description Advance the user's onboarding stage */
         UpdateOnboardingStageRequest: {
-            /** @enum {string} */
+            /**
+             * @description New onboarding stage
+             * @enum {string}
+             */
             stage: "WELCOME" | "FIRST_MONITOR" | "SETUP_COMPLETE" | "COMPLETED";
         };
         SingleValueResponseUserDto: {
             data?: components["schemas"]["UserDto"];
         };
+        /** @description User account details */
         UserDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Unique user identifier
+             */
             id?: number;
+            /** @description User email address */
             email?: string;
+            /** @description Whether the email address has been verified */
             emailVerified?: boolean;
+            /** @description Display name; null if not set */
             name?: string | null;
-            /** @enum {string} */
+            /**
+             * @description Platform role: USER or SUPERADMIN
+             * @enum {string}
+             */
             userRole?: "SUPERADMIN" | "ADMIN" | "USER";
-            /** @enum {string|null} */
+            /**
+             * @description Current onboarding progress stage; null when completed
+             * @enum {string|null}
+             */
             onboardingStage?: "WELCOME" | "FIRST_MONITOR" | "SETUP_COMPLETE" | "COMPLETED" | null;
+            /** @description Profile image URL; null if not set */
             imageUrl?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the account was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the account was last updated
+             */
             updatedAt?: string;
         };
         UpdateProfileRequest: {
+            /** @description New display name (max 200 chars) */
             name?: string;
         };
+        /** @description Replace notification preferences for the current user */
         UpdateNotificationPreferencesRequest: {
+            /** @description Map of category keys to enabled/disabled flags */
             preferences: {
                 [key: string]: boolean;
             };
         };
+        /** @description User notification preferences keyed by notification category */
         NotificationPreferencesDto: {
+            /** @description Map of category keys to enabled/disabled flags */
             preferences?: {
                 [key: string]: boolean;
             };
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when preferences were last updated
+             */
             updatedAt?: string;
         };
         SingleValueResponseNotificationPreferencesDto: {
             data?: components["schemas"]["NotificationPreferencesDto"];
         };
+        /** @description Update workspace details */
         UpdateWorkspaceRequest: {
+            /** @description New workspace name */
             name: string;
         };
         SingleValueResponseWorkspaceDto: {
             data?: components["schemas"]["WorkspaceDto"];
         };
+        /** @description Workspace within an organization */
         WorkspaceDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Unique workspace identifier
+             */
             id?: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the workspace was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the workspace was last updated
+             */
             updatedAt?: string;
+            /** @description Workspace name */
             name?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization this workspace belongs to
+             */
             orgId?: number;
         };
         UpdateUserRequest: {
+            /** @description New display name (max 200 chars) */
             name?: string;
-            /** Format: email */
+            /**
+             * Format: email
+             * @description New email address
+             */
             email?: string;
-            /** @enum {string} */
+            /**
+             * @description New platform role
+             * @enum {string}
+             */
             userRole?: "SUPERADMIN" | "ADMIN" | "USER";
-            /** @enum {string} */
+            /**
+             * @description New onboarding stage
+             * @enum {string}
+             */
             onboardingStage?: "WELCOME" | "FIRST_MONITOR" | "SETUP_COMPLETE" | "COMPLETED";
+            /** @description New profile image URL (max 500 chars) */
             imageUrl?: string;
         };
+        /** @description Update an organization member's role */
         ChangeRoleRequest: {
-            /** @enum {string} */
+            /**
+             * @description New role to assign
+             * @enum {string}
+             */
             orgRole: "OWNER" | "ADMIN" | "MEMBER";
         };
         UpdateWebhookEndpointRequest: {
@@ -2890,21 +3023,42 @@ export interface components {
         SingleValueResponseWebhookEndpointDto: {
             data?: components["schemas"]["WebhookEndpointDto"];
         };
+        /** @description Webhook endpoint that receives event delivery payloads */
         WebhookEndpointDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique webhook endpoint identifier
+             */
             id?: string;
+            /** @description HTTPS endpoint URL that receives event payloads */
             url?: string;
+            /** @description Human-readable description of this endpoint */
             description?: string | null;
+            /** @description Event types this endpoint is subscribed to */
             subscribedEvents?: string[];
+            /** @description Whether delivery is enabled for this endpoint */
             enabled?: boolean;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of consecutive delivery failures
+             */
             consecutiveFailures?: number;
+            /** @description Reason the endpoint was auto-disabled */
             disabledReason?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the endpoint was auto-disabled
+             */
             disabledAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the endpoint was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the endpoint was last updated
+             */
             updatedAt?: string;
         };
         /** @description Request body for updating a tag; null fields are left unchanged */
@@ -2917,38 +3071,74 @@ export interface components {
         SingleValueResponseTagDto: {
             data?: components["schemas"]["TagDto"];
         };
+        /** @description Tag for organizing and filtering monitors */
         TagDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique tag identifier
+             */
             id?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization this tag belongs to
+             */
             organizationId?: number;
+            /** @description Tag name, unique within the org */
             name?: string;
+            /** @description Hex color code for display (e.g. #6B7280) */
             color?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the tag was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the tag was last updated
+             */
             updatedAt?: string;
         };
         UpdateSecretRequest: {
             /** @description New secret value, stored encrypted (max 32KB) */
             value: string;
         };
+        /** @description Monitors that reference this secret; null on create/update responses */
         MonitorReference: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Monitor identifier
+             */
             id?: string;
+            /** @description Monitor name */
             name?: string;
         };
+        /** @description Secret with change-detection hash; plaintext value is never returned */
         SecretDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique secret identifier
+             */
             id?: string;
+            /** @description Secret key name, unique within the workspace */
             key?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description DEK version at the time of last encryption
+             */
             dekVersion?: number;
+            /** @description SHA-256 hex digest of the current plaintext; use for change detection */
             valueHash?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the secret was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the secret was last updated
+             */
             updatedAt?: string;
+            /** @description Monitors that reference this secret; null on create/update responses */
             usedByMonitors?: components["schemas"]["MonitorReference"][] | null;
         };
         SingleValueResponseSecretDto: {
@@ -2956,10 +3146,17 @@ export interface components {
         };
         /** @description Default retry strategy for member monitors; null clears */
         RetryStrategy: {
+            /** @description Retry strategy kind, e.g. fixed interval between attempts */
             type: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum number of retries after a failed check
+             */
             maxRetries?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Delay between retry attempts in seconds
+             */
             interval?: number;
         };
         /** @description Request body for updating a resource group */
@@ -3010,12 +3207,21 @@ export interface components {
         };
         /** @description Resource group with health summary and optional member details */
         ResourceGroupDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique resource group identifier
+             */
             id?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization this group belongs to
+             */
             organizationId?: number;
+            /** @description Human-readable group name */
             name?: string;
+            /** @description URL-safe group identifier */
             slug?: string;
+            /** @description Optional group description */
             description?: string | null;
             /**
              * Format: uuid
@@ -3059,9 +3265,15 @@ export interface components {
             health?: components["schemas"]["ResourceGroupHealthDto"];
             /** @description Member list with individual statuses; populated on detail GET only */
             members?: components["schemas"]["ResourceGroupMemberDto"][] | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the group was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the group was last updated
+             */
             updatedAt?: string;
         };
         /** @description Aggregated health summary for a resource group */
@@ -3099,9 +3311,15 @@ export interface components {
         };
         /** @description A single member of a resource group with its computed health status */
         ResourceGroupMemberDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique group member record identifier
+             */
             id?: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Resource group this member belongs to
+             */
             groupId?: string;
             /** @description Type of member: 'monitor' or 'service' */
             memberType?: string;
@@ -3131,7 +3349,10 @@ export interface components {
             status?: "operational" | "maintenance" | "degraded" | "down";
             /** @description Effective check frequency label showing the group default when the monitor inherits it; null for services or when no group default is configured */
             effectiveFrequency?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the member was added to the group
+             */
             createdAt?: string;
             /**
              * Format: double
@@ -3219,9 +3440,15 @@ export interface components {
         };
         /** @description Org-level notification policy with match rules and escalation chain */
         NotificationPolicyDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique notification policy identifier
+             */
             id?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization this policy belongs to
+             */
             organizationId?: number;
             /** @description Human-readable name for this policy */
             name?: string;
@@ -3235,9 +3462,15 @@ export interface components {
              * @description Evaluation order; higher value = evaluated first
              */
             priority?: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the policy was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the policy was last updated
+             */
             updatedAt?: string;
         };
         SingleValueResponseNotificationPolicyDto: {
@@ -3245,26 +3478,47 @@ export interface components {
         };
         /** @description Multi-region confirmation settings */
         ConfirmationPolicy: {
-            /** @enum {string} */
+            /**
+             * @description How incident confirmation is coordinated across regions
+             * @enum {string}
+             */
             type: "multi_region";
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Minimum failing regions required to confirm an incident
+             */
             minRegionsFailing?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum seconds to wait for enough regions to fail after first trigger
+             */
             maxWaitSeconds?: number;
         };
         /** @description Incident detection, confirmation, and recovery policy for a monitor */
         IncidentPolicyDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique incident policy identifier
+             */
             id?: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Monitor this policy is attached to
+             */
             monitorId?: string;
             /** @description Array of trigger rules defining when an incident should be raised */
             triggerRules?: components["schemas"]["TriggerRule"][];
             confirmation?: components["schemas"]["ConfirmationPolicy"];
             recovery?: components["schemas"]["RecoveryPolicy"];
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the policy was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the policy was last updated
+             */
             updatedAt?: string;
             /**
              * Format: int32
@@ -3279,28 +3533,58 @@ export interface components {
         };
         /** @description Auto-recovery settings */
         RecoveryPolicy: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Consecutive passing checks required to auto-resolve the incident
+             */
             consecutiveSuccesses?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Minimum regions that must be passing before recovery can complete
+             */
             minRegionsPassing?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Minutes after resolve before a new incident may open on the same monitor
+             */
             cooldownMinutes?: number;
         };
         /** @description Array of trigger rules defining when an incident should be raised */
         TriggerRule: {
-            /** @enum {string} */
+            /**
+             * @description Condition that opens or escalates an incident from check results
+             * @enum {string}
+             */
             type: "consecutive_failures" | "failures_in_window" | "response_time";
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Failure count for consecutive or windowed failure rules
+             */
             count?: number | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Window length in minutes for failures-in-window rules
+             */
             windowMinutes?: number | null;
-            /** @enum {string|null} */
+            /**
+             * @description Whether the rule applies per region or across regions
+             * @enum {string|null}
+             */
             scope: "per_region" | "any_region" | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Response time threshold in milliseconds for response-time rules
+             */
             thresholdMs?: number | null;
-            /** @enum {string} */
+            /**
+             * @description Incident severity when this rule fires
+             * @enum {string}
+             */
             severity: "down" | "degraded";
-            /** @enum {string|null} */
+            /**
+             * @description How response times are aggregated for response-time rules
+             * @enum {string|null}
+             */
             aggregationType?: "all_exceed" | "average" | "p95" | "max" | null;
         };
         /** @description Request body for updating an incident policy */
@@ -3316,29 +3600,44 @@ export interface components {
         ApiKeyAuthConfig: {
             type: "ApiKeyAuthConfig";
         } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+            /** @description HTTP header name that carries the API key */
             headerName: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Vault secret ID for the API key value
+             */
             vaultSecretId?: string | null;
         });
         BasicAuthConfig: {
             type: "BasicAuthConfig";
         } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Vault secret ID holding Basic auth username and password
+             */
             vaultSecretId?: string | null;
         });
         BearerAuthConfig: {
             type: "BearerAuthConfig";
         } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Vault secret ID holding the bearer token value
+             */
             vaultSecretId?: string | null;
         });
         HeaderAuthConfig: {
             type: "HeaderAuthConfig";
         } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+            /** @description Custom HTTP header name for the secret value */
             headerName: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Vault secret ID for the header value
+             */
             vaultSecretId?: string | null;
         });
+        /** @description New authentication configuration (full replacement) */
         MonitorAuthConfig: {
             type: string;
         };
@@ -3357,48 +3656,64 @@ export interface components {
         SingleValueResponseMonitorAuthDto: {
             data?: components["schemas"]["MonitorAuthDto"];
         };
+        /** @description New assertion configuration (full replacement) */
         AssertionConfig: {
             type: string;
         };
         BodyContainsAssertion: {
             type: "BodyContainsAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Substring that must appear in the response body */
             substring: string;
         });
         DnsExpectedCnameAssertion: {
             type: "DnsExpectedCnameAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Expected CNAME target the resolution must include */
             value: string;
         });
         DnsExpectedIpsAssertion: {
             type: "DnsExpectedIpsAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Allowed IP addresses; at least one resolved address must match */
             ips: string[];
         });
         DnsMaxAnswersAssertion: {
             type: "DnsMaxAnswersAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description DNS record type whose answer count is checked */
             recordType: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum number of answers allowed for that record type
+             */
             max?: number;
         });
         DnsMinAnswersAssertion: {
             type: "DnsMinAnswersAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description DNS record type whose answer count is checked */
             recordType: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Minimum number of answers required for that record type
+             */
             min?: number;
         });
         DnsRecordContainsAssertion: {
             type: "DnsRecordContainsAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description DNS record type to assert on (A, AAAA, CNAME, MX, TXT) */
             recordType: string;
+            /** @description Substring that must appear in a matching record value */
             substring: string;
         });
         DnsRecordEqualsAssertion: {
             type: "DnsRecordEqualsAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description DNS record type to assert on (A, AAAA, CNAME, MX, TXT) */
             recordType: string;
+            /** @description Expected DNS record value for an exact match */
             value: string;
         });
         DnsResolvesAssertion: {
@@ -3407,56 +3722,82 @@ export interface components {
         DnsResponseTimeAssertion: {
             type: "DnsResponseTimeAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum allowed DNS resolution time in milliseconds
+             */
             maxMs?: number;
         });
         DnsResponseTimeWarnAssertion: {
             type: "DnsResponseTimeWarnAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description DNS resolution time in milliseconds that triggers a warning only
+             */
             warnMs?: number;
         });
         DnsTtlHighAssertion: {
             type: "DnsTtlHighAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum TTL in seconds before a high-TTL warning is raised
+             */
             maxTtl?: number;
         });
         DnsTtlLowAssertion: {
             type: "DnsTtlLowAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Minimum acceptable TTL in seconds before a warning is raised
+             */
             minTtl?: number;
         });
         DnsTxtContainsAssertion: {
             type: "DnsTxtContainsAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Substring that must appear in at least one TXT record */
             substring: string;
         });
         HeaderValueAssertion: {
             type: "HeaderValueAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description HTTP header name to assert on */
             headerName: string;
+            /** @description Expected value to compare against */
             expected: string;
-            /** @enum {string} */
+            /**
+             * @description Comparison operator (equals, contains, less_than, greater_than, etc.)
+             * @enum {string}
+             */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
         });
         HeartbeatIntervalDriftAssertion: {
             type: "HeartbeatIntervalDriftAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Max percent drift from expected ping interval before warning (non-fatal)
+             */
             maxDeviationPercent: number;
         });
         HeartbeatMaxIntervalAssertion: {
             type: "HeartbeatMaxIntervalAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum allowed gap in seconds between consecutive heartbeat pings
+             */
             maxSeconds: number;
         });
         HeartbeatPayloadContainsAssertion: {
             type: "HeartbeatPayloadContainsAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description JSONPath expression into the heartbeat ping JSON payload */
             path: string;
+            /** @description Expected value to compare against at that path */
             value: string;
         });
         HeartbeatReceivedAssertion: {
@@ -3465,7 +3806,10 @@ export interface components {
         IcmpPacketLossAssertion: {
             type: "IcmpPacketLossAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Maximum allowed packet loss percentage before the check fails (0–100)
+             */
             maxPercent?: number;
         });
         IcmpReachableAssertion: {
@@ -3474,21 +3818,32 @@ export interface components {
         IcmpResponseTimeAssertion: {
             type: "IcmpResponseTimeAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum average ICMP round-trip time in milliseconds
+             */
             maxMs?: number;
         });
         IcmpResponseTimeWarnAssertion: {
             type: "IcmpResponseTimeWarnAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description ICMP round-trip time in milliseconds that triggers a warning only
+             */
             warnMs?: number;
         });
         JsonPathAssertion: {
             type: "JsonPathAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description JSONPath expression to extract a value from the response body */
             path: string;
+            /** @description Expected value to compare against */
             expected: string;
-            /** @enum {string} */
+            /**
+             * @description Comparison operator (equals, contains, less_than, greater_than, etc.)
+             * @enum {string}
+             */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
         });
         McpConnectsAssertion: {
@@ -3497,89 +3852,128 @@ export interface components {
         McpHasCapabilityAssertion: {
             type: "McpHasCapabilityAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Capability name the server must advertise, e.g. tools or resources */
             capability: string;
         });
         McpMinToolsAssertion: {
             type: "McpMinToolsAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Minimum number of tools the server must expose
+             */
             min?: number;
         });
         McpProtocolVersionAssertion: {
             type: "McpProtocolVersionAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Expected MCP protocol version string from the server handshake */
             version: string;
         });
         McpResponseTimeAssertion: {
             type: "McpResponseTimeAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum allowed MCP check duration in milliseconds
+             */
             maxMs?: number;
         });
         McpResponseTimeWarnAssertion: {
             type: "McpResponseTimeWarnAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description MCP check duration in milliseconds that triggers a warning only
+             */
             warnMs?: number;
         });
         McpToolAvailableAssertion: {
             type: "McpToolAvailableAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description MCP tool name that must appear in the server's tool list */
             toolName: string;
         });
         McpToolCountChangedAssertion: {
             type: "McpToolCountChangedAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Expected tool count; warns when the live count differs
+             */
             expectedCount?: number;
         });
         RedirectCountAssertion: {
             type: "RedirectCountAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum number of HTTP redirects allowed before the check fails
+             */
             maxCount?: number;
         });
         RedirectTargetAssertion: {
             type: "RedirectTargetAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Expected final URL after following redirects */
             expected: string;
-            /** @enum {string} */
+            /**
+             * @description Comparison operator (equals, contains, less_than, greater_than, etc.)
+             * @enum {string}
+             */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
         });
         RegexBodyAssertion: {
             type: "RegexBodyAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Regular expression the response body must match */
             pattern: string;
         });
         ResponseSizeAssertion: {
             type: "ResponseSizeAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum response body size in bytes before the check fails
+             */
             maxBytes?: number;
         });
         ResponseTimeAssertion: {
             type: "ResponseTimeAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum allowed response time in milliseconds before the check fails
+             */
             thresholdMs?: number;
         });
         ResponseTimeWarnAssertion: {
             type: "ResponseTimeWarnAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description HTTP response time in milliseconds that triggers a warning only
+             */
             warnMs?: number;
         });
         SslExpiryAssertion: {
             type: "SslExpiryAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Minimum days before TLS certificate expiry; fails or warns below this threshold
+             */
             minDaysRemaining?: number;
         });
         StatusCodeAssertion: {
             type: "StatusCodeAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Expected status code, range pattern, or wildcard such as 2xx */
             expected: string;
-            /** @enum {string} */
+            /**
+             * @description Comparison operator (equals, contains, less_than, greater_than, etc.)
+             * @enum {string}
+             */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
         });
         TcpConnectsAssertion: {
@@ -3588,18 +3982,27 @@ export interface components {
         TcpResponseTimeAssertion: {
             type: "TcpResponseTimeAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Maximum TCP connect time in milliseconds before the check fails
+             */
             maxMs?: number;
         });
         TcpResponseTimeWarnAssertion: {
             type: "TcpResponseTimeWarnAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description TCP connect time in milliseconds that triggers a warning only
+             */
             warnMs?: number;
         });
         UpdateAssertionRequest: {
             config: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
-            /** @enum {string} */
+            /**
+             * @description New outcome severity: FAIL or WARN
+             * @enum {string}
+             */
             severity?: "fail" | "warn";
         };
         MonitorAssertionDto: {
@@ -3616,11 +4019,13 @@ export interface components {
         SingleValueResponseMonitorAssertionDto: {
             data?: components["schemas"]["MonitorAssertionDto"];
         };
+        /** @description Replace the alert channels linked to a monitor */
         SetAlertChannelsRequest: {
+            /** @description IDs of alert channels to link (replaces current list) */
             channelIds: string[];
         };
         SingleValueResponseListUUID: {
-            data?: string[];
+            data?: (string | null)[] | null;
         };
         /** @description Request body for adding tags to a monitor. Provide existing tag IDs, inline new tags, or both. */
         AddMonitorTagsRequest: {
@@ -3632,7 +4037,10 @@ export interface components {
         /** @description Replace all assertions; null preserves current */
         CreateAssertionRequest: {
             config: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
-            /** @enum {string} */
+            /**
+             * @description Outcome severity: FAIL (fails the check) or WARN (warns without failing)
+             * @enum {string}
+             */
             severity?: "fail" | "warn";
         };
         DnsMonitorConfig: components["schemas"]["MonitorConfig"] & {
@@ -3766,72 +4174,137 @@ export interface components {
             alertChannelIds?: (string | null)[] | null;
             tags?: components["schemas"]["AddMonitorTagsRequest"];
         };
+        /** @description Full monitor representation */
         MonitorDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique monitor identifier
+             */
             id?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization this monitor belongs to
+             */
             organizationId?: number;
+            /** @description Human-readable name for this monitor */
             name?: string;
             /** @enum {string} */
             type?: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
             config?: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Check frequency in seconds (30–86400)
+             */
             frequencySeconds?: number;
+            /** @description Whether the monitor is active */
             enabled?: boolean;
+            /** @description Probe regions where checks are executed */
             regions?: string[];
-            /** @enum {string} */
+            /**
+             * @description Management source: DASHBOARD or CLI
+             * @enum {string}
+             */
             managedBy?: "DASHBOARD" | "CLI";
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the monitor was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the monitor was last updated
+             */
             updatedAt?: string;
+            /** @description Assertions evaluated against each check result; null on list responses */
             assertions?: components["schemas"]["MonitorAssertionDto"][] | null;
+            /** @description Tags applied to this monitor */
             tags?: components["schemas"]["TagDto"][] | null;
+            /** @description Heartbeat ping URL; populated for HEARTBEAT monitors only */
             pingUrl?: string | null;
             environment?: components["schemas"]["Summary"];
             auth?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
             incidentPolicy?: components["schemas"]["IncidentPolicyDto"];
+            /** @description Alert channel IDs linked to this monitor; populated on single-monitor responses */
             alertChannelIds?: (string | null)[] | null;
         };
         SingleValueResponseMonitorDto: {
             data?: components["schemas"]["MonitorDto"];
         };
+        /** @description Environment associated with this monitor; null when unassigned */
         Summary: {
             /** Format: uuid */
             id?: string;
             name?: string;
             slug?: string;
         };
+        /** @description Update an organization member's status */
         ChangeStatusRequest: {
-            /** @enum {string} */
+            /**
+             * @description New membership status (ACTIVE or SUSPENDED)
+             * @enum {string}
+             */
             status: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
         };
         UpdateMaintenanceWindowRequest: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Monitor to attach this maintenance window to; null preserves current
+             */
             monitorId?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Updated start time (ISO 8601)
+             */
             startsAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Updated end time (ISO 8601)
+             */
             endsAt: string;
+            /** @description Updated iCal RRULE; null clears the repeat rule */
             repeatRule?: string;
+            /** @description Updated reason; null clears the existing reason */
             reason?: string;
+            /** @description Whether to suppress alerts; null preserves current */
             suppressAlerts?: boolean;
         };
+        /** @description Scheduled maintenance window for a monitor */
         MaintenanceWindowDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique maintenance window identifier
+             */
             id?: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Monitor this window applies to; null for org-wide windows
+             */
             monitorId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization this maintenance window belongs to
+             */
             organizationId?: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Scheduled start of the maintenance window
+             */
             startsAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Scheduled end of the maintenance window
+             */
             endsAt?: string;
+            /** @description iCal RRULE for recurring windows; null for one-time */
             repeatRule?: string | null;
+            /** @description Human-readable reason for the maintenance */
             reason?: string | null;
+            /** @description Whether alerts are suppressed during this window */
             suppressAlerts?: boolean;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the window was created
+             */
             createdAt?: string;
         };
         SingleValueResponseMaintenanceWindowDto: {
@@ -3847,22 +4320,42 @@ export interface components {
             /** @description Whether this is the default environment; null preserves current */
             isDefault?: boolean | null;
         };
+        /** @description Environment with variable substitutions for monitor configs */
         EnvironmentDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique environment identifier
+             */
             id?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization this environment belongs to
+             */
             orgId?: number;
+            /** @description Human-readable environment name */
             name?: string;
+            /** @description URL-safe identifier */
             slug?: string;
+            /** @description Key-value variable pairs available for interpolation */
             variables?: {
                 [key: string]: string;
             };
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the environment was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the environment was last updated
+             */
             updatedAt?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of monitors using this environment
+             */
             monitorCount?: number;
+            /** @description Whether this is the default environment for new monitors */
             isDefault?: boolean;
         };
         SingleValueResponseEnvironmentDto: {
@@ -3933,22 +4426,42 @@ export interface components {
                 [key: string]: string | null;
             } | null;
         });
+        /** @description Alert channel with non-sensitive configuration metadata */
         AlertChannelDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique alert channel identifier
+             */
             id: string;
+            /** @description Human-readable channel name */
             name: string;
-            /** @enum {string} */
+            /**
+             * @description Channel integration type (e.g. SLACK, PAGERDUTY, EMAIL)
+             * @enum {string}
+             */
             channelType: "email" | "webhook" | "slack" | "pagerduty" | "opsgenie" | "teams" | "discord";
+            /** @description Non-sensitive display metadata; null for older channels */
             displayConfig?: {
                 [key: string]: Record<string, never> | null;
             } | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the channel was created
+             */
             createdAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the channel was last updated
+             */
             updatedAt: string;
+            /** @description SHA-256 hash of the channel config; use for change detection */
             configHash?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp of the most recent delivery attempt
+             */
             lastDeliveryAt?: string | null;
+            /** @description Outcome of the most recent delivery (SUCCESS, FAILED, etc.) */
             lastDeliveryStatus?: string | null;
         };
         SingleValueResponseAlertChannelDto: {
@@ -3972,54 +4485,121 @@ export interface components {
             action: string;
             statusText?: string | null;
         };
+        /** @description Incident triggered by a monitor check failure or manual creation */
         IncidentDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique incident identifier
+             */
             id?: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Monitor that triggered the incident; null for service or manual incidents
+             */
             monitorId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization this incident belongs to
+             */
             organizationId?: number;
-            /** @enum {string} */
+            /**
+             * @description Incident origin: MONITOR, SERVICE, or MANUAL
+             * @enum {string}
+             */
             source?: "AUTOMATIC" | "MANUAL" | "MONITORS" | "STATUS_DATA" | "RESOURCE_GROUP";
-            /** @enum {string} */
+            /**
+             * @description Current lifecycle status (OPEN, RESOLVED, etc.)
+             * @enum {string}
+             */
             status?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED";
-            /** @enum {string} */
+            /**
+             * @description Severity level: DOWN, DEGRADED, or MAINTENANCE
+             * @enum {string}
+             */
             severity?: "DOWN" | "DEGRADED" | "MAINTENANCE";
+            /** @description Short summary of the incident; null for auto-generated incidents */
             title?: string | null;
+            /** @description Human-readable description of the trigger rule that fired */
             triggeredByRule?: string | null;
+            /** @description Probe regions that observed the failure */
             affectedRegions?: string[];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of times this incident has been reopened
+             */
             reopenCount?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description User who created the incident (manual incidents only)
+             */
             createdByUserId?: number | null;
+            /** @description Whether this incident is visible on the status page */
             statusPageVisible?: boolean;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Linked vendor service incident ID; null for monitor incidents
+             */
             serviceIncidentId?: string | null;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Linked service catalog ID; null for monitor incidents
+             */
             serviceId?: string | null;
+            /** @description External reference ID (e.g. PagerDuty incident ID) */
             externalRef?: string | null;
+            /** @description Service components affected by this incident */
             affectedComponents?: (string | null)[] | null;
+            /** @description Short URL linking to the incident details */
             shortlink?: string | null;
-            /** @enum {string|null} */
+            /**
+             * @description How the incident was resolved (AUTO_RECOVERED, MANUAL, etc.)
+             * @enum {string|null}
+             */
             resolutionReason?: "MANUAL" | "AUTO_RECOVERED" | "AUTO_RESOLVED" | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the incident was detected or created
+             */
             startedAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the incident was confirmed (multi-region confirmation)
+             */
             confirmedAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the incident was resolved
+             */
             resolvedAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Cooldown window end; new incidents suppressed until this time
+             */
             cooldownUntil?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the incident record was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the incident was last updated
+             */
             updatedAt?: string;
+            /** @description Name of the associated monitor; populated on list responses */
             monitorName?: string | null;
+            /** @description Name of the associated service; populated on list responses */
             serviceName?: string | null;
+            /** @description Slug of the associated service; populated on list responses */
             serviceSlug?: string | null;
+            /** @description Type of the associated monitor; populated on list responses */
             monitorType?: string | null;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Resource group that owns this incident; null when not group-managed
+             */
             resourceGroupId?: string | null;
+            /** @description Name of the resource group; populated on list responses */
             resourceGroupName?: string | null;
         };
         TableValueResultIncidentDto: {
@@ -4029,7 +4609,7 @@ export interface components {
         };
         SingleValueResponseInteger: {
             /** Format: int32 */
-            data?: number;
+            data?: number | null;
         };
         CreateAutoIncidentRequest: {
             /** Format: uuid */
@@ -4054,126 +4634,245 @@ export interface components {
             errorMessage?: string | null;
         };
         AdapterHealthDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Service this health record belongs to
+             */
             serviceId?: string;
+            /** @description URL-safe service identifier */
             serviceSlug?: string;
+            /** @description Service name */
             serviceName?: string;
+            /** @description Data source adapter type */
             adapterType?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp of the last successful poll
+             */
             lastSuccessAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp of the last failed poll
+             */
             lastFailureAt?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of consecutive poll failures
+             */
             consecutiveFailures?: number;
+            /** @description Error message from the most recent failure */
             lastErrorMessage?: string | null;
+            /** @description Whether the adapter is disabled due to repeated failures */
             disabledByHealth?: boolean;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when this health record was last updated
+             */
             updatedAt?: string;
         };
         SingleValueResponseAdapterHealthDto: {
             data?: components["schemas"]["AdapterHealthDto"];
         };
+        /** @description Create a new organization */
         CreateOrgRequest: {
+            /** @description Organization name */
             name: string;
-            /** Format: email */
+            /**
+             * Format: email
+             * @description Billing and contact email address
+             */
             email?: string | null;
         };
         SingleValueResponseTransactionDto: {
             data?: components["schemas"]["TransactionDto"];
         };
+        /** @description A billing transaction from Paddle */
         TransactionDto: {
+            /** @description Paddle transaction identifier */
             id?: string;
+            /** @description Transaction status (e.g. completed, pending) */
             status?: string | null;
+            /** @description ISO 4217 currency code */
             currencyCode?: string | null;
+            /** @description Invoice number; null if not invoiced */
             invoiceNumber?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the transaction was billed
+             */
             billedAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the transaction was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the transaction was last updated
+             */
             updatedAt?: string;
+            /** @description Total amount as a decimal string (including tax) */
             total?: string | null;
+            /** @description Subtotal before tax as a decimal string */
             subtotal?: string | null;
+            /** @description Tax amount as a decimal string */
             tax?: string | null;
         };
+        /** @description Minimal request for creating an HTTP monitor quickly */
         QuickMonitorRequest: {
+            /** @description Target URL to monitor */
             url: string;
+            /** @description Human-readable monitor name; defaults to the hostname if omitted */
             name?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Check frequency in seconds (30–86400); defaults to 60
+             */
             frequencySeconds?: number | null;
         };
         OnboardingSetupRequest: {
+            /** @description Organization or team name (max 200 chars) */
             name: string;
+            /** @description User's role or job title */
             role?: string | null;
+            /** @description Team size range (e.g. 1-10, 11-50) */
             teamSize?: string | null;
         };
+        /** @description URL to analyze for monitor setup suggestions */
         AnalyzeUrlRequest: {
+            /** @description Target URL to analyze (must be a valid HTTP/HTTPS URL) */
             url: string;
         };
+        /** @description Analysis of a URL with monitor setup suggestions */
         AnalyzeUrlResponse: {
+            /** @description Whether the URL responded during analysis */
             reachable?: boolean;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Response time observed during analysis in milliseconds
+             */
             responseTimeMs?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description HTTP status code from the analysis request
+             */
             statusCode?: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description TLS certificate expiry date; null for non-HTTPS or unavailable
+             */
             tlsExpiry?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Days until TLS certificate expires; null if not applicable
+             */
             tlsDaysRemaining?: number | null;
+            /** @description Response Content-Type header value */
             contentType?: string | null;
+            /** @description Suggested monitor name derived from the URL hostname */
             suggestedName?: string;
+            /** @description Recommended assertions based on the URL response */
             suggestedAssertions?: components["schemas"]["SuggestedAssertion"][];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Suggested check frequency in seconds based on the URL
+             */
             suggestedFrequencySeconds?: number;
         };
         SingleValueResponseAnalyzeUrlResponse: {
             data?: components["schemas"]["AnalyzeUrlResponse"];
         };
+        /** @description Recommended assertions based on the URL response */
         SuggestedAssertion: {
+            /** @description Assertion type (e.g. status_code, response_time) */
             type?: string;
+            /** @description Comparison operator (e.g. equals, less_than) */
             operator?: string;
+            /** @description Expected value to compare against */
             value?: string;
         };
+        /** @description Accept an organization invite using the invite token */
         AcceptInviteRequest: {
+            /** @description Invite token from the invitation email */
             token: string;
         };
+        /** @description Result of accepting an organization invite */
         AcceptInviteDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization the user joined
+             */
             orgId?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description User who accepted the invite
+             */
             userId?: number;
-            /** @enum {string} */
+            /**
+             * @description Role assigned to the new member
+             * @enum {string}
+             */
             orgRole?: "OWNER" | "ADMIN" | "MEMBER";
-            /** @enum {string} */
+            /**
+             * @description Initial membership status after joining
+             * @enum {string}
+             */
             status?: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
         };
         SingleValueResponseAcceptInviteDto: {
             data?: components["schemas"]["AcceptInviteDto"];
         };
         RegisterUserRequest: {
+            /** @description User nickname from the identity provider */
             nickname?: string | null;
+            /** @description User display name from the identity provider */
             name?: string | null;
+            /** @description Profile picture URL from the identity provider */
             picture?: string | null;
         };
+        /** @description Create a new workspace within the organization */
         CreateWorkspaceRequest: {
+            /** @description Workspace name */
             name: string;
         };
+        /** @description Add an existing user as a member of the organization */
         AddMemberRequest: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description ID of the user to add
+             */
             userId: number;
-            /** @enum {string} */
+            /**
+             * @description Role to assign to the new member
+             * @enum {string}
+             */
             orgRole: "OWNER" | "ADMIN" | "MEMBER";
         };
+        /** @description Organization member with role and status */
         MemberDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description User identifier of the member
+             */
             userId?: number;
+            /** @description Member email address */
             email?: string;
+            /** @description Member display name; null if not set */
             name?: string | null;
-            /** @enum {string} */
+            /**
+             * @description Member role within this organization (OWNER, ADMIN, MEMBER)
+             * @enum {string}
+             */
             orgRole?: "OWNER" | "ADMIN" | "MEMBER";
-            /** @enum {string} */
+            /**
+             * @description Membership status (ACTIVE, PENDING, SUSPENDED)
+             * @enum {string}
+             */
             status?: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the member was added to the organization
+             */
             createdAt?: string;
         };
         SingleValueResponseMemberDto: {
@@ -4187,7 +4886,9 @@ export interface components {
             /** @description Event types to deliver, e.g. monitor.created, incident.resolved */
             subscribedEvents: string[];
         };
+        /** @description Event type to use for a test webhook delivery */
         TestWebhookEndpointRequest: {
+            /** @description Event type to simulate (e.g. monitor.created); null uses a default */
             eventType?: string | null;
         };
         SingleValueResponseWebhookTestResult: {
@@ -4202,18 +4903,34 @@ export interface components {
             durationMs?: number | null;
         };
         SingleValueResponseString: {
-            data?: string;
+            data?: string | null;
         };
+        /** @description Result of a data encryption key rotation operation */
         DekRotationResultDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description DEK version before rotation
+             */
             previousDekVersion?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description DEK version after rotation
+             */
             newDekVersion?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of secrets re-encrypted with the new DEK
+             */
             secretsReEncrypted?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of alert channels re-encrypted with the new DEK
+             */
             channelsReEncrypted?: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the rotation was performed
+             */
             rotatedAt?: string;
         };
         SingleValueResponseDekRotationResultDto: {
@@ -4536,11 +5253,20 @@ export interface components {
         };
         /** @description Dispatch state for a single (incident, notification policy) pair, with delivery history */
         NotificationDispatchDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique dispatch record identifier
+             */
             id?: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Incident this dispatch is for
+             */
             incidentId?: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Notification policy that matched this incident
+             */
             policyId?: string;
             /** @description Human-readable name of the matched policy (null if policy has been deleted) */
             policyName?: string | null;
@@ -4581,9 +5307,15 @@ export interface components {
             lastNotifiedAt?: string | null;
             /** @description Delivery records for all channels associated with this dispatch */
             deliveries?: components["schemas"]["AlertDeliveryDto"][];
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the dispatch was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the dispatch was last updated
+             */
             updatedAt?: string;
         };
         SingleValueResponseNotificationDispatchDto: {
@@ -4629,13 +5361,23 @@ export interface components {
             config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
         };
         AssertionTestResultDto: {
-            /** @enum {string} */
+            /**
+             * @description Assertion type evaluated
+             * @enum {string}
+             */
             assertionType?: "status_code" | "response_time" | "body_contains" | "json_path" | "header" | "regex" | "dns_resolves" | "dns_response_time" | "dns_expected_ips" | "dns_expected_cname" | "dns_record_contains" | "dns_record_equals" | "dns_txt_contains" | "dns_min_answers" | "dns_max_answers" | "dns_response_time_warn" | "dns_ttl_low" | "dns_ttl_high" | "mcp_connects" | "mcp_response_time" | "mcp_has_capability" | "mcp_tool_available" | "mcp_min_tools" | "mcp_protocol_version" | "mcp_response_time_warn" | "mcp_tool_count_changed" | "ssl_expiry" | "response_size" | "redirect_count" | "redirect_target" | "response_time_warn" | "tcp_connects" | "tcp_response_time" | "tcp_response_time_warn" | "icmp_reachable" | "icmp_response_time" | "icmp_response_time_warn" | "icmp_packet_loss" | "heartbeat_received" | "heartbeat_max_interval" | "heartbeat_interval_drift" | "heartbeat_payload_contains";
+            /** @description Whether the assertion passed */
             passed?: boolean;
-            /** @enum {string} */
+            /**
+             * @description Assertion severity: FAIL or WARN
+             * @enum {string}
+             */
             severity?: "fail" | "warn";
+            /** @description Human-readable result description */
             message?: string;
+            /** @description Expected value */
             expected?: string | null;
+            /** @description Actual value observed during the test */
             actual?: string | null;
         };
         MonitorTestResultDto: {
@@ -4710,33 +5452,69 @@ export interface components {
             data?: components["schemas"]["BulkMonitorActionResult"];
         };
         CreateMaintenanceWindowRequest: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Monitor to attach this maintenance window to; null for org-wide
+             */
             monitorId?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Scheduled start of the maintenance window (ISO 8601)
+             */
             startsAt: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Scheduled end of the maintenance window (ISO 8601)
+             */
             endsAt: string;
+            /** @description iCal RRULE for recurring windows (max 100 chars); null for one-time */
             repeatRule?: string;
+            /** @description Human-readable reason for the maintenance */
             reason?: string;
+            /** @description Whether to suppress alerts during this window (default: true) */
             suppressAlerts?: boolean;
         };
+        /** @description Invite a new member to the organization by email */
         CreateInviteRequest: {
-            /** Format: email */
+            /**
+             * Format: email
+             * @description Email address to invite
+             */
             email: string;
-            /** @enum {string} */
+            /**
+             * @description Role to assign on acceptance
+             * @enum {string}
+             */
             roleOffered: "OWNER" | "ADMIN" | "MEMBER";
         };
+        /** @description Organization invite sent to an email address */
         InviteDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Unique invite identifier
+             */
             inviteId?: number;
+            /** @description Email address the invite was sent to */
             email?: string;
-            /** @enum {string} */
+            /**
+             * @description Role that will be assigned to the invitee on acceptance
+             * @enum {string}
+             */
             roleOffered?: "OWNER" | "ADMIN" | "MEMBER";
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the invite expires
+             */
             expiresAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the invite was accepted; null if not yet used
+             */
             consumedAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the invite was revoked; null if active
+             */
             revokedAt?: string | null;
         };
         SingleValueResponseInviteDto: {
@@ -4782,9 +5560,14 @@ export interface components {
             data?: components["schemas"]["IncidentDetailDto"];
         };
         AddIncidentUpdateRequest: {
+            /** @description Update message or post-mortem notes */
             body?: string;
-            /** @enum {string} */
+            /**
+             * @description Updated incident status; null to keep current status
+             * @enum {string}
+             */
             newStatus?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED";
+            /** @description Whether to notify subscribers of this update */
             notifySubscribers?: boolean;
         };
         ResolveIncidentRequest: {
@@ -4809,8 +5592,8 @@ export interface components {
             lockedBy: string;
             /**
              * Format: int32
-             * @description Lock TTL in minutes. Defaults to 10. Max 60.
-             * @example 10
+             * @description Lock TTL in minutes (default: 30, max: 60)
+             * @example 30
              */
             ttlMinutes?: number | null;
         };
@@ -4846,33 +5629,66 @@ export interface components {
              */
             expiresAt?: string | null;
         };
+        /** @description Created API key with the full key value — store it now, it won't be shown again */
         ApiKeyCreateResponse: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Unique API key identifier
+             */
             id?: number;
+            /** @description Human-readable name for this API key */
             name?: string;
+            /** @description Full API key value in dh_live_* format; store this now */
             key?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the key was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the key expires; null if no expiration
+             */
             expiresAt?: string | null;
         };
         SingleValueResponseApiKeyCreateResponse: {
             data?: components["schemas"]["ApiKeyCreateResponse"];
         };
+        /** @description API key for programmatic access to the DevHelm API */
         ApiKeyDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Unique API key identifier
+             */
             id?: number;
+            /** @description Human-readable name for this API key */
             name?: string;
+            /** @description Full API key value in dh_live_* format */
             key?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the key was created
+             */
             createdAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the key was last updated
+             */
             updatedAt?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp of the most recent API call; null if never used
+             */
             lastUsedAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the key was revoked; null if active
+             */
             revokedAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the key expires; null if no expiration
+             */
             expiresAt?: string | null;
         };
         SingleValueResponseApiKeyDto: {
@@ -4893,6 +5709,7 @@ export interface components {
             success?: boolean;
             message?: string;
         };
+        /** @description Alert channel configuration to test without saving */
         TestAlertChannelRequest: {
             config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
         };
@@ -4915,22 +5732,35 @@ export interface components {
         };
         SingleValueResponseMapStringString: {
             data?: {
-                [key: string]: string;
-            };
+                [key: string]: string | null;
+            } | null;
         };
         SingleValueResponseListMonitorAssertionDto: {
-            data?: components["schemas"]["MonitorAssertionDto"][];
+            data?: components["schemas"]["MonitorAssertionDto"][] | null;
         };
         SchedulableMonitorDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique monitor identifier
+             */
             id?: string;
-            /** @enum {string} */
+            /**
+             * @description Monitor protocol type
+             * @enum {string}
+             */
             type?: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
             config?: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Check frequency in seconds
+             */
             frequencySeconds?: number;
+            /** @description Probe regions to execute checks from */
             regions?: string[];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization this monitor belongs to
+             */
             organizationId?: number;
         };
         TableValueResultAdapterHealthDto: {
@@ -4939,7 +5769,7 @@ export interface components {
             hasPrev?: boolean;
         };
         SingleValueResponseListBillingPlanDto: {
-            data?: components["schemas"]["BillingPlanDto"][];
+            data?: components["schemas"]["BillingPlanDto"][] | null;
         };
         TableValueResultTransactionDto: {
             data?: components["schemas"]["TransactionDto"][];
@@ -4954,14 +5784,27 @@ export interface components {
         SingleValueResponseUpcomingChargeResponse: {
             data?: components["schemas"]["UpcomingChargeResponse"];
         };
+        /** @description Preview of upcoming subscription charge after a plan change */
         UpcomingChargeResponse: {
-            /** @enum {string} */
+            /**
+             * @description Type of subscription action being previewed
+             * @enum {string}
+             */
             action?: "UPGRADE" | "DOWNGRADE" | "NOOP";
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Amount due immediately (proration) in smallest currency unit
+             */
             immediateAmount?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Amount that will be charged on the next billing cycle
+             */
             nextBillingAmount?: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Date of the next billing cycle; null if cancelling
+             */
             nextBillingDate?: string | null;
         };
         /** @description A single resolved entitlement for the organization */
@@ -5018,9 +5861,14 @@ export interface components {
             /** Format: int32 */
             size?: number;
         };
+        /** @description Generic id/value pair for select options and autocomplete */
         IdValuePair: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Numeric identifier
+             */
             id?: number;
+            /** @description Display label or value */
             value?: string;
         };
         TableValueResultIdValuePair: {
@@ -5028,13 +5876,24 @@ export interface components {
             hasNext?: boolean;
             hasPrev?: boolean;
         };
+        /** @description Membership summary for an organization the user belongs to */
         MyOrgItemDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Organization identifier
+             */
             orgId?: number;
+            /** @description Organization name */
             orgName?: string;
-            /** @enum {string} */
+            /**
+             * @description Member role within this organization
+             * @enum {string}
+             */
             orgRole?: "OWNER" | "ADMIN" | "MEMBER";
-            /** @enum {string} */
+            /**
+             * @description Membership status
+             * @enum {string}
+             */
             status?: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
         };
         TableValueResultMyOrgItemDto: {
@@ -5122,6 +5981,7 @@ export interface components {
             configured?: boolean;
             maskedSecret?: string | null;
         };
+        /** @description List of all available webhook event types */
         WebhookEventCatalogEntry: {
             /** @description Dot-notation event type identifier, e.g. "monitor.created" */
             type?: string;
@@ -5131,6 +5991,7 @@ export interface components {
             description?: string;
         };
         WebhookEventCatalogResponse: {
+            /** @description List of all available webhook event types */
             data?: components["schemas"]["WebhookEventCatalogEntry"][];
         };
         /** @description Cursor-paginated response for time-series and append-only data */
@@ -5167,39 +6028,75 @@ export interface components {
             activeIncidentCount?: number;
             dataCompleteness?: string;
         };
+        /** @description A component affected by a scheduled maintenance window */
         MaintenanceComponentRef: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Component identifier
+             */
             id?: string;
+            /** @description Component name */
             name?: string;
+            /** @description Component status at the time of the maintenance update */
             status?: string;
         };
         /** @description A status update within a scheduled maintenance lifecycle */
         MaintenanceUpdateDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique update identifier
+             */
             id?: string;
+            /** @description Status at the time of this update */
             status?: string;
+            /** @description Update message from the vendor */
             body?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when this update was posted
+             */
             displayAt?: string | null;
         };
         /** @description A scheduled maintenance window from a vendor status page */
         ScheduledMaintenanceDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique maintenance record identifier
+             */
             id?: string;
+            /** @description Vendor-assigned maintenance identifier */
             externalId?: string;
+            /** @description Maintenance title as reported by the vendor */
             title?: string;
+            /** @description Current maintenance status (scheduled, in_progress, completed) */
             status?: string;
+            /** @description Reported impact level */
             impact?: string | null;
+            /** @description Vendor-provided short URL to the maintenance page */
             shortlink?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the maintenance is scheduled to begin
+             */
             scheduledFor?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the maintenance is scheduled to end
+             */
             scheduledUntil?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the maintenance actually started
+             */
             startedAt?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the maintenance was completed
+             */
             completedAt?: string | null;
+            /** @description Components affected by this maintenance */
             affectedComponents?: components["schemas"]["MaintenanceComponentRef"][];
+            /** @description Status updates posted during the maintenance lifecycle */
             updates?: components["schemas"]["MaintenanceUpdateDto"][];
         };
         ServiceDetailDto: {
@@ -5349,16 +6246,29 @@ export interface components {
         };
         /** @description Daily uptime data for a component */
         ComponentUptimeDayDto: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Date of the daily bucket (ISO 8601)
+             */
             date?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Seconds of partial outage observed on this day
+             */
             partialOutageSeconds?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Seconds of major outage observed on this day
+             */
             majorOutageSeconds?: number;
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Computed uptime percentage for the day
+             */
             uptimePercentage?: number;
             /** @description Incident event references for this day as raw JSON */
             eventsJson?: string | null;
+            /** @description Data source: vendor_reported or incident_derived */
             source?: string;
         };
         TableValueResultComponentUptimeDayDto: {
@@ -5366,21 +6276,44 @@ export interface components {
             hasNext?: boolean;
             hasPrev?: boolean;
         };
+        /** @description Global status summary across all subscribed vendor services */
         GlobalStatusSummaryDto: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Total number of services in the catalog
+             */
             totalServices?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of services currently fully operational
+             */
             operationalCount?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of services with degraded status
+             */
             degradedCount?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of services with partial outage
+             */
             partialOutageCount?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of services with major outage
+             */
             majorOutageCount?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Number of services currently under maintenance
+             */
             maintenanceCount?: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total number of active incidents across all services
+             */
             activeIncidentCount?: number;
+            /** @description Services that are not fully operational */
             servicesWithIssues?: components["schemas"]["ServiceCatalogDto"][];
         };
         SingleValueResponseGlobalStatusSummaryDto: {
@@ -5404,16 +6337,29 @@ export interface components {
         SingleValueResponseResourceGroupHealthDto: {
             data?: components["schemas"]["ResourceGroupHealthDto"];
         };
+        /** @description In-app notification for the current user */
         NotificationDto: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Unique notification identifier
+             */
             id?: number;
+            /** @description Notification category (e.g. incident, monitor, team) */
             type?: string;
+            /** @description Short notification title */
             title?: string;
+            /** @description Full notification body; null for title-only notifications */
             body?: string | null;
+            /** @description Type of the resource this notification is about */
             resourceType?: string | null;
+            /** @description ID of the resource this notification is about */
             resourceId?: string | null;
+            /** @description Whether the notification has been read */
             read?: boolean;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the notification was created
+             */
             createdAt?: string;
         };
         TableValueResultNotificationDto: {
@@ -5423,7 +6369,7 @@ export interface components {
         };
         SingleValueResponseLong: {
             /** Format: int64 */
-            data?: number;
+            data?: number | null;
         };
         TableValueResultNotificationPolicyDto: {
             data?: components["schemas"]["NotificationPolicyDto"][];
@@ -5440,20 +6386,40 @@ export interface components {
             hasNext?: boolean;
             hasPrev?: boolean;
         };
+        /** @description A point-in-time version snapshot of a monitor configuration */
         MonitorVersionDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Unique version record identifier
+             */
             id?: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Monitor this version belongs to
+             */
             monitorId?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description Monotonically increasing version number
+             */
             version?: number;
             snapshot?: components["schemas"]["MonitorDto"];
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description User ID who made the change; null for automated changes
+             */
             changedById?: number | null;
-            /** @enum {string} */
+            /**
+             * @description Change source (DASHBOARD, CLI, API)
+             * @enum {string}
+             */
             changedVia?: "API" | "DASHBOARD" | "CLI" | "TERRAFORM";
+            /** @description Human-readable description of what changed */
             changeSummary?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when this version was recorded
+             */
             createdAt?: string;
         };
         TableValueResultMonitorVersionDto: {
@@ -5934,10 +6900,12 @@ export interface components {
             hasNext?: boolean;
             hasPrev?: boolean;
         };
+        /** @description Combined dashboard overview for monitors and incidents */
         DashboardOverviewDto: {
             monitors?: components["schemas"]["MonitorsSummaryDto"];
             incidents?: components["schemas"]["IncidentsSummaryDto"];
         };
+        /** @description Incident summary counters */
         IncidentsSummaryDto: {
             /** Format: int64 */
             active?: number;
@@ -5946,28 +6914,55 @@ export interface components {
             /** Format: double */
             mttr30d?: number | null;
         };
+        /** @description Dashboard summary counters for monitors */
         MonitorsSummaryDto: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Total number of monitors in the organization
+             */
             total?: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Number of monitors currently passing
+             */
             up?: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Number of monitors currently failing (DOWN severity)
+             */
             down?: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Number of monitors with degraded status
+             */
             degraded?: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Number of disabled monitors
+             */
             paused?: number;
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Average uptime percentage across all monitors over last 24h
+             */
             avgUptime24h?: number | null;
-            /** Format: double */
+            /**
+             * Format: double
+             * @description Average uptime percentage across all monitors over last 30 days
+             */
             avgUptime30d?: number | null;
         };
         SingleValueResponseDashboardOverviewDto: {
             data?: components["schemas"]["DashboardOverviewDto"];
         };
+        /** @description Service category with its count of catalog entries */
         CategoryDto: {
+            /** @description Category name (e.g. CI/CD, Cloud, Payments) */
             category?: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Number of services in this category
+             */
             serviceCount?: number;
         };
         TableValueResultCategoryDto: {
@@ -6064,19 +7059,34 @@ export interface components {
             data?: components["schemas"]["AuthMeResponse"];
         };
         AuditEventDto: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Unique audit event identifier
+             */
             id?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description User ID who performed the action; null for system actions
+             */
             actorId?: number | null;
+            /** @description Email of the actor; null for system actions */
             actorEmail?: string | null;
+            /** @description Audit action type (e.g. monitor.created, api_key.revoked) */
             action?: string;
+            /** @description Type of resource affected (e.g. monitor, api_key) */
             resourceType?: string | null;
+            /** @description ID of the affected resource */
             resourceId?: string | null;
+            /** @description Human-readable name of the affected resource */
             resourceName?: string | null;
+            /** @description Additional context about the action */
             metadata?: {
                 [key: string]: Record<string, never> | null;
             } | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the action was performed
+             */
             createdAt?: string;
         };
         PageResultAuditEventDto: {

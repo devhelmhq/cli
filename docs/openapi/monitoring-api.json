@@ -7128,26 +7128,32 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Unique billing plan identifier",
             "format": "int32"
           },
           "paddleId": {
-            "type": "string"
+            "type": "string",
+            "description": "Paddle product identifier"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Billing plan display name"
           },
           "description": {
             "type": "string",
+            "description": "Plan description",
             "nullable": true
           },
           "prices": {
             "type": "array",
+            "description": "Available prices for this plan; null when not requested",
             "nullable": true,
             "items": {
               "$ref": "#/components/schemas/BillingPriceDto"
             }
           }
         },
+        "description": "Associated billing plan; null when not requested",
         "nullable": true
       },
       "BillingPriceDto": {
@@ -7155,17 +7161,21 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Unique billing price identifier",
             "format": "int32"
           },
           "paddleId": {
-            "type": "string"
+            "type": "string",
+            "description": "Paddle price identifier"
           },
           "amount": {
             "type": "integer",
+            "description": "Price amount in smallest currency unit (e.g. cents)",
             "format": "int32"
           },
           "interval": {
             "type": "string",
+            "description": "Billing interval (MONTH or YEAR)",
             "enum": [
               "DAY",
               "WEEK",
@@ -7175,16 +7185,19 @@
           },
           "intervalCount": {
             "type": "integer",
+            "description": "Number of intervals between billing cycles",
             "format": "int32"
           },
           "description": {
             "type": "string",
+            "description": "Price description",
             "nullable": true
           },
           "billingPlan": {
             "$ref": "#/components/schemas/BillingPlanDto"
           }
-        }
+        },
+        "description": "Price details for this line item"
       },
       "ItemDto": {
         "type": "object",
@@ -7194,13 +7207,16 @@
           },
           "quantity": {
             "type": "integer",
+            "description": "Quantity of this price",
             "format": "int32"
           },
           "amount": {
             "type": "integer",
+            "description": "Line item total in smallest currency unit",
             "format": "int32"
           }
-        }
+        },
+        "description": "Line items included in this subscription"
       },
       "SingleValueResponseSubscriptionDto": {
         "type": "object",
@@ -7215,25 +7231,31 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Internal subscription identifier",
             "format": "int32"
           },
           "paddleId": {
-            "type": "string"
+            "type": "string",
+            "description": "Paddle subscription identifier"
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the subscription was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the subscription was last updated",
             "format": "date-time"
           },
           "organizationId": {
             "type": "integer",
+            "description": "Organization this subscription belongs to",
             "format": "int32"
           },
           "status": {
             "type": "string",
+            "description": "Current subscription status",
             "enum": [
               "ACTIVE",
               "CANCELED",
@@ -7244,21 +7266,25 @@
           },
           "nextBilledAt": {
             "type": "string",
+            "description": "Next billing date; null when cancelled or expired",
             "format": "date-time",
             "nullable": true
           },
           "willCancelAt": {
             "type": "string",
+            "description": "Scheduled cancellation date; null if no cancellation pending",
             "format": "date-time",
             "nullable": true
           },
           "items": {
             "type": "array",
+            "description": "Line items included in this subscription",
             "items": {
               "$ref": "#/components/schemas/ItemDto"
             }
           }
-        }
+        },
+        "description": "Current billing subscription details"
       },
       "UpdateOrgDetailsRequest": {
         "required": [
@@ -7270,27 +7296,32 @@
           "name": {
             "maxLength": 200,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "New organization name (max 200 chars)"
           },
           "email": {
             "minLength": 1,
             "type": "string",
+            "description": "New billing and contact email address",
             "format": "email"
           },
           "size": {
             "maxLength": 50,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "Team size range (e.g. 1-10, 11-50)"
           },
           "industry": {
             "maxLength": 100,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "Industry vertical (e.g. SaaS, Fintech)"
           },
           "websiteUrl": {
             "maxLength": 255,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "Organization website URL (max 255 chars)"
           }
         }
       },
@@ -7299,28 +7330,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Unique organization identifier",
             "format": "int32"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Organization name"
           },
           "email": {
             "type": "string",
+            "description": "Billing and contact email",
             "nullable": true
           },
           "size": {
             "type": "string",
+            "description": "Team size range (e.g. 1-10, 11-50)",
             "nullable": true
           },
           "industry": {
             "type": "string",
+            "description": "Industry vertical (e.g. SaaS, Fintech)",
             "nullable": true
           },
           "websiteUrl": {
             "type": "string",
+            "description": "Organization website URL",
             "nullable": true
           }
-        }
+        },
+        "description": "Organization account details"
       },
       "SingleValueResponseOrganizationDto": {
         "type": "object",
@@ -7338,6 +7376,7 @@
         "properties": {
           "stage": {
             "type": "string",
+            "description": "New onboarding stage",
             "enum": [
               "WELCOME",
               "FIRST_MONITOR",
@@ -7345,7 +7384,8 @@
               "COMPLETED"
             ]
           }
-        }
+        },
+        "description": "Advance the user's onboarding stage"
       },
       "SingleValueResponseUserDto": {
         "type": "object",
@@ -7360,20 +7400,25 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Unique user identifier",
             "format": "int32"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "description": "User email address"
           },
           "emailVerified": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the email address has been verified"
           },
           "name": {
             "type": "string",
+            "description": "Display name; null if not set",
             "nullable": true
           },
           "userRole": {
             "type": "string",
+            "description": "Platform role: USER or SUPERADMIN",
             "enum": [
               "SUPERADMIN",
               "ADMIN",
@@ -7382,6 +7427,7 @@
           },
           "onboardingStage": {
             "type": "string",
+            "description": "Current onboarding progress stage; null when completed",
             "nullable": true,
             "enum": [
               "WELCOME",
@@ -7392,17 +7438,21 @@
           },
           "imageUrl": {
             "type": "string",
+            "description": "Profile image URL; null if not set",
             "nullable": true
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the account was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the account was last updated",
             "format": "date-time"
           }
-        }
+        },
+        "description": "User account details"
       },
       "UpdateProfileRequest": {
         "type": "object",
@@ -7410,7 +7460,8 @@
           "name": {
             "maxLength": 200,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "New display name (max 200 chars)"
           }
         }
       },
@@ -7423,10 +7474,13 @@
           "preferences": {
             "type": "object",
             "additionalProperties": {
-              "type": "boolean"
-            }
+              "type": "boolean",
+              "description": "Map of category keys to enabled/disabled flags"
+            },
+            "description": "Map of category keys to enabled/disabled flags"
           }
-        }
+        },
+        "description": "Replace notification preferences for the current user"
       },
       "NotificationPreferencesDto": {
         "type": "object",
@@ -7434,14 +7488,18 @@
           "preferences": {
             "type": "object",
             "additionalProperties": {
-              "type": "boolean"
-            }
+              "type": "boolean",
+              "description": "Map of category keys to enabled/disabled flags"
+            },
+            "description": "Map of category keys to enabled/disabled flags"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when preferences were last updated",
             "format": "date-time"
           }
-        }
+        },
+        "description": "User notification preferences keyed by notification category"
       },
       "SingleValueResponseNotificationPreferencesDto": {
         "type": "object",
@@ -7460,9 +7518,11 @@
           "name": {
             "maxLength": 200,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "New workspace name"
           }
-        }
+        },
+        "description": "Update workspace details"
       },
       "SingleValueResponseWorkspaceDto": {
         "type": "object",
@@ -7477,24 +7537,30 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Unique workspace identifier",
             "format": "int32"
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the workspace was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the workspace was last updated",
             "format": "date-time"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Workspace name"
           },
           "orgId": {
             "type": "integer",
+            "description": "Organization this workspace belongs to",
             "format": "int32"
           }
-        }
+        },
+        "description": "Workspace within an organization"
       },
       "UpdateUserRequest": {
         "type": "object",
@@ -7502,14 +7568,17 @@
           "name": {
             "maxLength": 200,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "New display name (max 200 chars)"
           },
           "email": {
             "type": "string",
+            "description": "New email address",
             "format": "email"
           },
           "userRole": {
             "type": "string",
+            "description": "New platform role",
             "enum": [
               "SUPERADMIN",
               "ADMIN",
@@ -7518,6 +7587,7 @@
           },
           "onboardingStage": {
             "type": "string",
+            "description": "New onboarding stage",
             "enum": [
               "WELCOME",
               "FIRST_MONITOR",
@@ -7528,7 +7598,8 @@
           "imageUrl": {
             "maxLength": 500,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "New profile image URL (max 500 chars)"
           }
         }
       },
@@ -7540,13 +7611,15 @@
         "properties": {
           "orgRole": {
             "type": "string",
+            "description": "New role to assign",
             "enum": [
               "OWNER",
               "ADMIN",
               "MEMBER"
             ]
           }
-        }
+        },
+        "description": "Update an organization member's role"
       },
       "UpdateWebhookEndpointRequest": {
         "type": "object",
@@ -7595,46 +7668,58 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique webhook endpoint identifier",
             "format": "uuid"
           },
           "url": {
-            "type": "string"
+            "type": "string",
+            "description": "HTTPS endpoint URL that receives event payloads"
           },
           "description": {
             "type": "string",
+            "description": "Human-readable description of this endpoint",
             "nullable": true
           },
           "subscribedEvents": {
             "type": "array",
+            "description": "Event types this endpoint is subscribed to",
             "items": {
-              "type": "string"
+              "type": "string",
+              "description": "Event types this endpoint is subscribed to"
             }
           },
           "enabled": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether delivery is enabled for this endpoint"
           },
           "consecutiveFailures": {
             "type": "integer",
+            "description": "Number of consecutive delivery failures",
             "format": "int32"
           },
           "disabledReason": {
             "type": "string",
+            "description": "Reason the endpoint was auto-disabled",
             "nullable": true
           },
           "disabledAt": {
             "type": "string",
+            "description": "Timestamp when the endpoint was auto-disabled",
             "format": "date-time",
             "nullable": true
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the endpoint was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the endpoint was last updated",
             "format": "date-time"
           }
-        }
+        },
+        "description": "Webhook endpoint that receives event delivery payloads"
       },
       "UpdateTagRequest": {
         "type": "object",
@@ -7668,27 +7753,34 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique tag identifier",
             "format": "uuid"
           },
           "organizationId": {
             "type": "integer",
+            "description": "Organization this tag belongs to",
             "format": "int32"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Tag name, unique within the org"
           },
           "color": {
-            "type": "string"
+            "type": "string",
+            "description": "Hex color code for display (e.g. #6B7280)"
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the tag was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the tag was last updated",
             "format": "date-time"
           }
-        }
+        },
+        "description": "Tag for organizing and filtering monitors"
       },
       "UpdateSecretRequest": {
         "required": [
@@ -7709,46 +7801,57 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Monitor identifier",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Monitor name"
           }
-        }
+        },
+        "description": "Monitors that reference this secret; null on create/update responses"
       },
       "SecretDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique secret identifier",
             "format": "uuid"
           },
           "key": {
-            "type": "string"
+            "type": "string",
+            "description": "Secret key name, unique within the workspace"
           },
           "dekVersion": {
             "type": "integer",
+            "description": "DEK version at the time of last encryption",
             "format": "int32"
           },
           "valueHash": {
-            "type": "string"
+            "type": "string",
+            "description": "SHA-256 hex digest of the current plaintext; use for change detection"
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the secret was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the secret was last updated",
             "format": "date-time"
           },
           "usedByMonitors": {
             "type": "array",
+            "description": "Monitors that reference this secret; null on create/update responses",
             "nullable": true,
             "items": {
               "$ref": "#/components/schemas/MonitorReference"
             }
           }
-        }
+        },
+        "description": "Secret with change-detection hash; plaintext value is never returned"
       },
       "SingleValueResponseSecretDto": {
         "type": "object",
@@ -7765,14 +7868,17 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "Retry strategy kind, e.g. fixed interval between attempts"
           },
           "maxRetries": {
             "type": "integer",
+            "description": "Maximum number of retries after a failed check",
             "format": "int32"
           },
           "interval": {
             "type": "integer",
+            "description": "Delay between retry attempts in seconds",
             "format": "int32"
           }
         },
@@ -7886,20 +7992,25 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique resource group identifier",
             "format": "uuid"
           },
           "organizationId": {
             "type": "integer",
+            "description": "Organization this group belongs to",
             "format": "int32"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable group name"
           },
           "slug": {
-            "type": "string"
+            "type": "string",
+            "description": "URL-safe group identifier"
           },
           "description": {
             "type": "string",
+            "description": "Optional group description",
             "nullable": true
           },
           "alertPolicyId": {
@@ -7987,10 +8098,12 @@
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the group was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the group was last updated",
             "format": "date-time"
           }
         },
@@ -8048,10 +8161,12 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique group member record identifier",
             "format": "uuid"
           },
           "groupId": {
             "type": "string",
+            "description": "Resource group this member belongs to",
             "format": "uuid"
           },
           "memberType": {
@@ -8103,6 +8218,7 @@
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the member was added to the group",
             "format": "date-time"
           },
           "uptime24h": {
@@ -8316,10 +8432,12 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique notification policy identifier",
             "format": "uuid"
           },
           "organizationId": {
             "type": "integer",
+            "description": "Organization this policy belongs to",
             "format": "int32"
           },
           "name": {
@@ -8347,10 +8465,12 @@
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the policy was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the policy was last updated",
             "format": "date-time"
           }
         },
@@ -8372,16 +8492,19 @@
         "properties": {
           "type": {
             "type": "string",
+            "description": "How incident confirmation is coordinated across regions",
             "enum": [
               "multi_region"
             ]
           },
           "minRegionsFailing": {
             "type": "integer",
+            "description": "Minimum failing regions required to confirm an incident",
             "format": "int32"
           },
           "maxWaitSeconds": {
             "type": "integer",
+            "description": "Maximum seconds to wait for enough regions to fail after first trigger",
             "format": "int32"
           }
         },
@@ -8392,10 +8515,12 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique incident policy identifier",
             "format": "uuid"
           },
           "monitorId": {
             "type": "string",
+            "description": "Monitor this policy is attached to",
             "format": "uuid"
           },
           "triggerRules": {
@@ -8413,10 +8538,12 @@
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the policy was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the policy was last updated",
             "format": "date-time"
           },
           "monitorRegionCount": {
@@ -8439,14 +8566,17 @@
         "properties": {
           "consecutiveSuccesses": {
             "type": "integer",
+            "description": "Consecutive passing checks required to auto-resolve the incident",
             "format": "int32"
           },
           "minRegionsPassing": {
             "type": "integer",
+            "description": "Minimum regions that must be passing before recovery can complete",
             "format": "int32"
           },
           "cooldownMinutes": {
             "type": "integer",
+            "description": "Minutes after resolve before a new incident may open on the same monitor",
             "format": "int32"
           }
         },
@@ -8462,6 +8592,7 @@
         "properties": {
           "type": {
             "type": "string",
+            "description": "Condition that opens or escalates an incident from check results",
             "enum": [
               "consecutive_failures",
               "failures_in_window",
@@ -8470,16 +8601,19 @@
           },
           "count": {
             "type": "integer",
+            "description": "Failure count for consecutive or windowed failure rules",
             "format": "int32",
             "nullable": true
           },
           "windowMinutes": {
             "type": "integer",
+            "description": "Window length in minutes for failures-in-window rules",
             "format": "int32",
             "nullable": true
           },
           "scope": {
             "type": "string",
+            "description": "Whether the rule applies per region or across regions",
             "nullable": true,
             "enum": [
               "per_region",
@@ -8488,11 +8622,13 @@
           },
           "thresholdMs": {
             "type": "integer",
+            "description": "Response time threshold in milliseconds for response-time rules",
             "format": "int32",
             "nullable": true
           },
           "severity": {
             "type": "string",
+            "description": "Incident severity when this rule fires",
             "enum": [
               "down",
               "degraded"
@@ -8500,6 +8636,7 @@
           },
           "aggregationType": {
             "type": "string",
+            "description": "How response times are aggregated for response-time rules",
             "nullable": true,
             "enum": [
               "all_exceed",
@@ -8559,10 +8696,12 @@
               "headerName": {
                 "minLength": 1,
                 "pattern": "^[A-Za-z0-9\\-_]+$",
-                "type": "string"
+                "type": "string",
+                "description": "HTTP header name that carries the API key"
               },
               "vaultSecretId": {
                 "type": "string",
+                "description": "Vault secret ID for the API key value",
                 "format": "uuid",
                 "nullable": true
               }
@@ -8581,6 +8720,7 @@
             "properties": {
               "vaultSecretId": {
                 "type": "string",
+                "description": "Vault secret ID holding Basic auth username and password",
                 "format": "uuid",
                 "nullable": true
               }
@@ -8599,6 +8739,7 @@
             "properties": {
               "vaultSecretId": {
                 "type": "string",
+                "description": "Vault secret ID holding the bearer token value",
                 "format": "uuid",
                 "nullable": true
               }
@@ -8621,10 +8762,12 @@
               "headerName": {
                 "minLength": 1,
                 "pattern": "^[A-Za-z0-9\\-_]+$",
-                "type": "string"
+                "type": "string",
+                "description": "Custom HTTP header name for the secret value"
               },
               "vaultSecretId": {
                 "type": "string",
+                "description": "Vault secret ID for the header value",
                 "format": "uuid",
                 "nullable": true
               }
@@ -8642,6 +8785,7 @@
             "type": "string"
           }
         },
+        "description": "New authentication configuration (full replacement)",
         "discriminator": {
           "propertyName": "type"
         }
@@ -8726,6 +8870,7 @@
             "type": "string"
           }
         },
+        "description": "New assertion configuration (full replacement)",
         "discriminator": {
           "propertyName": "type"
         }
@@ -8744,7 +8889,8 @@
             "properties": {
               "substring": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Substring that must appear in the response body"
               }
             }
           }
@@ -8764,7 +8910,8 @@
             "properties": {
               "value": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Expected CNAME target the resolution must include"
               }
             }
           }
@@ -8785,8 +8932,10 @@
               "ips": {
                 "minItems": 1,
                 "type": "array",
+                "description": "Allowed IP addresses; at least one resolved address must match",
                 "items": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Allowed IP addresses; at least one resolved address must match"
                 }
               }
             }
@@ -8807,10 +8956,12 @@
             "properties": {
               "recordType": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "DNS record type whose answer count is checked"
               },
               "max": {
                 "type": "integer",
+                "description": "Maximum number of answers allowed for that record type",
                 "format": "int32"
               }
             }
@@ -8831,10 +8982,12 @@
             "properties": {
               "recordType": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "DNS record type whose answer count is checked"
               },
               "min": {
                 "type": "integer",
+                "description": "Minimum number of answers required for that record type",
                 "format": "int32"
               }
             }
@@ -8856,11 +9009,13 @@
             "properties": {
               "recordType": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "DNS record type to assert on (A, AAAA, CNAME, MX, TXT)"
               },
               "substring": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Substring that must appear in a matching record value"
               }
             }
           }
@@ -8881,11 +9036,13 @@
             "properties": {
               "recordType": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "DNS record type to assert on (A, AAAA, CNAME, MX, TXT)"
               },
               "value": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Expected DNS record value for an exact match"
               }
             }
           }
@@ -8910,6 +9067,7 @@
             "properties": {
               "maxMs": {
                 "type": "integer",
+                "description": "Maximum allowed DNS resolution time in milliseconds",
                 "format": "int32"
               }
             }
@@ -8927,6 +9085,7 @@
             "properties": {
               "warnMs": {
                 "type": "integer",
+                "description": "DNS resolution time in milliseconds that triggers a warning only",
                 "format": "int32"
               }
             }
@@ -8944,6 +9103,7 @@
             "properties": {
               "maxTtl": {
                 "type": "integer",
+                "description": "Maximum TTL in seconds before a high-TTL warning is raised",
                 "format": "int32"
               }
             }
@@ -8961,6 +9121,7 @@
             "properties": {
               "minTtl": {
                 "type": "integer",
+                "description": "Minimum acceptable TTL in seconds before a warning is raised",
                 "format": "int32"
               }
             }
@@ -8981,7 +9142,8 @@
             "properties": {
               "substring": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Substring that must appear in at least one TXT record"
               }
             }
           }
@@ -9003,14 +9165,17 @@
             "properties": {
               "headerName": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "HTTP header name to assert on"
               },
               "expected": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Expected value to compare against"
               },
               "operator": {
                 "type": "string",
+                "description": "Comparison operator (equals, contains, less_than, greater_than, etc.)",
                 "enum": [
                   "equals",
                   "contains",
@@ -9040,6 +9205,7 @@
                 "maximum": 100,
                 "minimum": 1,
                 "type": "integer",
+                "description": "Max percent drift from expected ping interval before warning (non-fatal)",
                 "format": "int32"
               }
             }
@@ -9061,6 +9227,7 @@
               "maxSeconds": {
                 "minimum": 1,
                 "type": "integer",
+                "description": "Maximum allowed gap in seconds between consecutive heartbeat pings",
                 "format": "int32"
               }
             }
@@ -9082,10 +9249,12 @@
             "properties": {
               "path": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "JSONPath expression into the heartbeat ping JSON payload"
               },
               "value": {
-                "type": "string"
+                "type": "string",
+                "description": "Expected value to compare against at that path"
               }
             }
           }
@@ -9114,6 +9283,7 @@
                 "minimum": 0.0,
                 "exclusiveMinimum": false,
                 "type": "number",
+                "description": "Maximum allowed packet loss percentage before the check fails (0\u2013100)",
                 "format": "double"
               }
             }
@@ -9139,6 +9309,7 @@
             "properties": {
               "maxMs": {
                 "type": "integer",
+                "description": "Maximum average ICMP round-trip time in milliseconds",
                 "format": "int32"
               }
             }
@@ -9156,6 +9327,7 @@
             "properties": {
               "warnMs": {
                 "type": "integer",
+                "description": "ICMP round-trip time in milliseconds that triggers a warning only",
                 "format": "int32"
               }
             }
@@ -9178,14 +9350,17 @@
             "properties": {
               "path": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "JSONPath expression to extract a value from the response body"
               },
               "expected": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Expected value to compare against"
               },
               "operator": {
                 "type": "string",
+                "description": "Comparison operator (equals, contains, less_than, greater_than, etc.)",
                 "enum": [
                   "equals",
                   "contains",
@@ -9221,7 +9396,8 @@
             "properties": {
               "capability": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Capability name the server must advertise, e.g. tools or resources"
               }
             }
           }
@@ -9238,6 +9414,7 @@
             "properties": {
               "min": {
                 "type": "integer",
+                "description": "Minimum number of tools the server must expose",
                 "format": "int32"
               }
             }
@@ -9258,7 +9435,8 @@
             "properties": {
               "version": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Expected MCP protocol version string from the server handshake"
               }
             }
           }
@@ -9275,6 +9453,7 @@
             "properties": {
               "maxMs": {
                 "type": "integer",
+                "description": "Maximum allowed MCP check duration in milliseconds",
                 "format": "int32"
               }
             }
@@ -9292,6 +9471,7 @@
             "properties": {
               "warnMs": {
                 "type": "integer",
+                "description": "MCP check duration in milliseconds that triggers a warning only",
                 "format": "int32"
               }
             }
@@ -9312,7 +9492,8 @@
             "properties": {
               "toolName": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "MCP tool name that must appear in the server's tool list"
               }
             }
           }
@@ -9329,6 +9510,7 @@
             "properties": {
               "expectedCount": {
                 "type": "integer",
+                "description": "Expected tool count; warns when the live count differs",
                 "format": "int32"
               }
             }
@@ -9346,6 +9528,7 @@
             "properties": {
               "maxCount": {
                 "type": "integer",
+                "description": "Maximum number of HTTP redirects allowed before the check fails",
                 "format": "int32"
               }
             }
@@ -9367,10 +9550,12 @@
             "properties": {
               "expected": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Expected final URL after following redirects"
               },
               "operator": {
                 "type": "string",
+                "description": "Comparison operator (equals, contains, less_than, greater_than, etc.)",
                 "enum": [
                   "equals",
                   "contains",
@@ -9398,7 +9583,8 @@
             "properties": {
               "pattern": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Regular expression the response body must match"
               }
             }
           }
@@ -9415,6 +9601,7 @@
             "properties": {
               "maxBytes": {
                 "type": "integer",
+                "description": "Maximum response body size in bytes before the check fails",
                 "format": "int32"
               }
             }
@@ -9432,6 +9619,7 @@
             "properties": {
               "thresholdMs": {
                 "type": "integer",
+                "description": "Maximum allowed response time in milliseconds before the check fails",
                 "format": "int32"
               }
             }
@@ -9449,6 +9637,7 @@
             "properties": {
               "warnMs": {
                 "type": "integer",
+                "description": "HTTP response time in milliseconds that triggers a warning only",
                 "format": "int32"
               }
             }
@@ -9466,6 +9655,7 @@
             "properties": {
               "minDaysRemaining": {
                 "type": "integer",
+                "description": "Minimum days before TLS certificate expiry; fails or warns below this threshold",
                 "format": "int32"
               }
             }
@@ -9487,10 +9677,12 @@
             "properties": {
               "expected": {
                 "minLength": 1,
-                "type": "string"
+                "type": "string",
+                "description": "Expected status code, range pattern, or wildcard such as 2xx"
               },
               "operator": {
                 "type": "string",
+                "description": "Comparison operator (equals, contains, less_than, greater_than, etc.)",
                 "enum": [
                   "equals",
                   "contains",
@@ -9523,6 +9715,7 @@
             "properties": {
               "maxMs": {
                 "type": "integer",
+                "description": "Maximum TCP connect time in milliseconds before the check fails",
                 "format": "int32"
               }
             }
@@ -9540,6 +9733,7 @@
             "properties": {
               "warnMs": {
                 "type": "integer",
+                "description": "TCP connect time in milliseconds that triggers a warning only",
                 "format": "int32"
               }
             }
@@ -9684,6 +9878,7 @@
           },
           "severity": {
             "type": "string",
+            "description": "New outcome severity: FAIL or WARN",
             "enum": [
               "fail",
               "warn"
@@ -9904,21 +10099,26 @@
         "properties": {
           "channelIds": {
             "type": "array",
+            "description": "IDs of alert channels to link (replaces current list)",
             "items": {
               "type": "string",
+              "description": "IDs of alert channels to link (replaces current list)",
               "format": "uuid"
             }
           }
-        }
+        },
+        "description": "Replace the alert channels linked to a monitor"
       },
       "SingleValueResponseListUUID": {
         "type": "object",
         "properties": {
           "data": {
             "type": "array",
+            "nullable": true,
             "items": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "nullable": true
             }
           }
         }
@@ -10086,6 +10286,7 @@
           },
           "severity": {
             "type": "string",
+            "description": "Outcome severity: FAIL (fails the check) or WARN (warns without failing)",
             "enum": [
               "fail",
               "warn"
@@ -10509,14 +10710,17 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique monitor identifier",
             "format": "uuid"
           },
           "organizationId": {
             "type": "integer",
+            "description": "Organization this monitor belongs to",
             "format": "int32"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable name for this monitor"
           },
           "type": {
             "type": "string",
@@ -10553,19 +10757,24 @@
           },
           "frequencySeconds": {
             "type": "integer",
+            "description": "Check frequency in seconds (30\u201386400)",
             "format": "int32"
           },
           "enabled": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the monitor is active"
           },
           "regions": {
             "type": "array",
+            "description": "Probe regions where checks are executed",
             "items": {
-              "type": "string"
+              "type": "string",
+              "description": "Probe regions where checks are executed"
             }
           },
           "managedBy": {
             "type": "string",
+            "description": "Management source: DASHBOARD or CLI",
             "enum": [
               "DASHBOARD",
               "CLI"
@@ -10573,14 +10782,17 @@
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the monitor was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the monitor was last updated",
             "format": "date-time"
           },
           "assertions": {
             "type": "array",
+            "description": "Assertions evaluated against each check result; null on list responses",
             "nullable": true,
             "items": {
               "$ref": "#/components/schemas/MonitorAssertionDto"
@@ -10588,6 +10800,7 @@
           },
           "tags": {
             "type": "array",
+            "description": "Tags applied to this monitor",
             "nullable": true,
             "items": {
               "$ref": "#/components/schemas/TagDto"
@@ -10595,6 +10808,7 @@
           },
           "pingUrl": {
             "type": "string",
+            "description": "Heartbeat ping URL; populated for HEARTBEAT monitors only",
             "nullable": true
           },
           "environment": {
@@ -10621,14 +10835,17 @@
           },
           "alertChannelIds": {
             "type": "array",
+            "description": "Alert channel IDs linked to this monitor; populated on single-monitor responses",
             "nullable": true,
             "items": {
               "type": "string",
+              "description": "Alert channel IDs linked to this monitor; populated on single-monitor responses",
               "format": "uuid",
               "nullable": true
             }
           }
-        }
+        },
+        "description": "Full monitor representation"
       },
       "SingleValueResponseMonitorDto": {
         "type": "object",
@@ -10651,7 +10868,8 @@
           "slug": {
             "type": "string"
           }
-        }
+        },
+        "description": "Environment associated with this monitor; null when unassigned"
       },
       "ChangeStatusRequest": {
         "required": [
@@ -10661,6 +10879,7 @@
         "properties": {
           "status": {
             "type": "string",
+            "description": "New membership status (ACTIVE or SUSPENDED)",
             "enum": [
               "INVITED",
               "ACTIVE",
@@ -10670,7 +10889,8 @@
               "DECLINED"
             ]
           }
-        }
+        },
+        "description": "Update an organization member's status"
       },
       "UpdateMaintenanceWindowRequest": {
         "required": [
@@ -10681,26 +10901,32 @@
         "properties": {
           "monitorId": {
             "type": "string",
+            "description": "Monitor to attach this maintenance window to; null preserves current",
             "format": "uuid"
           },
           "startsAt": {
             "type": "string",
+            "description": "Updated start time (ISO 8601)",
             "format": "date-time"
           },
           "endsAt": {
             "type": "string",
+            "description": "Updated end time (ISO 8601)",
             "format": "date-time"
           },
           "repeatRule": {
             "maxLength": 100,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "Updated iCal RRULE; null clears the repeat rule"
           },
           "reason": {
-            "type": "string"
+            "type": "string",
+            "description": "Updated reason; null clears the existing reason"
           },
           "suppressAlerts": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether to suppress alerts; null preserves current"
           }
         }
       },
@@ -10709,41 +10935,51 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique maintenance window identifier",
             "format": "uuid"
           },
           "monitorId": {
             "type": "string",
+            "description": "Monitor this window applies to; null for org-wide windows",
             "format": "uuid",
             "nullable": true
           },
           "organizationId": {
             "type": "integer",
+            "description": "Organization this maintenance window belongs to",
             "format": "int32"
           },
           "startsAt": {
             "type": "string",
+            "description": "Scheduled start of the maintenance window",
             "format": "date-time"
           },
           "endsAt": {
             "type": "string",
+            "description": "Scheduled end of the maintenance window",
             "format": "date-time"
           },
           "repeatRule": {
             "type": "string",
+            "description": "iCal RRULE for recurring windows; null for one-time",
             "nullable": true
           },
           "reason": {
             "type": "string",
+            "description": "Human-readable reason for the maintenance",
             "nullable": true
           },
           "suppressAlerts": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether alerts are suppressed during this window"
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the window was created",
             "format": "date-time"
           }
-        }
+        },
+        "description": "Scheduled maintenance window for a monitor"
       },
       "SingleValueResponseMaintenanceWindowDto": {
         "type": "object",
@@ -10785,40 +11021,51 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique environment identifier",
             "format": "uuid"
           },
           "orgId": {
             "type": "integer",
+            "description": "Organization this environment belongs to",
             "format": "int32"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable environment name"
           },
           "slug": {
-            "type": "string"
+            "type": "string",
+            "description": "URL-safe identifier"
           },
           "variables": {
             "type": "object",
             "additionalProperties": {
-              "type": "string"
-            }
+              "type": "string",
+              "description": "Key-value variable pairs available for interpolation"
+            },
+            "description": "Key-value variable pairs available for interpolation"
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the environment was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the environment was last updated",
             "format": "date-time"
           },
           "monitorCount": {
             "type": "integer",
+            "description": "Number of monitors using this environment",
             "format": "int32"
           },
           "isDefault": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether this is the default environment for new monitors"
           }
-        }
+        },
+        "description": "Environment with variable substitutions for monitor configs"
       },
       "SingleValueResponseEnvironmentDto": {
         "type": "object",
@@ -11082,13 +11329,16 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique alert channel identifier",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable channel name"
           },
           "channelType": {
             "type": "string",
+            "description": "Channel integration type (e.g. SLACK, PAGERDUTY, EMAIL)",
             "enum": [
               "email",
               "webhook",
@@ -11103,32 +11353,40 @@
             "type": "object",
             "additionalProperties": {
               "type": "object",
+              "description": "Non-sensitive display metadata; null for older channels",
               "nullable": true
             },
+            "description": "Non-sensitive display metadata; null for older channels",
             "nullable": true
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the channel was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the channel was last updated",
             "format": "date-time"
           },
           "configHash": {
             "type": "string",
+            "description": "SHA-256 hash of the channel config; use for change detection",
             "nullable": true
           },
           "lastDeliveryAt": {
             "type": "string",
+            "description": "Timestamp of the most recent delivery attempt",
             "format": "date-time",
             "nullable": true
           },
           "lastDeliveryStatus": {
             "type": "string",
+            "description": "Outcome of the most recent delivery (SUCCESS, FAILED, etc.)",
             "nullable": true
           }
-        }
+        },
+        "description": "Alert channel with non-sensitive configuration metadata"
       },
       "SingleValueResponseAlertChannelDto": {
         "type": "object",
@@ -11211,19 +11469,23 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique incident identifier",
             "format": "uuid"
           },
           "monitorId": {
             "type": "string",
+            "description": "Monitor that triggered the incident; null for service or manual incidents",
             "format": "uuid",
             "nullable": true
           },
           "organizationId": {
             "type": "integer",
+            "description": "Organization this incident belongs to",
             "format": "int32"
           },
           "source": {
             "type": "string",
+            "description": "Incident origin: MONITOR, SERVICE, or MANUAL",
             "enum": [
               "AUTOMATIC",
               "MANUAL",
@@ -11234,6 +11496,7 @@
           },
           "status": {
             "type": "string",
+            "description": "Current lifecycle status (OPEN, RESOLVED, etc.)",
             "enum": [
               "WATCHING",
               "TRIGGERED",
@@ -11243,6 +11506,7 @@
           },
           "severity": {
             "type": "string",
+            "description": "Severity level: DOWN, DEGRADED, or MAINTENANCE",
             "enum": [
               "DOWN",
               "DEGRADED",
@@ -11251,58 +11515,72 @@
           },
           "title": {
             "type": "string",
+            "description": "Short summary of the incident; null for auto-generated incidents",
             "nullable": true
           },
           "triggeredByRule": {
             "type": "string",
+            "description": "Human-readable description of the trigger rule that fired",
             "nullable": true
           },
           "affectedRegions": {
             "type": "array",
+            "description": "Probe regions that observed the failure",
             "items": {
-              "type": "string"
+              "type": "string",
+              "description": "Probe regions that observed the failure"
             }
           },
           "reopenCount": {
             "type": "integer",
+            "description": "Number of times this incident has been reopened",
             "format": "int32"
           },
           "createdByUserId": {
             "type": "integer",
+            "description": "User who created the incident (manual incidents only)",
             "format": "int32",
             "nullable": true
           },
           "statusPageVisible": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether this incident is visible on the status page"
           },
           "serviceIncidentId": {
             "type": "string",
+            "description": "Linked vendor service incident ID; null for monitor incidents",
             "format": "uuid",
             "nullable": true
           },
           "serviceId": {
             "type": "string",
+            "description": "Linked service catalog ID; null for monitor incidents",
             "format": "uuid",
             "nullable": true
           },
           "externalRef": {
             "type": "string",
+            "description": "External reference ID (e.g. PagerDuty incident ID)",
             "nullable": true
           },
           "affectedComponents": {
             "type": "array",
+            "description": "Service components affected by this incident",
             "nullable": true,
             "items": {
               "type": "string",
+              "description": "Service components affected by this incident",
               "nullable": true
             }
           },
           "shortlink": {
             "type": "string",
+            "description": "Short URL linking to the incident details",
             "nullable": true
           },
           "resolutionReason": {
             "type": "string",
+            "description": "How the incident was resolved (AUTO_RECOVERED, MANUAL, etc.)",
             "nullable": true,
             "enum": [
               "MANUAL",
@@ -11312,58 +11590,71 @@
           },
           "startedAt": {
             "type": "string",
+            "description": "Timestamp when the incident was detected or created",
             "format": "date-time",
             "nullable": true
           },
           "confirmedAt": {
             "type": "string",
+            "description": "Timestamp when the incident was confirmed (multi-region confirmation)",
             "format": "date-time",
             "nullable": true
           },
           "resolvedAt": {
             "type": "string",
+            "description": "Timestamp when the incident was resolved",
             "format": "date-time",
             "nullable": true
           },
           "cooldownUntil": {
             "type": "string",
+            "description": "Cooldown window end; new incidents suppressed until this time",
             "format": "date-time",
             "nullable": true
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the incident record was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the incident was last updated",
             "format": "date-time"
           },
           "monitorName": {
             "type": "string",
+            "description": "Name of the associated monitor; populated on list responses",
             "nullable": true
           },
           "serviceName": {
             "type": "string",
+            "description": "Name of the associated service; populated on list responses",
             "nullable": true
           },
           "serviceSlug": {
             "type": "string",
+            "description": "Slug of the associated service; populated on list responses",
             "nullable": true
           },
           "monitorType": {
             "type": "string",
+            "description": "Type of the associated monitor; populated on list responses",
             "nullable": true
           },
           "resourceGroupId": {
             "type": "string",
+            "description": "Resource group that owns this incident; null when not group-managed",
             "format": "uuid",
             "nullable": true
           },
           "resourceGroupName": {
             "type": "string",
+            "description": "Name of the resource group; populated on list responses",
             "nullable": true
           }
-        }
+        },
+        "description": "Incident triggered by a monitor check failure or manual creation"
       },
       "TableValueResultIncidentDto": {
         "type": "object",
@@ -11387,7 +11678,8 @@
         "properties": {
           "data": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           }
         }
       },
@@ -11472,41 +11764,51 @@
         "properties": {
           "serviceId": {
             "type": "string",
+            "description": "Service this health record belongs to",
             "format": "uuid"
           },
           "serviceSlug": {
-            "type": "string"
+            "type": "string",
+            "description": "URL-safe service identifier"
           },
           "serviceName": {
-            "type": "string"
+            "type": "string",
+            "description": "Service name"
           },
           "adapterType": {
             "type": "string",
+            "description": "Data source adapter type",
             "nullable": true
           },
           "lastSuccessAt": {
             "type": "string",
+            "description": "Timestamp of the last successful poll",
             "format": "date-time",
             "nullable": true
           },
           "lastFailureAt": {
             "type": "string",
+            "description": "Timestamp of the last failed poll",
             "format": "date-time",
             "nullable": true
           },
           "consecutiveFailures": {
             "type": "integer",
+            "description": "Number of consecutive poll failures",
             "format": "int32"
           },
           "lastErrorMessage": {
             "type": "string",
+            "description": "Error message from the most recent failure",
             "nullable": true
           },
           "disabledByHealth": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the adapter is disabled due to repeated failures"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when this health record was last updated",
             "format": "date-time"
           }
         }
@@ -11527,14 +11829,17 @@
         "properties": {
           "name": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "Organization name"
           },
           "email": {
             "type": "string",
+            "description": "Billing and contact email address",
             "format": "email",
             "nullable": true
           }
-        }
+        },
+        "description": "Create a new organization"
       },
       "SingleValueResponseTransactionDto": {
         "type": "object",
@@ -11548,46 +11853,57 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Paddle transaction identifier"
           },
           "status": {
             "type": "string",
+            "description": "Transaction status (e.g. completed, pending)",
             "nullable": true
           },
           "currencyCode": {
             "type": "string",
+            "description": "ISO 4217 currency code",
             "nullable": true
           },
           "invoiceNumber": {
             "type": "string",
+            "description": "Invoice number; null if not invoiced",
             "nullable": true
           },
           "billedAt": {
             "type": "string",
+            "description": "Timestamp when the transaction was billed",
             "format": "date-time",
             "nullable": true
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the transaction was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the transaction was last updated",
             "format": "date-time"
           },
           "total": {
             "type": "string",
+            "description": "Total amount as a decimal string (including tax)",
             "nullable": true
           },
           "subtotal": {
             "type": "string",
+            "description": "Subtotal before tax as a decimal string",
             "nullable": true
           },
           "tax": {
             "type": "string",
+            "description": "Tax amount as a decimal string",
             "nullable": true
           }
-        }
+        },
+        "description": "A billing transaction from Paddle"
       },
       "QuickMonitorRequest": {
         "required": [
@@ -11597,18 +11913,22 @@
         "properties": {
           "url": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "Target URL to monitor"
           },
           "name": {
             "type": "string",
+            "description": "Human-readable monitor name; defaults to the hostname if omitted",
             "nullable": true
           },
           "frequencySeconds": {
             "type": "integer",
+            "description": "Check frequency in seconds (30\u201386400); defaults to 60",
             "format": "int32",
             "nullable": true
           }
-        }
+        },
+        "description": "Minimal request for creating an HTTP monitor quickly"
       },
       "OnboardingSetupRequest": {
         "required": [
@@ -11619,18 +11939,21 @@
           "name": {
             "maxLength": 200,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "Organization or team name (max 200 chars)"
           },
           "role": {
             "maxLength": 50,
             "minLength": 0,
             "type": "string",
+            "description": "User's role or job title",
             "nullable": true
           },
           "teamSize": {
             "maxLength": 50,
             "minLength": 0,
             "type": "string",
+            "description": "Team size range (e.g. 1-10, 11-50)",
             "nullable": true
           }
         }
@@ -11643,52 +11966,64 @@
         "properties": {
           "url": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "Target URL to analyze (must be a valid HTTP/HTTPS URL)"
           }
-        }
+        },
+        "description": "URL to analyze for monitor setup suggestions"
       },
       "AnalyzeUrlResponse": {
         "type": "object",
         "properties": {
           "reachable": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the URL responded during analysis"
           },
           "responseTimeMs": {
             "type": "integer",
+            "description": "Response time observed during analysis in milliseconds",
             "format": "int64"
           },
           "statusCode": {
             "type": "integer",
+            "description": "HTTP status code from the analysis request",
             "format": "int32"
           },
           "tlsExpiry": {
             "type": "string",
+            "description": "TLS certificate expiry date; null for non-HTTPS or unavailable",
             "format": "date-time",
             "nullable": true
           },
           "tlsDaysRemaining": {
             "type": "integer",
+            "description": "Days until TLS certificate expires; null if not applicable",
             "format": "int32",
             "nullable": true
           },
           "contentType": {
             "type": "string",
+            "description": "Response Content-Type header value",
             "nullable": true
           },
           "suggestedName": {
-            "type": "string"
+            "type": "string",
+            "description": "Suggested monitor name derived from the URL hostname"
           },
           "suggestedAssertions": {
             "type": "array",
+            "description": "Recommended assertions based on the URL response",
             "items": {
               "$ref": "#/components/schemas/SuggestedAssertion"
             }
           },
           "suggestedFrequencySeconds": {
             "type": "integer",
+            "description": "Suggested check frequency in seconds based on the URL",
             "format": "int32"
           }
-        }
+        },
+        "description": "Analysis of a URL with monitor setup suggestions"
       },
       "SingleValueResponseAnalyzeUrlResponse": {
         "type": "object",
@@ -11702,15 +12037,19 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "Assertion type (e.g. status_code, response_time)"
           },
           "operator": {
-            "type": "string"
+            "type": "string",
+            "description": "Comparison operator (e.g. equals, less_than)"
           },
           "value": {
-            "type": "string"
+            "type": "string",
+            "description": "Expected value to compare against"
           }
-        }
+        },
+        "description": "Recommended assertions based on the URL response"
       },
       "AcceptInviteRequest": {
         "required": [
@@ -11720,23 +12059,28 @@
         "properties": {
           "token": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "Invite token from the invitation email"
           }
-        }
+        },
+        "description": "Accept an organization invite using the invite token"
       },
       "AcceptInviteDto": {
         "type": "object",
         "properties": {
           "orgId": {
             "type": "integer",
+            "description": "Organization the user joined",
             "format": "int32"
           },
           "userId": {
             "type": "integer",
+            "description": "User who accepted the invite",
             "format": "int32"
           },
           "orgRole": {
             "type": "string",
+            "description": "Role assigned to the new member",
             "enum": [
               "OWNER",
               "ADMIN",
@@ -11745,6 +12089,7 @@
           },
           "status": {
             "type": "string",
+            "description": "Initial membership status after joining",
             "enum": [
               "INVITED",
               "ACTIVE",
@@ -11754,7 +12099,8 @@
               "DECLINED"
             ]
           }
-        }
+        },
+        "description": "Result of accepting an organization invite"
       },
       "SingleValueResponseAcceptInviteDto": {
         "type": "object",
@@ -11769,14 +12115,17 @@
         "properties": {
           "nickname": {
             "type": "string",
+            "description": "User nickname from the identity provider",
             "nullable": true
           },
           "name": {
             "type": "string",
+            "description": "User display name from the identity provider",
             "nullable": true
           },
           "picture": {
             "type": "string",
+            "description": "Profile picture URL from the identity provider",
             "nullable": true
           }
         }
@@ -11789,9 +12138,11 @@
         "properties": {
           "name": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "Workspace name"
           }
-        }
+        },
+        "description": "Create a new workspace within the organization"
       },
       "AddMemberRequest": {
         "required": [
@@ -11802,34 +12153,41 @@
         "properties": {
           "userId": {
             "type": "integer",
+            "description": "ID of the user to add",
             "format": "int32"
           },
           "orgRole": {
             "type": "string",
+            "description": "Role to assign to the new member",
             "enum": [
               "OWNER",
               "ADMIN",
               "MEMBER"
             ]
           }
-        }
+        },
+        "description": "Add an existing user as a member of the organization"
       },
       "MemberDto": {
         "type": "object",
         "properties": {
           "userId": {
             "type": "integer",
+            "description": "User identifier of the member",
             "format": "int32"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "description": "Member email address"
           },
           "name": {
             "type": "string",
+            "description": "Member display name; null if not set",
             "nullable": true
           },
           "orgRole": {
             "type": "string",
+            "description": "Member role within this organization (OWNER, ADMIN, MEMBER)",
             "enum": [
               "OWNER",
               "ADMIN",
@@ -11838,6 +12196,7 @@
           },
           "status": {
             "type": "string",
+            "description": "Membership status (ACTIVE, PENDING, SUSPENDED)",
             "enum": [
               "INVITED",
               "ACTIVE",
@@ -11849,9 +12208,11 @@
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the member was added to the organization",
             "format": "date-time"
           }
-        }
+        },
+        "description": "Organization member with role and status"
       },
       "SingleValueResponseMemberDto": {
         "type": "object",
@@ -11897,9 +12258,11 @@
         "properties": {
           "eventType": {
             "type": "string",
+            "description": "Event type to simulate (e.g. monitor.created); null uses a default",
             "nullable": true
           }
-        }
+        },
+        "description": "Event type to use for a test webhook delivery"
       },
       "SingleValueResponseWebhookTestResult": {
         "type": "object",
@@ -11934,7 +12297,8 @@
         "type": "object",
         "properties": {
           "data": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -11943,25 +12307,31 @@
         "properties": {
           "previousDekVersion": {
             "type": "integer",
+            "description": "DEK version before rotation",
             "format": "int32"
           },
           "newDekVersion": {
             "type": "integer",
+            "description": "DEK version after rotation",
             "format": "int32"
           },
           "secretsReEncrypted": {
             "type": "integer",
+            "description": "Number of secrets re-encrypted with the new DEK",
             "format": "int32"
           },
           "channelsReEncrypted": {
             "type": "integer",
+            "description": "Number of alert channels re-encrypted with the new DEK",
             "format": "int32"
           },
           "rotatedAt": {
             "type": "string",
+            "description": "Timestamp when the rotation was performed",
             "format": "date-time"
           }
-        }
+        },
+        "description": "Result of a data encryption key rotation operation"
       },
       "SingleValueResponseDekRotationResultDto": {
         "type": "object",
@@ -12596,14 +12966,17 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique dispatch record identifier",
             "format": "uuid"
           },
           "incidentId": {
             "type": "string",
+            "description": "Incident this dispatch is for",
             "format": "uuid"
           },
           "policyId": {
             "type": "string",
+            "description": "Notification policy that matched this incident",
             "format": "uuid"
           },
           "policyName": {
@@ -12671,10 +13044,12 @@
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the dispatch was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the dispatch was last updated",
             "format": "date-time"
           }
         },
@@ -12843,6 +13218,7 @@
         "properties": {
           "assertionType": {
             "type": "string",
+            "description": "Assertion type evaluated",
             "enum": [
               "status_code",
               "response_time",
@@ -12889,24 +13265,29 @@
             ]
           },
           "passed": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the assertion passed"
           },
           "severity": {
             "type": "string",
+            "description": "Assertion severity: FAIL or WARN",
             "enum": [
               "fail",
               "warn"
             ]
           },
           "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable result description"
           },
           "expected": {
             "type": "string",
+            "description": "Expected value",
             "nullable": true
           },
           "actual": {
             "type": "string",
+            "description": "Actual value observed during the test",
             "nullable": true
           }
         }
@@ -13158,26 +13539,32 @@
         "properties": {
           "monitorId": {
             "type": "string",
+            "description": "Monitor to attach this maintenance window to; null for org-wide",
             "format": "uuid"
           },
           "startsAt": {
             "type": "string",
+            "description": "Scheduled start of the maintenance window (ISO 8601)",
             "format": "date-time"
           },
           "endsAt": {
             "type": "string",
+            "description": "Scheduled end of the maintenance window (ISO 8601)",
             "format": "date-time"
           },
           "repeatRule": {
             "maxLength": 100,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "description": "iCal RRULE for recurring windows (max 100 chars); null for one-time"
           },
           "reason": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable reason for the maintenance"
           },
           "suppressAlerts": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether to suppress alerts during this window (default: true)"
           }
         }
       },
@@ -13191,30 +13578,36 @@
           "email": {
             "minLength": 1,
             "type": "string",
+            "description": "Email address to invite",
             "format": "email"
           },
           "roleOffered": {
             "type": "string",
+            "description": "Role to assign on acceptance",
             "enum": [
               "OWNER",
               "ADMIN",
               "MEMBER"
             ]
           }
-        }
+        },
+        "description": "Invite a new member to the organization by email"
       },
       "InviteDto": {
         "type": "object",
         "properties": {
           "inviteId": {
             "type": "integer",
+            "description": "Unique invite identifier",
             "format": "int32"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "description": "Email address the invite was sent to"
           },
           "roleOffered": {
             "type": "string",
+            "description": "Role that will be assigned to the invitee on acceptance",
             "enum": [
               "OWNER",
               "ADMIN",
@@ -13223,19 +13616,23 @@
           },
           "expiresAt": {
             "type": "string",
+            "description": "Timestamp when the invite expires",
             "format": "date-time"
           },
           "consumedAt": {
             "type": "string",
+            "description": "Timestamp when the invite was accepted; null if not yet used",
             "format": "date-time",
             "nullable": true
           },
           "revokedAt": {
             "type": "string",
+            "description": "Timestamp when the invite was revoked; null if active",
             "format": "date-time",
             "nullable": true
           }
-        }
+        },
+        "description": "Organization invite sent to an email address"
       },
       "SingleValueResponseInviteDto": {
         "type": "object",
@@ -13356,10 +13753,12 @@
         "type": "object",
         "properties": {
           "body": {
-            "type": "string"
+            "type": "string",
+            "description": "Update message or post-mortem notes"
           },
           "newStatus": {
             "type": "string",
+            "description": "Updated incident status; null to keep current status",
             "enum": [
               "WATCHING",
               "TRIGGERED",
@@ -13368,7 +13767,8 @@
             ]
           },
           "notifySubscribers": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether to notify subscribers of this update"
           }
         }
       },
@@ -13430,10 +13830,10 @@
           },
           "ttlMinutes": {
             "type": "integer",
-            "description": "Lock TTL in minutes. Defaults to 10. Max 60.",
+            "description": "Lock TTL in minutes (default: 30, max: 60)",
             "format": "int32",
             "nullable": true,
-            "example": 10
+            "example": 30
           }
         },
         "description": "Request to acquire a deploy lock for the current workspace"
@@ -13496,24 +13896,30 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Unique API key identifier",
             "format": "int32"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable name for this API key"
           },
           "key": {
-            "type": "string"
+            "type": "string",
+            "description": "Full API key value in dh_live_* format; store this now"
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the key was created",
             "format": "date-time"
           },
           "expiresAt": {
             "type": "string",
+            "description": "Timestamp when the key expires; null if no expiration",
             "format": "date-time",
             "nullable": true
           }
-        }
+        },
+        "description": "Created API key with the full key value \u2014 store it now, it won't be shown again"
       },
       "SingleValueResponseApiKeyCreateResponse": {
         "type": "object",
@@ -13528,38 +13934,47 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Unique API key identifier",
             "format": "int32"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable name for this API key"
           },
           "key": {
-            "type": "string"
+            "type": "string",
+            "description": "Full API key value in dh_live_* format"
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the key was created",
             "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
+            "description": "Timestamp when the key was last updated",
             "format": "date-time"
           },
           "lastUsedAt": {
             "type": "string",
+            "description": "Timestamp of the most recent API call; null if never used",
             "format": "date-time",
             "nullable": true
           },
           "revokedAt": {
             "type": "string",
+            "description": "Timestamp when the key was revoked; null if active",
             "format": "date-time",
             "nullable": true
           },
           "expiresAt": {
             "type": "string",
+            "description": "Timestamp when the key expires; null if no expiration",
             "format": "date-time",
             "nullable": true
           }
-        }
+        },
+        "description": "API key for programmatic access to the DevHelm API"
       },
       "SingleValueResponseApiKeyDto": {
         "type": "object",
@@ -13667,7 +14082,8 @@
               }
             ]
           }
-        }
+        },
+        "description": "Alert channel configuration to test without saving"
       },
       "ComponentUpdateRequest": {
         "required": [
@@ -13736,8 +14152,10 @@
           "data": {
             "type": "object",
             "additionalProperties": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         }
       },
@@ -13746,6 +14164,7 @@
         "properties": {
           "data": {
             "type": "array",
+            "nullable": true,
             "items": {
               "$ref": "#/components/schemas/MonitorAssertionDto"
             }
@@ -13757,10 +14176,12 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique monitor identifier",
             "format": "uuid"
           },
           "type": {
             "type": "string",
+            "description": "Monitor protocol type",
             "enum": [
               "HTTP",
               "DNS",
@@ -13794,16 +14215,20 @@
           },
           "frequencySeconds": {
             "type": "integer",
+            "description": "Check frequency in seconds",
             "format": "int32"
           },
           "regions": {
             "type": "array",
+            "description": "Probe regions to execute checks from",
             "items": {
-              "type": "string"
+              "type": "string",
+              "description": "Probe regions to execute checks from"
             }
           },
           "organizationId": {
             "type": "integer",
+            "description": "Organization this monitor belongs to",
             "format": "int32"
           }
         }
@@ -13830,6 +14255,7 @@
         "properties": {
           "data": {
             "type": "array",
+            "nullable": true,
             "items": {
               "$ref": "#/components/schemas/BillingPlanDto"
             }
@@ -13883,6 +14309,7 @@
         "properties": {
           "action": {
             "type": "string",
+            "description": "Type of subscription action being previewed",
             "enum": [
               "UPGRADE",
               "DOWNGRADE",
@@ -13891,18 +14318,22 @@
           },
           "immediateAmount": {
             "type": "integer",
+            "description": "Amount due immediately (proration) in smallest currency unit",
             "format": "int32"
           },
           "nextBillingAmount": {
             "type": "integer",
+            "description": "Amount that will be charged on the next billing cycle",
             "format": "int32"
           },
           "nextBillingDate": {
             "type": "string",
+            "description": "Date of the next billing cycle; null if cancelling",
             "format": "date-time",
             "nullable": true
           }
-        }
+        },
+        "description": "Preview of upcoming subscription charge after a plan change"
       },
       "EntitlementDto": {
         "type": "object",
@@ -14020,12 +14451,15 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Numeric identifier",
             "format": "int32"
           },
           "value": {
-            "type": "string"
+            "type": "string",
+            "description": "Display label or value"
           }
-        }
+        },
+        "description": "Generic id/value pair for select options and autocomplete"
       },
       "TableValueResultIdValuePair": {
         "type": "object",
@@ -14049,13 +14483,16 @@
         "properties": {
           "orgId": {
             "type": "integer",
+            "description": "Organization identifier",
             "format": "int32"
           },
           "orgName": {
-            "type": "string"
+            "type": "string",
+            "description": "Organization name"
           },
           "orgRole": {
             "type": "string",
+            "description": "Member role within this organization",
             "enum": [
               "OWNER",
               "ADMIN",
@@ -14064,6 +14501,7 @@
           },
           "status": {
             "type": "string",
+            "description": "Membership status",
             "enum": [
               "INVITED",
               "ACTIVE",
@@ -14073,7 +14511,8 @@
               "DECLINED"
             ]
           }
-        }
+        },
+        "description": "Membership summary for an organization the user belongs to"
       },
       "TableValueResultMyOrgItemDto": {
         "type": "object",
@@ -14331,13 +14770,15 @@
             "type": "string",
             "description": "Human-readable description of when this event fires"
           }
-        }
+        },
+        "description": "List of all available webhook event types"
       },
       "WebhookEventCatalogResponse": {
         "type": "object",
         "properties": {
           "data": {
             "type": "array",
+            "description": "List of all available webhook event types",
             "items": {
               "$ref": "#/components/schemas/WebhookEventCatalogEntry"
             }
@@ -14436,32 +14877,40 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Component identifier",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Component name"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "description": "Component status at the time of the maintenance update"
           }
-        }
+        },
+        "description": "A component affected by a scheduled maintenance window"
       },
       "MaintenanceUpdateDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique update identifier",
             "format": "uuid"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "description": "Status at the time of this update"
           },
           "body": {
             "type": "string",
+            "description": "Update message from the vendor",
             "nullable": true
           },
           "displayAt": {
             "type": "string",
+            "description": "Timestamp when this update was posted",
             "format": "date-time",
             "nullable": true
           }
@@ -14473,53 +14922,65 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique maintenance record identifier",
             "format": "uuid"
           },
           "externalId": {
-            "type": "string"
+            "type": "string",
+            "description": "Vendor-assigned maintenance identifier"
           },
           "title": {
-            "type": "string"
+            "type": "string",
+            "description": "Maintenance title as reported by the vendor"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "description": "Current maintenance status (scheduled, in_progress, completed)"
           },
           "impact": {
             "type": "string",
+            "description": "Reported impact level",
             "nullable": true
           },
           "shortlink": {
             "type": "string",
+            "description": "Vendor-provided short URL to the maintenance page",
             "nullable": true
           },
           "scheduledFor": {
             "type": "string",
+            "description": "Timestamp when the maintenance is scheduled to begin",
             "format": "date-time",
             "nullable": true
           },
           "scheduledUntil": {
             "type": "string",
+            "description": "Timestamp when the maintenance is scheduled to end",
             "format": "date-time",
             "nullable": true
           },
           "startedAt": {
             "type": "string",
+            "description": "Timestamp when the maintenance actually started",
             "format": "date-time",
             "nullable": true
           },
           "completedAt": {
             "type": "string",
+            "description": "Timestamp when the maintenance was completed",
             "format": "date-time",
             "nullable": true
           },
           "affectedComponents": {
             "type": "array",
+            "description": "Components affected by this maintenance",
             "items": {
               "$ref": "#/components/schemas/MaintenanceComponentRef"
             }
           },
           "updates": {
             "type": "array",
+            "description": "Status updates posted during the maintenance lifecycle",
             "items": {
               "$ref": "#/components/schemas/MaintenanceUpdateDto"
             }
@@ -14890,18 +15351,22 @@
         "properties": {
           "date": {
             "type": "string",
+            "description": "Date of the daily bucket (ISO 8601)",
             "format": "date-time"
           },
           "partialOutageSeconds": {
             "type": "integer",
+            "description": "Seconds of partial outage observed on this day",
             "format": "int32"
           },
           "majorOutageSeconds": {
             "type": "integer",
+            "description": "Seconds of major outage observed on this day",
             "format": "int32"
           },
           "uptimePercentage": {
             "type": "number",
+            "description": "Computed uptime percentage for the day",
             "format": "double"
           },
           "eventsJson": {
@@ -14910,7 +15375,8 @@
             "nullable": true
           },
           "source": {
-            "type": "string"
+            "type": "string",
+            "description": "Data source: vendor_reported or incident_derived"
           }
         },
         "description": "Daily uptime data for a component"
@@ -14937,39 +15403,48 @@
         "properties": {
           "totalServices": {
             "type": "integer",
+            "description": "Total number of services in the catalog",
             "format": "int32"
           },
           "operationalCount": {
             "type": "integer",
+            "description": "Number of services currently fully operational",
             "format": "int32"
           },
           "degradedCount": {
             "type": "integer",
+            "description": "Number of services with degraded status",
             "format": "int32"
           },
           "partialOutageCount": {
             "type": "integer",
+            "description": "Number of services with partial outage",
             "format": "int32"
           },
           "majorOutageCount": {
             "type": "integer",
+            "description": "Number of services with major outage",
             "format": "int32"
           },
           "maintenanceCount": {
             "type": "integer",
+            "description": "Number of services currently under maintenance",
             "format": "int32"
           },
           "activeIncidentCount": {
             "type": "integer",
+            "description": "Total number of active incidents across all services",
             "format": "int64"
           },
           "servicesWithIssues": {
             "type": "array",
+            "description": "Services that are not fully operational",
             "items": {
               "$ref": "#/components/schemas/ServiceCatalogDto"
             }
           }
-        }
+        },
+        "description": "Global status summary across all subscribed vendor services"
       },
       "SingleValueResponseGlobalStatusSummaryDto": {
         "type": "object",
@@ -15043,34 +15518,43 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Unique notification identifier",
             "format": "int64"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "Notification category (e.g. incident, monitor, team)"
           },
           "title": {
-            "type": "string"
+            "type": "string",
+            "description": "Short notification title"
           },
           "body": {
             "type": "string",
+            "description": "Full notification body; null for title-only notifications",
             "nullable": true
           },
           "resourceType": {
             "type": "string",
+            "description": "Type of the resource this notification is about",
             "nullable": true
           },
           "resourceId": {
             "type": "string",
+            "description": "ID of the resource this notification is about",
             "nullable": true
           },
           "read": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the notification has been read"
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the notification was created",
             "format": "date-time"
           }
-        }
+        },
+        "description": "In-app notification for the current user"
       },
       "TableValueResultNotificationDto": {
         "type": "object",
@@ -15094,7 +15578,8 @@
         "properties": {
           "data": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           }
         }
       },
@@ -15154,14 +15639,17 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique version record identifier",
             "format": "uuid"
           },
           "monitorId": {
             "type": "string",
+            "description": "Monitor this version belongs to",
             "format": "uuid"
           },
           "version": {
             "type": "integer",
+            "description": "Monotonically increasing version number",
             "format": "int32"
           },
           "snapshot": {
@@ -15169,11 +15657,13 @@
           },
           "changedById": {
             "type": "integer",
+            "description": "User ID who made the change; null for automated changes",
             "format": "int32",
             "nullable": true
           },
           "changedVia": {
             "type": "string",
+            "description": "Change source (DASHBOARD, CLI, API)",
             "enum": [
               "API",
               "DASHBOARD",
@@ -15183,13 +15673,16 @@
           },
           "changeSummary": {
             "type": "string",
+            "description": "Human-readable description of what changed",
             "nullable": true
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when this version was recorded",
             "format": "date-time"
           }
-        }
+        },
+        "description": "A point-in-time version snapshot of a monitor configuration"
       },
       "TableValueResultMonitorVersionDto": {
         "type": "object",
@@ -16177,7 +16670,8 @@
           "incidents": {
             "$ref": "#/components/schemas/IncidentsSummaryDto"
           }
-        }
+        },
+        "description": "Combined dashboard overview for monitors and incidents"
       },
       "IncidentsSummaryDto": {
         "type": "object",
@@ -16195,42 +16689,51 @@
             "format": "double",
             "nullable": true
           }
-        }
+        },
+        "description": "Incident summary counters"
       },
       "MonitorsSummaryDto": {
         "type": "object",
         "properties": {
           "total": {
             "type": "integer",
+            "description": "Total number of monitors in the organization",
             "format": "int64"
           },
           "up": {
             "type": "integer",
+            "description": "Number of monitors currently passing",
             "format": "int64"
           },
           "down": {
             "type": "integer",
+            "description": "Number of monitors currently failing (DOWN severity)",
             "format": "int64"
           },
           "degraded": {
             "type": "integer",
+            "description": "Number of monitors with degraded status",
             "format": "int64"
           },
           "paused": {
             "type": "integer",
+            "description": "Number of disabled monitors",
             "format": "int64"
           },
           "avgUptime24h": {
             "type": "number",
+            "description": "Average uptime percentage across all monitors over last 24h",
             "format": "double",
             "nullable": true
           },
           "avgUptime30d": {
             "type": "number",
+            "description": "Average uptime percentage across all monitors over last 30 days",
             "format": "double",
             "nullable": true
           }
-        }
+        },
+        "description": "Dashboard summary counters for monitors"
       },
       "SingleValueResponseDashboardOverviewDto": {
         "type": "object",
@@ -16244,13 +16747,16 @@
         "type": "object",
         "properties": {
           "category": {
-            "type": "string"
+            "type": "string",
+            "description": "Category name (e.g. CI/CD, Cloud, Payments)"
           },
           "serviceCount": {
             "type": "integer",
+            "description": "Number of services in this category",
             "format": "int64"
           }
-        }
+        },
+        "description": "Service category with its count of catalog entries"
       },
       "TableValueResultCategoryDto": {
         "type": "object",
@@ -16417,42 +16923,52 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Unique audit event identifier",
             "format": "int64"
           },
           "actorId": {
             "type": "integer",
+            "description": "User ID who performed the action; null for system actions",
             "format": "int32",
             "nullable": true
           },
           "actorEmail": {
             "type": "string",
+            "description": "Email of the actor; null for system actions",
             "nullable": true
           },
           "action": {
-            "type": "string"
+            "type": "string",
+            "description": "Audit action type (e.g. monitor.created, api_key.revoked)"
           },
           "resourceType": {
             "type": "string",
+            "description": "Type of resource affected (e.g. monitor, api_key)",
             "nullable": true
           },
           "resourceId": {
             "type": "string",
+            "description": "ID of the affected resource",
             "nullable": true
           },
           "resourceName": {
             "type": "string",
+            "description": "Human-readable name of the affected resource",
             "nullable": true
           },
           "metadata": {
             "type": "object",
             "additionalProperties": {
               "type": "object",
+              "description": "Additional context about the action",
               "nullable": true
             },
+            "description": "Additional context about the action",
             "nullable": true
           },
           "createdAt": {
             "type": "string",
+            "description": "Timestamp when the action was performed",
             "format": "date-time"
           }
         }

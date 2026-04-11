@@ -129,6 +129,10 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "type": "Monitor protocol type to test",
     "assertions": "Optional assertions to evaluate against the test result"
   },
+  "AcquireDeployLockRequest": {
+    "lockedBy": "Identity of the lock requester (e.g. hostname, CI job ID)",
+    "ttlMinutes": "Lock TTL in minutes (default: 30, max: 60)"
+  },
   "HttpMonitorConfig": {
     "url": "Target URL to send requests to",
     "method": "HTTP method: GET, POST, PUT, PATCH, DELETE, or HEAD",
