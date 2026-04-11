@@ -200,7 +200,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get a tag by ID */
+        get: operations["getById"];
         /** Update a tag's name and/or color */
         put: operations["update_2"];
         post?: never;
@@ -311,7 +312,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get a notification policy by ID */
-        get: operations["getById"];
+        get: operations["getById_1"];
         /** Update a notification policy */
         put: operations["update_6"];
         post?: never;
@@ -461,7 +462,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get a single maintenance window by ID */
-        get: operations["getById_1"];
+        get: operations["getById_2"];
         /** Update a maintenance window */
         put: operations["update_11"];
         post?: never;
@@ -2347,7 +2348,7 @@ export interface paths {
          * Get a single dispatch with full escalation and delivery history
          * @description Returns the dispatch state including current escalation step, acknowledgment info, and all delivery attempts made across every step.
          */
-        get: operations["getById_2"];
+        get: operations["getById_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3384,7 +3385,7 @@ export interface components {
         SingleValueResponseResourceGroupDto: {
             data?: components["schemas"]["ResourceGroupDto"];
         };
-        /** @description Escalation chain defining which channels to notify */
+        /** @description Escalation chain defining which channels to notify; null preserves current */
         EscalationChain: {
             /** @description Ordered escalation steps, evaluated in sequence */
             steps: components["schemas"]["EscalationStep"][];
@@ -3423,20 +3424,20 @@ export interface components {
             /** @description Values list for multi-value rules like monitor_type_in */
             values?: (string | null)[] | null;
         };
-        /** @description Request body for updating a notification policy */
+        /** @description Request body for updating a notification policy (null fields are preserved) */
         UpdateNotificationPolicyRequest: {
-            /** @description Human-readable name for this policy */
-            name: string;
+            /** @description Human-readable name for this policy; null preserves current */
+            name?: string;
             /** @description Match rules to evaluate (all must pass; omit or empty for catch-all) */
             matchRules?: components["schemas"]["MatchRule"][];
-            escalation: components["schemas"]["EscalationChain"];
-            /** @description Whether this policy is enabled */
-            enabled: boolean;
+            escalation?: components["schemas"]["EscalationChain"];
+            /** @description Whether this policy is enabled; null preserves current */
+            enabled?: boolean;
             /**
              * Format: int32
-             * @description Evaluation priority; higher value = evaluated first
+             * @description Evaluation priority; higher value = evaluated first; null preserves current
              */
-            priority: number;
+            priority?: number;
         };
         /** @description Org-level notification policy with match rules and escalation chain */
         NotificationPolicyDto: {
@@ -7632,6 +7633,28 @@ export interface operations {
             };
         };
     };
+    getById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseTagDto"];
+                };
+            };
+        };
+    };
     update_2: {
         parameters: {
             query?: never;
@@ -7876,7 +7899,7 @@ export interface operations {
             };
         };
     };
-    getById: {
+    getById_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -8283,7 +8306,7 @@ export interface operations {
             };
         };
     };
-    getById_1: {
+    getById_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -11426,7 +11449,7 @@ export interface operations {
             };
         };
     };
-    getById_2: {
+    getById_3: {
         parameters: {
             query?: never;
             header?: never;

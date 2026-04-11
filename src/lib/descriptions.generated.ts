@@ -45,10 +45,10 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "priority": "Evaluation priority; higher value = evaluated first (default 0)"
   },
   "UpdateNotificationPolicyRequest": {
-    "name": "Human-readable name for this policy",
+    "name": "Human-readable name for this policy; null preserves current",
     "matchRules": "Match rules to evaluate (all must pass; omit or empty for catch-all)",
-    "enabled": "Whether this policy is enabled",
-    "priority": "Evaluation priority; higher value = evaluated first"
+    "enabled": "Whether this policy is enabled; null preserves current",
+    "priority": "Evaluation priority; higher value = evaluated first; null preserves current"
   },
   "CreateEnvironmentRequest": {
     "name": "Human-readable environment name",

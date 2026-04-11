@@ -8,9 +8,9 @@ type MonitorVersionDto = components['schemas']['MonitorVersionDto']
 export default class MonitorsVersionsList extends Command {
   static description = 'List version history for a monitor'
   static examples = [
-    '<%= config.bin %> monitors versions 42',
-    '<%= config.bin %> monitors versions 42 --limit 5',
-    '<%= config.bin %> monitors versions 42 -o json',
+    '<%= config.bin %> monitors versions list 42',
+    '<%= config.bin %> monitors versions list 42 --limit 5',
+    '<%= config.bin %> monitors versions list 42 -o json',
   ]
 
   static args = {id: Args.string({description: 'Monitor ID', required: true})}
