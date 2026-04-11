@@ -81,7 +81,11 @@ export function setCurrentContext(name: string): boolean {
 
 function readContextsFile(): ContextsFile | undefined {
   if (!existsSync(CONTEXTS_PATH)) return undefined
-  return JSON.parse(readFileSync(CONTEXTS_PATH, 'utf8'))
+  try {
+    return JSON.parse(readFileSync(CONTEXTS_PATH, 'utf8'))
+  } catch {
+    return undefined
+  }
 }
 
 function writeContextsFile(file: ContextsFile): void {
