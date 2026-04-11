@@ -40,13 +40,13 @@ const INCIDENT_SEVERITIES: IncidentSeverity[] = ['DOWN', 'DEGRADED', 'MAINTENANC
 const CHANNEL_TYPES = ['SLACK', 'EMAIL', 'PAGERDUTY', 'OPSGENIE', 'DISCORD', 'TEAMS', 'WEBHOOK'] as const
 
 const CHANNEL_TYPE_MAP: Record<string, string> = {
-  SLACK: 'SlackChannelConfig',
-  EMAIL: 'EmailChannelConfig',
-  PAGERDUTY: 'PagerDutyChannelConfig',
-  OPSGENIE: 'OpsGenieChannelConfig',
-  DISCORD: 'DiscordChannelConfig',
-  TEAMS: 'TeamsChannelConfig',
-  WEBHOOK: 'WebhookChannelConfig',
+  SLACK: 'slack',
+  EMAIL: 'email',
+  PAGERDUTY: 'pagerduty',
+  OPSGENIE: 'opsgenie',
+  DISCORD: 'discord',
+  TEAMS: 'teams',
+  WEBHOOK: 'webhook',
 }
 
 // ── Resource definitions ───────────────────────────────────────────────

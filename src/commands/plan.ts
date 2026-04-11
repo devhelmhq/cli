@@ -77,7 +77,7 @@ export default class Plan extends Command {
       verbose: flags.verbose,
     })
 
-    this.log('Fetching current state from API...')
+    if (flags.output !== 'json') this.log('Fetching current state from API...')
     const refs = await fetchAllRefs(client)
 
     const changeset = diff(config, refs, {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']})
