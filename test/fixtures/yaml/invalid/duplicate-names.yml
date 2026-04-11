@@ -1,0 +1,11 @@
+monitors:
+  - name: Duplicate
+    type: HTTP
+    config:
+      url: https://a.example.com
+      method: GET
+  - name: Duplicate
+    type: HTTP
+    config:
+      url: https://b.example.com
+      method: GET

@@ -45,10 +45,10 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "priority": "Evaluation priority; higher value = evaluated first (default 0)"
   },
   "UpdateNotificationPolicyRequest": {
-    "name": "Human-readable name for this policy",
+    "name": "Human-readable name for this policy; null preserves current",
     "matchRules": "Match rules to evaluate (all must pass; omit or empty for catch-all)",
-    "enabled": "Whether this policy is enabled",
-    "priority": "Evaluation priority; higher value = evaluated first"
+    "enabled": "Whether this policy is enabled; null preserves current",
+    "priority": "Evaluation priority; higher value = evaluated first; null preserves current"
   },
   "CreateEnvironmentRequest": {
     "name": "Human-readable environment name",
@@ -128,6 +128,10 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   "MonitorTestRequest": {
     "type": "Monitor protocol type to test",
     "assertions": "Optional assertions to evaluate against the test result"
+  },
+  "AcquireDeployLockRequest": {
+    "lockedBy": "Identity of the lock requester (e.g. hostname, CI job ID)",
+    "ttlMinutes": "Lock TTL in minutes (default: 30, max: 60)"
   },
   "HttpMonitorConfig": {
     "url": "Target URL to send requests to",

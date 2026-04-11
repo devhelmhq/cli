@@ -1,6 +1,6 @@
 import {Command, Flags} from '@oclif/core'
 import {globalFlags} from '../../lib/base-command.js'
-import {createApiClient, checkedFetch} from '../../lib/api-client.js'
+import {createApiClient, checkedFetch, apiGet} from '../../lib/api-client.js'
 import {saveContext, resolveApiUrl} from '../../lib/auth.js'
 import * as readline from 'node:readline'
 
@@ -24,20 +24,16 @@ export default class AuthLogin extends Command {
     this.log('Validating token...')
     const client = createApiClient({baseUrl: apiUrl, token})
 
-    // Try /api/v1/auth/me first (API key — returns rich identity info).
-    // Falls back to /api/v1/dashboard/overview for non-API-key tokens (dev tokens, JWTs).
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const resp = await checkedFetch(client.GET('/api/v1/auth/me' as any, {} as any))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const me = (resp as any)?.data ?? resp
+      const resp = await checkedFetch(client.GET('/api/v1/auth/me'))
+      const me = resp.data
 
       saveContext({name: flags.name, apiUrl, token}, true)
       this.log('')
       this.log(`  Authenticated successfully.`)
-      this.log(`  Organization: ${me.organization?.name ?? 'unknown'} (ID: ${me.organization?.id ?? '?'})`)
-      this.log(`  Key:          ${me.key?.name ?? 'unknown'}`)
-      this.log(`  Plan:         ${me.plan?.tier ?? 'unknown'}`)
+      this.log(`  Organization: ${me?.organization?.name ?? 'unknown'} (ID: ${me?.organization?.id ?? '?'})`)
+      this.log(`  Key:          ${me?.key?.name ?? 'unknown'}`)
+      this.log(`  Plan:         ${me?.plan?.tier ?? 'unknown'}`)
       this.log('')
       this.log(`  Context '${flags.name}' saved to ~/.devhelm/contexts.json`)
       return
@@ -46,8 +42,7 @@ export default class AuthLogin extends Command {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await checkedFetch(client.GET('/api/v1/dashboard/overview' as any, {} as any))
+      await apiGet(client, '/api/v1/dashboard/overview')
       saveContext({name: flags.name, apiUrl, token}, true)
       this.log('')
       this.log(`  Authenticated successfully.`)

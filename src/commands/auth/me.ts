@@ -11,10 +11,8 @@ export default class AuthMe extends Command {
   async run() {
     const {flags} = await this.parse(AuthMe)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.GET('/api/v1/auth/me' as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const me = (resp as any)?.data ?? resp
+    const resp = await checkedFetch(client.GET('/api/v1/auth/me'))
+    const me = resp.data
 
     const format = flags.output as OutputFormat
     if (format === 'json' || format === 'yaml') {
@@ -22,10 +20,10 @@ export default class AuthMe extends Command {
       return
     }
 
-    const k = me.key ?? {}
-    const o = me.organization ?? {}
-    const p = me.plan ?? {}
-    const r = me.rateLimits ?? {}
+    const k = me?.key ?? {}
+    const o = me?.organization ?? {}
+    const p = me?.plan ?? {}
+    const r = me?.rateLimits ?? {}
 
     this.log('')
     this.log('  API Key')
@@ -42,8 +40,8 @@ export default class AuthMe extends Command {
     this.log('  Rate Limits')
     this.log(`    Limit: ${r.requestsPerMinute ?? '–'} req/min    Remaining: ${r.remaining ?? '–'}    Window: ${r.windowMs ? `${r.windowMs / 1000}s` : '–'}`)
 
-    const usage = p.usage as Record<string, number> | undefined
-    const entitlements = p.entitlements as Record<string, {value: number}> | undefined
+    const usage = p.usage
+    const entitlements = p.entitlements
     if (usage && entitlements) {
       this.log('')
       this.log('  Usage')

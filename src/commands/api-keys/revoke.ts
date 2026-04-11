@@ -11,8 +11,7 @@ export default class ApiKeysRevoke extends Command {
   async run() {
     const {args, flags} = await this.parse(ApiKeysRevoke)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await checkedFetch(client.POST(`/api/v1/api-keys/${args.id}/revoke` as any, {} as any))
+    await checkedFetch(client.POST('/api/v1/api-keys/{id}/revoke', {params: {path: {id: Number(args.id)}}}))
     this.log(`API key '${args.id}' revoked.`)
   }
 }

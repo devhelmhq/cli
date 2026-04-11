@@ -15,12 +15,7 @@ export default class IncidentsResolve extends Command {
     const {args, flags} = await this.parse(IncidentsResolve)
     const client = buildClient(flags)
     const body = flags.message ? {message: flags.message} : undefined
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const opts = body ? {body: body as any} : {}
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.POST(`/api/v1/incidents/${args.id}/resolve` as any, opts as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const incident = (resp as any)?.data ?? resp
-    this.log(`Incident '${incident.title}' resolved.`)
+    const resp = await checkedFetch(client.POST('/api/v1/incidents/{id}/resolve', {params: {path: {id: args.id}}, body}))
+    this.log(`Incident '${resp.data?.incident?.title}' resolved.`)
   }
 }

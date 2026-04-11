@@ -11,10 +11,7 @@ export default class AlertChannelsTest extends Command {
   async run() {
     const {args, flags} = await this.parse(AlertChannelsTest)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.POST(`/api/v1/alert-channels/${args.id}/test` as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = (resp as any)?.data ?? resp
-    this.log(result.success ? 'Test notification sent successfully.' : 'Test notification failed.')
+    const resp = await checkedFetch(client.POST('/api/v1/alert-channels/{id}/test', {params: {path: {id: args.id}}}))
+    this.log(resp.data?.success ? 'Test notification sent successfully.' : 'Test notification failed.')
   }
 }

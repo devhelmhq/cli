@@ -11,10 +11,7 @@ export default class DataServicesStatus extends Command {
   async run() {
     const {args, flags} = await this.parse(DataServicesStatus)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.GET(`/api/v1/services/${args.slug}` as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const service = (resp as any)?.data ?? resp
-    display(this, service, flags.output)
+    const resp = await checkedFetch(client.GET('/api/v1/services/{slugOrId}', {params: {path: {slugOrId: args.slug}}}))
+    display(this, resp.data ?? resp, flags.output)
   }
 }

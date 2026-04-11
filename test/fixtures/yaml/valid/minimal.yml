@@ -1,0 +1,6 @@
+monitors:
+  - name: Simple Health Check
+    type: HTTP
+    config:
+      url: https://example.com
+      method: GET

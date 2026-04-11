@@ -1,0 +1,7 @@
+monitors:
+  - name: Too Fast
+    type: HTTP
+    config:
+      url: https://example.com
+      method: GET
+    frequency: 5

@@ -1,85 +1,104 @@
-import {Command, Args} from '@oclif/core'
-import {existsSync, readFileSync} from 'node:fs'
-import {parse as parseYaml} from 'yaml'
-
-interface MonitorConfig {
-  name?: string
-  type?: string
-  url?: string
-  interval?: number
-}
-
-interface DevhelmConfig {
-  monitors?: MonitorConfig[]
-}
-
-const VALID_TYPES = new Set(['HTTP', 'DNS', 'TCP', 'ICMP', 'HEARTBEAT'])
+import {Command, Args, Flags} from '@oclif/core'
+import {parseConfigFile, validate} from '../lib/yaml/index.js'
 
 export default class Validate extends Command {
-  static description = 'Validate a devhelm.yml configuration file'
+  static description = 'Validate a devhelm.yml configuration file against the full schema'
 
   static examples = [
     '<%= config.bin %> validate',
     '<%= config.bin %> validate devhelm.yml',
+    '<%= config.bin %> validate --strict',
+    '<%= config.bin %> validate -o json',
   ]
 
   static args = {
     file: Args.string({description: 'Config file path', default: 'devhelm.yml'}),
   }
 
+  static flags = {
+    strict: Flags.boolean({
+      description: 'Fail on warnings (unresolved cross-references, etc.)',
+      default: false,
+    }),
+    'skip-env': Flags.boolean({
+      description: 'Skip environment variable interpolation (syntax check only)',
+      default: false,
+    }),
+    output: Flags.string({
+      char: 'o',
+      description: 'Output format (text or json)',
+      options: ['text', 'json'],
+      default: 'text',
+    }),
+  }
+
   async run() {
-    const {args} = await this.parse(Validate)
+    const {args, flags} = await this.parse(Validate)
+    const isJson = flags.output === 'json'
 
-    if (!existsSync(args.file)) {
-      this.error(`File not found: ${args.file}`, {exit: 1})
-    }
-
-    const raw = readFileSync(args.file, 'utf8')
-    let config: DevhelmConfig
-
+    let config
     try {
-      config = parseYaml(raw) as DevhelmConfig
+      config = parseConfigFile(args.file, !flags['skip-env'])
     } catch (err) {
-      this.error(`Invalid YAML: ${(err as Error).message}`, {exit: 4})
+      if (isJson) {
+        this.log(JSON.stringify({valid: false, errors: [{path: '', message: (err as Error).message}], warnings: []}, null, 2))
+        this.exit(1)
+      }
+      this.error((err as Error).message, {exit: 1})
     }
 
-    const errors: string[] = []
+    const result = validate(config)
+    const hasErrors = result.errors.length > 0
+    const hasWarnings = result.warnings.length > 0
+    const strictFail = flags.strict && hasWarnings
 
-    if (!config.monitors || !Array.isArray(config.monitors)) {
-      errors.push('Missing or invalid "monitors" array')
-    } else {
-      for (let i = 0; i < config.monitors.length; i++) {
-        const m = config.monitors[i]
-        const prefix = `monitors[${i}]`
-
-        if (!m.name) errors.push(`${prefix}: "name" is required`)
-        if (!m.type) {
-          errors.push(`${prefix}: "type" is required`)
-        } else if (!VALID_TYPES.has(m.type.toUpperCase())) {
-          errors.push(`${prefix}: invalid type "${m.type}" (must be one of: ${[...VALID_TYPES].join(', ')})`)
-        }
-
-        if (m.type && m.type.toUpperCase() !== 'HEARTBEAT' && !m.url) {
-          errors.push(`${prefix}: "url" is required for ${m.type} monitors`)
-        }
-
-        if (m.interval !== undefined && (typeof m.interval !== 'number' || m.interval < 10)) {
-          errors.push(`${prefix}: "interval" must be a number >= 10`)
-        }
-      }
+    if (isJson) {
+      this.log(JSON.stringify({
+        valid: !hasErrors && !strictFail,
+        errors: result.errors,
+        warnings: result.warnings,
+      }, null, 2))
+      if (hasErrors || strictFail) this.exit(4)
+      return
     }
 
-    if (errors.length > 0) {
-      this.log(`\n${args.file}: ${errors.length} error(s)\n`)
-      for (const e of errors) {
-        this.log(`  ✗ ${e}`)
+    if (hasWarnings && !flags.strict) {
+      this.log(`\n${args.file}: ${result.warnings.length} warning(s)\n`)
+      for (const w of result.warnings) {
+        this.log(`  ⚠ ${w.path}: ${w.message}`)
       }
+      this.log('')
+    }
 
+    if (hasErrors) {
+      this.log(`\n${args.file}: ${result.errors.length} error(s)\n`)
+      for (const e of result.errors) {
+        this.log(`  ✗ ${e.path}: ${e.message}`)
+      }
       this.log('')
       this.exit(4)
     }
 
-    const count = config.monitors?.length ?? 0
-    this.log(`${args.file}: valid (${count} monitor${count !== 1 ? 's' : ''})`)
+    if (strictFail) {
+      this.log(`\n${args.file}: ${result.warnings.length} warning(s) (strict mode)\n`)
+      for (const w of result.warnings) {
+        this.log(`  ✗ ${w.path}: ${w.message}`)
+      }
+      this.log('')
+      this.exit(4)
+    }
+
+    const sections: string[] = []
+    if (config.monitors?.length) sections.push(`${config.monitors.length} monitor(s)`)
+    if (config.alertChannels?.length) sections.push(`${config.alertChannels.length} alert channel(s)`)
+    if (config.tags?.length) sections.push(`${config.tags.length} tag(s)`)
+    if (config.environments?.length) sections.push(`${config.environments.length} environment(s)`)
+    if (config.secrets?.length) sections.push(`${config.secrets.length} secret(s)`)
+    if (config.notificationPolicies?.length) sections.push(`${config.notificationPolicies.length} notification policy(ies)`)
+    if (config.webhooks?.length) sections.push(`${config.webhooks.length} webhook(s)`)
+    if (config.resourceGroups?.length) sections.push(`${config.resourceGroups.length} resource group(s)`)
+    if (config.dependencies?.length) sections.push(`${config.dependencies.length} dependency(ies)`)
+
+    this.log(`${args.file}: valid (${sections.join(', ')})`)
   }
 }

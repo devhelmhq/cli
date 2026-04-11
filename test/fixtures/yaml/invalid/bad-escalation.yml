@@ -1,0 +1,10 @@
+alertChannels:
+  - name: ops
+    type: slack
+    config:
+      webhookUrl: https://hooks.slack.com/test
+
+notificationPolicies:
+  - name: missing-steps
+    escalation:
+      steps: []

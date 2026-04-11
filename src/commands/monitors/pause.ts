@@ -11,10 +11,7 @@ export default class MonitorsPause extends Command {
   async run() {
     const {args, flags} = await this.parse(MonitorsPause)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.POST(`/api/v1/monitors/${args.id}/pause` as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const monitor = (resp as any)?.data ?? resp
-    this.log(`Monitor '${monitor.name}' paused.`)
+    const resp = await checkedFetch(client.POST('/api/v1/monitors/{id}/pause', {params: {path: {id: args.id}}}))
+    this.log(`Monitor '${resp.data?.name}' paused.`)
   }
 }

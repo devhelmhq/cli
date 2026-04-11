@@ -1,0 +1,20 @@
+defaults:
+  monitors:
+    frequency: 120
+    enabled: true
+    regions: [us-east, eu-west]
+
+monitors:
+  - name: Monitor A
+    type: HTTP
+    config:
+      url: https://a.example.com
+      method: GET
+
+  - name: Monitor B
+    type: HTTP
+    config:
+      url: https://b.example.com
+      method: GET
+    frequency: 30
+    regions: [us-west]

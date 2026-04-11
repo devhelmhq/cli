@@ -1,0 +1,11 @@
+tags:
+  - name: frontend
+    color: "#10B981"
+
+monitors:
+  - name: Frontend App
+    type: HTTP
+    config:
+      url: https://app.example.com
+      method: GET
+    tags: [frontend]

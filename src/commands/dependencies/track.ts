@@ -11,10 +11,7 @@ export default class DependenciesTrack extends Command {
   async run() {
     const {args, flags} = await this.parse(DependenciesTrack)
     const client = buildClient(flags)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resp = await checkedFetch(client.POST(`/api/v1/service-subscriptions/${args.slug}` as any, {} as any))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sub = (resp as any)?.data ?? resp
-    this.log(`Now tracking '${sub.serviceName}' as a dependency.`)
+    const resp = await checkedFetch(client.POST('/api/v1/service-subscriptions/{slug}', {params: {path: {slug: args.slug}}}))
+    this.log(`Now tracking '${resp.data?.name}' as a dependency.`)
   }
 }
