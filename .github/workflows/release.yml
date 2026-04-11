@@ -54,6 +54,15 @@ jobs:
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Trigger publish verification in monorepo
+        run: |
+          gh api repos/devhelmhq/mono/dispatches \
+            -f event_type=surface_published \
+            -f "client_payload[repo]=${{ github.repository }}" \
+            -f "client_payload[tag]=${{ github.ref_name }}" \
+            -f "client_payload[sha]=${{ github.sha }}"
+        env:
+          GH_TOKEN: ${{ secrets.MONOREPO_DISPATCH_TOKEN }}
 
   github-release:
     runs-on: ubuntu-latest
