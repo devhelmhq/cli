@@ -85,3 +85,34 @@ export async function checkedFetch<T>(promise: Promise<{data?: T; error?: unknow
   }
   return data as T
 }
+
+// ── Dynamic-path helpers ────────────────────────────────────────────────
+//
+// openapi-fetch requires literal path strings for type inference.  When
+// paths are constructed at runtime (CRUD factory, YAML applier), this
+// breaks.  These helpers centralize the single `as any` cast — every
+// call site uses a clean, typed API.
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+export function apiGet<T>(client: ApiClient, path: string, params?: object): Promise<T> {
+  return checkedFetch<T>(client.GET(path as any, (params ? {params} : {}) as any))
+}
+
+export function apiPost<T>(client: ApiClient, path: string, body: object): Promise<T> {
+  return checkedFetch<T>(client.POST(path as any, {body} as any))
+}
+
+export function apiPut<T>(client: ApiClient, path: string, body: object): Promise<T> {
+  return checkedFetch<T>(client.PUT(path as any, {body} as any))
+}
+
+export function apiPatch<T>(client: ApiClient, path: string, body: object): Promise<T> {
+  return checkedFetch<T>(client.PATCH(path as any, {body} as any))
+}
+
+export function apiDelete(client: ApiClient, path: string): Promise<unknown> {
+  return checkedFetch(client.DELETE(path as any, {params: {path: {}}} as any))
+}
+
+/* eslint-enable @typescript-eslint/no-explicit-any */

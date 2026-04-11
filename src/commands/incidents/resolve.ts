@@ -1,6 +1,6 @@
 import {Command, Args, Flags} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {typedPost} from '../../lib/typed-api.js'
+import {checkedFetch} from '../../lib/api-client.js'
 
 export default class IncidentsResolve extends Command {
   static description = 'Resolve an incident'
@@ -15,7 +15,7 @@ export default class IncidentsResolve extends Command {
     const {args, flags} = await this.parse(IncidentsResolve)
     const client = buildClient(flags)
     const body = flags.message ? {message: flags.message} : undefined
-    const resp = await typedPost<{data?: {title?: string}}>(client, `/api/v1/incidents/${args.id}/resolve`, body)
-    this.log(`Incident '${resp.data?.title}' resolved.`)
+    const resp = await checkedFetch(client.POST('/api/v1/incidents/{id}/resolve', {params: {path: {id: args.id}}, body}))
+    this.log(`Incident '${resp.data?.incident?.title}' resolved.`)
   }
 }

@@ -3,25 +3,11 @@
  * planned resource creation against plan limits.
  */
 import type {ApiClient} from '../api-client.js'
-import {typedGet} from '../typed-api.js'
+import {checkedFetch} from '../api-client.js'
+import type {components} from '../api.generated.js'
 import type {Changeset} from './types.js'
 
-interface Entitlement {
-  value: number
-}
-
-interface AuthMePlan {
-  tier?: string
-  entitlements?: Record<string, Entitlement>
-  usage?: Record<string, number>
-  trialActive?: boolean
-  subscriptionStatus?: string
-}
-
-interface AuthMeData {
-  plan?: AuthMePlan
-  organization?: {name?: string}
-}
+type AuthMeResponse = components['schemas']['AuthMeResponse']
 
 export interface EntitlementWarning {
   resource: string
@@ -56,10 +42,10 @@ export async function checkEntitlements(
   client: ApiClient,
   changeset: Changeset,
 ): Promise<EntitlementCheck | null> {
-  let data: AuthMeData
+  let data: AuthMeResponse
   try {
-    const resp = await typedGet<AuthMeData>(client, '/api/v1/auth/me')
-    data = narrowAuthMeData(resp)
+    const resp = await checkedFetch<{data?: AuthMeResponse}>(client.GET('/api/v1/auth/me'))
+    data = resp.data ?? {}
   } catch {
     return null
   }
@@ -79,15 +65,16 @@ export async function checkEntitlements(
 
   for (const [entitlementKey, createsOfType] of createCounts) {
     const entitlement = plan.entitlements[entitlementKey]
-    if (!entitlement || entitlement.value >= UNLIMITED) continue
+    const limit = entitlement?.value
+    if (limit == null || limit >= UNLIMITED) continue
 
     const currentUsage = plan.usage[entitlementKey] ?? 0
-    if (currentUsage + createsOfType > entitlement.value) {
+    if (currentUsage + createsOfType > limit) {
       warnings.push({
         resource: entitlementKey,
         current: currentUsage,
         creating: createsOfType,
-        limit: entitlement.value,
+        limit,
       })
     }
   }
@@ -105,18 +92,6 @@ export async function checkEntitlements(
   const header = `Plan: ${tier}${org ? ` (${org})` : ''}${usageParts.length ? ' | ' + usageParts.join(', ') : ''}`
 
   return {plan: tier, warnings, header}
-}
-
-function narrowAuthMeData(resp: unknown): AuthMeData {
-  if (!resp || typeof resp !== 'object') return {}
-  const obj = resp as Record<string, unknown>
-  const inner = (obj.data && typeof obj.data === 'object' ? obj.data : resp) as Record<string, unknown>
-  return {
-    plan: inner.plan && typeof inner.plan === 'object' ? inner.plan as AuthMePlan : undefined,
-    organization: inner.organization && typeof inner.organization === 'object'
-      ? inner.organization as AuthMeData['organization']
-      : undefined,
-  }
 }
 
 export function formatEntitlementWarnings(warnings: EntitlementWarning[]): string {

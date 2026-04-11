@@ -5,7 +5,7 @@
  * handlers in handlers.ts — no switch/case or `as YamlFoo` casts here.
  */
 import type {ApiClient} from '../api-client.js'
-import {typedPost, typedDelete} from '../typed-api.js'
+import {checkedFetch, apiDelete} from '../api-client.js'
 import {HANDLER_MAP} from './handlers.js'
 import type {Changeset, Change, HandledResourceType} from './types.js'
 import type {ResolvedRefs} from './resolver.js'
@@ -97,8 +97,7 @@ export async function apply(
   for (const change of changeset.deletes) {
     try {
       const handler = lookupHandler(change.resourceType, 'delete')
-      const path = handler.deletePath(change.existingId!)
-      await typedDelete(client, path)
+      await apiDelete(client, handler.deletePath(change.existingId!))
       succeeded.push({action: 'delete', resourceType: change.resourceType, refKey: change.refKey})
     } catch (err) {
       failed.push({
@@ -141,7 +140,7 @@ async function applyMembership(change: Change, refs: ResolvedRefs, client: ApiCl
     memberId = refs.require('dependencies', desired.memberRef)
   }
 
-  await typedPost(client, `/api/v1/resource-groups/${groupId}/members`, {memberType, memberId})
+  await checkedFetch(client.POST('/api/v1/resource-groups/{id}/members', {params: {path: {id: groupId}}, body: {memberType, memberId}}))
 }
 
 function lookupHandler(resourceType: string, action: string) {

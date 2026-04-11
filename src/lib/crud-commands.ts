@@ -1,6 +1,7 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient, display} from './base-command.js'
-import {typedGet, typedPost, typedPut, typedDelete} from './typed-api.js'
+import {fetchPaginated} from './typed-api.js'
+import {apiGet, apiPost, apiPut, apiDelete} from './api-client.js'
 import type {ColumnDef} from './output.js'
 
 // oclif flag types are structurally complex; this alias keeps ResourceConfig readable.
@@ -16,11 +17,7 @@ export interface ResourceConfig<T = unknown> {
   createFlags?: Record<string, OclifFlag>
   updateFlags?: Record<string, OclifFlag>
   bodyBuilder?: (flags: Record<string, unknown>) => object
-}
-
-interface PaginatedResponse<T> {
-  data?: T[]
-  hasNext?: boolean
+  updateBodyBuilder?: (flags: Record<string, unknown>) => object
 }
 
 export function createListCommand<T>(config: ResourceConfig<T>) {
@@ -32,8 +29,8 @@ export function createListCommand<T>(config: ResourceConfig<T>) {
     async run() {
       const {flags} = await this.parse(ListCmd)
       const client = buildClient(flags)
-      const resp = await typedGet<PaginatedResponse<T>>(client, config.apiPath)
-      display(this, resp.data ?? [], flags.output, config.columns)
+      const items = await fetchPaginated<T>(client, config.apiPath)
+      display(this, items, flags.output, config.columns)
     }
   }
 
@@ -52,7 +49,7 @@ export function createGetCommand<T>(config: ResourceConfig<T>) {
       const {args, flags} = await this.parse(GetCmd)
       const client = buildClient(flags)
       const id = args[idLabel]
-      const resp = await typedGet<{data?: T}>(client, `${config.apiPath}/${id}`)
+      const resp = await apiGet<{data?: T}>(client, `${config.apiPath}/${id}`)
       display(this, resp.data ?? resp, flags.output)
     }
   }
@@ -72,7 +69,7 @@ export function createCreateCommand<T>(config: ResourceConfig<T>) {
       const client = buildClient(flags)
       const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
       const body = config.bodyBuilder ? config.bodyBuilder(raw) : raw
-      const resp = await typedPost<{data?: T}>(client, config.apiPath, body)
+      const resp = await apiPost<{data?: T}>(client, config.apiPath, body)
       display(this, resp.data ?? resp, flags.output)
     }
   }
@@ -94,8 +91,9 @@ export function createUpdateCommand<T>(config: ResourceConfig<T>) {
       const client = buildClient(flags)
       const id = args[idLabel]
       const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
-      const body = config.bodyBuilder ? config.bodyBuilder(raw) : raw
-      const resp = await typedPut<{data?: T}>(client, `${config.apiPath}/${id}`, body)
+      const builder = config.updateBodyBuilder ?? config.bodyBuilder
+      const body = builder ? builder(raw) : raw
+      const resp = await apiPut<{data?: T}>(client, `${config.apiPath}/${id}`, body)
       display(this, resp.data ?? resp, flags.output)
     }
   }
@@ -115,7 +113,7 @@ export function createDeleteCommand<T>(config: ResourceConfig<T>) {
       const {args, flags} = await this.parse(DeleteCmd)
       const client = buildClient(flags)
       const id = args[idLabel]
-      await typedDelete(client, `${config.apiPath}/${id}`)
+      await apiDelete(client, `${config.apiPath}/${id}`)
       this.log(`${config.name} '${id}' deleted.`)
     }
   }

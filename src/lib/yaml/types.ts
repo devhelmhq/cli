@@ -4,6 +4,9 @@
  * Extracted into a standalone module to avoid circular dependencies
  * between handlers, differ, resolver, and applier.
  */
+import type {components} from '../api.generated.js'
+
+type Schemas = components['schemas']
 
 export type ChangeAction = 'create' | 'update' | 'delete'
 
@@ -19,6 +22,19 @@ export type RefType =
   | 'tags' | 'environments' | 'secrets' | 'alertChannels'
   | 'notificationPolicies' | 'webhooks' | 'resourceGroups'
   | 'monitors' | 'dependencies'
+
+/** Maps each RefType to the API DTO stored in RefEntry.raw. */
+export interface RefTypeDtoMap {
+  tags: Schemas['TagDto']
+  environments: Schemas['EnvironmentDto']
+  secrets: Schemas['SecretDto']
+  alertChannels: Schemas['AlertChannelDto']
+  notificationPolicies: Schemas['NotificationPolicyDto']
+  webhooks: Schemas['WebhookEndpointDto']
+  resourceGroups: Schemas['ResourceGroupDto']
+  monitors: Schemas['MonitorDto']
+  dependencies: Schemas['ServiceSubscriptionDto']
+}
 
 export interface Change {
   action: ChangeAction

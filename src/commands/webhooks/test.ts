@@ -1,6 +1,6 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {typedPost} from '../../lib/typed-api.js'
+import {checkedFetch} from '../../lib/api-client.js'
 
 export default class WebhooksTest extends Command {
   static description = 'Send a test event to a webhook'
@@ -11,7 +11,7 @@ export default class WebhooksTest extends Command {
   async run() {
     const {args, flags} = await this.parse(WebhooksTest)
     const client = buildClient(flags)
-    const resp = await typedPost<{data?: {success?: boolean}}>(client, `/api/v1/webhooks/${args.id}/test`)
+    const resp = await checkedFetch(client.POST('/api/v1/webhooks/{id}/test', {params: {path: {id: args.id}}}))
     this.log(resp.data?.success ? 'Test event delivered.' : 'Test delivery failed.')
   }
 }

@@ -1,22 +1,22 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest'
 
-vi.mock('../../src/lib/typed-api.js', () => ({
-  typedGet: vi.fn(),
-  typedPost: vi.fn(),
-  typedPut: vi.fn(),
-  typedPatch: vi.fn(),
-  typedDelete: vi.fn(),
-  fetchPaginated: vi.fn(),
+vi.mock('../../src/lib/api-client.js', () => ({
+  checkedFetch: vi.fn(async (p: unknown) => p),
 }))
 
-import type {ApiClient} from '../../src/lib/api-client.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../../src/lib/yaml/entitlements.js'
-import {typedGet} from '../../src/lib/typed-api.js'
 import type {Changeset} from '../../src/lib/yaml/differ.js'
 import type {EntitlementWarning} from '../../src/lib/yaml/entitlements.js'
 
-const mockTypedGet = vi.mocked(typedGet)
-const fakeClient = {} as ApiClient
+function makeFakeClient() {
+  return {
+    GET: vi.fn(),
+    POST: vi.fn(),
+    PUT: vi.fn(),
+    PATCH: vi.fn(),
+    DELETE: vi.fn(),
+  } as Parameters<typeof checkEntitlements>[0]
+}
 
 function monitorCreates(n: number): Changeset {
   const creates = Array.from({length: n}, (_, i) => ({
@@ -28,8 +28,13 @@ function monitorCreates(n: number): Changeset {
 }
 
 describe('entitlements', () => {
+  let fakeClient: ReturnType<typeof makeFakeClient>
+  let mockGet: ReturnType<typeof vi.fn>
+
   beforeEach(() => {
     vi.clearAllMocks()
+    fakeClient = makeFakeClient()
+    mockGet = fakeClient.GET as ReturnType<typeof vi.fn>
   })
 
   describe('formatEntitlementWarnings', () => {
@@ -61,19 +66,19 @@ describe('entitlements', () => {
 
   describe('checkEntitlements', () => {
     it('returns null on API error', async () => {
-      mockTypedGet.mockRejectedValueOnce(new Error('network'))
+      mockGet.mockRejectedValueOnce(new Error('network'))
       const result = await checkEntitlements(fakeClient, monitorCreates(1))
       expect(result).toBeNull()
     })
 
     it('returns null when plan data is missing', async () => {
-      mockTypedGet.mockResolvedValueOnce({data: {plan: null}})
+      mockGet.mockResolvedValueOnce({data: {plan: null}})
       const result = await checkEntitlements(fakeClient, monitorCreates(1))
       expect(result).toBeNull()
     })
 
     it('returns null when entitlements are missing', async () => {
-      mockTypedGet.mockResolvedValueOnce({
+      mockGet.mockResolvedValueOnce({
         data: {plan: {tier: 'FREE', usage: {monitors: 5}}},
       })
       const result = await checkEntitlements(fakeClient, monitorCreates(1))
@@ -81,7 +86,7 @@ describe('entitlements', () => {
     })
 
     it('detects over-limit creates', async () => {
-      mockTypedGet.mockResolvedValueOnce({
+      mockGet.mockResolvedValueOnce({
         data: {
           plan: {
             tier: 'FREE',
@@ -103,7 +108,7 @@ describe('entitlements', () => {
     })
 
     it('no warnings when under limit', async () => {
-      mockTypedGet.mockResolvedValueOnce({
+      mockGet.mockResolvedValueOnce({
         data: {
           plan: {
             tier: 'FREE',
@@ -119,7 +124,7 @@ describe('entitlements', () => {
     })
 
     it('skips unlimited entitlements', async () => {
-      mockTypedGet.mockResolvedValueOnce({
+      mockGet.mockResolvedValueOnce({
         data: {
           plan: {
             tier: 'FREE',
@@ -134,7 +139,7 @@ describe('entitlements', () => {
     })
 
     it('builds header correctly', async () => {
-      mockTypedGet.mockResolvedValueOnce({
+      mockGet.mockResolvedValueOnce({
         data: {
           plan: {
             tier: 'FREE',
@@ -152,7 +157,7 @@ describe('entitlements', () => {
     })
 
     it('handles multiple resource types', async () => {
-      mockTypedGet.mockResolvedValueOnce({
+      mockGet.mockResolvedValueOnce({
         data: {
           plan: {
             tier: 'FREE',

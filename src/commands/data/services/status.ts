@@ -1,6 +1,6 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {typedGet} from '../../../lib/typed-api.js'
+import {checkedFetch} from '../../../lib/api-client.js'
 
 export default class DataServicesStatus extends Command {
   static description = 'Get the current status of a service'
@@ -11,7 +11,7 @@ export default class DataServicesStatus extends Command {
   async run() {
     const {args, flags} = await this.parse(DataServicesStatus)
     const client = buildClient(flags)
-    const resp = await typedGet<{data?: unknown}>(client, `/api/v1/services/${args.slug}`)
+    const resp = await checkedFetch(client.GET('/api/v1/services/{slugOrId}', {params: {path: {slugOrId: args.slug}}}))
     display(this, resp.data ?? resp, flags.output)
   }
 }

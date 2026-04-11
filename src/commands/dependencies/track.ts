@@ -1,6 +1,6 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {typedPost} from '../../lib/typed-api.js'
+import {checkedFetch} from '../../lib/api-client.js'
 
 export default class DependenciesTrack extends Command {
   static description = 'Start tracking a service as a dependency'
@@ -11,7 +11,7 @@ export default class DependenciesTrack extends Command {
   async run() {
     const {args, flags} = await this.parse(DependenciesTrack)
     const client = buildClient(flags)
-    const resp = await typedPost<{data?: {serviceName?: string}}>(client, `/api/v1/service-subscriptions/${args.slug}`)
-    this.log(`Now tracking '${resp.data?.serviceName}' as a dependency.`)
+    const resp = await checkedFetch(client.POST('/api/v1/service-subscriptions/{slug}', {params: {path: {slug: args.slug}}}))
+    this.log(`Now tracking '${resp.data?.name}' as a dependency.`)
   }
 }

@@ -1,7 +1,6 @@
 import {Command, Flags} from '@oclif/core'
 import {globalFlags} from '../../lib/base-command.js'
-import {createApiClient} from '../../lib/api-client.js'
-import {typedGet} from '../../lib/typed-api.js'
+import {createApiClient, checkedFetch, apiGet} from '../../lib/api-client.js'
 import {saveContext, resolveApiUrl} from '../../lib/auth.js'
 import * as readline from 'node:readline'
 
@@ -26,9 +25,7 @@ export default class AuthLogin extends Command {
     const client = createApiClient({baseUrl: apiUrl, token})
 
     try {
-      const resp = await typedGet<{data?: {organization?: {name?: string; id?: number}; key?: {name?: string}; plan?: {tier?: string}}}>(
-        client, '/api/v1/auth/me',
-      )
+      const resp = await checkedFetch(client.GET('/api/v1/auth/me'))
       const me = resp.data
 
       saveContext({name: flags.name, apiUrl, token}, true)
@@ -45,7 +42,7 @@ export default class AuthLogin extends Command {
     }
 
     try {
-      await typedGet(client, '/api/v1/dashboard/overview')
+      await apiGet(client, '/api/v1/dashboard/overview')
       saveContext({name: flags.name, apiUrl, token}, true)
       this.log('')
       this.log(`  Authenticated successfully.`)

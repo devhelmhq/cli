@@ -1,15 +1,9 @@
 import {Command, Args, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../lib/base-command.js'
-import {typedGet} from '../../lib/typed-api.js'
+import {apiGet} from '../../lib/api-client.js'
+import type {components} from '../../lib/api.generated.js'
 
-interface MonitorResult {
-  id?: string
-  status?: string
-  responseTime?: number
-  statusCode?: number
-  region?: string
-  checkedAt?: string
-}
+type CheckResultDto = components['schemas']['CheckResultDto']
 
 export default class MonitorsResults extends Command {
   static description = 'Show recent check results for a monitor'
@@ -23,14 +17,18 @@ export default class MonitorsResults extends Command {
   async run() {
     const {args, flags} = await this.parse(MonitorsResults)
     const client = buildClient(flags)
-    const resp = await typedGet<{data?: MonitorResult[]}>(client, `/api/v1/monitors/${args.id}/results`, {limit: flags.limit})
+    const resp = await apiGet<{data?: CheckResultDto[]}>(
+      client,
+      `/api/v1/monitors/${args.id}/results`,
+      {query: {limit: flags.limit}},
+    )
     display(this, resp.data ?? [], flags.output, [
       {header: 'ID', get: (r) => String(r.id ?? '')},
-      {header: 'STATUS', get: (r) => String(r.status ?? '')},
-      {header: 'RESPONSE TIME', get: (r) => String(r.responseTime ?? '')},
-      {header: 'CODE', get: (r) => String(r.statusCode ?? '')},
+      {header: 'PASSED', get: (r) => (r.passed == null ? '' : r.passed ? 'Pass' : 'Fail')},
+      {header: 'RESPONSE TIME', get: (r) => (r.responseTimeMs != null ? `${r.responseTimeMs}ms` : '')},
+      {header: 'CODE', get: (r) => String(r.details?.statusCode ?? '')},
       {header: 'REGION', get: (r) => String(r.region ?? '')},
-      {header: 'CHECKED AT', get: (r) => String(r.checkedAt ?? '')},
+      {header: 'TIMESTAMP', get: (r) => String(r.timestamp ?? '')},
     ])
   }
 }

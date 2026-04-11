@@ -3,27 +3,27 @@
  * handler methods and builds name/slug → UUID maps for YAML reference resolution.
  */
 import type {ApiClient} from '../api-client.js'
-import type {RefType} from './types.js'
+import type {RefType, RefTypeDtoMap} from './types.js'
 import {allHandlers} from './handlers.js'
 
 export type {RefType}
 
-interface RefEntry {
+export interface RefEntry<K extends RefType = RefType> {
   id: string
   refKey: string
   managedBy?: string
-  raw: Record<string, unknown>
+  raw: K extends keyof RefTypeDtoMap ? RefTypeDtoMap[K] : unknown
 }
 
 export class ResolvedRefs {
   private maps = new Map<RefType, Map<string, RefEntry>>()
 
-  get(type: RefType, refKey: string): RefEntry | undefined {
-    return this.maps.get(type)?.get(refKey)
+  get<K extends RefType>(type: K, refKey: string): RefEntry<K> | undefined {
+    return this.maps.get(type)?.get(refKey) as RefEntry<K> | undefined
   }
 
   resolve(type: RefType, refKey: string): string | undefined {
-    return this.get(type, refKey)?.id
+    return this.maps.get(type)?.get(refKey)?.id
   }
 
   require(type: RefType, refKey: string): string {
@@ -34,16 +34,16 @@ export class ResolvedRefs {
     return id
   }
 
-  set(type: RefType, refKey: string, entry: RefEntry): void {
+  set<K extends RefType>(type: K, refKey: string, entry: RefEntry<K>): void {
     if (!this.maps.has(type)) this.maps.set(type, new Map())
-    this.maps.get(type)!.set(refKey, entry)
+    this.maps.get(type)!.set(refKey, entry as RefEntry)
   }
 
-  all(type: RefType): Map<string, RefEntry> {
-    return this.maps.get(type) ?? new Map()
+  all<K extends RefType>(type: K): Map<string, RefEntry<K>> {
+    return (this.maps.get(type) ?? new Map()) as Map<string, RefEntry<K>>
   }
 
-  allEntries(type: RefType): RefEntry[] {
+  allEntries<K extends RefType>(type: K): RefEntry<K>[] {
     return [...this.all(type).values()]
   }
 }
@@ -62,11 +62,14 @@ export async function fetchAllRefs(client: ApiClient): Promise<ResolvedRefs> {
     const handler = handlers[i]
     for (const item of results[i]) {
       const refKey = handler.getApiRefKey(item)
+      // Handler.fetchAll() returns the correct DTO for its refType but TS
+      // can't narrow the correlation.  The cast is safe — each handler's
+      // fetchAll returns exactly RefTypeDtoMap[handler.refType].
       refs.set(handler.refType, refKey, {
         id: handler.getApiId(item),
         refKey,
         managedBy: handler.getManagedBy?.(item),
-        raw: item as Record<string, unknown>,
+        raw: item as RefEntry['raw'],
       })
     }
   }

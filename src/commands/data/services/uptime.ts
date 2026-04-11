@@ -1,6 +1,6 @@
 import {Command, Args, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {typedGet} from '../../../lib/typed-api.js'
+import {apiGet} from '../../../lib/api-client.js'
 
 export default class DataServicesUptime extends Command {
   static description = 'Get uptime data for a service'
@@ -18,9 +18,9 @@ export default class DataServicesUptime extends Command {
   async run() {
     const {args, flags} = await this.parse(DataServicesUptime)
     const client = buildClient(flags)
-    const query: Record<string, unknown> = {period: flags.period}
+    const query: Record<string, string> = {period: flags.period}
     if (flags.granularity) query.granularity = flags.granularity
-    const resp = await typedGet<{data?: unknown}>(client, `/api/v1/services/${args.slug}/uptime`, query)
+    const resp = await apiGet<{data?: unknown}>(client, `/api/v1/services/${args.slug}/uptime`, {query})
     display(this, resp.data ?? resp, flags.output)
   }
 }

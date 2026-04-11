@@ -1,5 +1,6 @@
+import {hostname} from 'node:os'
 import {Command, Flags} from '@oclif/core'
-import {createApiClient} from '../lib/api-client.js'
+import {createApiClient, apiPost, apiDelete} from '../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../lib/auth.js'
 import {loadConfig, validate, fetchAllRefs, diff, formatPlan, apply, writeState, buildState} from '../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../lib/yaml/entitlements.js'
@@ -33,6 +34,14 @@ export default class Deploy extends Command {
     }),
     'dry-run': Flags.boolean({
       description: 'Show what would change without applying (same as "devhelm plan")',
+      default: false,
+    }),
+    'force-unlock': Flags.boolean({
+      description: 'Force-break an existing deploy lock before acquiring',
+      default: false,
+    }),
+    'no-lock': Flags.boolean({
+      description: 'Skip deploy locking (not recommended for team use)',
       default: false,
     }),
     'api-url': Flags.string({description: 'Override API base URL'}),
@@ -111,27 +120,76 @@ export default class Deploy extends Command {
       }
     }
 
-    this.log('Applying changes...')
-    const applyResult = await apply(changeset, refs, client)
-
-    for (const s of applyResult.succeeded) {
-      const icon = s.action === 'delete' ? '-' : s.action === 'update' ? '~' : '+'
-      this.log(`  ${icon} ${s.resourceType} "${s.refKey}" — ${s.action}d`)
+    let lockId: string | undefined
+    if (!flags['no-lock']) {
+      lockId = await this.acquireLock(client, flags['force-unlock'])
     }
 
-    if (applyResult.failed.length > 0) {
-      this.log('')
-      for (const f of applyResult.failed) {
-        this.log(`  ✗ ${f.resourceType} "${f.refKey}" — ${f.action} failed: ${f.error}`)
+    try {
+      this.log('Applying changes...')
+      const applyResult = await apply(changeset, refs, client)
+
+      for (const s of applyResult.succeeded) {
+        const icon = s.action === 'delete' ? '-' : s.action === 'update' ? '~' : '+'
+        this.log(`  ${icon} ${s.resourceType} "${s.refKey}" — ${s.action}d`)
+      }
+
+      if (applyResult.failed.length > 0) {
+        this.log('')
+        for (const f of applyResult.failed) {
+          this.log(`  ✗ ${f.resourceType} "${f.refKey}" — ${f.action} failed: ${f.error}`)
+        }
+      }
+
+      writeState(buildState(applyResult.stateEntries))
+
+      this.log(`\nDone: ${applyResult.succeeded.length} succeeded, ${applyResult.failed.length} failed.`)
+
+      if (applyResult.failed.length > 0) {
+        this.exit(2)
+      }
+    } finally {
+      if (lockId) {
+        await this.releaseLock(client, lockId)
+      }
+    }
+  }
+
+  private async acquireLock(client: ReturnType<typeof createApiClient>, forceUnlock: boolean): Promise<string | undefined> {
+    if (forceUnlock) {
+      try {
+        await apiDelete(client, '/api/v1/deploy/lock/force')
+      } catch {
+        // Force-unlock is best-effort; the lock may not exist
       }
     }
 
-    writeState(buildState(applyResult.stateEntries))
-
-    this.log(`\nDone: ${applyResult.succeeded.length} succeeded, ${applyResult.failed.length} failed.`)
-
-    if (applyResult.failed.length > 0) {
-      this.exit(2)
+    try {
+      const resp = await apiPost<{data?: {id?: string}}>(
+        client, '/api/v1/deploy/lock',
+        {lockedBy: `${process.env.USER ?? 'cli'}@${hostname()}`, ttlMinutes: 10},
+      )
+      const lockId = resp.data?.id
+      if (!lockId) {
+        this.warn('Deploy lock acquired but no lock ID returned. Proceeding without lock protection.')
+      }
+      return lockId
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      if (msg.includes('409') || msg.includes('Conflict') || msg.includes('lock held')) {
+        this.warn(`Deploy lock conflict: ${msg}`)
+        this.warn('Use --force-unlock to break the existing lock, or --no-lock to skip locking.')
+        this.exit(3)
+      }
+      this.warn(`Failed to acquire deploy lock: ${msg}`)
+      this.warn('Use --no-lock to skip locking if the lock service is unavailable.')
+      this.exit(3)
     }
+  }
+
+  private async releaseLock(client: ReturnType<typeof createApiClient>, lockId: string): Promise<void> {
+    try {
+      await apiDelete(client, `/api/v1/deploy/lock/${lockId}`)
+    } catch { /* best-effort release */ }
   }
 }

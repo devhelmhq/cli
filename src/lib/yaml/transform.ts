@@ -188,12 +188,12 @@ export function toUpdateMonitorRequest(
   }
 }
 
-function toCreateAssertionRequest(a: YamlAssertion): Schemas['CreateAssertionRequest'] {
+export function toCreateAssertionRequest(a: YamlAssertion): Schemas['CreateAssertionRequest'] {
   const config = {type: a.type, ...(a.config ?? {})} as Schemas['CreateAssertionRequest']['config']
   return {config, severity: a.severity}
 }
 
-function toAuthConfig(auth: YamlAuth, refs: ResolvedRefs): Schemas['CreateMonitorRequest']['auth'] {
+export function toAuthConfig(auth: YamlAuth, refs: ResolvedRefs): Schemas['CreateMonitorRequest']['auth'] {
   const secretId = refs.resolve('secrets', auth.secret) ?? undefined
   switch (auth.type) {
     case 'BearerAuthConfig':
@@ -207,7 +207,7 @@ function toAuthConfig(auth: YamlAuth, refs: ResolvedRefs): Schemas['CreateMonito
   }
 }
 
-function toIncidentPolicy(policy: YamlIncidentPolicy): Schemas['UpdateIncidentPolicyRequest'] {
+export function toIncidentPolicy(policy: YamlIncidentPolicy): Schemas['UpdateIncidentPolicyRequest'] {
   return {
     triggerRules: policy.triggerRules.map((r) => ({
       type: r.type,

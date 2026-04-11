@@ -1,7 +1,10 @@
 import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../lib/base-command.js'
-import {typedGet} from '../lib/typed-api.js'
+import {apiGet} from '../lib/api-client.js'
 import {formatOutput, OutputFormat} from '../lib/output.js'
+import type {components} from '../lib/api.generated.js'
+
+type DashboardOverviewDto = components['schemas']['DashboardOverviewDto']
 
 export default class Status extends Command {
   static description = 'Show dashboard overview'
@@ -11,7 +14,7 @@ export default class Status extends Command {
   async run() {
     const {flags} = await this.parse(Status)
     const client = buildClient(flags)
-    const resp = await typedGet<{data?: Record<string, Record<string, unknown>>}>(client, '/api/v1/dashboard/overview')
+    const resp = await apiGet<{data?: DashboardOverviewDto}>(client, '/api/v1/dashboard/overview')
     const overview = resp.data ?? {}
 
     const format = flags.output as OutputFormat

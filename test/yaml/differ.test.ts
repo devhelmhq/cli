@@ -623,7 +623,7 @@ describe('differ', () => {
       refs.set('secrets', 'creds', {id: 'sec-1', refKey: 'creds', raw: {}})
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
         name: 'M', type: 'HTTP',
-        auth: {authType: 'bearer', config: {type: 'BearerAuthConfig', vaultSecretId: 'sec-1'}},
+        auth: {type: 'BearerAuthConfig', vaultSecretId: 'sec-1'},
         config: {url: 'https://x.com', method: 'GET'},
       }})
       const config: DevhelmConfig = {
@@ -642,7 +642,7 @@ describe('differ', () => {
       refs.set('secrets', 'token', {id: 'sec-1', refKey: 'token', raw: {}})
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
         name: 'M', type: 'HTTP',
-        auth: {authType: 'bearer', config: {type: 'BearerAuthConfig', vaultSecretId: 'sec-1'}},
+        auth: {type: 'BearerAuthConfig', vaultSecretId: 'sec-1'},
         config: {url: 'https://x.com', method: 'GET'},
       }})
       const config: DevhelmConfig = {

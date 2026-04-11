@@ -11,8 +11,16 @@
  *   - toCurrentSnapshot(api)             → TSnapshot  (what we HAVE)
  *   - hasChanged = !isEqual(desired, current)
  *
- * TypeScript enforces both functions return the same TSnapshot type.  Adding a
- * field to TSnapshot → compile error until both sides are updated.
+ * Snapshot types are derived from the OpenAPI-generated Update*Request schemas
+ * (via Required<Schemas['UpdateXRequest']>).  This guarantees that when the API
+ * contract changes — a field is added, removed, or renamed — the TypeScript
+ * compiler immediately errors in the snapshot functions, preventing silent drift.
+ *
+ * Three resources use custom snapshot types because their update semantics
+ * don't map 1:1 to an UpdateXRequest schema:
+ *   - secret:       write-only value, compared by SHA-256 hash
+ *   - alertChannel: complex config union, compared by content-addressed hash
+ *   - dependency:   no single update endpoint (split across two API calls)
  *
  * Adding a new resource type requires:
  *   1. Adding it to HandledResourceType in types.ts
@@ -35,17 +43,13 @@ import {
   toCreateTagRequest, toCreateEnvironmentRequest, toCreateSecretRequest,
   toCreateAlertChannelRequest, toCreateNotificationPolicyRequest,
   toCreateWebhookRequest, toCreateResourceGroupRequest,
-  toCreateMonitorRequest, toUpdateMonitorRequest,
+  toCreateMonitorRequest, toUpdateMonitorRequest, toAuthConfig,
+  toCreateAssertionRequest, toIncidentPolicy,
 } from './transform.js'
-import {typedPost, typedPut, typedPatch, fetchPaginated} from '../typed-api.js'
+import {fetchPaginated} from '../typed-api.js'
+import {checkedFetch, apiPatch} from '../api-client.js'
 
 type Schemas = components['schemas']
-
-// ── Response wrappers (match generated SingleValueResponse* pattern) ─────
-
-interface SingleValueResponse<T> {
-  data?: T
-}
 
 // ── Public interface ────────────────────────────────────────────────────
 
@@ -82,8 +86,8 @@ export interface ResourceHandler<TYaml = unknown, TApiDto = unknown> {
 
 /**
  * Input shape for defineHandler.  Handlers provide two snapshot functions
- * that both return TSnapshot, OR set alwaysChanged for write-only resources.
- * hasChanged is automatically derived — handlers never implement it manually.
+ * that both return TSnapshot.  hasChanged is automatically derived from
+ * snapshot comparison — handlers never implement it manually.
  */
 interface HandlerDef<TYaml, TApiDto, TSnapshot> {
   readonly resourceType: HandledResourceType
@@ -96,23 +100,8 @@ interface HandlerDef<TYaml, TApiDto, TSnapshot> {
   getApiId(api: TApiDto): string
   getManagedBy?: (api: TApiDto) => string | undefined
 
-  /**
-   * true → resource always reports as changed (e.g. secrets: value is write-only,
-   * the API never returns it, so we can't compare).
-   */
-  alwaysChanged?: boolean
-
-  /**
-   * Project the YAML config + current API state into a comparable snapshot.
-   * For undefined (optional) YAML fields, use the current API value so they
-   * don't trigger a false diff.
-   */
-  toDesiredSnapshot?: (yaml: TYaml, api: TApiDto, refs: ResolvedRefs) => TSnapshot
-
-  /**
-   * Project the API DTO into the same comparable snapshot shape.
-   */
-  toCurrentSnapshot?: (api: TApiDto) => TSnapshot
+  toDesiredSnapshot(yaml: TYaml, api: TApiDto, refs: ResolvedRefs): TSnapshot
+  toCurrentSnapshot(api: TApiDto): TSnapshot
 
   fetchAll(client: ApiClient): Promise<TApiDto[]>
   applyCreate(yaml: TYaml, refs: ResolvedRefs, client: ApiClient): Promise<string | undefined>
@@ -125,7 +114,7 @@ interface HandlerDef<TYaml, TApiDto, TSnapshot> {
  * derives hasChanged from snapshot comparison, then type-erases to
  * ResourceHandler (defaults) for registry storage.
  */
-function defineHandler<TYaml, TApiDto, TSnapshot = never>(
+function defineHandler<TYaml, TApiDto, TSnapshot>(
   h: HandlerDef<TYaml, TApiDto, TSnapshot>,
 ): ResourceHandler {
   const handler: ResourceHandler<TYaml, TApiDto> = {
@@ -140,8 +129,6 @@ function defineHandler<TYaml, TApiDto, TSnapshot = never>(
     getManagedBy: h.getManagedBy,
 
     hasChanged(yaml: TYaml, api: TApiDto, refs: ResolvedRefs): boolean {
-      if (h.alwaysChanged) return true
-      if (!h.toDesiredSnapshot || !h.toCurrentSnapshot) return true
       return !isEqual(h.toDesiredSnapshot(yaml, api, refs), h.toCurrentSnapshot(api))
     },
 
@@ -163,7 +150,7 @@ function sortedIds(ids: string[]): string[] {
   return [...ids].sort()
 }
 
-function sha256Hex(input: string): string {
+export function sha256Hex(input: string): string {
   return createHash('sha256').update(input, 'utf8').digest('hex')
 }
 
@@ -172,7 +159,7 @@ function sha256Hex(input: string): string {
  * nesting level.  Produces the same output regardless of JS engine key
  * insertion order, matching the Java-side TreeMap-based canonical JSON.
  */
-function stableStringify(obj: unknown): string {
+export function stableStringify(obj: unknown): string {
   if (obj === null || obj === undefined) return 'null'
   if (typeof obj !== 'object') return JSON.stringify(obj)
   if (Array.isArray(obj)) return '[' + obj.map(stableStringify).join(',') + ']'
@@ -183,10 +170,7 @@ function stableStringify(obj: unknown): string {
 
 // ── Tag ─────────────────────────────────────────────────────────────────
 
-interface TagSnapshot {
-  name: string
-  color: string | null
-}
+type TagSnapshot = Required<Schemas['UpdateTagRequest']>
 
 const tagHandler = defineHandler<YamlTag, Schemas['TagDto'], TagSnapshot>({
   resourceType: 'tag',
@@ -203,31 +187,25 @@ const tagHandler = defineHandler<YamlTag, Schemas['TagDto'], TagSnapshot>({
     color: yaml.color ?? api.color ?? null,
   }),
   toCurrentSnapshot: (api) => ({
-    name: api.name ?? '',
+    name: api.name ?? null,
     color: api.color ?? null,
   }),
 
   fetchAll: (client) => fetchPaginated<Schemas['TagDto']>(client, '/api/v1/tags'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await typedPost<SingleValueResponse<Schemas['TagDto']>>(
-      client, '/api/v1/tags', toCreateTagRequest(yaml),
-    )
+    const resp = await checkedFetch(client.POST('/api/v1/tags', {body: toCreateTagRequest(yaml)}))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
-    await typedPut(client, `/api/v1/tags/${id}`, toCreateTagRequest(yaml))
+    await checkedFetch(client.PUT('/api/v1/tags/{id}', {params: {path: {id}}, body: toCreateTagRequest(yaml)}))
   },
   deletePath: (id) => `/api/v1/tags/${id}`,
 })
 
 // ── Environment ─────────────────────────────────────────────────────────
 
-interface EnvironmentSnapshot {
-  name: string
-  isDefault: boolean
-  variables: Record<string, string> | null
-}
+type EnvironmentSnapshot = Required<Schemas['UpdateEnvironmentRequest']>
 
 const environmentHandler = defineHandler<YamlEnvironment, Schemas['EnvironmentDto'], EnvironmentSnapshot>({
   resourceType: 'environment',
@@ -241,37 +219,34 @@ const environmentHandler = defineHandler<YamlEnvironment, Schemas['EnvironmentDt
 
   toDesiredSnapshot: (yaml, api) => ({
     name: yaml.name,
-    isDefault: yaml.isDefault ?? api.isDefault ?? false,
+    isDefault: yaml.isDefault ?? api.isDefault ?? null,
     variables: yaml.variables ?? api.variables ?? null,
   }),
   toCurrentSnapshot: (api) => ({
-    name: api.name ?? '',
-    isDefault: api.isDefault ?? false,
+    name: api.name ?? null,
+    isDefault: api.isDefault ?? null,
     variables: api.variables ?? null,
   }),
 
   fetchAll: (client) => fetchPaginated<Schemas['EnvironmentDto']>(client, '/api/v1/environments'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await typedPost<SingleValueResponse<Schemas['EnvironmentDto']>>(
-      client, '/api/v1/environments', toCreateEnvironmentRequest(yaml),
-    )
+    const resp = await checkedFetch(client.POST('/api/v1/environments', {body: toCreateEnvironmentRequest(yaml)}))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
-    await typedPut(client, `/api/v1/environments/${id}`, {
+    await checkedFetch(client.PUT('/api/v1/environments/{slug}', {params: {path: {slug: id}}, body: {
       name: yaml.name, variables: yaml.variables ?? null, isDefault: yaml.isDefault,
-    })
+    }}))
   },
   deletePath: (id) => `/api/v1/environments/${id}`,
 })
 
 // ── Secret ──────────────────────────────────────────────────────────────
 
-interface SecretSnapshot {
-  key: string
-  valueHash: string
-}
+// Custom snapshot: the API never returns the plaintext value (write-only),
+// so we compare by SHA-256 hash instead of using UpdateSecretRequest.
+type SecretSnapshot = { key: string; valueHash: string }
 
 const secretHandler = defineHandler<YamlSecret, Schemas['SecretDto'], SecretSnapshot>({
   resourceType: 'secret',
@@ -295,24 +270,20 @@ const secretHandler = defineHandler<YamlSecret, Schemas['SecretDto'], SecretSnap
   fetchAll: (client) => fetchPaginated<Schemas['SecretDto']>(client, '/api/v1/secrets'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await typedPost<SingleValueResponse<Schemas['SecretDto']>>(
-      client, '/api/v1/secrets', toCreateSecretRequest(yaml),
-    )
+    const resp = await checkedFetch(client.POST('/api/v1/secrets', {body: toCreateSecretRequest(yaml)}))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, _id, _refs, client) {
-    await typedPut(client, `/api/v1/secrets/${yaml.key}`, {value: yaml.value})
+    await checkedFetch(client.PUT('/api/v1/secrets/{key}', {params: {path: {key: yaml.key}}, body: {value: yaml.value}}))
   },
   deletePath: (id) => `/api/v1/secrets/${id}`,
 })
 
 // ── Alert Channel ───────────────────────────────────────────────────────
 
-interface AlertChannelSnapshot {
-  name: string
-  channelType: string
-  configHash: string
-}
+// Custom snapshot: config is a complex discriminated union, compared by
+// content-addressed SHA-256 hash (matching the API's configHash field).
+type AlertChannelSnapshot = { name: string; channelType: string; configHash: string }
 
 const alertChannelHandler = defineHandler<YamlAlertChannel, Schemas['AlertChannelDto'], AlertChannelSnapshot>({
   resourceType: 'alertChannel',
@@ -335,34 +306,24 @@ const alertChannelHandler = defineHandler<YamlAlertChannel, Schemas['AlertChanne
   toCurrentSnapshot: (api) => ({
     name: api.name,
     channelType: api.channelType?.toLowerCase?.() ?? '',
-    // configHash is available once the API is deployed with V89 migration.
-    // Pre-migration responses lack it → empty string → forces update (backfills hash).
-    configHash: (api as Record<string, unknown>).configHash as string ?? '',
+    configHash: api.configHash ?? '',
   }),
 
   fetchAll: (client) => fetchPaginated<Schemas['AlertChannelDto']>(client, '/api/v1/alert-channels'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await typedPost<SingleValueResponse<Schemas['AlertChannelDto']>>(
-      client, '/api/v1/alert-channels', toCreateAlertChannelRequest(yaml),
-    )
+    const resp = await checkedFetch(client.POST('/api/v1/alert-channels', {body: toCreateAlertChannelRequest(yaml)}))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
-    await typedPut(client, `/api/v1/alert-channels/${id}`, toCreateAlertChannelRequest(yaml))
+    await checkedFetch(client.PUT('/api/v1/alert-channels/{id}', {params: {path: {id}}, body: toCreateAlertChannelRequest(yaml)}))
   },
   deletePath: (id) => `/api/v1/alert-channels/${id}`,
 })
 
 // ── Notification Policy ─────────────────────────────────────────────────
 
-interface NotificationPolicySnapshot {
-  name: string
-  enabled: boolean
-  priority: number
-  matchRules: unknown
-  escalation: unknown
-}
+type NotificationPolicySnapshot = Required<Schemas['UpdateNotificationPolicyRequest']>
 
 const notificationPolicyHandler = defineHandler<YamlNotificationPolicy, Schemas['NotificationPolicyDto'], NotificationPolicySnapshot>({
   resourceType: 'notificationPolicy',
@@ -380,7 +341,7 @@ const notificationPolicyHandler = defineHandler<YamlNotificationPolicy, Schemas[
       name: req.name,
       enabled: req.enabled ?? api.enabled ?? true,
       priority: req.priority ?? api.priority ?? 0,
-      matchRules: req.matchRules ?? api.matchRules ?? null,
+      matchRules: req.matchRules ?? api.matchRules ?? [],
       escalation: req.escalation,
     }
   },
@@ -388,31 +349,25 @@ const notificationPolicyHandler = defineHandler<YamlNotificationPolicy, Schemas[
     name: api.name ?? '',
     enabled: api.enabled ?? true,
     priority: api.priority ?? 0,
-    matchRules: api.matchRules ?? null,
-    escalation: api.escalation ?? null,
+    matchRules: api.matchRules ?? [],
+    escalation: api.escalation ?? {steps: [], onResolve: null, onReopen: null},
   }),
 
   fetchAll: (client) => fetchPaginated<Schemas['NotificationPolicyDto']>(client, '/api/v1/notification-policies'),
 
   async applyCreate(yaml, refs, client) {
-    const resp = await typedPost<SingleValueResponse<Schemas['NotificationPolicyDto']>>(
-      client, '/api/v1/notification-policies', toCreateNotificationPolicyRequest(yaml, refs),
-    )
+    const resp = await checkedFetch(client.POST('/api/v1/notification-policies', {body: toCreateNotificationPolicyRequest(yaml, refs)}))
     return resp.data?.id != null ? String(resp.data.id) : undefined
   },
   async applyUpdate(yaml, id, refs, client) {
-    await typedPut(client, `/api/v1/notification-policies/${id}`, toCreateNotificationPolicyRequest(yaml, refs))
+    await checkedFetch(client.PUT('/api/v1/notification-policies/{id}', {params: {path: {id}}, body: toCreateNotificationPolicyRequest(yaml, refs)}))
   },
   deletePath: (id) => `/api/v1/notification-policies/${id}`,
 })
 
 // ── Webhook ─────────────────────────────────────────────────────────────
 
-interface WebhookSnapshot {
-  url: string
-  description: string | null
-  subscribedEvents: string[]
-}
+type WebhookSnapshot = Required<Schemas['UpdateWebhookEndpointRequest']>
 
 const webhookHandler = defineHandler<YamlWebhook, Schemas['WebhookEndpointDto'], WebhookSnapshot>({
   resourceType: 'webhook',
@@ -428,43 +383,34 @@ const webhookHandler = defineHandler<YamlWebhook, Schemas['WebhookEndpointDto'],
     url: yaml.url,
     description: yaml.description ?? api.description ?? null,
     subscribedEvents: sortedIds(yaml.events),
+    enabled: api.enabled ?? null,
   }),
   toCurrentSnapshot: (api) => ({
-    url: api.url ?? '',
+    url: api.url ?? null,
     description: api.description ?? null,
-    subscribedEvents: sortedIds(api.subscribedEvents ?? []),
+    subscribedEvents: api.subscribedEvents ? sortedIds(api.subscribedEvents) : null,
+    enabled: api.enabled ?? null,
   }),
 
   fetchAll: (client) => fetchPaginated<Schemas['WebhookEndpointDto']>(client, '/api/v1/webhooks'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await typedPost<SingleValueResponse<Schemas['WebhookEndpointDto']>>(
-      client, '/api/v1/webhooks', toCreateWebhookRequest(yaml),
-    )
+    const resp = await checkedFetch(client.POST('/api/v1/webhooks', {body: toCreateWebhookRequest(yaml)}))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
-    await typedPut(client, `/api/v1/webhooks/${id}`, toCreateWebhookRequest(yaml))
+    await checkedFetch(client.PUT('/api/v1/webhooks/{id}', {params: {path: {id}}, body: toCreateWebhookRequest(yaml)}))
   },
   deletePath: (id) => `/api/v1/webhooks/${id}`,
 })
 
 // ── Resource Group ──────────────────────────────────────────────────────
 
-interface ResourceGroupSnapshot {
-  name: string
-  description: string | null
-  alertPolicyId: string | null
-  defaultFrequency: number | null
-  defaultRegions: string[] | null
-  defaultRetryStrategy: unknown
-  defaultAlertChannelIds: string[] | null
-  defaultEnvironmentId: string | null
-  healthThresholdType: string | null
-  healthThresholdValue: number | null
-  suppressMemberAlerts: boolean | undefined
-  confirmationDelaySeconds: number | null
-  recoveryCooldownMinutes: number | null
+// defaultRetryStrategy is optional (not nullable) in the Update schema,
+// but a group can legitimately have none, so we add | null.
+type ResourceGroupSnapshotBase = Required<Schemas['UpdateResourceGroupRequest']>
+type ResourceGroupSnapshot = Omit<ResourceGroupSnapshotBase, 'defaultRetryStrategy'> & {
+  defaultRetryStrategy: ResourceGroupSnapshotBase['defaultRetryStrategy'] | null
 }
 
 const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceGroupDto'], ResourceGroupSnapshot>({
@@ -488,7 +434,7 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
       ? sortedIds(yaml.defaultRegions)
       : (api.defaultRegions ? sortedIds(nonNullStrings(api.defaultRegions)) : null),
     defaultRetryStrategy: yaml.defaultRetryStrategy ?? api.defaultRetryStrategy ?? null,
-    defaultAlertChannelIds: yaml.defaultAlertChannels !== undefined
+    defaultAlertChannels: yaml.defaultAlertChannels !== undefined
       ? sortedIds(yaml.defaultAlertChannels.map((n) => refs.resolve('alertChannels', n) ?? n))
       : (api.defaultAlertChannels ? sortedIds(nonNullStrings(api.defaultAlertChannels)) : null),
     defaultEnvironmentId: yaml.defaultEnvironment !== undefined
@@ -496,7 +442,7 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
       : (api.defaultEnvironmentId ?? null),
     healthThresholdType: yaml.healthThresholdType ?? api.healthThresholdType ?? null,
     healthThresholdValue: yaml.healthThresholdValue ?? api.healthThresholdValue ?? null,
-    suppressMemberAlerts: yaml.suppressMemberAlerts ?? api.suppressMemberAlerts,
+    suppressMemberAlerts: yaml.suppressMemberAlerts ?? api.suppressMemberAlerts ?? null,
     confirmationDelaySeconds: yaml.confirmationDelaySeconds ?? api.confirmationDelaySeconds ?? null,
     recoveryCooldownMinutes: yaml.recoveryCooldownMinutes ?? api.recoveryCooldownMinutes ?? null,
   }),
@@ -507,11 +453,11 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
     defaultFrequency: api.defaultFrequency ?? null,
     defaultRegions: api.defaultRegions ? sortedIds(nonNullStrings(api.defaultRegions)) : null,
     defaultRetryStrategy: api.defaultRetryStrategy ?? null,
-    defaultAlertChannelIds: api.defaultAlertChannels ? sortedIds(nonNullStrings(api.defaultAlertChannels)) : null,
+    defaultAlertChannels: api.defaultAlertChannels ? sortedIds(nonNullStrings(api.defaultAlertChannels)) : null,
     defaultEnvironmentId: api.defaultEnvironmentId ?? null,
     healthThresholdType: api.healthThresholdType ?? null,
     healthThresholdValue: api.healthThresholdValue ?? null,
-    suppressMemberAlerts: api.suppressMemberAlerts,
+    suppressMemberAlerts: api.suppressMemberAlerts ?? null,
     confirmationDelaySeconds: api.confirmationDelaySeconds ?? null,
     recoveryCooldownMinutes: api.recoveryCooldownMinutes ?? null,
   }),
@@ -519,32 +465,24 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
   fetchAll: (client) => fetchPaginated<Schemas['ResourceGroupDto']>(client, '/api/v1/resource-groups'),
 
   async applyCreate(yaml, refs, client) {
-    const resp = await typedPost<SingleValueResponse<Schemas['ResourceGroupDto']>>(
-      client, '/api/v1/resource-groups', toCreateResourceGroupRequest(yaml, refs),
-    )
+    const resp = await checkedFetch(client.POST('/api/v1/resource-groups', {body: toCreateResourceGroupRequest(yaml, refs)}))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, refs, client) {
-    await typedPut(client, `/api/v1/resource-groups/${id}`, toCreateResourceGroupRequest(yaml, refs))
+    await checkedFetch(client.PUT('/api/v1/resource-groups/{id}', {params: {path: {id}}, body: toCreateResourceGroupRequest(yaml, refs)}))
   },
   deletePath: (id) => `/api/v1/resource-groups/${id}`,
 })
 
 // ── Monitor ─────────────────────────────────────────────────────────────
 
-interface MonitorSnapshot {
-  name: string
-  type: string
-  config: unknown
-  enabled: boolean | undefined
-  frequencySeconds: number | undefined
-  regions: string[] | null
-  environmentId: string | null
-  tagIds: string[] | null
-  alertChannelIds: string[] | null
-  auth: unknown
-  assertions: unknown
-  incidentPolicy: unknown
+// Derived from UpdateMonitorRequest minus control-only fields (clearAuth,
+// clearEnvironmentId, managedBy) that are mutation signals, not state.
+// auth and incidentPolicy need | null because monitors can lack them.
+type MonitorSnapshotBase = Required<Omit<Schemas['UpdateMonitorRequest'], 'clearEnvironmentId' | 'clearAuth' | 'managedBy'>>
+type MonitorSnapshot = Omit<MonitorSnapshotBase, 'auth' | 'incidentPolicy'> & {
+  auth: MonitorSnapshotBase['auth'] | null
+  incidentPolicy: MonitorSnapshotBase['incidentPolicy'] | null
 }
 
 const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], MonitorSnapshot>({
@@ -560,154 +498,106 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
 
   toDesiredSnapshot: (yaml, api, refs) => ({
     name: yaml.name,
-    type: yaml.type,
-    config: yaml.config,
-    enabled: yaml.enabled ?? api.enabled,
-    frequencySeconds: yaml.frequency ?? api.frequencySeconds,
+    config: yaml.config as MonitorSnapshot['config'],
+    frequencySeconds: yaml.frequency ?? api.frequencySeconds ?? null,
+    enabled: yaml.enabled ?? api.enabled ?? null,
     regions: yaml.regions !== undefined
       ? sortedIds(yaml.regions)
       : (api.regions ? sortedIds(api.regions) : null),
     environmentId: yaml.environment !== undefined
       ? (refs.resolve('environments', yaml.environment) ?? null)
       : (api.environment?.id ?? null),
-    tagIds: yaml.tags !== undefined
-      ? sortedIds(yaml.tags.map((n) => refs.resolve('tags', n) ?? n))
-      : extractTagIds(api),
+    assertions: yaml.assertions !== undefined
+      ? sortAssertions(yaml.assertions.map(toCreateAssertionRequest))
+      : apiAssertionsToSnapshot(api.assertions),
+    auth: yaml.auth !== undefined
+      ? (toAuthConfig(yaml.auth, refs) ?? null)
+      : (api.auth ?? null),
+    incidentPolicy: yaml.incidentPolicy !== undefined
+      ? toIncidentPolicy(yaml.incidentPolicy)
+      : apiIncidentPolicyToSnapshot(api.incidentPolicy),
     alertChannelIds: yaml.alertChannels !== undefined
       ? sortedIds(yaml.alertChannels.map((n) => refs.resolve('alertChannels', n) ?? n))
       : (api.alertChannelIds ? sortedIds(nonNullStrings(api.alertChannelIds)) : null),
-    auth: yaml.auth !== undefined
-      ? normalizeYamlAuth(yaml.auth, refs)
-      : normalizeApiAuth(api.auth),
-    assertions: yaml.assertions !== undefined
-      ? normalizeYamlAssertions(yaml.assertions)
-      : normalizeApiAssertions(api.assertions),
-    incidentPolicy: yaml.incidentPolicy !== undefined
-      ? normalizeIncidentPolicy(yaml.incidentPolicy)
-      : normalizeApiIncidentPolicy(api.incidentPolicy),
+    tags: yaml.tags !== undefined
+      ? {
+        tagIds: sortedIds(yaml.tags.map((n) => refs.resolve('tags', n)).filter((id): id is string => id !== undefined)),
+        newTags: yaml.tags.filter((n) => !refs.resolve('tags', n)).map((n) => ({name: n})),
+      }
+      : apiTagsToSnapshot(api),
   }),
   toCurrentSnapshot: (api) => ({
-    name: api.name ?? '',
-    type: api.type ?? '',
-    config: api.config,
-    enabled: api.enabled,
-    frequencySeconds: api.frequencySeconds,
+    name: api.name ?? null,
+    config: api.config as MonitorSnapshot['config'],
+    frequencySeconds: api.frequencySeconds ?? null,
+    enabled: api.enabled ?? null,
     regions: api.regions ? sortedIds(api.regions) : null,
     environmentId: api.environment?.id ?? null,
-    tagIds: extractTagIds(api),
+    assertions: apiAssertionsToSnapshot(api.assertions),
+    auth: api.auth ?? null,
+    incidentPolicy: apiIncidentPolicyToSnapshot(api.incidentPolicy),
     alertChannelIds: api.alertChannelIds ? sortedIds(nonNullStrings(api.alertChannelIds)) : null,
-    auth: normalizeApiAuth(api.auth),
-    assertions: normalizeApiAssertions(api.assertions),
-    incidentPolicy: normalizeApiIncidentPolicy(api.incidentPolicy),
+    tags: apiTagsToSnapshot(api),
   }),
 
   fetchAll: (client) => fetchPaginated<Schemas['MonitorDto']>(client, '/api/v1/monitors'),
 
   async applyCreate(yaml, refs, client) {
-    const resp = await typedPost<SingleValueResponse<Schemas['MonitorDto']>>(
-      client, '/api/v1/monitors', toCreateMonitorRequest(yaml, refs),
-    )
+    const resp = await checkedFetch(client.POST('/api/v1/monitors', {body: toCreateMonitorRequest(yaml, refs)}))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, refs, client) {
-    await typedPut(client, `/api/v1/monitors/${id}`, toUpdateMonitorRequest(yaml, refs))
+    await checkedFetch(client.PUT('/api/v1/monitors/{id}', {params: {path: {id}}, body: toUpdateMonitorRequest(yaml, refs)}))
   },
   deletePath: (id) => `/api/v1/monitors/${id}`,
 })
 
-// ── Monitor snapshot normalization helpers ───────────────────────────────
+// ── Monitor snapshot helpers ─────────────────────────────────────────────
 
-function extractTagIds(api: Schemas['MonitorDto']): string[] | null {
-  if (!api.tags) return null
-  return sortedIds(api.tags.map((t) => String(t.id ?? '')).filter(Boolean))
+function sortAssertions(
+  assertions: Schemas['CreateAssertionRequest'][],
+): Schemas['CreateAssertionRequest'][] {
+  return [...assertions].sort((a, b) => {
+    const aType = (a.config as {type: string}).type
+    const bType = (b.config as {type: string}).type
+    return aType.localeCompare(bType)
+  })
 }
 
-interface NormalizedAuth {
-  type: string
-  secretId: string | null
-  headerName?: string
-}
-
-const AUTH_TYPE_CANONICAL: Record<string, string> = {
-  BearerAuthConfig: 'bearer',
-  BasicAuthConfig: 'basic',
-  ApiKeyAuthConfig: 'api_key',
-  HeaderAuthConfig: 'header',
-  bearer: 'bearer',
-  basic: 'basic',
-  api_key: 'api_key',
-  header: 'header',
-}
-
-function normalizeYamlAuth(auth: YamlMonitor['auth'], refs: ResolvedRefs): NormalizedAuth | null {
-  if (!auth) return null
-  const base: NormalizedAuth = {
-    type: AUTH_TYPE_CANONICAL[auth.type] ?? auth.type,
-    secretId: refs.resolve('secrets', auth.secret) ?? null,
-  }
-  if ('headerName' in auth) base.headerName = auth.headerName
-  return base
-}
-
-function normalizeApiAuth(auth: Schemas['MonitorDto']['auth']): NormalizedAuth | null {
-  if (!auth) return null
-  const config = auth.config as Record<string, unknown> | undefined
-  const base: NormalizedAuth = {
-    type: AUTH_TYPE_CANONICAL[auth.authType ?? ''] ?? (auth.authType ?? ''),
-    secretId: (config?.vaultSecretId as string | null) ?? null,
-  }
-  if (config?.headerName) base.headerName = config.headerName as string
-  return base
-}
-
-interface NormalizedAssertion {
-  type: string
-  config: Record<string, unknown>
-  severity: string
-}
-
-function normalizeYamlAssertions(assertions: YamlMonitor['assertions']): NormalizedAssertion[] | null {
+function apiAssertionsToSnapshot(
+  assertions: Schemas['MonitorDto']['assertions'],
+): Schemas['CreateAssertionRequest'][] | null {
   if (!assertions) return null
-  return assertions
-    .map((a) => ({type: a.type, config: a.config ?? {}, severity: a.severity ?? 'fail'}))
-    .sort((a, b) => a.type.localeCompare(b.type))
+  return sortAssertions(assertions.map((a) => ({
+    config: a.config as Schemas['CreateAssertionRequest']['config'],
+    severity: a.severity,
+  })))
 }
 
-function normalizeApiAssertions(assertions: Schemas['MonitorDto']['assertions']): NormalizedAssertion[] | null {
-  if (!assertions) return null
-  return assertions
-    .map((a) => {
-      const config = (a.config ?? {}) as Record<string, unknown>
-      const {type, ...rest} = config
-      return {type: type as string, config: rest, severity: a.severity ?? 'fail'}
-    })
-    .sort((a, b) => a.type.localeCompare(b.type))
-}
-
-function normalizeIncidentPolicy(policy: YamlMonitor['incidentPolicy']): unknown {
+function apiIncidentPolicyToSnapshot(
+  policy: Schemas['MonitorDto']['incidentPolicy'],
+): Schemas['UpdateIncidentPolicyRequest'] | null {
   if (!policy) return null
   return {
-    triggerRules: policy.triggerRules,
-    confirmation: policy.confirmation,
-    recovery: policy.recovery,
+    triggerRules: policy.triggerRules ?? [],
+    confirmation: policy.confirmation ?? {type: 'multi_region'},
+    recovery: policy.recovery ?? {consecutiveSuccesses: 1, minRegionsPassing: 1, cooldownMinutes: 0},
   }
 }
 
-function normalizeApiIncidentPolicy(policy: Schemas['MonitorDto']['incidentPolicy']): unknown {
-  if (!policy) return null
+function apiTagsToSnapshot(api: Schemas['MonitorDto']): Schemas['AddMonitorTagsRequest'] {
+  if (!api.tags) return {tagIds: null, newTags: []}
   return {
-    triggerRules: policy.triggerRules,
-    confirmation: policy.confirmation,
-    recovery: policy.recovery,
+    tagIds: sortedIds(api.tags.map((t) => String(t.id ?? '')).filter(Boolean)),
+    newTags: [],
   }
 }
 
 // ── Dependency ──────────────────────────────────────────────────────────
 
-interface DependencySnapshot {
-  alertSensitivity: string | null
-  component: string | null
-}
+// Custom snapshot: there is no single UpdateDependencyRequest — updates are
+// split across UpdateAlertSensitivityRequest and a generic PATCH.
+type DependencySnapshot = { alertSensitivity: string | null; component: string | null }
 
 const dependencyHandler = defineHandler<YamlDependency, Schemas['ServiceSubscriptionDto'], DependencySnapshot>({
   resourceType: 'dependency',
@@ -731,24 +621,24 @@ const dependencyHandler = defineHandler<YamlDependency, Schemas['ServiceSubscrip
   fetchAll: (client) => fetchPaginated<Schemas['ServiceSubscriptionDto']>(client, '/api/v1/service-subscriptions'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await typedPost<SingleValueResponse<Schemas['ServiceSubscriptionDto']>>(
-      client, `/api/v1/service-subscriptions/${yaml.service}`, {
+    const resp = await checkedFetch(client.POST('/api/v1/service-subscriptions/{slug}', {
+      params: {path: {slug: yaml.service}},
+      body: {
         alertSensitivity: yaml.alertSensitivity ?? null,
         componentId: yaml.component ?? null,
       },
-    )
+    }))
     return resp.data?.subscriptionId ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
     if (yaml.alertSensitivity !== undefined) {
-      await typedPatch(client, `/api/v1/service-subscriptions/${id}/alert-sensitivity`, {
-        alertSensitivity: yaml.alertSensitivity,
-      })
+      await checkedFetch(client.PATCH('/api/v1/service-subscriptions/{id}/alert-sensitivity', {
+        params: {path: {id}},
+        body: {alertSensitivity: yaml.alertSensitivity},
+      }))
     }
     if (yaml.component !== undefined) {
-      await typedPatch(client, `/api/v1/service-subscriptions/${id}`, {
-        componentId: yaml.component,
-      })
+      await apiPatch(client, `/api/v1/service-subscriptions/${id}`, {componentId: yaml.component})
     }
   },
   deletePath: (id) => `/api/v1/service-subscriptions/${id}`,

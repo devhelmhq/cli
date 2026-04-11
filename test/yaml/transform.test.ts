@@ -7,7 +7,7 @@ import {
 } from '../../src/lib/yaml/transform.js'
 import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
 import type {
-  YamlTag, YamlEnvironment, YamlSecret, YamlAlertChannel,
+  YamlTag, YamlEnvironment, YamlAlertChannel,
   YamlNotificationPolicy, YamlWebhook, YamlResourceGroup, YamlMonitor,
 } from '../../src/lib/yaml/schema.js'
 

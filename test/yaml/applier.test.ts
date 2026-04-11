@@ -3,20 +3,13 @@ import {apply} from '../../src/lib/yaml/applier.js'
 import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
 import type {Changeset, Change} from '../../src/lib/yaml/differ.js'
 
-vi.mock('../../src/lib/typed-api.js', () => ({
-  typedGet: vi.fn(),
-  typedPost: vi.fn(),
-  typedPut: vi.fn(),
-  typedPatch: vi.fn(),
-  typedDelete: vi.fn(),
-  fetchPaginated: vi.fn(),
+vi.mock('../../src/lib/api-client.js', () => ({
+  checkedFetch: vi.fn(async (p: unknown) => p),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apiDelete: vi.fn(async (client: any, path: string) => client.DELETE(path, {params: {path: {}}})),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apiPatch: vi.fn(async (client: any, path: string, body: object) => client.PATCH(path, {body})),
 }))
-
-import {typedPost, typedPut, typedPatch, typedDelete} from '../../src/lib/typed-api.js'
-const mockPost = vi.mocked(typedPost)
-const mockPut = vi.mocked(typedPut)
-const mockPatch = vi.mocked(typedPatch)
-const mockDelete = vi.mocked(typedDelete)
 
 function emptyChangeset(): Changeset {
   return {creates: [], updates: [], deletes: [], memberships: []}
@@ -26,11 +19,30 @@ function emptyRefs(): ResolvedRefs {
   return new ResolvedRefs()
 }
 
-const fakeClient = {} as Parameters<typeof apply>[2]
+function makeFakeClient() {
+  return {
+    GET: vi.fn(),
+    POST: vi.fn(),
+    PUT: vi.fn(),
+    PATCH: vi.fn(),
+    DELETE: vi.fn(),
+  } as Parameters<typeof apply>[2]
+}
 
 describe('applier', () => {
+  let fakeClient: ReturnType<typeof makeFakeClient>
+  let mockPost: ReturnType<typeof vi.fn>
+  let mockPut: ReturnType<typeof vi.fn>
+  let mockPatch: ReturnType<typeof vi.fn>
+  let mockDelete: ReturnType<typeof vi.fn>
+
   beforeEach(() => {
     vi.clearAllMocks()
+    fakeClient = makeFakeClient()
+    mockPost = fakeClient.POST as ReturnType<typeof vi.fn>
+    mockPut = fakeClient.PUT as ReturnType<typeof vi.fn>
+    mockPatch = fakeClient.PATCH as ReturnType<typeof vi.fn>
+    mockDelete = fakeClient.DELETE as ReturnType<typeof vi.fn>
   })
 
   describe('creates', () => {
@@ -44,7 +56,7 @@ describe('applier', () => {
       expect(result.succeeded).toHaveLength(1)
       expect(result.succeeded[0].id).toBe('tag-new')
       expect(result.failed).toHaveLength(0)
-      expect(mockPost).toHaveBeenCalledWith(fakeClient, '/api/v1/tags', {name: 'prod', color: '#FF0000'})
+      expect(mockPost).toHaveBeenCalledWith('/api/v1/tags', {body: {name: 'prod', color: '#FF0000'}})
     })
 
     it('creates an environment', async () => {
@@ -55,7 +67,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPost).toHaveBeenCalledWith(fakeClient, '/api/v1/environments', expect.objectContaining({name: 'Staging', slug: 'staging'}))
+      expect(mockPost).toHaveBeenCalledWith('/api/v1/environments', {body: expect.objectContaining({name: 'Staging', slug: 'staging'})})
     })
 
     it('creates a secret', async () => {
@@ -66,7 +78,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPost).toHaveBeenCalledWith(fakeClient, '/api/v1/secrets', {key: 'api-key', value: 'secret123'})
+      expect(mockPost).toHaveBeenCalledWith('/api/v1/secrets', {body: {key: 'api-key', value: 'secret123'}})
     })
 
     it('creates an alert channel', async () => {
@@ -77,7 +89,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPost).toHaveBeenCalledWith(fakeClient, '/api/v1/alert-channels', expect.objectContaining({name: 'slack'}))
+      expect(mockPost).toHaveBeenCalledWith('/api/v1/alert-channels', {body: expect.objectContaining({name: 'slack'})})
     })
 
     it('creates a monitor', async () => {
@@ -124,14 +136,13 @@ describe('applier', () => {
       const result = await apply(changeset, refs, fakeClient)
       expect(result.succeeded).toHaveLength(1)
       expect(mockPost).toHaveBeenCalledWith(
-        fakeClient,
         '/api/v1/notification-policies',
-        expect.objectContaining({
+        {body: expect.objectContaining({
           name: 'default',
           escalation: expect.objectContaining({
             steps: [expect.objectContaining({channelIds: ['ch-1']})],
           }),
-        }),
+        })},
       )
     })
 
@@ -146,11 +157,11 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPost).toHaveBeenCalledWith(fakeClient, '/api/v1/webhooks', {
+      expect(mockPost).toHaveBeenCalledWith('/api/v1/webhooks', {body: {
         url: 'https://hook.com',
         subscribedEvents: ['monitor.down'],
         description: undefined,
-      })
+      }})
     })
 
     it('creates a resource group', async () => {
@@ -162,9 +173,8 @@ describe('applier', () => {
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
       expect(mockPost).toHaveBeenCalledWith(
-        fakeClient,
         '/api/v1/resource-groups',
-        expect.objectContaining({name: 'API Group'}),
+        {body: expect.objectContaining({name: 'API Group'})},
       )
     })
 
@@ -179,9 +189,9 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPost).toHaveBeenCalledWith(fakeClient, '/api/v1/service-subscriptions/github', {
-        alertSensitivity: 'ALL',
-        componentId: null,
+      expect(mockPost).toHaveBeenCalledWith('/api/v1/service-subscriptions/{slug}', {
+        params: {path: {slug: 'github'}},
+        body: {alertSensitivity: 'ALL', componentId: null},
       })
     })
   })
@@ -198,7 +208,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPut).toHaveBeenCalledWith(fakeClient, '/api/v1/tags/tag-1', {name: 'prod', color: '#00FF00'})
+      expect(mockPut).toHaveBeenCalledWith('/api/v1/tags/{id}', {params: {path: {id: 'tag-1'}}, body: {name: 'prod', color: '#00FF00'}})
     })
 
     it('updates a monitor via PUT', async () => {
@@ -229,8 +239,8 @@ describe('applier', () => {
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
       expect(mockPatch).toHaveBeenCalledWith(
-        fakeClient, '/api/v1/service-subscriptions/dep-1/alert-sensitivity',
-        {alertSensitivity: 'ALL'},
+        '/api/v1/service-subscriptions/{id}/alert-sensitivity',
+        {params: {path: {id: 'dep-1'}}, body: {alertSensitivity: 'ALL'}},
       )
     })
 
@@ -245,10 +255,9 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPut).toHaveBeenCalledWith(fakeClient, '/api/v1/environments/env-42', {
-        name: 'Prod',
-        variables: {KEY: 'val'},
-        isDefault: undefined,
+      expect(mockPut).toHaveBeenCalledWith('/api/v1/environments/{slug}', {
+        params: {path: {slug: 'env-42'}},
+        body: {name: 'Prod', variables: {KEY: 'val'}, isDefault: undefined},
       })
     })
 
@@ -263,7 +272,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPut).toHaveBeenCalledWith(fakeClient, '/api/v1/secrets/k', {value: 'newval'})
+      expect(mockPut).toHaveBeenCalledWith('/api/v1/secrets/{key}', {params: {path: {key: 'k'}}, body: {value: 'newval'}})
     })
 
     it('updates an alert channel via PUT', async () => {
@@ -278,12 +287,11 @@ describe('applier', () => {
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
       expect(mockPut).toHaveBeenCalledWith(
-        fakeClient,
-        '/api/v1/alert-channels/ch-1',
-        expect.objectContaining({
+        '/api/v1/alert-channels/{id}',
+        {params: {path: {id: 'ch-1'}}, body: expect.objectContaining({
           name: 'slack',
           config: expect.objectContaining({channelType: 'SlackChannelConfig', webhookUrl: 'url'}),
-        }),
+        })},
       )
     })
 
@@ -305,14 +313,13 @@ describe('applier', () => {
       const result = await apply(changeset, refs, fakeClient)
       expect(result.succeeded).toHaveLength(1)
       expect(mockPut).toHaveBeenCalledWith(
-        fakeClient,
-        '/api/v1/notification-policies/np-1',
-        expect.objectContaining({
+        '/api/v1/notification-policies/{id}',
+        {params: {path: {id: 'np-1'}}, body: expect.objectContaining({
           name: 'pol',
           escalation: expect.objectContaining({
             steps: [expect.objectContaining({channelIds: ['ch-1']})],
           }),
-        }),
+        })},
       )
     })
 
@@ -327,10 +334,9 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPut).toHaveBeenCalledWith(fakeClient, '/api/v1/webhooks/wh-1', {
-        url: 'https://hook.com',
-        subscribedEvents: ['monitor.up'],
-        description: undefined,
+      expect(mockPut).toHaveBeenCalledWith('/api/v1/webhooks/{id}', {
+        params: {path: {id: 'wh-1'}},
+        body: {url: 'https://hook.com', subscribedEvents: ['monitor.up'], description: undefined},
       })
     })
 
@@ -346,9 +352,8 @@ describe('applier', () => {
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
       expect(mockPut).toHaveBeenCalledWith(
-        fakeClient,
-        '/api/v1/resource-groups/rg-9',
-        expect.objectContaining({name: 'Renamed'}),
+        '/api/v1/resource-groups/{id}',
+        {params: {path: {id: 'rg-9'}}, body: expect.objectContaining({name: 'Renamed'})},
       )
     })
 
@@ -364,9 +369,7 @@ describe('applier', () => {
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
       expect(mockPatch).toHaveBeenCalledTimes(1)
-      expect(mockPatch).toHaveBeenCalledWith(fakeClient, '/api/v1/service-subscriptions/dep-2', {
-        componentId: 'api',
-      })
+      expect(mockPatch).toHaveBeenCalledWith('/api/v1/service-subscriptions/dep-2', {body: {componentId: 'api'}})
     })
 
     it('does not PATCH alert-sensitivity when dependency update omits alertSensitivity', async () => {
@@ -392,7 +395,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockDelete).toHaveBeenCalledWith(fakeClient, '/api/v1/tags/tag-1')
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/tags/tag-1', expect.anything())
     })
 
     it('deletes a monitor', async () => {
@@ -403,7 +406,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockDelete).toHaveBeenCalledWith(fakeClient, '/api/v1/monitors/mon-1')
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/monitors/mon-1', expect.anything())
     })
 
     it('deletes an environment', async () => {
@@ -414,7 +417,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockDelete).toHaveBeenCalledWith(fakeClient, '/api/v1/environments/env-7')
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/environments/env-7', expect.anything())
     })
 
     it('deletes a secret', async () => {
@@ -425,7 +428,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockDelete).toHaveBeenCalledWith(fakeClient, '/api/v1/secrets/sec-x')
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/secrets/sec-x', expect.anything())
     })
 
     it('deletes an alert channel', async () => {
@@ -436,7 +439,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockDelete).toHaveBeenCalledWith(fakeClient, '/api/v1/alert-channels/ch-9')
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/alert-channels/ch-9', expect.anything())
     })
 
     it('deletes a notification policy', async () => {
@@ -447,7 +450,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockDelete).toHaveBeenCalledWith(fakeClient, '/api/v1/notification-policies/np-2')
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/notification-policies/np-2', expect.anything())
     })
 
     it('deletes a webhook', async () => {
@@ -458,7 +461,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockDelete).toHaveBeenCalledWith(fakeClient, '/api/v1/webhooks/wh-3')
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/webhooks/wh-3', expect.anything())
     })
 
     it('deletes a resource group', async () => {
@@ -469,7 +472,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockDelete).toHaveBeenCalledWith(fakeClient, '/api/v1/resource-groups/rg-4')
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/resource-groups/rg-4', expect.anything())
     })
 
     it('deletes a dependency', async () => {
@@ -480,7 +483,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockDelete).toHaveBeenCalledWith(fakeClient, '/api/v1/service-subscriptions/dep-z')
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/service-subscriptions/dep-z', expect.anything())
     })
   })
 
@@ -499,8 +502,9 @@ describe('applier', () => {
       }
       const result = await apply(changeset, refs, fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPost).toHaveBeenCalledWith(fakeClient, '/api/v1/resource-groups/rg-1/members', {
-        memberType: 'monitor', memberId: 'mon-1',
+      expect(mockPost).toHaveBeenCalledWith('/api/v1/resource-groups/{id}/members', {
+        params: {path: {id: 'rg-1'}},
+        body: {memberType: 'monitor', memberId: 'mon-1'},
       })
     })
 
@@ -518,8 +522,9 @@ describe('applier', () => {
       }
       const result = await apply(changeset, refs, fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockPost).toHaveBeenCalledWith(fakeClient, '/api/v1/resource-groups/rg-1/members', {
-        memberType: 'service', memberId: 'dep-1',
+      expect(mockPost).toHaveBeenCalledWith('/api/v1/resource-groups/{id}/members', {
+        params: {path: {id: 'rg-1'}},
+        body: {memberType: 'service', memberId: 'dep-1'},
       })
     })
   })

@@ -1,6 +1,6 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {typedPost} from '../../lib/typed-api.js'
+import {checkedFetch} from '../../lib/api-client.js'
 
 export default class ApiKeysRevoke extends Command {
   static description = 'Revoke an API key'
@@ -11,7 +11,7 @@ export default class ApiKeysRevoke extends Command {
   async run() {
     const {args, flags} = await this.parse(ApiKeysRevoke)
     const client = buildClient(flags)
-    await typedPost(client, `/api/v1/api-keys/${args.id}/revoke`)
+    await checkedFetch(client.POST('/api/v1/api-keys/{id}/revoke', {params: {path: {id: Number(args.id)}}}))
     this.log(`API key '${args.id}' revoked.`)
   }
 }

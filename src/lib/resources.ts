@@ -31,6 +31,7 @@ type CreateMonitorRequest = Schemas['CreateMonitorRequest']
 type CreateManualIncidentRequest = Schemas['CreateManualIncidentRequest']
 type CreateAlertChannelRequest = Schemas['CreateAlertChannelRequest']
 type CreateNotificationPolicyRequest = Schemas['CreateNotificationPolicyRequest']
+type UpdateNotificationPolicyRequest = Schemas['UpdateNotificationPolicyRequest']
 type CreateApiKeyRequest = Schemas['CreateApiKeyRequest']
 
 const MONITOR_TYPES: MonitorType[] = ['HTTP', 'DNS', 'TCP', 'ICMP', 'HEARTBEAT', 'MCP_SERVER']
@@ -39,13 +40,13 @@ const INCIDENT_SEVERITIES: IncidentSeverity[] = ['DOWN', 'DEGRADED', 'MAINTENANC
 const CHANNEL_TYPES = ['SLACK', 'EMAIL', 'PAGERDUTY', 'OPSGENIE', 'DISCORD', 'TEAMS', 'WEBHOOK'] as const
 
 const CHANNEL_TYPE_MAP: Record<string, string> = {
-  SLACK: 'slack',
-  EMAIL: 'email',
-  PAGERDUTY: 'pagerduty',
-  OPSGENIE: 'opsgenie',
-  DISCORD: 'discord',
-  TEAMS: 'teams',
-  WEBHOOK: 'webhook',
+  SLACK: 'SlackChannelConfig',
+  EMAIL: 'EmailChannelConfig',
+  PAGERDUTY: 'PagerDutyChannelConfig',
+  OPSGENIE: 'OpsGenieChannelConfig',
+  DISCORD: 'DiscordChannelConfig',
+  TEAMS: 'TeamsChannelConfig',
+  WEBHOOK: 'WebhookChannelConfig',
 }
 
 // ── Resource definitions ───────────────────────────────────────────────
@@ -105,7 +106,7 @@ export const MONITORS: ResourceConfig<MonitorDto> = {
     if (raw.name !== undefined) body.name = raw.name
     if (raw.frequency) body.frequencySeconds = Number(raw.frequency)
     if (raw.url !== undefined || raw.method !== undefined) {
-      body.config = {monitorType: 'HTTP', url: raw.url, method: (raw.method as HttpMethod) || 'GET'}
+      body.config = {url: raw.url, method: (raw.method as HttpMethod) || 'GET'}
     }
     return body
   },
@@ -248,6 +249,16 @@ export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
     }
     return body
   },
+  updateBodyBuilder: (raw) => {
+    const body: Partial<UpdateNotificationPolicyRequest> = {}
+    if (raw.name !== undefined) body.name = String(raw.name)
+    if (raw.enabled !== undefined) body.enabled = raw.enabled as boolean
+    if (raw['channel-ids'] !== undefined) {
+      const channelIds = String(raw['channel-ids']).split(',').map((s) => s.trim()).filter(Boolean)
+      body.escalation = {steps: [{channelIds, delayMinutes: 0}]}
+    }
+    return body
+  },
 }
 
 export const ENVIRONMENTS: ResourceConfig<EnvironmentDto> = {
@@ -264,11 +275,9 @@ export const ENVIRONMENTS: ResourceConfig<EnvironmentDto> = {
   createFlags: {
     name: Flags.string({description: desc('CreateEnvironmentRequest', 'name'), required: true}),
     slug: Flags.string({description: desc('CreateEnvironmentRequest', 'slug'), required: true}),
-    color: Flags.string({description: desc('CreateTagRequest', 'color', 'Color hex code')}),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateEnvironmentRequest', 'name')}),
-    color: Flags.string({description: 'New color hex code'}),
   },
 }
 
@@ -388,6 +397,7 @@ export const DEPENDENCIES: ResourceConfig<ServiceSubscriptionDto> = {
   name: 'dependency',
   plural: 'dependencies',
   apiPath: '/api/v1/service-subscriptions',
+  idField: 'subscriptionId',
   columns: [
     {header: 'ID', get: (r) => r.subscriptionId ?? ''},
     {header: 'SERVICE', get: (r) => r.name ?? ''},

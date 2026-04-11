@@ -1,23 +1,7 @@
 import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
-import {typedGet} from '../../lib/typed-api.js'
+import {checkedFetch} from '../../lib/api-client.js'
 import {formatOutput, OutputFormat} from '../../lib/output.js'
-
-interface AuthMeResponse {
-  data?: {
-    key?: {id?: string; name?: string; createdAt?: string; expiresAt?: string; lastUsedAt?: string}
-    organization?: {id?: number; name?: string}
-    plan?: {
-      tier?: string
-      subscriptionStatus?: string
-      trialActive?: boolean
-      trialExpiresAt?: string
-      usage?: Record<string, number>
-      entitlements?: Record<string, {value: number}>
-    }
-    rateLimits?: {requestsPerMinute?: number; remaining?: number; windowMs?: number}
-  }
-}
 
 export default class AuthMe extends Command {
   static description = 'Show current API key identity, organization, plan, and rate limits'
@@ -27,7 +11,7 @@ export default class AuthMe extends Command {
   async run() {
     const {flags} = await this.parse(AuthMe)
     const client = buildClient(flags)
-    const resp = await typedGet<AuthMeResponse>(client, '/api/v1/auth/me')
+    const resp = await checkedFetch(client.GET('/api/v1/auth/me'))
     const me = resp.data
 
     const format = flags.output as OutputFormat
