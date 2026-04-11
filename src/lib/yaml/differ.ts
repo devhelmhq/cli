@@ -78,10 +78,10 @@ function diffSection(
     }
   }
 
-  if (options.prune && items !== undefined) {
+  if ((options.prune || options.pruneAll) && items !== undefined) {
     for (const entry of refs.allEntries(handler.refType)) {
       if (!desired.has(entry.refKey)) {
-        if (handler.resourceType === 'monitor' && entry.managedBy !== 'CLI') continue
+        if (handler.resourceType === 'monitor' && !options.pruneAll && entry.managedBy !== 'CLI') continue
         deletes.push({
           action: 'delete',
           resourceType: handler.resourceType,

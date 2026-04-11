@@ -47,6 +47,7 @@ export interface Change {
 
 export interface DiffOptions {
   prune?: boolean
+  pruneAll?: boolean
 }
 
 export interface Changeset {

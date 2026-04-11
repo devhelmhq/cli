@@ -1,6 +1,6 @@
 /**
- * Local state file for tracking which resources were created by `devhelm deploy`.
- * Used for pruning: only delete resources that we manage.
+ * Local state file for tracking resources managed by `devhelm deploy`.
+ * Reserved for future use (e.g. offline drift detection, state-aware pruning).
  *
  * State file: .devhelm/state.json (gitignored by convention)
  */

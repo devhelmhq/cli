@@ -12,6 +12,7 @@ export default class Plan extends Command {
     '<%= config.bin %> plan',
     '<%= config.bin %> plan -f monitors.yml',
     '<%= config.bin %> plan --prune',
+    '<%= config.bin %> plan --prune-all',
     '<%= config.bin %> plan --detailed-exitcode',
     '<%= config.bin %> plan -o json',
   ]
@@ -25,6 +26,10 @@ export default class Plan extends Command {
     }),
     prune: Flags.boolean({
       description: 'Include deletions of CLI-managed resources not in config',
+      default: false,
+    }),
+    'prune-all': Flags.boolean({
+      description: 'Include deletions of ALL resources not in config, including those not managed by the CLI',
       default: false,
     }),
     'detailed-exitcode': Flags.boolean({
@@ -75,7 +80,7 @@ export default class Plan extends Command {
     this.log('Fetching current state from API...')
     const refs = await fetchAllRefs(client)
 
-    const changeset = diff(config, refs, {prune: flags.prune})
+    const changeset = diff(config, refs, {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']})
 
     const entitlementCheck = await checkEntitlements(client, changeset)
 

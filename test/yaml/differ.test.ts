@@ -222,6 +222,27 @@ describe('differ', () => {
       expect(changeset.deletes).toHaveLength(0)
     })
 
+    it('pruneAll deletes non-CLI monitors', () => {
+      const refs = new ResolvedRefs()
+      refs.set('monitors', 'dashboard-monitor', {
+        id: 'mon-1', refKey: 'dashboard-monitor', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'},
+      })
+      const config: DevhelmConfig = {monitors: []}
+      const changeset = diff(config, refs, {prune: true, pruneAll: true})
+      expect(changeset.deletes).toHaveLength(1)
+      expect(changeset.deletes[0].refKey).toBe('dashboard-monitor')
+    })
+
+    it('pruneAll deletes monitors with no managedBy', () => {
+      const refs = new ResolvedRefs()
+      refs.set('monitors', 'orphan', {
+        id: 'mon-1', refKey: 'orphan', raw: {},
+      })
+      const config: DevhelmConfig = {monitors: []}
+      const changeset = diff(config, refs, {prune: true, pruneAll: true})
+      expect(changeset.deletes).toHaveLength(1)
+    })
+
     it('prune: omitted section (undefined) does not delete', () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})

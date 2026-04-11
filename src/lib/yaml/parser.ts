@@ -121,11 +121,8 @@ function mergeConfigs(configs: DevhelmConfig[]): DevhelmConfig {
     for (const key of YAML_SECTION_KEYS) {
       const items = cfg[key]
       if (items) {
-        // TypeScript can't narrow cfg[key] through a generic dynamic index on a
-        // heterogeneous interface.  YAML_SECTION_KEYS guarantees key ∈ DevhelmConfig
-        // and every value is T[] | undefined, so the concat is safe.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(merged as any)[key] = [...((merged as any)[key] ?? []), ...items]
+        const dest = (merged as Record<string, unknown[]>)
+        dest[key] = [...(dest[key] ?? []), ...items]
       }
     }
   }

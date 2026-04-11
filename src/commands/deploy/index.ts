@@ -16,6 +16,7 @@ export default class Deploy extends Command {
     '<%= config.bin %> deploy --yes',
     '<%= config.bin %> deploy -f monitors.yml',
     '<%= config.bin %> deploy --prune --yes',
+    '<%= config.bin %> deploy --prune-all --yes',
     '<%= config.bin %> deploy --dry-run',
     '<%= config.bin %> deploy --dry-run --detailed-exitcode',
     '<%= config.bin %> deploy -o json --yes',
@@ -35,6 +36,10 @@ export default class Deploy extends Command {
     }),
     prune: Flags.boolean({
       description: 'Delete CLI-managed resources not present in config',
+      default: false,
+    }),
+    'prune-all': Flags.boolean({
+      description: 'Delete ALL resources not in config, including those not managed by the CLI (use with caution)',
       default: false,
     }),
     'dry-run': Flags.boolean({
@@ -102,7 +107,7 @@ export default class Deploy extends Command {
     if (!isJson) this.log('Fetching current state from API...')
     const refs = await fetchAllRefs(client)
 
-    const changeset = diff(config, refs, {prune: flags.prune})
+    const changeset = diff(config, refs, {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']})
 
     const entitlementCheck = await checkEntitlements(client, changeset)
 

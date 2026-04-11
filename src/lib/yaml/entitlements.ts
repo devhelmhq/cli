@@ -46,7 +46,9 @@ export async function checkEntitlements(
   try {
     const resp = await checkedFetch<{data?: AuthMeResponse}>(client.GET('/api/v1/auth/me'))
     data = resp.data ?? {}
-  } catch {
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    process.stderr.write(`Entitlement check skipped: ${msg}\n`)
     return null
   }
 

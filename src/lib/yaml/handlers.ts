@@ -664,6 +664,7 @@ export const HANDLER_MAP: Record<HandledResourceType, ResourceHandler> = {
   dependency: dependencyHandler,
 }
 
+/** @internal – used by tests to look up a handler by resource type */
 export function getHandler(type: HandledResourceType): ResourceHandler {
   return HANDLER_MAP[type]
 }
