@@ -114,7 +114,7 @@ describe('differ', () => {
     it('skips update when webhook unchanged', () => {
       const refs = new ResolvedRefs()
       refs.set('webhooks', 'https://hooks.com/x', {id: 'wh-1', refKey: 'https://hooks.com/x', raw: {
-        url: 'https://hooks.com/x', subscribedEvents: ['monitor.down', 'monitor.recovered'], description: 'test',
+        url: 'https://hooks.com/x', subscribedEvents: ['monitor.down', 'monitor.recovered'], description: 'test', enabled: true,
       }})
       const config: DevhelmConfig = {
         webhooks: [{url: 'https://hooks.com/x', events: ['monitor.down', 'monitor.recovered'], description: 'test'}],
@@ -313,7 +313,7 @@ describe('differ', () => {
     it('webhook events order does not matter', () => {
       const refs = new ResolvedRefs()
       refs.set('webhooks', 'https://x.com', {id: 'wh-1', refKey: 'https://x.com', raw: {
-        url: 'https://x.com', subscribedEvents: ['b', 'a'],
+        url: 'https://x.com', subscribedEvents: ['b', 'a'], enabled: true,
       }})
       const config: DevhelmConfig = {
         webhooks: [{url: 'https://x.com', events: ['a', 'b']}],
@@ -354,7 +354,7 @@ describe('differ', () => {
       refs.set('tags', 'unchanged', {id: 'tag-1', refKey: 'unchanged', raw: {name: 'unchanged', color: '#FF0000'}})
       refs.set('tags', 'changed', {id: 'tag-2', refKey: 'changed', raw: {name: 'changed', color: '#000000'}})
       refs.set('webhooks', 'https://same.com', {id: 'wh-1', refKey: 'https://same.com', raw: {
-        url: 'https://same.com', subscribedEvents: ['a'], description: 'same',
+        url: 'https://same.com', subscribedEvents: ['a'], description: 'same', enabled: true,
       }})
       const config: DevhelmConfig = {
         tags: [

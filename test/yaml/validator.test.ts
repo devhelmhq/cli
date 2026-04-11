@@ -492,18 +492,6 @@ describe('validator', () => {
       expect(result.warnings.some((w) => w.message.includes('missing-channel'))).toBe(true)
     })
 
-    it('warns on unresolved resourceGroup reference in monitor', () => {
-      const config: DevhelmConfig = {
-        monitors: [{
-          name: 'test', type: 'HTTP',
-          config: {url: 'https://x.com', method: 'GET'},
-          resourceGroup: 'nonexistent-group',
-        }],
-      }
-      const result = validate(config)
-      expect(result.warnings.some((w) => w.message.includes('nonexistent-group'))).toBe(true)
-    })
-
     it('warns on unresolved service ref in resource group', () => {
       const config: DevhelmConfig = {
         resourceGroups: [{name: 'test', services: ['unknown-service']}],

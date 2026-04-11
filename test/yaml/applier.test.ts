@@ -256,7 +256,7 @@ describe('applier', () => {
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
       expect(mockPut).toHaveBeenCalledWith('/api/v1/environments/{slug}', {
-        params: {path: {slug: 'env-42'}},
+        params: {path: {slug: 'prod'}},
         body: {name: 'Prod', variables: {KEY: 'val'}, isDefault: undefined},
       })
     })
@@ -336,7 +336,7 @@ describe('applier', () => {
       expect(result.succeeded).toHaveLength(1)
       expect(mockPut).toHaveBeenCalledWith('/api/v1/webhooks/{id}', {
         params: {path: {id: 'wh-1'}},
-        body: {url: 'https://hook.com', subscribedEvents: ['monitor.up'], description: undefined},
+        body: {url: 'https://hook.com', subscribedEvents: ['monitor.up'], description: undefined, enabled: null},
       })
     })
 
@@ -417,7 +417,7 @@ describe('applier', () => {
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
-      expect(mockDelete).toHaveBeenCalledWith('/api/v1/environments/env-7', expect.anything())
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/environments/stg', expect.anything())
     })
 
     it('deletes a secret', async () => {

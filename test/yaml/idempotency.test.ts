@@ -160,7 +160,7 @@ describe('idempotency', () => {
     const refs = buildRefs([
       {type: 'webhooks', key: 'https://example.com/webhook', id: 'w1', raw: {
         url: 'https://example.com/webhook', subscribedEvents: ['monitor.down', 'monitor.up'],
-        description: null,
+        description: null, enabled: true,
       }},
     ])
     const cs = diff(config, refs)
@@ -224,7 +224,7 @@ describe('idempotency', () => {
       {type: 'secrets', key: 'TOKEN', id: 's1', raw: {key: 'TOKEN', valueHash: sha256Hex(secretValue)}},
       {type: 'alertChannels', key: 'Slack', id: 'ac1', raw: {name: 'Slack', channelType: 'slack', configHash: channelHash}},
       {type: 'webhooks', key: 'https://example.com/hook', id: 'w1', raw: {
-        url: 'https://example.com/hook', subscribedEvents: ['monitor.down'], description: null,
+        url: 'https://example.com/hook', subscribedEvents: ['monitor.down'], description: null, enabled: true,
       }},
       {type: 'monitors', key: 'API', id: 'm1', raw: {
         name: 'API', type: 'HTTP', config: {url: 'https://api.example.com', method: 'GET'},

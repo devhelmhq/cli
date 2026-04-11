@@ -117,7 +117,7 @@ describe('handler getApiRefKey + getApiId', () => {
 describe('handler deletePath', () => {
   it.each([
     ['tag', '/api/v1/tags/id-1'],
-    ['environment', '/api/v1/environments/id-1'],
+    ['environment', '/api/v1/environments/ref-1'],
     ['secret', '/api/v1/secrets/id-1'],
     ['alertChannel', '/api/v1/alert-channels/id-1'],
     ['notificationPolicy', '/api/v1/notification-policies/id-1'],
@@ -126,6 +126,6 @@ describe('handler deletePath', () => {
     ['monitor', '/api/v1/monitors/id-1'],
     ['dependency', '/api/v1/service-subscriptions/id-1'],
   ] as const)('%s → %s', (type, expectedPath) => {
-    expect(getHandler(type).deletePath('id-1')).toBe(expectedPath)
+    expect(getHandler(type).deletePath('id-1', 'ref-1')).toBe(expectedPath)
   })
 })
