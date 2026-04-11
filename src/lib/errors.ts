@@ -1,5 +1,3 @@
-import {ApiRequestError} from './api-client.js'
-
 export const EXIT_CODES = {
   SUCCESS: 0,
   GENERAL: 1,
@@ -7,6 +5,8 @@ export const EXIT_CODES = {
   API: 3,
   VALIDATION: 4,
   NOT_FOUND: 5,
+  CHANGES_PENDING: 10,
+  PARTIAL_FAILURE: 11,
 } as const
 
 export class DevhelmError extends Error {
@@ -38,20 +38,4 @@ export class NotFoundError extends DevhelmError {
     super(`${resource} '${id}' not found.`, EXIT_CODES.NOT_FOUND)
     this.name = 'NotFoundError'
   }
-}
-
-export function handleApiError(error: unknown): never {
-  if (error instanceof ApiRequestError) {
-    if (error.status === 401 || error.status === 403) {
-      throw new AuthError(`Authentication failed: ${error.message}`)
-    }
-
-    if (error.status === 404) {
-      throw new DevhelmError(error.message, EXIT_CODES.NOT_FOUND)
-    }
-
-    throw new DevhelmError(error.message, EXIT_CODES.API)
-  }
-
-  throw error
 }

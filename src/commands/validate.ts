@@ -8,6 +8,7 @@ export default class Validate extends Command {
     '<%= config.bin %> validate',
     '<%= config.bin %> validate devhelm.yml',
     '<%= config.bin %> validate --strict',
+    '<%= config.bin %> validate -o json',
   ]
 
   static args = {
@@ -23,21 +24,45 @@ export default class Validate extends Command {
       description: 'Skip environment variable interpolation (syntax check only)',
       default: false,
     }),
+    output: Flags.string({
+      char: 'o',
+      description: 'Output format (text or json)',
+      options: ['text', 'json'],
+      default: 'text',
+    }),
   }
 
   async run() {
     const {args, flags} = await this.parse(Validate)
+    const isJson = flags.output === 'json'
 
     let config
     try {
       config = parseConfigFile(args.file, !flags['skip-env'])
     } catch (err) {
+      if (isJson) {
+        this.log(JSON.stringify({valid: false, errors: [{path: '', message: (err as Error).message}], warnings: []}, null, 2))
+        this.exit(1)
+      }
       this.error((err as Error).message, {exit: 1})
     }
 
     const result = validate(config)
+    const hasErrors = result.errors.length > 0
+    const hasWarnings = result.warnings.length > 0
+    const strictFail = flags.strict && hasWarnings
 
-    if (result.warnings.length > 0 && !flags.strict) {
+    if (isJson) {
+      this.log(JSON.stringify({
+        valid: !hasErrors && !strictFail,
+        errors: result.errors,
+        warnings: result.warnings,
+      }, null, 2))
+      if (hasErrors || strictFail) this.exit(4)
+      return
+    }
+
+    if (hasWarnings && !flags.strict) {
       this.log(`\n${args.file}: ${result.warnings.length} warning(s)\n`)
       for (const w of result.warnings) {
         this.log(`  ⚠ ${w.path}: ${w.message}`)
@@ -45,7 +70,7 @@ export default class Validate extends Command {
       this.log('')
     }
 
-    if (result.errors.length > 0) {
+    if (hasErrors) {
       this.log(`\n${args.file}: ${result.errors.length} error(s)\n`)
       for (const e of result.errors) {
         this.log(`  ✗ ${e.path}: ${e.message}`)
@@ -54,7 +79,7 @@ export default class Validate extends Command {
       this.exit(4)
     }
 
-    if (flags.strict && result.warnings.length > 0) {
+    if (strictFail) {
       this.log(`\n${args.file}: ${result.warnings.length} warning(s) (strict mode)\n`)
       for (const w of result.warnings) {
         this.log(`  ✗ ${w.path}: ${w.message}`)

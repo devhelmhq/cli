@@ -298,6 +298,7 @@ export interface YamlWebhook {
   url: string
   events: string[]
   description?: string
+  enabled?: boolean
 }
 
 export interface YamlResourceGroup {
@@ -331,7 +332,6 @@ export interface YamlMonitor {
   assertions?: YamlAssertion[]
   auth?: YamlAuth
   incidentPolicy?: YamlIncidentPolicy
-  resourceGroup?: string
 }
 
 export interface YamlDependency {

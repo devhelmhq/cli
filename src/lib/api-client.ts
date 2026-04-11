@@ -1,5 +1,6 @@
 import createClient, {type Middleware} from 'openapi-fetch'
 import type {paths, components} from './api.generated.js'
+import {AuthError, DevhelmError, EXIT_CODES} from './errors.js'
 
 export type {paths, components}
 
@@ -21,6 +22,18 @@ export class ApiRequestError extends Error {
     } catch {
       return body || 'Unknown API error'
     }
+  }
+
+  toTypedError(): DevhelmError {
+    if (this.status === 401 || this.status === 403) {
+      return new AuthError(`Authentication failed: ${this.message}`)
+    }
+
+    if (this.status === 404) {
+      return new DevhelmError(this.message, EXIT_CODES.NOT_FOUND)
+    }
+
+    return new DevhelmError(this.message, EXIT_CODES.API)
   }
 }
 
@@ -74,14 +87,16 @@ export function createApiClient(opts: {
 export type ApiClient = ReturnType<typeof createApiClient>
 
 /**
- * Unwrap an openapi-fetch response: returns `data` on success, throws `ApiRequestError` on failure.
+ * Unwrap an openapi-fetch response: returns `data` on success, throws a typed
+ * DevhelmError on failure (AuthError for 401/403, NOT_FOUND for 404, API for others).
  * Every client.GET / POST / PUT / DELETE call should be wrapped with this.
  */
 export async function checkedFetch<T>(promise: Promise<{data?: T; error?: unknown; response: Response}>): Promise<T> {
   const {data, error, response} = await promise
   if (error || !response.ok) {
     const body = typeof error === 'object' && error !== null ? JSON.stringify(error) : String(error ?? 'Unknown error')
-    throw new ApiRequestError(response.status, response.statusText, body)
+    const apiError = new ApiRequestError(response.status, response.statusText, body)
+    throw apiError.toTypedError()
   }
   return data as T
 }

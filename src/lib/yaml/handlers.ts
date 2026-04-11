@@ -79,7 +79,7 @@ export interface ResourceHandler<TYaml = unknown, TApiDto = unknown> {
   fetchAll(client: ApiClient): Promise<TApiDto[]>
   applyCreate(yaml: TYaml, refs: ResolvedRefs, client: ApiClient): Promise<string | undefined>
   applyUpdate(yaml: TYaml, existingId: string, refs: ResolvedRefs, client: ApiClient): Promise<void>
-  deletePath(id: string): string
+  deletePath(id: string, refKey: string): string
 }
 
 // ── Handler definition (snapshot-based) ─────────────────────────────────
@@ -106,7 +106,7 @@ interface HandlerDef<TYaml, TApiDto, TSnapshot> {
   fetchAll(client: ApiClient): Promise<TApiDto[]>
   applyCreate(yaml: TYaml, refs: ResolvedRefs, client: ApiClient): Promise<string | undefined>
   applyUpdate(yaml: TYaml, existingId: string, refs: ResolvedRefs, client: ApiClient): Promise<void>
-  deletePath(id: string): string
+  deletePath(id: string, refKey: string): string
 }
 
 /**
@@ -234,12 +234,12 @@ const environmentHandler = defineHandler<YamlEnvironment, Schemas['EnvironmentDt
     const resp = await checkedFetch(client.POST('/api/v1/environments', {body: toCreateEnvironmentRequest(yaml)}))
     return resp.data?.id ?? undefined
   },
-  async applyUpdate(yaml, id, _refs, client) {
-    await checkedFetch(client.PUT('/api/v1/environments/{slug}', {params: {path: {slug: id}}, body: {
+  async applyUpdate(yaml, _id, _refs, client) {
+    await checkedFetch(client.PUT('/api/v1/environments/{slug}', {params: {path: {slug: yaml.slug}}, body: {
       name: yaml.name, variables: yaml.variables ?? null, isDefault: yaml.isDefault,
     }}))
   },
-  deletePath: (id) => `/api/v1/environments/${id}`,
+  deletePath: (_id, refKey) => `/api/v1/environments/${refKey}`,
 })
 
 // ── Secret ──────────────────────────────────────────────────────────────
@@ -383,7 +383,7 @@ const webhookHandler = defineHandler<YamlWebhook, Schemas['WebhookEndpointDto'],
     url: yaml.url,
     description: yaml.description ?? api.description ?? null,
     subscribedEvents: sortedIds(yaml.events),
-    enabled: api.enabled ?? null,
+    enabled: yaml.enabled ?? api.enabled ?? true,
   }),
   toCurrentSnapshot: (api) => ({
     url: api.url ?? null,
@@ -399,7 +399,10 @@ const webhookHandler = defineHandler<YamlWebhook, Schemas['WebhookEndpointDto'],
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
-    await checkedFetch(client.PUT('/api/v1/webhooks/{id}', {params: {path: {id}}, body: toCreateWebhookRequest(yaml)}))
+    await checkedFetch(client.PUT('/api/v1/webhooks/{id}', {params: {path: {id}}, body: {
+      ...toCreateWebhookRequest(yaml),
+      enabled: yaml.enabled ?? null,
+    }}))
   },
   deletePath: (id) => `/api/v1/webhooks/${id}`,
 })

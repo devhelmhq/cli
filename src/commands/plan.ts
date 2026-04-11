@@ -1,7 +1,8 @@
 import {Command, Flags} from '@oclif/core'
 import {createApiClient} from '../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../lib/auth.js'
-import {loadConfig, validate, fetchAllRefs, diff, formatPlan} from '../lib/yaml/index.js'
+import {EXIT_CODES} from '../lib/errors.js'
+import {loadConfig, validate, fetchAllRefs, diff, formatPlan, changesetToJson} from '../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../lib/yaml/entitlements.js'
 
 export default class Plan extends Command {
@@ -11,6 +12,8 @@ export default class Plan extends Command {
     '<%= config.bin %> plan',
     '<%= config.bin %> plan -f monitors.yml',
     '<%= config.bin %> plan --prune',
+    '<%= config.bin %> plan --detailed-exitcode',
+    '<%= config.bin %> plan -o json',
   ]
 
   static flags = {
@@ -23,6 +26,16 @@ export default class Plan extends Command {
     prune: Flags.boolean({
       description: 'Include deletions of CLI-managed resources not in config',
       default: false,
+    }),
+    'detailed-exitcode': Flags.boolean({
+      description: 'Return exit code 10 if plan has changes (for CI)',
+      default: false,
+    }),
+    output: Flags.string({
+      char: 'o',
+      description: 'Output format (text or json)',
+      options: ['text', 'json'],
+      default: 'text',
     }),
     'api-url': Flags.string({description: 'Override API base URL'}),
     'api-token': Flags.string({description: 'Override API token'}),
@@ -65,20 +78,25 @@ export default class Plan extends Command {
     const changeset = diff(config, refs, {prune: flags.prune})
 
     const entitlementCheck = await checkEntitlements(client, changeset)
-    if (entitlementCheck) {
-      this.log(entitlementCheck.header)
-    }
 
-    this.log(`\n${formatPlan(changeset)}`)
+    if (flags.output === 'json') {
+      this.log(JSON.stringify(changesetToJson(changeset), null, 2))
+    } else {
+      if (entitlementCheck) {
+        this.log(entitlementCheck.header)
+      }
 
-    if (entitlementCheck && entitlementCheck.warnings.length > 0) {
-      this.log('')
-      this.log(formatEntitlementWarnings(entitlementCheck.warnings))
+      this.log(`\n${formatPlan(changeset)}`)
+
+      if (entitlementCheck && entitlementCheck.warnings.length > 0) {
+        this.log('')
+        this.log(formatEntitlementWarnings(entitlementCheck.warnings))
+      }
     }
 
     const total = changeset.creates.length + changeset.updates.length + changeset.deletes.length + changeset.memberships.length
-    if (total > 0) {
-      this.exit(2)
+    if (total > 0 && flags['detailed-exitcode']) {
+      this.exit(EXIT_CODES.CHANGES_PENDING)
     }
   }
 }

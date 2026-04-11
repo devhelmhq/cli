@@ -97,7 +97,7 @@ export async function apply(
   for (const change of changeset.deletes) {
     try {
       const handler = lookupHandler(change.resourceType, 'delete')
-      await apiDelete(client, handler.deletePath(change.existingId!))
+      await apiDelete(client, handler.deletePath(change.existingId!, change.refKey))
       succeeded.push({action: 'delete', resourceType: change.resourceType, refKey: change.refKey})
     } catch (err) {
       failed.push({
@@ -110,10 +110,11 @@ export async function apply(
   for (const change of changeset.memberships) {
     try {
       await applyMembership(change, refs, client)
-      succeeded.push({action: 'membership', resourceType: 'groupMembership', refKey: change.refKey})
+      const icon = change.action === 'delete' ? 'remove' : 'add'
+      succeeded.push({action: icon, resourceType: 'groupMembership', refKey: change.refKey})
     } catch (err) {
       failed.push({
-        action: 'membership', resourceType: 'groupMembership',
+        action: change.action, resourceType: 'groupMembership',
         refKey: change.refKey, error: errorMessage(err),
       })
     }
@@ -122,14 +123,25 @@ export async function apply(
   return {succeeded, failed, stateEntries}
 }
 
-interface MembershipPayload {
+interface MembershipCreatePayload {
   groupName: string
   memberType: string
   memberRef: string
 }
 
+interface MembershipDeletePayload {
+  groupId: string
+  memberId: string
+}
+
 async function applyMembership(change: Change, refs: ResolvedRefs, client: ApiClient): Promise<void> {
-  const desired = change.desired as MembershipPayload
+  if (change.action === 'delete') {
+    const payload = change.desired as MembershipDeletePayload
+    await apiDelete(client, `/api/v1/resource-groups/${payload.groupId}/members/${payload.memberId}`)
+    return
+  }
+
+  const desired = change.desired as MembershipCreatePayload
   const groupId = refs.require('resourceGroups', desired.groupName)
   const memberType = desired.memberType
 

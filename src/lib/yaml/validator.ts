@@ -324,10 +324,6 @@ function validateMonitor(monitor: YamlMonitor, path: string, ctx: ValidationCont
       ctx.checkRef('alertChannels', name, `${path}.alertChannels`)
     }
   }
-  if (monitor.resourceGroup) {
-    ctx.checkRef('resourceGroups', monitor.resourceGroup, `${path}.resourceGroup`)
-  }
-
   if (monitor.assertions) {
     for (let i = 0; i < monitor.assertions.length; i++) {
       validateAssertionDef(monitor.assertions[i], `${path}.assertions[${i}]`, ctx)
