@@ -1,6 +1,6 @@
 import {Command, Args, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {apiGet} from '../../../lib/api-client.js'
+import {fetchPaginated} from '../../../lib/typed-api.js'
 import type {components} from '../../../lib/api.generated.js'
 
 type MonitorVersionDto = components['schemas']['MonitorVersionDto']
@@ -16,18 +16,19 @@ export default class MonitorsVersionsList extends Command {
   static args = {id: Args.string({description: 'Monitor ID', required: true})}
   static flags = {
     ...globalFlags,
-    limit: Flags.integer({description: 'Number of versions to show', default: 20}),
+    limit: Flags.integer({description: 'Maximum number of versions to show', default: 20}),
   }
 
   async run() {
     const {args, flags} = await this.parse(MonitorsVersionsList)
     const client = buildClient(flags)
-    const resp = await apiGet<{data?: MonitorVersionDto[]}>(
+    const allVersions = await fetchPaginated<MonitorVersionDto>(
       client,
       `/api/v1/monitors/${args.id}/versions`,
-      {query: {size: flags.limit}},
+      flags.limit,
     )
-    display(this, resp.data ?? [], flags.output, [
+    const items = allVersions.slice(0, flags.limit)
+    display(this, items, flags.output, [
       {header: 'VERSION', get: (r) => String(r.version ?? '')},
       {header: 'CHANGED VIA', get: (r) => String(r.changedVia ?? '')},
       {header: 'SUMMARY', get: (r) => r.changeSummary ?? ''},

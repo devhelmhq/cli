@@ -1,4 +1,4 @@
-import {Command, Args} from '@oclif/core'
+import {Command, Args, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from './base-command.js'
 import {fetchPaginated} from './typed-api.js'
 import {apiGet, apiPost, apiPut, apiDelete} from './api-client.js'
@@ -24,12 +24,15 @@ export function createListCommand<T>(config: ResourceConfig<T>) {
   class ListCmd extends Command {
     static description = `List all ${config.plural}`
     static examples = [`<%= config.bin %> ${config.plural} list`]
-    static flags = {...globalFlags}
+    static flags = {
+      ...globalFlags,
+      'page-size': Flags.integer({description: 'Number of items per API request (1–200)', default: 200}),
+    }
 
     async run() {
       const {flags} = await this.parse(ListCmd)
       const client = buildClient(flags)
-      const items = await fetchPaginated<T>(client, config.apiPath)
+      const items = await fetchPaginated<T>(client, config.apiPath, flags['page-size'])
       display(this, items, flags.output, config.columns)
     }
   }

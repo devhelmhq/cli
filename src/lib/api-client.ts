@@ -46,8 +46,8 @@ export interface TableResponse<T> {
 
 export interface CursorPage<T> {
   data: T[]
-  hasNext?: boolean
-  hasPrev?: boolean
+  nextCursor?: string | null
+  hasMore?: boolean
 }
 
 export interface SingleResponse<T> {
