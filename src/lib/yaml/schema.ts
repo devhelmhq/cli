@@ -340,6 +340,43 @@ export interface YamlDependency {
   component?: string
 }
 
+// ── Status Page types ──────────────────────────────────────────────────
+
+export type StatusPageVisibility = 'PUBLIC' | 'PASSWORD' | 'IP_RESTRICTED'
+export type StatusPageIncidentMode = 'MANUAL' | 'REVIEW' | 'AUTOMATIC'
+export type StatusPageComponentType = 'MONITOR' | 'GROUP' | 'STATIC'
+
+export const STATUS_PAGE_VISIBILITIES: readonly StatusPageVisibility[] = ['PUBLIC', 'PASSWORD', 'IP_RESTRICTED']
+export const STATUS_PAGE_INCIDENT_MODES: readonly StatusPageIncidentMode[] = ['MANUAL', 'REVIEW', 'AUTOMATIC']
+export const STATUS_PAGE_COMPONENT_TYPES: readonly StatusPageComponentType[] = ['MONITOR', 'GROUP', 'STATIC']
+
+export interface YamlStatusPageComponentGroup {
+  name: string
+  description?: string
+  collapsed?: boolean
+}
+
+export interface YamlStatusPageComponent {
+  name: string
+  description?: string
+  type: StatusPageComponentType
+  monitor?: string
+  resourceGroup?: string
+  group?: string
+  showUptime?: boolean
+}
+
+export interface YamlStatusPage {
+  name: string
+  slug: string
+  description?: string
+  visibility?: StatusPageVisibility
+  enabled?: boolean
+  incidentMode?: StatusPageIncidentMode
+  componentGroups?: YamlStatusPageComponentGroup[]
+  components?: YamlStatusPageComponent[]
+}
+
 // ── Defaults section ───────────────────────────────────────────────────
 
 export interface YamlMonitorDefaults {
@@ -368,6 +405,7 @@ export interface DevhelmConfig {
   resourceGroups?: YamlResourceGroup[]
   monitors?: YamlMonitor[]
   dependencies?: YamlDependency[]
+  statusPages?: YamlStatusPage[]
 }
 
 // ── Section keys (for parity enforcement) ──────────────────────────────
@@ -375,7 +413,7 @@ export interface DevhelmConfig {
 export const YAML_SECTION_KEYS = [
   'tags', 'environments', 'secrets', 'alertChannels',
   'notificationPolicies', 'webhooks', 'resourceGroups',
-  'monitors', 'dependencies',
+  'monitors', 'dependencies', 'statusPages',
 ] as const
 
 export type YamlSectionKey = (typeof YAML_SECTION_KEYS)[number]

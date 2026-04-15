@@ -4,489 +4,19 @@
  */
 
 export interface paths {
-    "/platform/orgs/{orgId}/subscriptions/{subscriptionId}": {
+    "/api/v1/alert-channels": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        /** Update subscription */
-        put: operations["updateSubscription"];
-        post?: never;
+        /** List active alert channels for the authenticated org */
+        get: operations["list_14"];
+        put?: never;
+        /** Create a new alert channel with encrypted config */
+        post: operations["create_15"];
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/onboarding/orgs/{orgId}/details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update organization details */
-        put: operations["updateOrgDetails"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/onboarding/advance": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Advance onboarding stage forward */
-        put: operations["advanceStage"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get current user */
-        get: operations["me"];
-        /** Update current user profile */
-        put: operations["updateProfile"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/me/notification-preferences": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get current user's notification preferences */
-        get: operations["getNotificationPreferences"];
-        /** Update current user's notification preferences */
-        put: operations["updateNotificationPreferences"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/workspaces/{workspaceId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getWorkspace"];
-        put: operations["updateWorkspace"];
-        post?: never;
-        delete: operations["deleteWorkspace"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/users/{userId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["updateUser"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/orgs/{orgId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["updateOrganization"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/orgs/{orgId}/members/{userId}/role": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["updateMemberRole"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/workspaces/{workspaceId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get workspace by ID */
-        get: operations["get"];
-        /** Update workspace */
-        put: operations["update"];
-        post?: never;
-        /** Delete workspace */
-        delete: operations["delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhooks/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a single webhook endpoint */
-        get: operations["get_1"];
-        /** Update a webhook endpoint */
-        put: operations["update_1"];
-        post?: never;
-        /** Delete a webhook endpoint */
-        delete: operations["delete_1"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/tags/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a tag by ID */
-        get: operations["getById"];
-        /** Update a tag's name and/or color */
-        put: operations["update_2"];
-        post?: never;
-        /** Delete a tag (cascades to all monitor associations) */
-        delete: operations["delete_2"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/secrets/{key}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update secret */
-        put: operations["update_3"];
-        post?: never;
-        /** Delete secret */
-        delete: operations["delete_3"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/resource-groups/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a resource group by id with member statuses and inherited settings
-         * @description Pass includeMetrics=true to enrich each member with 24h uptime, chart data, and latency metrics.
-         */
-        get: operations["get_2"];
-        /** Update a resource group's name, description, alert policy, inherited settings, and health threshold */
-        put: operations["update_4"];
-        post?: never;
-        /** Delete a resource group (cascades to member rows) */
-        delete: operations["delete_4"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/org": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the current organization */
-        get: operations["get_3"];
-        /** Update the current organization */
-        put: operations["update_5"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/notifications/{id}/read": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Mark a notification as read */
-        put: operations["markRead"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/notifications/read-all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Mark all notifications as read */
-        put: operations["markAllRead"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/notification-policies/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a notification policy by ID */
-        get: operations["getById_1"];
-        /** Update a notification policy */
-        put: operations["update_6"];
-        post?: never;
-        /** Delete a notification policy */
-        delete: operations["delete_5"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{monitorId}/policy": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get incident policy for a monitor
-         * @description Returns the trigger rules, confirmation settings, and recovery settings for the given monitor.
-         */
-        get: operations["get_4"];
-        /**
-         * Update incident policy for a monitor
-         * @description Replaces the trigger rules, confirmation settings, and recovery settings. All fields are validated before saving.
-         */
-        put: operations["update_7"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{monitorId}/auth": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update authentication config for a monitor */
-        put: operations["update_8"];
-        /** Set authentication config for a monitor */
-        post: operations["set"];
-        /** Remove authentication config from a monitor */
-        delete: operations["remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{monitorId}/assertions/{assertionId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update an assertion on a monitor */
-        put: operations["update_9"];
-        post?: never;
-        /** Remove an assertion from a monitor */
-        delete: operations["remove_1"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{monitorId}/alert-channels": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Replace the linked alert channel set for a monitor */
-        put: operations["setChannels"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a single monitor by id */
-        get: operations["get_5"];
-        /** Update a monitor */
-        put: operations["update_10"];
-        post?: never;
-        /** Soft-delete a monitor */
-        delete: operations["delete_6"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/members/{userId}/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Change member status */
-        put: operations["changeStatus"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/members/{userId}/role": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Change member role */
-        put: operations["changeRole"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/maintenance-windows/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a single maintenance window by ID */
-        get: operations["getById_2"];
-        /** Update a maintenance window */
-        put: operations["update_11"];
-        post?: never;
-        /** Delete a maintenance window */
-        delete: operations["delete_7"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/environments/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get environment by slug */
-        get: operations["get_6"];
-        /** Update environment */
-        put: operations["update_12"];
-        post?: never;
-        /** Delete environment */
-        delete: operations["delete_8"];
         options?: never;
         head?: never;
         patch?: never;
@@ -501,1041 +31,26 @@ export interface paths {
         };
         get?: never;
         /** Update an alert channel's name and re-encrypt config */
-        put: operations["update_13"];
+        put: operations["update_14"];
         post?: never;
         /** Soft-delete an alert channel and return affected policy summary */
-        delete: operations["delete_9"];
+        delete: operations["delete_10"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/v1/webhooks/paddle": {
+    "/api/v1/alert-channels/{id}/deliveries": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List delivery history for an alert channel */
+        get: operations["listDeliveries_1"];
         put?: never;
-        post: operations["handleWebhook"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/workspaces": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/service-incidents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["createOrResolve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/resource-groups/services/{serviceId}/re-evaluate-health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["reEvaluateGroupHealthForService"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/resource-groups/monitors/{monitorId}/re-evaluate-health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["reEvaluateGroupHealthForMonitor"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/incidents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["createAutoIncident"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/incidents/{id}/resolve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["resolveAutoIncident"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/incidents/{id}/reopen": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["reopenAutoIncident"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/escalation-tick": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["runEscalationTick"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/billing/sync": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["syncFromPaddle"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/adapters/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAllHealth"];
-        put?: never;
-        post: operations["reportOutcome"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/orgs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create organization */
-        post: operations["create_1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/orgs/{orgId}/transactions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List transactions */
-        get: operations["list"];
-        put?: never;
-        /** Create subscription transaction */
-        post: operations["createSubscriptionTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/onboarding/quick-monitor": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create a monitor with smart defaults from URL analysis */
-        post: operations["quickMonitor"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/onboarding/complete-setup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Complete onboarding setup (creates org + workspace, advances to FIRST_MONITOR) */
-        post: operations["completeSetup"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/onboarding/analyze-url": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Analyze a URL and return suggested monitor configuration */
-        post: operations["analyzeUrl"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/invites/accept": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Accept invite */
-        post: operations["accept"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/auth/register": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Register user */
-        post: operations["register"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/orgs/{orgId}/workspaces": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listWorkspaces"];
-        put?: never;
-        post: operations["createWorkspace"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/orgs/{orgId}/members": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listMembers"];
-        put?: never;
-        post: operations["addMember"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/adapters/{serviceId}/enable": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["reEnableAdapter"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/workspaces": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List workspaces */
-        get: operations["list_1"];
-        put?: never;
-        /** Create workspace */
-        post: operations["create_2"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhooks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List webhook endpoints for the authenticated org */
-        get: operations["list_2"];
-        put?: never;
-        /** Register a new webhook endpoint */
-        post: operations["create_3"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhooks/{id}/test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Send a test delivery to a webhook endpoint */
-        post: operations["test"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhooks/signing-secret/rotate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Generate or rotate the organization webhook signing secret */
-        post: operations["rotateSigningSecret"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/vaults/rotate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Rotate DEK
-         * @description Generates a new Data Encryption Key, re-encrypts all secrets and alert-channel configs, and bumps the vault version. Admin-only. Pipeline DEK caches expire within ~10 minutes.
-         */
-        post: operations["rotateDek"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/tags": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List tags for the authenticated organization */
-        get: operations["list_3"];
-        put?: never;
-        /** Create a new tag */
-        post: operations["create_4"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/service-subscriptions/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Subscribe to a service or a component of a service
-         * @description Idempotent — returns the existing subscription if an identical one exists. Omit the request body or set componentId to null for a whole-service subscription. Free tier: max 10 subscriptions. Paid tier: unlimited.
-         */
-        post: operations["subscribe"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/secrets": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List secrets */
-        get: operations["list_4"];
-        put?: never;
-        /** Create secret */
-        post: operations["create_5"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/resource-groups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all resource groups for the authenticated org with health summaries */
-        get: operations["list_5"];
-        put?: never;
-        /** Create a new resource group */
-        post: operations["create_6"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/resource-groups/{id}/members": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Add a monitor or service member to a resource group */
-        post: operations["addMember_1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/notification-policies": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all notification policies for the authenticated org */
-        get: operations["list_6"];
-        put?: never;
-        /** Create a notification policy with match rules and escalation chain */
-        post: operations["create_7"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/notification-policies/{id}/test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Dry-run: evaluate a policy's match rules against a supplied incident context */
-        post: operations["test_1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/notification-dispatches/{id}/acknowledge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Acknowledge a notification dispatch
-         * @description Marks the dispatch as acknowledged. The dispatch must be in DELIVERED or ESCALATING state. Sets acknowledgedAt, acknowledgedBy (actor email), and acknowledgedVia (DASHBOARD).
-         */
-        post: operations["acknowledge"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List monitors for the authenticated org */
-        get: operations["list_7"];
-        put?: never;
-        /** Create a new monitor */
-        post: operations["create_8"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{monitorId}/assertions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Add an assertion to a monitor */
-        post: operations["add"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{id}/test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Test an existing monitor
-         * @description Runs the saved config and assertions of an existing monitor once, without persisting any result. Runs synchronously and returns the same shape as the ad-hoc test.
-         */
-        post: operations["testExisting"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{id}/tags": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all tags applied to a monitor */
-        get: operations["getMonitorTags"];
-        put?: never;
-        /** Add tags to a monitor; supports existing tag IDs and inline creation of new tags */
-        post: operations["addMonitorTags"];
-        /** Remove tags from a monitor by their IDs */
-        delete: operations["removeMonitorTags"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{id}/rotate-token": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Rotate the ping token for a heartbeat monitor
-         * @description Generates a new ping token. The old token remains valid for 24 hours to allow cron jobs to be updated without downtime. Only supported for HEARTBEAT monitors.
-         */
-        post: operations["rotateToken"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{id}/resume": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Resume a monitor (set enabled=true) */
-        post: operations["resume"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/{id}/pause": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Pause a monitor (set enabled=false) */
-        post: operations["pause"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Ad-hoc monitor test
-         * @description Executes a one-off check from an inline config without saving the monitor. Runs synchronously and returns status code, response time, assertion results, body preview, and headers.
-         */
-        post: operations["testAdHoc"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/monitors/bulk": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Bulk action on monitors
-         * @description Applies PAUSE, RESUME, DELETE, ADD_TAG, or REMOVE_TAG to a list of monitors. Returns a partial-success response indicating which monitors succeeded and which failed.
-         */
-        post: operations["bulkAction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/maintenance-windows": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List maintenance windows for the authenticated org
-         * @description Returns maintenance windows for the caller's organisation. Optionally filter by monitor_id, and/or by status: 'active' (currently in window) or 'upcoming' (starts in the future).
-         */
-        get: operations["list_8"];
-        put?: never;
-        /**
-         * Create a maintenance window
-         * @description Creates a new maintenance window. Set monitorId to null to create an org-wide window that suppresses alerts for all monitors.
-         */
-        post: operations["create_9"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List invites */
-        get: operations["list_9"];
-        put?: never;
-        /** Create invite */
-        post: operations["create_10"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invites/{inviteId}/revoke": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Revoke invite */
-        post: operations["revoke"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invites/{inviteId}/resend": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Resend invite */
-        post: operations["resend"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/incidents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List incidents for the authenticated org */
-        get: operations["list_10"];
-        put?: never;
-        /** Create a manual incident */
-        post: operations["create_11"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/incidents/{id}/updates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Add an update to an incident (optionally change status) */
-        post: operations["addUpdate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/incidents/{id}/resolve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Resolve an incident */
-        post: operations["resolve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/heartbeat/{token}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Record a heartbeat ping (GET)
-         * @description Called by external systems (cron jobs, scheduled tasks) to signal liveness. Always returns 200 OK.
-         */
-        get: operations["pingGet"];
-        put?: never;
-        /**
-         * Record a heartbeat ping (POST)
-         * @description Called by external systems to signal liveness with an optional JSON payload. The payload can be inspected by heartbeat_payload_contains assertions. Always returns 200 OK.
-         */
-        post: operations["pingPost"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/environments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List environments */
-        get: operations["list_11"];
-        put?: never;
-        /** Create environment */
-        post: operations["create_12"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/deploy/lock": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get current deploy lock
-         * @description Returns the active deploy lock for the current workspace, if any.
-         */
-        get: operations["current"];
-        put?: never;
-        /**
-         * Acquire deploy lock
-         * @description Acquires an exclusive deploy lock for the current workspace. Returns 409 Conflict if the workspace is already locked by another session.
-         */
-        post: operations["acquire"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/api-keys": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List API keys */
-        get: operations["list_12"];
-        put?: never;
-        /** Create API key */
-        post: operations["create_13"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/api-keys/{id}/revoke": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Revoke API key */
-        post: operations["revoke_1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/api-keys/{id}/regenerate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Regenerate API key */
-        post: operations["regenerate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/alert-deliveries/{id}/retry": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Retry a failed delivery
-         * @description Resets a FAILED delivery to RETRY_PENDING so the delivery worker re-attempts it.
-         */
-        post: operations["retry"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/alert-channels": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List active alert channels for the authenticated org */
-        get: operations["list_13"];
-        put?: never;
-        /** Create a new alert channel with encrypted config */
-        post: operations["create_14"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1576,23 +91,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/internal/service-incidents/by-ref/{serviceId}/{externalRef}/components": {
+    "/api/v1/alert-deliveries/{id}/attempts": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List delivery attempts for a specific alert delivery
+         * @description Returns the ordered list of delivery attempts (request/response audit data) for the given delivery ID.
+         */
+        get: operations["listAttempts"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["addComponents"];
+        patch?: never;
         trace?: never;
     };
-    "/api/v1/service-subscriptions/{id}/alert-sensitivity": {
+    "/api/v1/alert-deliveries/{id}/retry": {
         parameters: {
             query?: never;
             header?: never;
@@ -1601,15 +120,33 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post?: never;
+        /**
+         * Retry a failed delivery
+         * @description Resets a FAILED delivery to RETRY_PENDING so the delivery worker re-attempts it.
+         */
+        post: operations["retry"];
         delete?: never;
         options?: never;
         head?: never;
-        /**
-         * Update alert sensitivity for a subscription
-         * @description Controls which external incidents trigger alerts: ALL (any status change), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (only DOWN-level incidents).
-         */
-        patch: operations["updateAlertSensitivity"];
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List API keys */
+        get: operations["list_13"];
+        put?: never;
+        /** Create API key */
+        post: operations["create_14"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/api-keys/{id}": {
@@ -1623,393 +160,223 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete API key */
-        delete: operations["delete_10"];
+        delete: operations["delete_11"];
         options?: never;
         head?: never;
         /** Update API key */
-        patch: operations["update_14"];
+        patch: operations["update_15"];
         trace?: never;
     };
-    "/v1/internal/workspaces/{id}": {
+    "/api/v1/api-keys/{id}/regenerate": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
+        /** Regenerate API key */
+        post: operations["regenerate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api-keys/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke API key */
+        post: operations["revoke_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List audit events for the current organization */
+        get: operations["list_19"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current API key identity
+         * @description Returns the authenticated API key's metadata, organization, billing plan, entitlements with usage, and current rate-limit quota. Only available for API key authentication (Bearer dh_live_...).
+         */
+        get: operations["me_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List categories with service counts */
+        get: operations["listCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dashboard overview
+         * @description Returns monitor status counts, average uptime windows, and incident aggregates for the authenticated org. Results are cached for 1 minute.
+         */
+        get: operations["overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/deploy/lock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current deploy lock
+         * @description Returns the active deploy lock for the current workspace, if any.
+         */
+        get: operations["current"];
+        put?: never;
+        /**
+         * Acquire deploy lock
+         * @description Acquires an exclusive deploy lock for the current workspace. Returns 409 Conflict if the workspace is already locked by another session.
+         */
+        post: operations["acquire"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/deploy/lock/{lockId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Release deploy lock
+         * @description Releases a deploy lock by ID. Only the lock holder should call this.
+         */
+        delete: operations["release"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/deploy/lock/force": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Force-release deploy lock
+         * @description Forcibly removes any deploy lock on the current workspace. Use to break stale locks.
+         */
+        delete: operations["forceRelease"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/environments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List environments */
+        get: operations["list_12"];
+        put?: never;
+        /** Create environment */
+        post: operations["create_13"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/environments/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get environment by slug */
         get: operations["get_7"];
-        put?: never;
+        /** Update environment */
+        put: operations["update_13"];
         post?: never;
-        delete?: never;
+        /** Delete environment */
+        delete: operations["delete_9"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/v1/internal/orgs/{id}/workspaces": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listWorkspaces_1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/monitors/{id}/policy": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["policy"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/monitors/{id}/env-variables": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getEnvVariables"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/monitors/{id}/auth": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["auth"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/monitors/{id}/assertions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAssertions"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/monitors/{id}/active-incident": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["activeIncident"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/internal/monitors/schedulable": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["schedulable"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/plans": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List public billing plans */
-        get: operations["getPublicPlans"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/orgs/{orgId}/subscriptions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List active subscriptions */
-        get: operations["listActive"];
-        put?: never;
-        post?: never;
-        delete: operations["cancel"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/orgs/{orgId}/subscriptions/upcoming-charge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get upcoming charge */
-        get: operations["getUpcomingCharge"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/orgs/{orgId}/subscriptions/management-urls": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get subscription management URLs */
-        get: operations["getManagementUrls"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/orgs/{orgId}/subscriptions/customer-auth-token": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get customer auth token */
-        get: operations["getCustomerAuthToken"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/orgs/{orgId}/entitlements": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get resolved entitlements and current usage for the organization */
-        get: operations["getEntitlements"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/orgs/search": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Search organizations */
-        get: operations["searchOrganizations"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/me/orgs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get current user's organizations */
-        get: operations["myOrgs"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/events/stream": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Subscribe to real-time platform events via SSE */
-        get: operations["stream"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listUsers"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getStats"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/orgs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listOrgs"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/adapters/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAdapterHealth"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhooks/{id}/deliveries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List recent deliveries for a webhook endpoint */
-        get: operations["listDeliveries"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhooks/signing-secret": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get signing secret metadata for the authenticated org */
-        get: operations["getSigningSecretInfo"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhooks/events": {
+    "/api/v1/heartbeat/{token}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2017,44 +384,49 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List all available webhook event types
-         * @description Returns the full catalog of supported outbound webhook event types with their surface grouping and human-readable descriptions. Use this to populate subscription checkboxes when creating or updating a webhook endpoint.
+         * Record a heartbeat ping (GET)
+         * @description Called by external systems (cron jobs, scheduled tasks) to signal liveness. Always returns 200 OK.
          */
-        get: operations["listEvents"];
+        get: operations["pingGet"];
         put?: never;
-        post?: never;
+        /**
+         * Record a heartbeat ping (POST)
+         * @description Called by external systems to signal liveness with an optional JSON payload. The payload can be inspected by heartbeat_payload_contains assertions. Always returns 200 OK.
+         */
+        post: operations["pingPost"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/services": {
+    "/api/v1/incidents": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List all enabled services (cursor-paginated) */
-        get: operations["listServices"];
+        /** List incidents for the authenticated org */
+        get: operations["list_11"];
         put?: never;
-        post?: never;
+        /** Create a manual incident */
+        post: operations["create_12"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/services/{slugOrId}": {
+    "/api/v1/incidents/{id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get a single service by slug or UUID with current status, components, and recent incidents */
-        get: operations["getService"];
+        /** Get incident details including update timeline */
+        get: operations["get_10"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2063,7 +435,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/services/{slugOrId}/uptime": {
+    "/api/v1/incidents/{id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve an incident */
+        post: operations["resolve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/incidents/{id}/updates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an update to an incident (optionally change status) */
+        post: operations["addUpdate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integrations": {
         parameters: {
             query?: never;
             header?: never;
@@ -2071,10 +477,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get uptime statistics for a service
-         * @description Uptime data aggregated across active non-group components.
+         * List all supported integration types
+         * @description Returns the full static catalog of supported alert channel integration types with their metadata and config field schemas. Used by the frontend to dynamically render the 'Add Alert Channel' form.
          */
-        get: operations["getServiceUptime"];
+        get: operations["list_18"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2083,92 +489,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/services/{slugOrId}/maintenances": {
+    "/api/v1/invites": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List scheduled maintenances for a service */
-        get: operations["getScheduledMaintenances"];
+        /** List invites */
+        get: operations["list_10"];
         put?: never;
-        post?: never;
+        /** Create invite */
+        post: operations["create_11"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/services/{slugOrId}/incidents": {
+    "/api/v1/invites/{inviteId}/resend": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List incident history for a service (paginated) */
-        get: operations["listIncidents"];
+        get?: never;
         put?: never;
-        post?: never;
+        /** Resend invite */
+        post: operations["resend"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/services/{slugOrId}/incidents/{incidentId}": {
+    "/api/v1/invites/{inviteId}/revoke": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get incident detail with full update timeline */
-        get: operations["getIncident"];
+        get?: never;
         put?: never;
-        post?: never;
+        /** Revoke invite */
+        post: operations["revoke"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/services/{slugOrId}/components": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List active components for a service with current status and inline uptime */
-        get: operations["getComponents"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/services/{slugOrId}/components/{componentId}/uptime": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get daily uptime data for a component */
-        get: operations["getComponentUptime"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/services/summary": {
+    "/api/v1/maintenance-windows": {
         parameters: {
             query?: never;
             header?: never;
@@ -2176,10 +549,50 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Global status summary across all services
-         * @description Returns aggregate counts of services by status and a list of services currently experiencing issues.
+         * List maintenance windows for the authenticated org
+         * @description Returns maintenance windows for the caller's organisation. Optionally filter by monitor_id, and/or by status: 'active' (currently in window) or 'upcoming' (starts in the future).
          */
-        get: operations["getGlobalStatusSummary"];
+        get: operations["list_9"];
+        put?: never;
+        /**
+         * Create a maintenance window
+         * @description Creates a new maintenance window. Set monitorId to null to create an org-wide window that suppresses alerts for all monitors.
+         */
+        post: operations["create_10"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/maintenance-windows/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single maintenance window by ID */
+        get: operations["getById_2"];
+        /** Update a maintenance window */
+        put: operations["update_12"];
+        post?: never;
+        /** Delete a maintenance window */
+        delete: operations["delete_8"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List organization members */
+        get: operations["list_17"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2188,7 +601,112 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/services/incidents": {
+    "/api/v1/members/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove member from organization */
+        delete: operations["remove_2"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{userId}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Change member role */
+        put: operations["changeRole"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{userId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Change member status */
+        put: operations["changeStatus"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List monitors for the authenticated org */
+        get: operations["list_8"];
+        put?: never;
+        /** Create a new monitor */
+        post: operations["create_9"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single monitor by id */
+        get: operations["get_6"];
+        /** Update a monitor */
+        put: operations["update_11"];
+        post?: never;
+        /** Soft-delete a monitor */
+        delete: operations["delete_7"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pause a monitor (set enabled=false) */
+        post: operations["pause"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/results": {
         parameters: {
             query?: never;
             header?: never;
@@ -2196,10 +714,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List vendor incidents across all services (paginated)
-         * @description Cross-service vendor incident feed ordered by start date descending.
+         * List raw check results
+         * @description Returns check results for the given monitor with optional time-range, region, and pass/fail filtering. Uses cursor-based pagination — pass the returned `cursor` value on subsequent requests to retrieve the next page. The cursor encodes the original time bounds, so `from`/`to` are ignored when a cursor is present.
          */
-        get: operations["listCrossServiceIncidents"];
+        get: operations["getResults"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2208,45 +726,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/service-subscriptions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all service subscriptions for the organization */
-        get: operations["list_14"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/service-subscriptions/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a subscription by its ID */
-        get: operations["get_8"];
-        put?: never;
-        post?: never;
-        /**
-         * Remove a subscription by its ID
-         * @description Removes a specific subscription (whole-service or component-level). No-op if not found.
-         */
-        delete: operations["unsubscribe"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/resource-groups/{id}/health": {
+    "/api/v1/monitors/{id}/results/summary": {
         parameters: {
             query?: never;
             header?: never;
@@ -2254,10 +734,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get the detailed health breakdown for a resource group
-         * @description Returns member counts, worst-of status, and threshold-based health evaluation. The thresholdStatus field is populated only when a health threshold is configured.
+         * Get results summary
+         * @description Returns a dashboard summary for the monitor: current status derived from the latest result per region, time-bucketed chart data, the 24-hour uptime percentage, and the selected window's uptime percentage.
          */
-        get: operations["getHealth"];
+        get: operations["getSummary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2266,58 +746,83 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/notifications": {
+    "/api/v1/monitors/{id}/resume": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List notifications for the current user */
-        get: operations["list_15"];
+        get?: never;
         put?: never;
-        post?: never;
+        /** Resume a monitor (set enabled=true) */
+        post: operations["resume"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/notifications/unread-count": {
+    "/api/v1/monitors/{id}/rotate-token": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get unread notification count */
-        get: operations["unreadCount"];
+        get?: never;
         put?: never;
-        post?: never;
+        /**
+         * Rotate the ping token for a heartbeat monitor
+         * @description Generates a new ping token. The old token remains valid for 24 hours to allow cron jobs to be updated without downtime. Only supported for HEARTBEAT monitors.
+         */
+        post: operations["rotateToken"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/notification-policies/{id}/dispatches": {
+    "/api/v1/monitors/{id}/tags": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List all dispatches (firing history) for a notification policy */
-        get: operations["listDispatches"];
+        /** Get all tags applied to a monitor */
+        get: operations["getMonitorTags"];
         put?: never;
-        post?: never;
+        /** Add tags to a monitor; supports existing tag IDs and inline creation of new tags */
+        post: operations["addMonitorTags"];
+        /** Remove tags from a monitor by their IDs */
+        delete: operations["removeMonitorTags"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Test an existing monitor
+         * @description Runs the saved config and assertions of an existing monitor once, without persisting any result. Runs synchronously and returns the same shape as the ad-hoc test.
+         */
+        post: operations["testExisting"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/notification-dispatches": {
+    "/api/v1/monitors/{id}/uptime": {
         parameters: {
             query?: never;
             header?: never;
@@ -2325,30 +830,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List all dispatches for an incident
-         * @description Returns all notification dispatches for the given incident that belong to the authenticated org's policies. Each dispatch includes delivery records for all associated channels.
+         * Get uptime statistics
+         * @description Returns uptime percentage and latency statistics for the requested time window, computed from continuous aggregates. Uses hourly aggregates for 24h/7d windows and daily aggregates for 30d/90d windows.
          */
-        get: operations["listByIncident"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/notification-dispatches/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a single dispatch with full escalation and delivery history
-         * @description Returns the dispatch state including current escalation step, acknowledgment info, and all delivery attempts made across every step.
-         */
-        get: operations["getById_3"];
+        get: operations["getUptime"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2397,7 +882,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/monitors/{id}/uptime": {
+    "/api/v1/monitors/{monitorId}/alert-channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace the linked alert channel set for a monitor */
+        put: operations["setChannels"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{monitorId}/assertions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an assertion to a monitor */
+        post: operations["add"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{monitorId}/assertions/{assertionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update an assertion on a monitor */
+        put: operations["update_10"];
+        post?: never;
+        /** Remove an assertion from a monitor */
+        delete: operations["remove_1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{monitorId}/auth": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update authentication config for a monitor */
+        put: operations["update_9"];
+        /** Set authentication config for a monitor */
+        post: operations["set"];
+        /** Remove authentication config from a monitor */
+        delete: operations["remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{monitorId}/policy": {
         parameters: {
             query?: never;
             header?: never;
@@ -2405,10 +961,74 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get uptime statistics
-         * @description Returns uptime percentage and latency statistics for the requested time window, computed from continuous aggregates. Uses hourly aggregates for 24h/7d windows and daily aggregates for 30d/90d windows.
+         * Get incident policy for a monitor
+         * @description Returns the trigger rules, confirmation settings, and recovery settings for the given monitor.
          */
-        get: operations["getUptime"];
+        get: operations["get_5"];
+        /**
+         * Update incident policy for a monitor
+         * @description Replaces the trigger rules, confirmation settings, and recovery settings. All fields are validated before saving.
+         */
+        put: operations["update_8"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk action on monitors
+         * @description Applies PAUSE, RESUME, DELETE, ADD_TAG, or REMOVE_TAG to a list of monitors. Returns a partial-success response indicating which monitors succeeded and which failed.
+         */
+        post: operations["bulkAction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ad-hoc monitor test
+         * @description Executes a one-off check from an inline config without saving the monitor. Runs synchronously and returns status code, response time, assertion results, body preview, and headers.
+         */
+        post: operations["testAdHoc"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notification-dispatches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all dispatches for an incident
+         * @description Returns all notification dispatches for the given incident that belong to the authenticated org's policies. Each dispatch includes delivery records for all associated channels.
+         */
+        get: operations["listByIncident"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2417,7 +1037,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/monitors/{id}/results": {
+    "/api/v1/notification-dispatches/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2425,10 +1045,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List raw check results
-         * @description Returns check results for the given monitor with optional time-range, region, and pass/fail filtering. Uses cursor-based pagination — pass the returned `cursor` value on subsequent requests to retrieve the next page. The cursor encodes the original time bounds, so `from`/`to` are ignored when a cursor is present.
+         * Get a single dispatch with full escalation and delivery history
+         * @description Returns the dispatch state including current escalation step, acknowledgment info, and all delivery attempts made across every step.
          */
-        get: operations["getResults"];
+        get: operations["getById_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2437,18 +1057,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/monitors/{id}/results/summary": {
+    "/api/v1/notification-dispatches/{id}/acknowledge": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
-         * Get results summary
-         * @description Returns a dashboard summary for the monitor: current status derived from the latest result per region, time-bucketed chart data, the 24-hour uptime percentage, and the selected window's uptime percentage.
+         * Acknowledge a notification dispatch
+         * @description Marks the dispatch as acknowledged. The dispatch must be in DELIVERED or ESCALATING state. Sets acknowledgedAt, acknowledgedBy (actor email), and acknowledgedVia (DASHBOARD).
          */
-        get: operations["getSummary"];
+        post: operations["acknowledge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notification-policies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all notification policies for the authenticated org */
+        get: operations["list_7"];
+        put?: never;
+        /** Create a notification policy with match rules and escalation chain */
+        post: operations["create_8"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notification-policies/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a notification policy by ID */
+        get: operations["getById_1"];
+        /** Update a notification policy */
+        put: operations["update_7"];
+        post?: never;
+        /** Delete a notification policy */
+        delete: operations["delete_6"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notification-policies/{id}/dispatches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all dispatches (firing history) for a notification policy */
+        get: operations["listDispatches"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2457,14 +1131,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/members": {
+    "/api/v1/notification-policies/{id}/test": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List organization members */
+        get?: never;
+        put?: never;
+        /** Dry-run: evaluate a policy's match rules against a supplied incident context */
+        post: operations["test_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List notifications for the current user */
         get: operations["list_16"];
         put?: never;
         post?: never;
@@ -2474,7 +1165,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/integrations": {
+    "/api/v1/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Mark a notification as read */
+        put: operations["markRead"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Mark all notifications as read */
+        put: operations["markAllRead"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get unread notification count */
+        get: operations["unreadCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/org": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the current organization */
+        get: operations["get_4"];
+        /** Update the current organization */
+        put: operations["update_6"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/resource-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all resource groups for the authenticated org with health summaries */
+        get: operations["list_6"];
+        put?: never;
+        /** Create a new resource group */
+        post: operations["create_7"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/resource-groups/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2482,36 +1260,21 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List all supported integration types
-         * @description Returns the full static catalog of supported alert channel integration types with their metadata and config field schemas. Used by the frontend to dynamically render the 'Add Alert Channel' form.
+         * Get a resource group by id with member statuses and inherited settings
+         * @description Pass includeMetrics=true to enrich each member with 24h uptime, chart data, and latency metrics.
          */
-        get: operations["list_17"];
-        put?: never;
+        get: operations["get_3"];
+        /** Update a resource group's name, description, alert policy, inherited settings, and health threshold */
+        put: operations["update_5"];
         post?: never;
-        delete?: never;
+        /** Delete a resource group (cascades to member rows) */
+        delete: operations["delete_5"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/incidents/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get incident details including update timeline */
-        get: operations["get_9"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/dashboard/overview": {
+    "/api/v1/resource-groups/{id}/health": {
         parameters: {
             query?: never;
             header?: never;
@@ -2519,10 +1282,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Dashboard overview
-         * @description Returns monitor status counts, average uptime windows, and incident aggregates for the authenticated org. Results are cached for 1 minute.
+         * Get the detailed health breakdown for a resource group
+         * @description Returns member counts, worst-of status, and threshold-based health evaluation. The thresholdStatus field is populated only when a health threshold is configured.
          */
-        get: operations["overview"];
+        get: operations["getHealth"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2531,98 +1294,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/categories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List categories with service counts */
-        get: operations["listCategories"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get current API key identity
-         * @description Returns the authenticated API key's metadata, organization, billing plan, entitlements with usage, and current rate-limit quota. Only available for API key authentication (Bearer dh_live_...).
-         */
-        get: operations["me_1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/audit-log": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List audit events for the current organization */
-        get: operations["list_18"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/alert-deliveries/{id}/attempts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List delivery attempts for a specific alert delivery
-         * @description Returns the ordered list of delivery attempts (request/response audit data) for the given delivery ID.
-         */
-        get: operations["listAttempts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/alert-channels/{id}/deliveries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List delivery history for an alert channel */
-        get: operations["listDeliveries_1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/orgs/{orgId}": {
+    "/api/v1/resource-groups/{id}/members": {
         parameters: {
             query?: never;
             header?: never;
@@ -2631,25 +1303,9 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post?: never;
-        /** Delete organization */
-        delete: operations["delete_11"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/platform/admin/orgs/{orgId}/members/{userId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["removeMember"];
+        /** Add a monitor or service member to a resource group */
+        post: operations["addMember_1"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2672,24 +1328,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/members/{userId}": {
+    "/api/v1/secrets": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List secrets */
+        get: operations["list_5"];
         put?: never;
-        post?: never;
-        /** Remove member from organization */
-        delete: operations["remove_2"];
+        /** Create secret */
+        post: operations["create_6"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/deploy/lock/{lockId}": {
+    "/api/v1/secrets/{key}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2697,19 +1354,55 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
+        /** Update secret */
+        put: operations["update_4"];
         post?: never;
-        /**
-         * Release deploy lock
-         * @description Releases a deploy lock by ID. Only the lock holder should call this.
-         */
-        delete: operations["release"];
+        /** Delete secret */
+        delete: operations["delete_4"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/deploy/lock/force": {
+    "/api/v1/service-subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all service subscriptions for the organization */
+        get: operations["list_15"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/service-subscriptions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a subscription by its ID */
+        get: operations["get_9"];
+        put?: never;
+        post?: never;
+        /**
+         * Remove a subscription by its ID
+         * @description Removes a specific subscription (whole-service or component-level). No-op if not found.
+         */
+        delete: operations["unsubscribe_1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/service-subscriptions/{id}/alert-sensitivity": {
         parameters: {
             query?: never;
             header?: never;
@@ -2719,11 +1412,804 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         /**
-         * Force-release deploy lock
-         * @description Forcibly removes any deploy lock on the current workspace. Use to break stale locks.
+         * Update alert sensitivity for a subscription
+         * @description Controls which external incidents trigger alerts: ALL (any status change), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (only DOWN-level incidents).
          */
-        delete: operations["forceRelease"];
+        patch: operations["updateAlertSensitivity"];
+        trace?: never;
+    };
+    "/api/v1/service-subscriptions/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Subscribe to a service or a component of a service
+         * @description Idempotent — returns the existing subscription if an identical one exists. Omit the request body or set componentId to null for a whole-service subscription. Free tier: max 10 subscriptions. Paid tier: unlimited.
+         */
+        post: operations["subscribe_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all enabled services (cursor-paginated) */
+        get: operations["listServices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/{slugOrId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single service by slug or UUID with current status, components, and recent incidents */
+        get: operations["getService"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/{slugOrId}/components": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List active components for a service with current status and inline uptime */
+        get: operations["getComponents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/{slugOrId}/components/{componentId}/uptime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get daily uptime data for a component */
+        get: operations["getComponentUptime"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/{slugOrId}/components/uptime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Batch daily uptime data for all leaf components
+         * @description Returns daily uptime for every active non-group component with uptime data, keyed by component ID. Replaces N individual per-component uptime calls with a single request.
+         */
+        get: operations["getBatchComponentUptime"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/{slugOrId}/incidents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List incident history for a service (paginated) */
+        get: operations["listIncidents_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/{slugOrId}/incidents/{incidentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get incident detail with full update timeline */
+        get: operations["getIncident_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/{slugOrId}/live-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lightweight live-status snapshot for polling
+         * @description Returns only the current overall status, component statuses, and active incident count. Designed for frequent polling with minimal payload.
+         */
+        get: operations["getServiceLiveStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/{slugOrId}/maintenances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List scheduled maintenances for a service */
+        get: operations["getScheduledMaintenances"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/{slugOrId}/uptime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get uptime statistics for a service
+         * @description Uptime data aggregated across active non-group components.
+         */
+        get: operations["getServiceUptime"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/incidents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List vendor incidents across all services (paginated)
+         * @description Cross-service vendor incident feed ordered by start date descending.
+         */
+        get: operations["listCrossServiceIncidents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Global status summary across all services
+         * @description Returns aggregate counts of services by status and a list of services currently experiencing issues.
+         */
+        get: operations["getGlobalStatusSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List status pages for the workspace */
+        get: operations["list_4"];
+        put?: never;
+        /** Create a status page */
+        post: operations["create_5"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a status page */
+        get: operations["get_2"];
+        /** Update a status page */
+        put: operations["update_3"];
+        post?: never;
+        /** Delete a status page */
+        delete: operations["delete_3"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/components": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all components */
+        get: operations["listComponents"];
+        put?: never;
+        /** Add a component to the status page */
+        post: operations["createComponent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/components/{componentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a component */
+        put: operations["updateComponent"];
+        post?: never;
+        /** Remove a component from the status page */
+        delete: operations["deleteComponent"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/components/{componentId}/uptime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get component uptime history (daily rollups) */
+        get: operations["componentUptime_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/components/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Batch reorder components (and optionally move between groups) */
+        put: operations["reorderComponents"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/domains": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List custom domains */
+        get: operations["listDomains"];
+        put?: never;
+        /** Add a custom domain */
+        post: operations["addDomain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/domains/{domainId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a custom domain */
+        delete: operations["removeDomain"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/domains/{domainId}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger domain verification check */
+        post: operations["verifyDomain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List component groups with nested components */
+        get: operations["listGroups"];
+        put?: never;
+        /** Create a component group */
+        post: operations["createGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/groups/{groupId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a component group */
+        put: operations["updateGroup"];
+        post?: never;
+        /** Delete a component group (components become ungrouped) */
+        delete: operations["deleteGroup"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/incidents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List incidents for this status page (filterable by status, paginated) */
+        get: operations["listIncidents"];
+        put?: never;
+        /** Create a status page incident (manual) */
+        post: operations["createIncident"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/incidents/{incidentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get incident details with timeline */
+        get: operations["getIncident"];
+        /** Update an incident */
+        put: operations["updateIncident"];
+        post?: never;
+        /** Delete an incident */
+        delete: operations["deleteIncident"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/incidents/{incidentId}/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dismiss a draft incident (deletes it permanently) */
+        post: operations["dismissIncident"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/incidents/{incidentId}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish a draft incident (sets publishedAt, applies component statuses, notifies subscribers) */
+        post: operations["publishIncident"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/incidents/{incidentId}/updates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post an incident timeline update */
+        post: operations["postIncidentUpdate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/layout/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Reorder page-level layout: groups and ungrouped components share one ordering */
+        put: operations["reorderLayout"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/subscribers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List confirmed subscribers (paginated) */
+        get: operations["listSubscribers"];
+        put?: never;
+        /** Add a subscriber (immediately confirmed, skips double opt-in) */
+        post: operations["addSubscriber"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/subscribers/{subscriberId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a subscriber */
+        delete: operations["removeSubscriber"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List tags for the authenticated organization */
+        get: operations["list_3"];
+        put?: never;
+        /** Create a new tag */
+        post: operations["create_4"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tags/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a tag by ID */
+        get: operations["getById"];
+        /** Update a tag's name and/or color */
+        put: operations["update_2"];
+        post?: never;
+        /** Delete a tag (cascades to all monitor associations) */
+        delete: operations["delete_2"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vaults/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rotate DEK
+         * @description Generates a new Data Encryption Key, re-encrypts all secrets and alert-channel configs, and bumps the vault version. Admin-only. Pipeline DEK caches expire within ~10 minutes.
+         */
+        post: operations["rotateDek"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhooks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List webhook endpoints for the authenticated org */
+        get: operations["list_2"];
+        put?: never;
+        /** Register a new webhook endpoint */
+        post: operations["create_3"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhooks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single webhook endpoint */
+        get: operations["get_1"];
+        /** Update a webhook endpoint */
+        put: operations["update_1"];
+        post?: never;
+        /** Delete a webhook endpoint */
+        delete: operations["delete_1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhooks/{id}/deliveries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List recent deliveries for a webhook endpoint */
+        get: operations["listDeliveries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhooks/{id}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a test delivery to a webhook endpoint */
+        post: operations["test"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhooks/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all available webhook event types
+         * @description Returns the full catalog of supported outbound webhook event types with their surface grouping and human-readable descriptions. Use this to populate subscription checkboxes when creating or updating a webhook endpoint.
+         */
+        get: operations["listEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhooks/signing-secret": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get signing secret metadata for the authenticated org */
+        get: operations["getSigningSecretInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhooks/signing-secret/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate or rotate the organization webhook signing secret */
+        post: operations["rotateSigningSecret"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List workspaces */
+        get: operations["list_1"];
+        put?: never;
+        /** Create workspace */
+        post: operations["create_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspaceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get workspace by ID */
+        get: operations["get"];
+        /** Update workspace */
+        put: operations["update"];
+        post?: never;
+        /** Delete workspace */
+        delete: operations["delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2733,275 +2219,388 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        CreateSubscriptionRequest: {
-            /** Format: int32 */
-            priceId?: number;
+        /** @description Request to acquire a deploy lock for the current workspace */
+        AcquireDeployLockRequest: {
+            /** @description Identity of the lock requester (e.g. hostname, CI job ID) */
+            lockedBy: string;
+            /**
+             * Format: int32
+             * @description Lock TTL in minutes (default: 30, max: 60)
+             * @example 30
+             */
+            ttlMinutes?: number | null;
         };
-        /** @description Associated billing plan; null when not requested */
-        BillingPlanDto: {
+        AddCustomDomainRequest: {
+            /** @description Custom hostname, e.g. status.acme.com */
+            hostname: string;
+        };
+        AddIncidentUpdateRequest: {
+            /** @description Update message or post-mortem notes */
+            body: string;
             /**
-             * Format: int32
-             * @description Unique billing plan identifier
-             */
-            id?: number;
-            /** @description Paddle product identifier */
-            paddleId?: string;
-            /** @description Billing plan display name */
-            name?: string;
-            /** @description Plan description */
-            description?: string | null;
-            /** @description Available prices for this plan; null when not requested */
-            prices?: components["schemas"]["BillingPriceDto"][] | null;
-        } | null;
-        /** @description Price details for this line item */
-        BillingPriceDto: {
-            /**
-             * Format: int32
-             * @description Unique billing price identifier
-             */
-            id?: number;
-            /** @description Paddle price identifier */
-            paddleId?: string;
-            /**
-             * Format: int32
-             * @description Price amount in smallest currency unit (e.g. cents)
-             */
-            amount?: number;
-            /**
-             * @description Billing interval (MONTH or YEAR)
+             * @description Updated incident status; null to keep current status
              * @enum {string}
              */
-            interval?: "DAY" | "WEEK" | "MONTH" | "YEAR";
-            /**
-             * Format: int32
-             * @description Number of intervals between billing cycles
-             */
-            intervalCount?: number;
-            /** @description Price description */
-            description?: string | null;
-            billingPlan?: components["schemas"]["BillingPlanDto"];
+            newStatus: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED";
+            /** @description Whether to notify subscribers of this update */
+            notifySubscribers: boolean;
         };
-        /** @description Line items included in this subscription */
-        ItemDto: {
-            billingPrice?: components["schemas"]["BillingPriceDto"];
-            /**
-             * Format: int32
-             * @description Quantity of this price
-             */
-            quantity?: number;
-            /**
-             * Format: int32
-             * @description Line item total in smallest currency unit
-             */
-            amount?: number;
+        /** @description Request body for adding tags to a monitor. Provide existing tag IDs, inline new tags, or both. */
+        AddMonitorTagsRequest: {
+            /** @description IDs of existing org tags to attach */
+            tagIds: (string | null)[] | null;
+            /** @description New tags to create (if not already present) and attach */
+            newTags: components["schemas"]["NewTagRequest"][] | null;
         };
-        SingleValueResponseSubscriptionDto: {
-            data?: components["schemas"]["SubscriptionDto"];
+        /** @description Request body for adding a member to a resource group */
+        AddResourceGroupMemberRequest: {
+            /** @description Type of member: 'monitor' or 'service' */
+            memberType: string;
+            /**
+             * Format: uuid
+             * @description ID of the monitor or service to add
+             */
+            memberId: string;
         };
-        /** @description Current billing subscription details */
-        SubscriptionDto: {
-            /**
-             * Format: int32
-             * @description Internal subscription identifier
-             */
-            id?: number;
-            /** @description Paddle subscription identifier */
-            paddleId?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the subscription was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the subscription was last updated
-             */
-            updatedAt?: string;
-            /**
-             * Format: int32
-             * @description Organization this subscription belongs to
-             */
-            organizationId?: number;
-            /**
-             * @description Current subscription status
-             * @enum {string}
-             */
-            status?: "ACTIVE" | "CANCELED" | "PAST_DUE" | "PAUSED" | "TRIALING";
-            /**
-             * Format: date-time
-             * @description Next billing date; null when cancelled or expired
-             */
-            nextBilledAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Scheduled cancellation date; null if no cancellation pending
-             */
-            willCancelAt?: string | null;
-            /** @description Line items included in this subscription */
-            items?: components["schemas"]["ItemDto"][];
-        };
-        UpdateOrgDetailsRequest: {
-            /** @description New organization name (max 200 chars) */
-            name: string;
+        AdminAddSubscriberRequest: {
             /**
              * Format: email
-             * @description New billing and contact email address
+             * @description Email address to add as a confirmed subscriber
              */
             email: string;
-            /** @description Team size range (e.g. 1-10, 11-50) */
-            size?: string;
-            /** @description Industry vertical (e.g. SaaS, Fintech) */
-            industry?: string;
-            /** @description Organization website URL (max 255 chars) */
-            websiteUrl?: string;
         };
-        /** @description Organization account details */
-        OrganizationDto: {
+        /** @description Updated affected components; null preserves current */
+        AffectedComponent: {
             /**
-             * Format: int32
-             * @description Unique organization identifier
+             * Format: uuid
+             * @description Status page component ID
              */
-            id?: number;
-            /** @description Organization name */
-            name?: string;
-            /** @description Billing and contact email */
-            email?: string | null;
-            /** @description Team size range (e.g. 1-10, 11-50) */
-            size?: string | null;
-            /** @description Industry vertical (e.g. SaaS, Fintech) */
-            industry?: string | null;
-            /** @description Organization website URL */
-            websiteUrl?: string | null;
-        };
-        SingleValueResponseOrganizationDto: {
-            data?: components["schemas"]["OrganizationDto"];
-        };
-        /** @description Advance the user's onboarding stage */
-        UpdateOnboardingStageRequest: {
+            componentId: string;
             /**
-             * @description New onboarding stage
+             * @description Component status during this incident
              * @enum {string}
              */
-            stage: "WELCOME" | "FIRST_MONITOR" | "SETUP_COMPLETE" | "COMPLETED";
+            status: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE";
         };
-        SingleValueResponseUserDto: {
-            data?: components["schemas"]["UserDto"];
-        };
-        /** @description User account details */
-        UserDto: {
+        /** @description Alert channel with non-sensitive configuration metadata */
+        AlertChannelDto: {
             /**
-             * Format: int32
-             * @description Unique user identifier
+             * Format: uuid
+             * @description Unique alert channel identifier
              */
-            id?: number;
-            /** @description User email address */
-            email?: string;
-            /** @description Whether the email address has been verified */
-            emailVerified?: boolean;
-            /** @description Display name; null if not set */
-            name?: string | null;
-            /**
-             * @description Platform role: USER or SUPERADMIN
-             * @enum {string}
-             */
-            userRole?: "SUPERADMIN" | "ADMIN" | "USER";
-            /**
-             * @description Current onboarding progress stage; null when completed
-             * @enum {string|null}
-             */
-            onboardingStage?: "WELCOME" | "FIRST_MONITOR" | "SETUP_COMPLETE" | "COMPLETED" | null;
-            /** @description Profile image URL; null if not set */
-            imageUrl?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the account was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the account was last updated
-             */
-            updatedAt?: string;
-        };
-        UpdateProfileRequest: {
-            /** @description New display name (max 200 chars) */
-            name?: string;
-        };
-        /** @description Replace notification preferences for the current user */
-        UpdateNotificationPreferencesRequest: {
-            /** @description Map of category keys to enabled/disabled flags */
-            preferences: {
-                [key: string]: boolean;
-            };
-        };
-        /** @description User notification preferences keyed by notification category */
-        NotificationPreferencesDto: {
-            /** @description Map of category keys to enabled/disabled flags */
-            preferences?: {
-                [key: string]: boolean;
-            };
-            /**
-             * Format: date-time
-             * @description Timestamp when preferences were last updated
-             */
-            updatedAt?: string;
-        };
-        SingleValueResponseNotificationPreferencesDto: {
-            data?: components["schemas"]["NotificationPreferencesDto"];
-        };
-        /** @description Update workspace details */
-        UpdateWorkspaceRequest: {
-            /** @description New workspace name */
+            id: string;
+            /** @description Human-readable channel name */
             name: string;
-        };
-        SingleValueResponseWorkspaceDto: {
-            data?: components["schemas"]["WorkspaceDto"];
-        };
-        /** @description Workspace within an organization */
-        WorkspaceDto: {
             /**
-             * Format: int32
-             * @description Unique workspace identifier
-             */
-            id?: number;
-            /**
-             * Format: date-time
-             * @description Timestamp when the workspace was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the workspace was last updated
-             */
-            updatedAt?: string;
-            /** @description Workspace name */
-            name?: string;
-            /**
-             * Format: int32
-             * @description Organization this workspace belongs to
-             */
-            orgId?: number;
-        };
-        UpdateUserRequest: {
-            /** @description New display name (max 200 chars) */
-            name?: string;
-            /**
-             * Format: email
-             * @description New email address
-             */
-            email?: string;
-            /**
-             * @description New platform role
+             * @description Channel integration type (e.g. SLACK, PAGERDUTY, EMAIL)
              * @enum {string}
              */
-            userRole?: "SUPERADMIN" | "ADMIN" | "USER";
+            channelType: "email" | "webhook" | "slack" | "pagerduty" | "opsgenie" | "teams" | "discord";
+            /** @description Non-sensitive display metadata; null for older channels */
+            displayConfig?: {
+                [key: string]: Record<string, never> | null;
+            } | null;
             /**
-             * @description New onboarding stage
+             * Format: date-time
+             * @description Timestamp when the channel was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the channel was last updated
+             */
+            updatedAt: string;
+            /** @description SHA-256 hash of the channel config; use for change detection */
+            configHash?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp of the most recent delivery attempt
+             */
+            lastDeliveryAt?: string | null;
+            /** @description Outcome of the most recent delivery (SUCCESS, FAILED, etc.) */
+            lastDeliveryStatus?: string | null;
+        };
+        /** @description Delivery record for a single channel within a notification dispatch */
+        AlertDeliveryDto: {
+            /** Format: uuid */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Incident that triggered this delivery
+             */
+            incidentId: string;
+            /**
+             * Format: uuid
+             * @description Notification dispatch that created this delivery
+             */
+            dispatchId: string | null;
+            /**
+             * Format: uuid
+             * @description Alert channel ID
+             */
+            channelId: string;
+            /** @description Human-readable channel name */
+            channel: string;
+            /** @description Alert channel type (e.g. slack, email, webhook) */
+            channelType: string;
+            /**
+             * @description Current delivery status
              * @enum {string}
              */
-            onboardingStage?: "WELCOME" | "FIRST_MONITOR" | "SETUP_COMPLETE" | "COMPLETED";
-            /** @description New profile image URL (max 500 chars) */
-            imageUrl?: string;
+            status: "PENDING" | "DELIVERED" | "RETRY_PENDING" | "FAILED" | "CANCELLED";
+            /**
+             * @description Incident lifecycle event that triggered this delivery
+             * @enum {string}
+             */
+            eventType: "INCIDENT_CREATED" | "INCIDENT_RESOLVED" | "INCIDENT_REOPENED";
+            /**
+             * Format: int32
+             * @description 1-based escalation step this delivery belongs to
+             */
+            stepNumber: number;
+            /**
+             * Format: int32
+             * @description Fire sequence within the step: 1 = initial, 2+ = repeat re-fires
+             */
+            fireCount: number;
+            /**
+             * Format: int32
+             * @description Number of delivery attempts made
+             */
+            attemptCount: number;
+            /**
+             * Format: date-time
+             * @description When the last attempt was made
+             */
+            lastAttemptAt: string | null;
+            /**
+             * Format: date-time
+             * @description When the next retry is scheduled (null if not retrying)
+             */
+            nextRetryAt: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the delivery was confirmed (null if not yet delivered)
+             */
+            deliveredAt: string | null;
+            /** @description Error message from the last failed attempt */
+            errorMessage: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ApiKeyAuthConfig: {
+            type: "ApiKeyAuthConfig";
+        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+            /** @description HTTP header name that carries the API key */
+            headerName: string;
+            /**
+             * Format: uuid
+             * @description Vault secret ID for the API key value
+             */
+            vaultSecretId?: string | null;
+        });
+        /** @description Created API key with the full key value — store it now, it won't be shown again */
+        ApiKeyCreateResponse: {
+            /**
+             * Format: int32
+             * @description Unique API key identifier
+             */
+            id: number;
+            /** @description Human-readable name for this API key */
+            name: string;
+            /** @description Full API key value in dh_live_* format; store this now */
+            key: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the key was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the key expires; null if no expiration
+             */
+            expiresAt: string | null;
+        };
+        /** @description API key for programmatic access to the DevHelm API */
+        ApiKeyDto: {
+            /**
+             * Format: int32
+             * @description Unique API key identifier
+             */
+            id: number;
+            /** @description Human-readable name for this API key */
+            name: string;
+            /** @description Full API key value in dh_live_* format */
+            key: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the key was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the key was last updated
+             */
+            updatedAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp of the most recent API call; null if never used
+             */
+            lastUsedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the key was revoked; null if active
+             */
+            revokedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the key expires; null if no expiration
+             */
+            expiresAt: string | null;
+        };
+        /** @description New assertion configuration (full replacement) */
+        AssertionConfig: {
+            type: string;
+        };
+        /** @description Result of evaluating a single assertion against a check result */
+        AssertionResultDto: {
+            /**
+             * @description Assertion type
+             * @example status_code
+             */
+            type: string;
+            /** @description Whether the assertion passed */
+            passed: boolean;
+            /**
+             * @description Assertion severity
+             * @enum {string}
+             */
+            severity: "fail" | "warn";
+            /** @description Human-readable result message */
+            message: string | null;
+            /**
+             * @description Expected value
+             * @example 200
+             */
+            expected: string | null;
+            /**
+             * @description Actual value observed
+             * @example 503
+             */
+            actual: string | null;
+        };
+        AssertionTestResultDto: {
+            /**
+             * @description Assertion type evaluated
+             * @enum {string}
+             */
+            assertionType: "status_code" | "response_time" | "body_contains" | "json_path" | "header" | "regex" | "dns_resolves" | "dns_response_time" | "dns_expected_ips" | "dns_expected_cname" | "dns_record_contains" | "dns_record_equals" | "dns_txt_contains" | "dns_min_answers" | "dns_max_answers" | "dns_response_time_warn" | "dns_ttl_low" | "dns_ttl_high" | "mcp_connects" | "mcp_response_time" | "mcp_has_capability" | "mcp_tool_available" | "mcp_min_tools" | "mcp_protocol_version" | "mcp_response_time_warn" | "mcp_tool_count_changed" | "ssl_expiry" | "response_size" | "redirect_count" | "redirect_target" | "response_time_warn" | "tcp_connects" | "tcp_response_time" | "tcp_response_time_warn" | "icmp_reachable" | "icmp_response_time" | "icmp_response_time_warn" | "icmp_packet_loss" | "heartbeat_received" | "heartbeat_max_interval" | "heartbeat_interval_drift" | "heartbeat_payload_contains";
+            /** @description Whether the assertion passed */
+            passed: boolean;
+            /**
+             * @description Assertion severity: FAIL or WARN
+             * @enum {string}
+             */
+            severity: "fail" | "warn";
+            /** @description Human-readable result description */
+            message: string;
+            /** @description Expected value */
+            expected: string | null;
+            /** @description Actual value observed during the test */
+            actual: string | null;
+        };
+        AuditEventDto: {
+            /**
+             * Format: int64
+             * @description Unique audit event identifier
+             */
+            id: number;
+            /**
+             * Format: int32
+             * @description User ID who performed the action; null for system actions
+             */
+            actorId: number | null;
+            /** @description Email of the actor; null for system actions */
+            actorEmail: string | null;
+            /** @description Audit action type (e.g. monitor.created, api_key.revoked) */
+            action: string;
+            /** @description Type of resource affected (e.g. monitor, api_key) */
+            resourceType: string | null;
+            /** @description ID of the affected resource */
+            resourceId: string | null;
+            /** @description Human-readable name of the affected resource */
+            resourceName: string | null;
+            /** @description Additional context about the action */
+            metadata: {
+                [key: string]: Record<string, never> | null;
+            } | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the action was performed
+             */
+            createdAt: string;
+        };
+        /** @description Identity, organization, plan, and rate-limit info for the authenticated API key */
+        AuthMeResponse: {
+            key: components["schemas"]["KeyInfo"];
+            organization: components["schemas"]["OrgInfo"];
+            plan: components["schemas"]["PlanInfo"];
+            rateLimits: components["schemas"]["RateLimitInfo"];
+        };
+        BasicAuthConfig: {
+            type: "BasicAuthConfig";
+        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+            /**
+             * Format: uuid
+             * @description Vault secret ID holding Basic auth username and password
+             */
+            vaultSecretId?: string | null;
+        });
+        BearerAuthConfig: {
+            type: "BearerAuthConfig";
+        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+            /**
+             * Format: uuid
+             * @description Vault secret ID holding the bearer token value
+             */
+            vaultSecretId?: string | null;
+        });
+        BodyContainsAssertion: {
+            type: "BodyContainsAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Substring that must appear in the response body */
+            substring: string;
+        });
+        /** @description Request body for performing a bulk action on multiple monitors */
+        BulkMonitorActionRequest: {
+            /** @description IDs of monitors to act on (max 200) */
+            monitorIds: string[];
+            /**
+             * @description Action to perform: PAUSE, RESUME, DELETE, ADD_TAG, REMOVE_TAG
+             * @enum {string}
+             */
+            action: "PAUSE" | "RESUME" | "DELETE" | "ADD_TAG" | "REMOVE_TAG";
+            /** @description Tag IDs to attach or detach (required for ADD_TAG and REMOVE_TAG) */
+            tagIds?: (string | null)[] | null;
+            /** @description New tags to create and attach (only for ADD_TAG) */
+            newTags?: components["schemas"]["NewTagRequest"][] | null;
+        };
+        /** @description Result of a bulk monitor action, including partial-success details */
+        BulkMonitorActionResult: {
+            /** @description IDs of monitors on which the action succeeded */
+            succeeded: string[];
+            /** @description Monitors on which the action failed, with the reason for each failure */
+            failed: components["schemas"]["FailureDetail"][];
+        };
+        /** @description Service category with its count of catalog entries */
+        CategoryDto: {
+            /** @description Category name (e.g. CI/CD, Cloud, Payments) */
+            category: string;
+            /**
+             * Format: int64
+             * @description Number of services in this category
+             */
+            serviceCount: number;
         };
         /** @description Update an organization member's role */
         ChangeRoleRequest: {
@@ -3011,471 +2610,204 @@ export interface components {
              */
             orgRole: "OWNER" | "ADMIN" | "MEMBER";
         };
-        UpdateWebhookEndpointRequest: {
-            /** @description New webhook URL; null preserves current */
-            url?: string | null;
-            /** @description New description; null preserves current */
-            description?: string | null;
-            /** @description Replace subscribed events; null preserves current */
-            subscribedEvents?: (string | null)[] | null;
-            /** @description Enable or disable delivery; null preserves current */
-            enabled?: boolean | null;
-        };
-        SingleValueResponseWebhookEndpointDto: {
-            data?: components["schemas"]["WebhookEndpointDto"];
-        };
-        /** @description Webhook endpoint that receives event delivery payloads */
-        WebhookEndpointDto: {
+        /** @description Update an organization member's status */
+        ChangeStatusRequest: {
             /**
-             * Format: uuid
-             * @description Unique webhook endpoint identifier
-             */
-            id?: string;
-            /** @description HTTPS endpoint URL that receives event payloads */
-            url?: string;
-            /** @description Human-readable description of this endpoint */
-            description?: string | null;
-            /** @description Event types this endpoint is subscribed to */
-            subscribedEvents?: string[];
-            /** @description Whether delivery is enabled for this endpoint */
-            enabled?: boolean;
-            /**
-             * Format: int32
-             * @description Number of consecutive delivery failures
-             */
-            consecutiveFailures?: number;
-            /** @description Reason the endpoint was auto-disabled */
-            disabledReason?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the endpoint was auto-disabled
-             */
-            disabledAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the endpoint was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the endpoint was last updated
-             */
-            updatedAt?: string;
-        };
-        /** @description Request body for updating a tag; null fields are left unchanged */
-        UpdateTagRequest: {
-            /** @description New tag name */
-            name?: string | null;
-            /** @description New hex color code */
-            color?: string | null;
-        };
-        SingleValueResponseTagDto: {
-            data?: components["schemas"]["TagDto"];
-        };
-        /** @description Tag for organizing and filtering monitors */
-        TagDto: {
-            /**
-             * Format: uuid
-             * @description Unique tag identifier
-             */
-            id?: string;
-            /**
-             * Format: int32
-             * @description Organization this tag belongs to
-             */
-            organizationId?: number;
-            /** @description Tag name, unique within the org */
-            name?: string;
-            /** @description Hex color code for display (e.g. #6B7280) */
-            color?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the tag was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the tag was last updated
-             */
-            updatedAt?: string;
-        };
-        UpdateSecretRequest: {
-            /** @description New secret value, stored encrypted (max 32KB) */
-            value: string;
-        };
-        /** @description Monitors that reference this secret; null on create/update responses */
-        MonitorReference: {
-            /**
-             * Format: uuid
-             * @description Monitor identifier
-             */
-            id?: string;
-            /** @description Monitor name */
-            name?: string;
-        };
-        /** @description Secret with change-detection hash; plaintext value is never returned */
-        SecretDto: {
-            /**
-             * Format: uuid
-             * @description Unique secret identifier
-             */
-            id?: string;
-            /** @description Secret key name, unique within the workspace */
-            key?: string;
-            /**
-             * Format: int32
-             * @description DEK version at the time of last encryption
-             */
-            dekVersion?: number;
-            /** @description SHA-256 hex digest of the current plaintext; use for change detection */
-            valueHash?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the secret was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the secret was last updated
-             */
-            updatedAt?: string;
-            /** @description Monitors that reference this secret; null on create/update responses */
-            usedByMonitors?: components["schemas"]["MonitorReference"][] | null;
-        };
-        SingleValueResponseSecretDto: {
-            data?: components["schemas"]["SecretDto"];
-        };
-        /** @description Default retry strategy for member monitors; null clears */
-        RetryStrategy: {
-            /** @description Retry strategy kind, e.g. fixed interval between attempts */
-            type: string;
-            /**
-             * Format: int32
-             * @description Maximum number of retries after a failed check
-             */
-            maxRetries?: number;
-            /**
-             * Format: int32
-             * @description Delay between retry attempts in seconds
-             */
-            interval?: number;
-        };
-        /** @description Request body for updating a resource group */
-        UpdateResourceGroupRequest: {
-            /** @description Human-readable name for this group */
-            name: string;
-            /** @description Optional description; null clears the existing value */
-            description?: string | null;
-            /**
-             * Format: uuid
-             * @description Optional notification policy to apply for this group; null clears the existing value
-             */
-            alertPolicyId?: string | null;
-            /**
-             * Format: int32
-             * @description Default check frequency in seconds for members (30–86400); null clears
-             */
-            defaultFrequency?: number | null;
-            /** @description Default regions for member monitors; null clears */
-            defaultRegions?: (string | null)[] | null;
-            defaultRetryStrategy?: components["schemas"]["RetryStrategy"];
-            /** @description Default alert channel IDs for member monitors; null clears */
-            defaultAlertChannels?: (string | null)[] | null;
-            /**
-             * Format: uuid
-             * @description Default environment ID for member monitors; null clears
-             */
-            defaultEnvironmentId?: string | null;
-            /**
-             * @description Health threshold type: COUNT or PERCENTAGE; null disables threshold
-             * @enum {string|null}
-             */
-            healthThresholdType?: "COUNT" | "PERCENTAGE" | null;
-            /** @description Health threshold value; null disables threshold */
-            healthThresholdValue?: number | null;
-            /** @description Suppress member-level alert notifications; null preserves current value */
-            suppressMemberAlerts?: boolean | null;
-            /**
-             * Format: int32
-             * @description Confirmation delay in seconds; null clears
-             */
-            confirmationDelaySeconds?: number | null;
-            /**
-             * Format: int32
-             * @description Recovery cooldown in minutes; null clears
-             */
-            recoveryCooldownMinutes?: number | null;
-        };
-        /** @description Resource group with health summary and optional member details */
-        ResourceGroupDto: {
-            /**
-             * Format: uuid
-             * @description Unique resource group identifier
-             */
-            id?: string;
-            /**
-             * Format: int32
-             * @description Organization this group belongs to
-             */
-            organizationId?: number;
-            /** @description Human-readable group name */
-            name?: string;
-            /** @description URL-safe group identifier */
-            slug?: string;
-            /** @description Optional group description */
-            description?: string | null;
-            /**
-             * Format: uuid
-             * @description Notification policy applied to this group
-             */
-            alertPolicyId?: string | null;
-            /**
-             * Format: int32
-             * @description Default check frequency in seconds for member monitors
-             */
-            defaultFrequency?: number | null;
-            /** @description Default regions for member monitors */
-            defaultRegions?: (string | null)[] | null;
-            defaultRetryStrategy?: components["schemas"]["RetryStrategy"];
-            /** @description Default alert channel IDs for member monitors */
-            defaultAlertChannels?: (string | null)[] | null;
-            /**
-             * Format: uuid
-             * @description Default environment ID for member monitors
-             */
-            defaultEnvironmentId?: string | null;
-            /**
-             * @description Health threshold type: COUNT or PERCENTAGE
-             * @enum {string|null}
-             */
-            healthThresholdType?: "COUNT" | "PERCENTAGE" | null;
-            /** @description Health threshold value */
-            healthThresholdValue?: number | null;
-            /** @description When true, member-level incidents skip notification dispatch; only group alerts fire */
-            suppressMemberAlerts?: boolean;
-            /**
-             * Format: int32
-             * @description Seconds to wait after health threshold breach before creating group incident
-             */
-            confirmationDelaySeconds?: number | null;
-            /**
-             * Format: int32
-             * @description Cooldown minutes after group incident resolves before a new one can open
-             */
-            recoveryCooldownMinutes?: number | null;
-            health?: components["schemas"]["ResourceGroupHealthDto"];
-            /** @description Member list with individual statuses; populated on detail GET only */
-            members?: components["schemas"]["ResourceGroupMemberDto"][] | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the group was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the group was last updated
-             */
-            updatedAt?: string;
-        };
-        /** @description Aggregated health summary for a resource group */
-        ResourceGroupHealthDto: {
-            /**
-             * @description Worst-of health status across all members
+             * @description New membership status (ACTIVE or SUSPENDED)
              * @enum {string}
              */
-            status?: "operational" | "maintenance" | "degraded" | "down";
-            /**
-             * Format: int32
-             * @description Total number of members in the group
-             */
-            totalMembers?: number;
-            /**
-             * Format: int32
-             * @description Number of members currently in operational status
-             */
-            operationalCount?: number;
-            /**
-             * Format: int32
-             * @description Number of members with an active incident or non-operational status
-             */
-            activeIncidents?: number;
-            /**
-             * @description Computed group health status based on threshold: 'healthy', 'degraded', or 'down'. Null when no health threshold is configured.
-             * @enum {string|null}
-             */
-            thresholdStatus?: "healthy" | "degraded" | "down" | null;
-            /**
-             * Format: int32
-             * @description Number of failing members at time of last evaluation
-             */
-            failingCount?: number | null;
+            status: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
         };
-        /** @description A single member of a resource group with its computed health status */
-        ResourceGroupMemberDto: {
+        /** @description New channel configuration (full replacement, not partial update) */
+        ChannelConfig: {
+            channelType: string;
+        };
+        /** @description Aggregated metrics for a time bucket */
+        ChartBucketDto: {
             /**
-             * Format: uuid
-             * @description Unique group member record identifier
+             * Format: date-time
+             * @description Start of the time bucket (ISO 8601)
+             * @example 2026-03-12T10:00:00Z
              */
-            id?: string;
+            bucket: string;
+            /**
+             * Format: double
+             * @description Uptime percentage for this bucket; null when no data
+             * @example 100
+             */
+            uptimePercent: number | null;
+            /**
+             * Format: double
+             * @description Weighted average latency in milliseconds for this bucket
+             * @example 120.3
+             */
+            avgLatencyMs: number | null;
+            /**
+             * Format: double
+             * @description 95th percentile latency in milliseconds (max across regions)
+             * @example 250
+             */
+            p95LatencyMs: number | null;
+            /**
+             * Format: double
+             * @description 99th percentile latency in milliseconds (max across regions)
+             * @example 480
+             */
+            p99LatencyMs: number | null;
+        };
+        /** @description Type-specific details captured during a check execution */
+        CheckResultDetailsDto: {
+            /**
+             * Format: int32
+             * @description HTTP status code of the response
+             * @example 200
+             */
+            statusCode: number | null;
+            /** @description HTTP response headers */
+            responseHeaders: {
+                [key: string]: (string | null)[] | null;
+            } | null;
+            /** @description Raw response body snapshot (may be HTML, XML, JSON, or plain text) */
+            responseBodySnapshot: string | null;
+            /** @description Individual assertion evaluation results */
+            assertionResults: components["schemas"]["AssertionResultDto"][] | null;
+            tlsInfo: components["schemas"]["TlsInfoDto"];
+            /**
+             * Format: int32
+             * @description Number of HTTP redirects followed
+             * @example 2
+             */
+            redirectCount: number | null;
+            /** @description Final URL after redirects */
+            redirectTarget: string | null;
+            /**
+             * Format: int32
+             * @description Response body size in bytes
+             * @example 4096
+             */
+            responseSizeBytes: number | null;
+            checkDetails?: components["schemas"]["Dns"] | components["schemas"]["Http"] | components["schemas"]["Icmp"] | components["schemas"]["McpServer"] | components["schemas"]["Tcp"];
+        };
+        /** @description A single check result from a monitor run */
+        CheckResultDto: {
             /**
              * Format: uuid
-             * @description Resource group this member belongs to
+             * @description Unique identifier of the check result
+             */
+            id: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the check was executed (ISO 8601)
+             */
+            timestamp: string;
+            /**
+             * @description Region where the check was executed
+             * @example us-east
+             */
+            region: string;
+            /**
+             * Format: int32
+             * @description Response time in milliseconds
+             * @example 123
+             */
+            responseTimeMs: number | null;
+            /**
+             * @description Whether the check passed
+             * @example true
+             */
+            passed: boolean;
+            /** @description Reason for failure when passed=false */
+            failureReason: string | null;
+            /** @description Severity hint: 'down' for hard failures, 'degraded' for warn-only failures, null when passing */
+            severityHint: string | null;
+            details: components["schemas"]["CheckResultDetailsDto"];
+            /**
+             * Format: uuid
+             * @description Unique execution trace ID for cross-service correlation
+             */
+            checkId: string | null;
+        };
+        /** @description Check-type-specific details — polymorphic by check_type discriminator */
+        CheckTypeDetailsDto: {
+            check_type: string;
+        };
+        /** @description A single component position */
+        ComponentPosition: {
+            /**
+             * Format: uuid
+             * @description Component ID
+             */
+            componentId: string;
+            /**
+             * Format: int32
+             * @description New display order (0-based)
+             */
+            displayOrder?: number;
+            /**
+             * Format: uuid
+             * @description Target group ID, null for ungrouped
              */
             groupId?: string;
-            /** @description Type of member: 'monitor' or 'service' */
-            memberType?: string;
-            /**
-             * Format: uuid
-             * @description Monitor ID; set when memberType is 'monitor'
-             */
-            monitorId?: string | null;
-            /**
-             * Format: uuid
-             * @description Service ID; set when memberType is 'service'
-             */
-            serviceId?: string | null;
-            /** @description Display name of the referenced monitor or service */
-            name?: string | null;
-            /** @description Slug identifier for the service (services only); used for icons and uptime API calls */
-            slug?: string | null;
-            /**
-             * Format: uuid
-             * @description Subscription ID for the service (services only); used to link to the dependency detail page
-             */
-            subscriptionId?: string | null;
-            /**
-             * @description Computed health status for this member
-             * @enum {string}
-             */
-            status?: "operational" | "maintenance" | "degraded" | "down";
-            /** @description Effective check frequency label showing the group default when the monitor inherits it; null for services or when no group default is configured */
-            effectiveFrequency?: string | null;
+        };
+        /** @description Current status of each active component */
+        ComponentStatusDto: {
+            /** @description Component UUID */
+            id: string;
+            /** @description Human-readable component name */
+            name: string;
+            /** @description Current component status, e.g. operational, degraded_performance */
+            status: string;
+        };
+        /** @description Daily uptime data for a status page component */
+        ComponentUptimeDayDto: {
             /**
              * Format: date-time
-             * @description Timestamp when the member was added to the group
+             * @description Start-of-day timestamp for this bucket (UTC midnight)
              */
-            createdAt?: string;
+            date: string;
+            /**
+             * Format: int32
+             * @description Seconds of partial outage on this day
+             */
+            partialOutageSeconds: number;
+            /**
+             * Format: int32
+             * @description Seconds of major outage on this day
+             */
+            majorOutageSeconds: number;
             /**
              * Format: double
-             * @description 24h uptime percentage; populated when includeMetrics=true
+             * @description Computed uptime percentage using weighted formula
              */
-            uptime24h?: number | null;
-            /** @description Uptime tick values (0-100) for last-24h mini chart; populated when includeMetrics=true */
-            chartData?: (number | null)[] | null;
+            uptimePercentage: number;
+            /** @description Incidents that overlapped this day */
+            incidents: components["schemas"]["IncidentRef"][] | null;
+        };
+        /** @description Inline uptime percentages for 24h, 7d, 30d */
+        ComponentUptimeSummaryDto: {
             /**
              * Format: double
-             * @description Average latency in ms (monitors only); populated when includeMetrics=true
+             * @description Uptime percentage over the last 24 hours
+             * @example 99.95
              */
-            avgLatencyMs?: number | null;
+            day: number | null;
             /**
              * Format: double
-             * @description P95 latency in ms (monitors only); populated when includeMetrics=true
+             * @description Uptime percentage over the last 7 days
+             * @example 99.98
              */
-            p95LatencyMs?: number | null;
+            week: number | null;
             /**
-             * Format: date-time
-             * @description Timestamp of the most recent health check; populated when includeMetrics=true
+             * Format: double
+             * @description Uptime percentage over the last 30 days
+             * @example 99.92
              */
-            lastCheckedAt?: string | null;
-            /** @description Monitor type (HTTP, DNS, TCP, ICMP, HEARTBEAT, MCP); monitors only */
-            monitorType?: string | null;
-            /** @description Environment name; monitors only */
-            environmentName?: string | null;
-        };
-        SingleValueResponseResourceGroupDto: {
-            data?: components["schemas"]["ResourceGroupDto"];
-        };
-        /** @description Escalation chain defining which channels to notify; null preserves current */
-        EscalationChain: {
-            /** @description Ordered escalation steps, evaluated in sequence */
-            steps: components["schemas"]["EscalationStep"][];
-            /** @description Action when the incident resolves */
-            onResolve?: string | null;
-            /** @description Action when a resolved incident reopens */
-            onReopen?: string | null;
-        };
-        /** @description Ordered escalation steps, evaluated in sequence */
-        EscalationStep: {
+            month: number | null;
             /**
-             * Format: int32
-             * @description Minutes to wait before executing this step (0 = immediate)
+             * @description Data source: vendor_reported or incident_derived
+             * @example vendor_reported
              */
-            delayMinutes?: number;
-            /** @description Alert channel IDs to notify in this step */
-            channelIds: string[];
-            /** @description Whether an acknowledgment is required before escalating */
-            requireAck?: boolean | null;
-            /**
-             * Format: int32
-             * @description Repeat notification interval in seconds until acknowledged
-             */
-            repeatIntervalSeconds?: number | null;
-        };
-        /** @description Match rules to evaluate (all must pass; omit or empty for catch-all) */
-        MatchRule: {
-            /** @description Rule type, e.g. severity_gte, monitor_id_in, region_in */
-            type: string;
-            /** @description Comparison value for single-value rules like severity_gte */
-            value?: string | null;
-            /** @description Monitor UUIDs to match for monitor_id_in rules */
-            monitorIds?: (string | null)[] | null;
-            /** @description Region codes to match for region_in rules */
-            regions?: (string | null)[] | null;
-            /** @description Values list for multi-value rules like monitor_type_in */
-            values?: (string | null)[] | null;
-        };
-        /** @description Request body for updating a notification policy (null fields are preserved) */
-        UpdateNotificationPolicyRequest: {
-            /** @description Human-readable name for this policy; null preserves current */
-            name?: string;
-            /** @description Match rules to evaluate (all must pass; omit or empty for catch-all) */
-            matchRules?: components["schemas"]["MatchRule"][];
-            escalation?: components["schemas"]["EscalationChain"];
-            /** @description Whether this policy is enabled; null preserves current */
-            enabled?: boolean;
-            /**
-             * Format: int32
-             * @description Evaluation priority; higher value = evaluated first; null preserves current
-             */
-            priority?: number;
-        };
-        /** @description Org-level notification policy with match rules and escalation chain */
-        NotificationPolicyDto: {
-            /**
-             * Format: uuid
-             * @description Unique notification policy identifier
-             */
-            id?: string;
-            /**
-             * Format: int32
-             * @description Organization this policy belongs to
-             */
-            organizationId?: number;
-            /** @description Human-readable name for this policy */
-            name?: string;
-            /** @description Match rules (all must pass; empty = catch-all) */
-            matchRules?: components["schemas"]["MatchRule"][];
-            escalation?: components["schemas"]["EscalationChain"];
-            /** @description Whether this policy is active */
-            enabled?: boolean;
-            /**
-             * Format: int32
-             * @description Evaluation order; higher value = evaluated first
-             */
-            priority?: number;
-            /**
-             * Format: date-time
-             * @description Timestamp when the policy was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the policy was last updated
-             */
-            updatedAt?: string;
-        };
-        SingleValueResponseNotificationPolicyDto: {
-            data?: components["schemas"]["NotificationPolicyDto"];
+            source: string;
         };
         /** @description Multi-region confirmation settings */
         ConfirmationPolicy: {
@@ -3495,177 +2827,502 @@ export interface components {
              */
             maxWaitSeconds?: number;
         };
-        /** @description Incident detection, confirmation, and recovery policy for a monitor */
-        IncidentPolicyDto: {
-            /**
-             * Format: uuid
-             * @description Unique incident policy identifier
-             */
-            id?: string;
-            /**
-             * Format: uuid
-             * @description Monitor this policy is attached to
-             */
-            monitorId?: string;
-            /** @description Array of trigger rules defining when an incident should be raised */
-            triggerRules?: components["schemas"]["TriggerRule"][];
-            confirmation?: components["schemas"]["ConfirmationPolicy"];
-            recovery?: components["schemas"]["RecoveryPolicy"];
+        CreateAlertChannelRequest: {
+            /** @description Human-readable name for this alert channel */
+            name: string;
+            config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
+        };
+        CreateApiKeyRequest: {
+            /** @description Human-readable name to identify this API key */
+            name: string;
             /**
              * Format: date-time
-             * @description Timestamp when the policy was created
+             * @description Optional expiration timestamp in ISO 8601 format
              */
-            createdAt?: string;
+            expiresAt?: string | null;
+        };
+        /** @description Replace all assertions; null preserves current */
+        CreateAssertionRequest: {
+            config: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
+            /**
+             * @description Outcome severity: FAIL (fails the check) or WARN (warns without failing)
+             * @enum {string}
+             */
+            severity?: "fail" | "warn";
+        };
+        CreateEnvironmentRequest: {
+            /** @description Human-readable environment name */
+            name: string;
+            /** @description URL-safe identifier (lowercase alphanumeric, hyphens, underscores) */
+            slug: string;
+            /** @description Initial key-value variable pairs for this environment */
+            variables?: {
+                [key: string]: string | null;
+            } | null;
+            /** @description Whether this is the default environment for new monitors */
+            isDefault?: boolean;
+        };
+        /** @description Invite a new member to the organization by email */
+        CreateInviteRequest: {
+            /**
+             * Format: email
+             * @description Email address to invite
+             */
+            email: string;
+            /**
+             * @description Role to assign on acceptance
+             * @enum {string}
+             */
+            roleOffered: "OWNER" | "ADMIN" | "MEMBER";
+        };
+        CreateMaintenanceWindowRequest: {
+            /**
+             * Format: uuid
+             * @description Monitor to attach this maintenance window to; null for org-wide
+             */
+            monitorId?: string;
             /**
              * Format: date-time
-             * @description Timestamp when the policy was last updated
+             * @description Scheduled start of the maintenance window (ISO 8601)
              */
-            updatedAt?: string;
+            startsAt: string;
             /**
-             * Format: int32
-             * @description Number of regions configured on the monitor (only set in internal API responses)
+             * Format: date-time
+             * @description Scheduled end of the maintenance window (ISO 8601)
              */
-            monitorRegionCount?: number | null;
-            /**
-             * Format: int32
-             * @description Monitor check frequency in seconds (only set in internal API responses)
-             */
-            checkFrequencySeconds?: number | null;
+            endsAt: string;
+            /** @description iCal RRULE for recurring windows (max 100 chars); null for one-time */
+            repeatRule?: string;
+            /** @description Human-readable reason for the maintenance */
+            reason?: string;
+            /** @description Whether to suppress alerts during this window (default: true) */
+            suppressAlerts?: boolean;
         };
-        /** @description Auto-recovery settings */
-        RecoveryPolicy: {
+        CreateManualIncidentRequest: {
+            /** @description Short summary of the incident */
+            title: string;
             /**
-             * Format: int32
-             * @description Consecutive passing checks required to auto-resolve the incident
-             */
-            consecutiveSuccesses?: number;
-            /**
-             * Format: int32
-             * @description Minimum regions that must be passing before recovery can complete
-             */
-            minRegionsPassing?: number;
-            /**
-             * Format: int32
-             * @description Minutes after resolve before a new incident may open on the same monitor
-             */
-            cooldownMinutes?: number;
-        };
-        /** @description Array of trigger rules defining when an incident should be raised */
-        TriggerRule: {
-            /**
-             * @description Condition that opens or escalates an incident from check results
+             * @description Incident severity: DOWN, DEGRADED, or MAINTENANCE
              * @enum {string}
              */
-            type: "consecutive_failures" | "failures_in_window" | "response_time";
+            severity: "DOWN" | "DEGRADED" | "MAINTENANCE";
             /**
-             * Format: int32
-             * @description Failure count for consecutive or windowed failure rules
+             * Format: uuid
+             * @description Monitor to associate with this incident
              */
-            count?: number | null;
+            monitorId?: string | null;
+            /** @description Detailed description or context for the incident */
+            body?: string | null;
+        };
+        CreateMonitorRequest: {
+            /** @description Human-readable name for this monitor */
+            name: string;
             /**
-             * Format: int32
-             * @description Window length in minutes for failures-in-window rules
-             */
-            windowMinutes?: number | null;
-            /**
-             * @description Whether the rule applies per region or across regions
-             * @enum {string|null}
-             */
-            scope: "per_region" | "any_region" | null;
-            /**
-             * Format: int32
-             * @description Response time threshold in milliseconds for response-time rules
-             */
-            thresholdMs?: number | null;
-            /**
-             * @description Incident severity when this rule fires
+             * @description Monitor protocol type
              * @enum {string}
              */
-            severity: "down" | "degraded";
+            type: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
+            config: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
             /**
-             * @description How response times are aggregated for response-time rules
+             * Format: int32
+             * @description Check frequency in seconds (30–86400, default: 60)
+             */
+            frequencySeconds?: number;
+            /** @description Whether the monitor is active (default: true) */
+            enabled?: boolean | null;
+            /** @description Probe regions to run checks from, e.g. us-east, eu-west */
+            regions?: (string | null)[] | null;
+            /**
+             * @description Who manages this monitor: DASHBOARD or CLI
+             * @enum {string}
+             */
+            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM";
+            /**
+             * Format: uuid
+             * @description Environment to associate with this monitor
+             */
+            environmentId?: string | null;
+            /** @description Assertions to evaluate against each check result */
+            assertions?: components["schemas"]["CreateAssertionRequest"][] | null;
+            auth?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
+            incidentPolicy?: components["schemas"]["UpdateIncidentPolicyRequest"];
+            /** @description Alert channels to notify when this monitor triggers */
+            alertChannelIds?: (string | null)[] | null;
+            tags?: components["schemas"]["AddMonitorTagsRequest"];
+        };
+        /** @description Request body for creating a notification policy */
+        CreateNotificationPolicyRequest: {
+            /** @description Human-readable name for this policy */
+            name: string;
+            /** @description Match rules to evaluate (all must pass; omit or empty for catch-all) */
+            matchRules?: components["schemas"]["MatchRule"][];
+            escalation: components["schemas"]["EscalationChain"];
+            /**
+             * @description Whether this policy is enabled (default true)
+             * @default true
+             */
+            enabled: boolean;
+            /**
+             * Format: int32
+             * @description Evaluation priority; higher value = evaluated first (default 0)
+             * @default 0
+             */
+            priority: number;
+        };
+        /** @description Request body for creating a resource group */
+        CreateResourceGroupRequest: {
+            /** @description Human-readable name for this group */
+            name: string;
+            /** @description Optional description */
+            description?: string | null;
+            /**
+             * Format: uuid
+             * @description Optional notification policy to apply for this group
+             */
+            alertPolicyId?: string | null;
+            /**
+             * Format: int32
+             * @description Default check frequency in seconds applied to members (30–86400)
+             */
+            defaultFrequency?: number | null;
+            /** @description Default regions applied to member monitors */
+            defaultRegions?: (string | null)[] | null;
+            defaultRetryStrategy?: components["schemas"]["RetryStrategy"];
+            /** @description Default alert channel IDs applied to member monitors */
+            defaultAlertChannels?: (string | null)[] | null;
+            /**
+             * Format: uuid
+             * @description Default environment ID applied to member monitors
+             */
+            defaultEnvironmentId?: string | null;
+            /**
+             * @description Health threshold type: COUNT or PERCENTAGE
              * @enum {string|null}
              */
-            aggregationType?: "all_exceed" | "average" | "p95" | "max" | null;
+            healthThresholdType?: "COUNT" | "PERCENTAGE" | null;
+            /** @description Health threshold value: count (0+) or percentage (0–100) */
+            healthThresholdValue?: number | null;
+            /** @description Suppress member-level alert notifications when group manages alerting */
+            suppressMemberAlerts?: boolean | null;
+            /**
+             * Format: int32
+             * @description Confirmation delay in seconds before group incident creation (0–600)
+             */
+            confirmationDelaySeconds?: number | null;
+            /**
+             * Format: int32
+             * @description Recovery cooldown in minutes after group incident resolves (0–60)
+             */
+            recoveryCooldownMinutes?: number | null;
         };
-        /** @description Request body for updating an incident policy */
-        UpdateIncidentPolicyRequest: {
-            /** @description Array of trigger rules; at least one required */
-            triggerRules: components["schemas"]["TriggerRule"][];
-            confirmation: components["schemas"]["ConfirmationPolicy"];
-            recovery: components["schemas"]["RecoveryPolicy"];
+        CreateSecretRequest: {
+            /** @description Unique secret key within the workspace (max 255 chars) */
+            key: string;
+            /** @description Secret value, stored encrypted (max 32KB) */
+            value: string;
         };
-        SingleValueResponseIncidentPolicyDto: {
-            data?: components["schemas"]["IncidentPolicyDto"];
+        CreateStatusPageComponentGroupRequest: {
+            /** @description Group display name */
+            name: string;
+            /** @description Optional group description */
+            description?: string | null;
+            /**
+             * Format: int32
+             * @description Position in the group list
+             */
+            displayOrder?: number | null;
+            /** @description Whether the group is collapsed by default (default: true) */
+            collapsed?: boolean | null;
         };
-        ApiKeyAuthConfig: {
-            type: "ApiKeyAuthConfig";
-        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
-            /** @description HTTP header name that carries the API key */
-            headerName: string;
+        CreateStatusPageComponentRequest: {
+            /** @description Component display name */
+            name: string;
+            /** @description Optional description shown on expand */
+            description?: string | null;
+            /**
+             * @description Component type: MONITOR, GROUP, or STATIC
+             * @enum {string}
+             */
+            type: "MONITOR" | "GROUP" | "STATIC";
             /**
              * Format: uuid
-             * @description Vault secret ID for the API key value
+             * @description Monitor ID (required when type=MONITOR)
              */
-            vaultSecretId?: string | null;
-        });
-        BasicAuthConfig: {
-            type: "BasicAuthConfig";
-        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+            monitorId?: string | null;
             /**
              * Format: uuid
-             * @description Vault secret ID holding Basic auth username and password
+             * @description Resource group ID (required when type=GROUP)
              */
-            vaultSecretId?: string | null;
-        });
-        BearerAuthConfig: {
-            type: "BearerAuthConfig";
-        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+            resourceGroupId?: string | null;
             /**
              * Format: uuid
-             * @description Vault secret ID holding the bearer token value
+             * @description Component group ID for visual grouping
              */
-            vaultSecretId?: string | null;
-        });
-        HeaderAuthConfig: {
-            type: "HeaderAuthConfig";
-        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
-            /** @description Custom HTTP header name for the secret value */
-            headerName: string;
+            groupId?: string | null;
+            /** @description Whether to show the uptime bar (default: true) */
+            showUptime?: boolean | null;
             /**
-             * Format: uuid
-             * @description Vault secret ID for the header value
+             * Format: int32
+             * @description Position in the component list
              */
-            vaultSecretId?: string | null;
-        });
-        /** @description New authentication configuration (full replacement) */
-        MonitorAuthConfig: {
-            type: string;
+            displayOrder?: number | null;
+            /** @description Exclude from overall status calculation (default: false, use true for third-party deps) */
+            excludeFromOverall?: boolean | null;
+            /**
+             * Format: date
+             * @description Date from which to start showing uptime data
+             */
+            startDate?: string | null;
         };
-        UpdateMonitorAuthRequest: {
-            config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
+        CreateStatusPageIncidentRequest: {
+            /** @description Customer-facing incident title */
+            title: string;
+            /**
+             * @description Initial status (default: INVESTIGATING)
+             * @enum {string|null}
+             */
+            status?: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED" | null;
+            /**
+             * @description Impact level: NONE, MINOR, MAJOR, or CRITICAL
+             * @enum {string}
+             */
+            impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL";
+            /** @description Initial update body in markdown */
+            body: string;
+            /** @description Component IDs affected by this incident */
+            affectedComponents?: components["schemas"]["AffectedComponent"][] | null;
+            /** @description Whether this is a scheduled maintenance (default: false) */
+            scheduled?: boolean | null;
+            /**
+             * Format: date-time
+             * @description Maintenance start time (required when scheduled=true)
+             */
+            scheduledFor?: string | null;
+            /**
+             * Format: date-time
+             * @description Maintenance end time
+             */
+            scheduledUntil?: string | null;
+            /** @description Auto-resolve at scheduledUntil (default: false) */
+            autoResolve?: boolean | null;
+            /** @description Whether to email confirmed subscribers about this incident (default: true) */
+            notifySubscribers?: boolean | null;
         };
-        MonitorAuthDto: {
+        CreateStatusPageIncidentUpdateRequest: {
+            /**
+             * @description Incident status at this point in the timeline
+             * @enum {string}
+             */
+            status: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED";
+            /** @description Update body in markdown */
+            body: string;
+            /** @description Whether to email confirmed subscribers about this update (default: true) */
+            notifySubscribers?: boolean | null;
+            /** @description Updated affected components; null preserves current */
+            affectedComponents?: components["schemas"]["AffectedComponent"][] | null;
+        };
+        CreateStatusPageRequest: {
+            /** @description Human-readable name for this status page */
+            name: string;
+            /** @description URL slug (lowercase, hyphens, globally unique) */
+            slug: string;
+            /** @description Optional description shown below the page header */
+            description?: string | null;
+            branding?: components["schemas"]["StatusPageBranding"];
+            /**
+             * @description Page visibility: PUBLIC, PASSWORD, or IP_RESTRICTED (default: PUBLIC)
+             * @enum {string|null}
+             */
+            visibility?: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED" | null;
+            /** @description Whether the page is enabled (default: true) */
+            enabled?: boolean | null;
+            /**
+             * @description Incident mode: MANUAL, REVIEW, or AUTOMATIC (default: AUTOMATIC)
+             * @enum {string|null}
+             */
+            incidentMode?: "MANUAL" | "REVIEW" | "AUTOMATIC" | null;
+        };
+        /** @description Request body for creating a tag */
+        CreateTagRequest: {
+            /** @description Tag name, unique within the org */
+            name: string;
+            /** @description Hex color code (defaults to #6B7280 if omitted) */
+            color?: string | null;
+        };
+        CreateWebhookEndpointRequest: {
+            /** @description HTTPS endpoint that receives webhook event payloads */
+            url: string;
+            /** @description Optional human-readable description */
+            description?: string;
+            /** @description Event types to deliver, e.g. monitor.created, incident.resolved */
+            subscribedEvents: string[];
+        };
+        /** @description Create a new workspace within the organization */
+        CreateWorkspaceRequest: {
+            /** @description Workspace name */
+            name: string;
+        };
+        /** @description Cursor-paginated response for time-series and append-only data */
+        CursorPage: {
+            /** @description Items on this page */
+            data: Record<string, never>[];
+            /** @description Opaque cursor for the next page; null when there are no more results */
+            nextCursor: string | null;
+            /** @description Whether more results exist beyond this page */
+            hasMore: boolean;
+        };
+        /** @description Cursor-paginated response for time-series and append-only data */
+        CursorPageCheckResultDto: {
+            /** @description Items on this page */
+            data: components["schemas"]["CheckResultDto"][];
+            /** @description Opaque cursor for the next page; null when there are no more results */
+            nextCursor: string | null;
+            /** @description Whether more results exist beyond this page */
+            hasMore: boolean;
+        };
+        /** @description Cursor-paginated response for time-series and append-only data */
+        CursorPageServiceCatalogDto: {
+            /** @description Items on this page */
+            data: components["schemas"]["ServiceCatalogDto"][];
+            /** @description Opaque cursor for the next page; null when there are no more results */
+            nextCursor: string | null;
+            /** @description Whether more results exist beyond this page */
+            hasMore: boolean;
+        };
+        /** @description Combined dashboard overview for monitors and incidents */
+        DashboardOverviewDto: {
+            monitors: components["schemas"]["MonitorsSummaryDto"];
+            incidents: components["schemas"]["IncidentsSummaryDto"];
+        };
+        /** @description Result of a data encryption key rotation operation */
+        DekRotationResultDto: {
+            /**
+             * Format: int32
+             * @description DEK version before rotation
+             */
+            previousDekVersion: number;
+            /**
+             * Format: int32
+             * @description DEK version after rotation
+             */
+            newDekVersion: number;
+            /**
+             * Format: int32
+             * @description Number of secrets re-encrypted with the new DEK
+             */
+            secretsReEncrypted: number;
+            /**
+             * Format: int32
+             * @description Number of alert channels re-encrypted with the new DEK
+             */
+            channelsReEncrypted: number;
+            /**
+             * Format: date-time
+             * @description Timestamp when the rotation was performed
+             */
+            rotatedAt: string;
+        };
+        /** @description Summary of policies affected by channel deletion */
+        DeleteChannelResult: {
+            /**
+             * Format: int32
+             * @description Number of notification policies whose escalation steps were modified
+             */
+            affectedPolicies: number;
+            /**
+             * Format: int32
+             * @description Number of notification policies disabled because they had no remaining channels
+             */
+            disabledPolicies: number;
+        };
+        /** @description Single delivery attempt with request/response audit data */
+        DeliveryAttemptDto: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** Format: uuid */
-            monitorId?: string;
-            /** @enum {string} */
-            authType?: "bearer" | "basic" | "header" | "api_key";
-            config?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
+            deliveryId: string;
+            /**
+             * Format: int32
+             * @description 1-based attempt number
+             */
+            attemptNumber: number;
+            /** @description Outcome: SUCCESS, FAILED, TIMEOUT, ERROR */
+            status: string;
+            /**
+             * Format: int32
+             * @description HTTP response status code from the external service
+             */
+            responseStatusCode: number | null;
+            /** @description JSON payload sent to the external service */
+            requestPayload: string | null;
+            /** @description Response body from the external service (truncated) */
+            responseBody: string | null;
+            /** @description Error message if the attempt failed */
+            errorMessage: string | null;
+            /**
+             * Format: int32
+             * @description Round-trip time in milliseconds
+             */
+            responseTimeMs: number | null;
+            /** @description External identifier (e.g. PagerDuty dedup_key, SES MessageId, webhook delivery UUID) */
+            externalId: string | null;
+            /** @description HTTP request headers sent to the external service */
+            requestHeaders: {
+                [key: string]: string | null;
+            } | null;
+            /** Format: date-time */
+            attemptedAt: string;
         };
-        SingleValueResponseMonitorAuthDto: {
-            data?: components["schemas"]["MonitorAuthDto"];
+        /** @description Represents an active deploy lock for a workspace */
+        DeployLockDto: {
+            /**
+             * Format: uuid
+             * @description Unique lock identifier
+             */
+            id: string;
+            /** @description Identity of the lock holder (e.g. CLI session ID, username) */
+            lockedBy: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the lock was acquired
+             */
+            lockedAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the lock automatically expires
+             */
+            expiresAt: string;
         };
-        /** @description New assertion configuration (full replacement) */
-        AssertionConfig: {
-            type: string;
-        };
-        BodyContainsAssertion: {
-            type: "BodyContainsAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** @description Substring that must appear in the response body */
-            substring: string;
+        DiscordChannelConfig: {
+            channelType: "DiscordChannelConfig";
+        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+            /** @description Discord webhook URL */
+            webhookUrl: string;
+            /** @description Optional Discord role ID to mention in notifications */
+            mentionRoleId?: string | null;
+        });
+        /** @description DNS check-type-specific details */
+        Dns: {
+            check_type: "Dns";
+        } & (Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
+            /** @description Target hostname */
+            hostname?: string | null;
+            /** @description Requested DNS record types */
+            requestedTypes?: (string | null)[] | null;
+            /** @description Resolver used for lookup */
+            usedResolver?: string | null;
+            /** @description Resolved DNS records keyed by record type */
+            records?: {
+                [key: string]: ({
+                    [key: string]: Record<string, never> | null;
+                } | null)[] | null;
+            } | null;
+            /** @description DNS resolution attempts */
+            attempts?: ({
+                [key: string]: Record<string, never> | null;
+            } | null)[] | null;
+            /** @description Kind of DNS failure, if any */
+            failureKind?: string | null;
         });
         DnsExpectedCnameAssertion: {
             type: "DnsExpectedCnameAssertion";
@@ -3701,6 +3358,24 @@ export interface components {
              */
             min?: number;
         });
+        DnsMonitorConfig: components["schemas"]["MonitorConfig"] & {
+            /** @description Domain name to resolve */
+            hostname: string;
+            /** @description DNS record types to query: A, AAAA, CNAME, MX, NS, TXT, SRV, SOA, CAA, PTR */
+            recordTypes?: ("A" | "AAAA" | "CNAME" | "MX" | "NS" | "TXT" | "SRV" | "SOA" | "CAA" | "PTR" | null)[] | null;
+            /** @description Custom nameservers to query (uses system defaults if omitted) */
+            nameservers?: (string | null)[] | null;
+            /**
+             * Format: int32
+             * @description Per-query timeout in milliseconds
+             */
+            timeoutMs?: number | null;
+            /**
+             * Format: int32
+             * @description Total timeout for all queries in milliseconds
+             */
+            totalTimeoutMs?: number | null;
+        };
         DnsRecordContainsAssertion: {
             type: "DnsRecordContainsAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
@@ -3762,6 +3437,169 @@ export interface components {
             /** @description Substring that must appear in at least one TXT record */
             substring: string;
         });
+        EmailChannelConfig: {
+            channelType: "EmailChannelConfig";
+        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+            /** @description Email addresses to send notifications to */
+            recipients: string[];
+        });
+        /** @description A single resolved entitlement for the organization */
+        EntitlementDto: {
+            /** @description Entitlement key */
+            key: string;
+            /**
+             * Format: int64
+             * @description Effective limit value (overrides applied)
+             */
+            value: number;
+            /**
+             * Format: int64
+             * @description Plan-tier default value before overrides
+             */
+            defaultValue: number;
+            /** @description Whether this entitlement has an org-level override */
+            overridden: boolean;
+        };
+        /** @description Environment with variable substitutions for monitor configs */
+        EnvironmentDto: {
+            /**
+             * Format: uuid
+             * @description Unique environment identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this environment belongs to
+             */
+            orgId: number;
+            /** @description Human-readable environment name */
+            name: string;
+            /** @description URL-safe identifier */
+            slug: string;
+            /** @description Key-value variable pairs available for interpolation */
+            variables: {
+                [key: string]: string;
+            };
+            /**
+             * Format: date-time
+             * @description Timestamp when the environment was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the environment was last updated
+             */
+            updatedAt: string;
+            /**
+             * Format: int32
+             * @description Number of monitors using this environment
+             */
+            monitorCount: number;
+            /** @description Whether this is the default environment for new monitors */
+            isDefault: boolean;
+        };
+        /** @description Escalation chain defining which channels to notify; null preserves current */
+        EscalationChain: {
+            /** @description Ordered escalation steps, evaluated in sequence */
+            steps: components["schemas"]["EscalationStep"][];
+            /** @description Action when the incident resolves */
+            onResolve?: string | null;
+            /** @description Action when a resolved incident reopens */
+            onReopen?: string | null;
+        };
+        /** @description Ordered escalation steps, evaluated in sequence */
+        EscalationStep: {
+            /**
+             * Format: int32
+             * @description Minutes to wait before executing this step (0 = immediate)
+             */
+            delayMinutes?: number;
+            /** @description Alert channel IDs to notify in this step */
+            channelIds: string[];
+            /** @description Whether an acknowledgment is required before escalating */
+            requireAck?: boolean | null;
+            /**
+             * Format: int32
+             * @description Repeat notification interval in seconds until acknowledged
+             */
+            repeatIntervalSeconds?: number | null;
+        };
+        /** @description Details about a single monitor that failed the bulk action */
+        FailureDetail: {
+            /**
+             * Format: uuid
+             * @description Monitor ID that failed
+             */
+            monitorId: string;
+            /** @description Human-readable reason for the failure */
+            reason: string;
+        };
+        /** @description Global status summary across all subscribed vendor services */
+        GlobalStatusSummaryDto: {
+            /**
+             * Format: int32
+             * @description Total number of services in the catalog
+             */
+            totalServices: number;
+            /**
+             * Format: int32
+             * @description Number of services currently fully operational
+             */
+            operationalCount: number;
+            /**
+             * Format: int32
+             * @description Number of services with degraded status
+             */
+            degradedCount: number;
+            /**
+             * Format: int32
+             * @description Number of services with partial outage
+             */
+            partialOutageCount: number;
+            /**
+             * Format: int32
+             * @description Number of services with major outage
+             */
+            majorOutageCount: number;
+            /**
+             * Format: int32
+             * @description Number of services currently under maintenance
+             */
+            maintenanceCount: number;
+            /**
+             * Format: int32
+             * @description Number of services with unknown or null status
+             */
+            unknownCount: number;
+            /**
+             * Format: int64
+             * @description Total number of active incidents across all services
+             */
+            activeIncidentCount: number;
+            /** @description Services that are not fully operational */
+            servicesWithIssues: components["schemas"]["ServiceCatalogDto"][];
+        };
+        /** @description Component ordering within a single group */
+        GroupComponentOrder: {
+            /**
+             * Format: uuid
+             * @description Group these components belong to
+             */
+            groupId?: string;
+            /** @description Ordered component IDs with their within-group display order */
+            positions: components["schemas"]["ComponentPosition"][];
+        };
+        HeaderAuthConfig: {
+            type: "HeaderAuthConfig";
+        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+            /** @description Custom HTTP header name for the secret value */
+            headerName: string;
+            /**
+             * Format: uuid
+             * @description Vault secret ID for the header value
+             */
+            vaultSecretId?: string | null;
+        });
         HeaderValueAssertion: {
             type: "HeaderValueAssertion";
         } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
@@ -3793,275 +3631,6 @@ export interface components {
              */
             maxSeconds: number;
         });
-        HeartbeatPayloadContainsAssertion: {
-            type: "HeartbeatPayloadContainsAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** @description JSONPath expression into the heartbeat ping JSON payload */
-            path: string;
-            /** @description Expected value to compare against at that path */
-            value: string;
-        });
-        HeartbeatReceivedAssertion: {
-            type: "HeartbeatReceivedAssertion";
-        } & Omit<components["schemas"]["AssertionConfig"], "type">;
-        IcmpPacketLossAssertion: {
-            type: "IcmpPacketLossAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: double
-             * @description Maximum allowed packet loss percentage before the check fails (0–100)
-             */
-            maxPercent?: number;
-        });
-        IcmpReachableAssertion: {
-            type: "IcmpReachableAssertion";
-        } & Omit<components["schemas"]["AssertionConfig"], "type">;
-        IcmpResponseTimeAssertion: {
-            type: "IcmpResponseTimeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description Maximum average ICMP round-trip time in milliseconds
-             */
-            maxMs?: number;
-        });
-        IcmpResponseTimeWarnAssertion: {
-            type: "IcmpResponseTimeWarnAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description ICMP round-trip time in milliseconds that triggers a warning only
-             */
-            warnMs?: number;
-        });
-        JsonPathAssertion: {
-            type: "JsonPathAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** @description JSONPath expression to extract a value from the response body */
-            path: string;
-            /** @description Expected value to compare against */
-            expected: string;
-            /**
-             * @description Comparison operator (equals, contains, less_than, greater_than, etc.)
-             * @enum {string}
-             */
-            operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        });
-        McpConnectsAssertion: {
-            type: "McpConnectsAssertion";
-        } & Omit<components["schemas"]["AssertionConfig"], "type">;
-        McpHasCapabilityAssertion: {
-            type: "McpHasCapabilityAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** @description Capability name the server must advertise, e.g. tools or resources */
-            capability: string;
-        });
-        McpMinToolsAssertion: {
-            type: "McpMinToolsAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description Minimum number of tools the server must expose
-             */
-            min?: number;
-        });
-        McpProtocolVersionAssertion: {
-            type: "McpProtocolVersionAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** @description Expected MCP protocol version string from the server handshake */
-            version: string;
-        });
-        McpResponseTimeAssertion: {
-            type: "McpResponseTimeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description Maximum allowed MCP check duration in milliseconds
-             */
-            maxMs?: number;
-        });
-        McpResponseTimeWarnAssertion: {
-            type: "McpResponseTimeWarnAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description MCP check duration in milliseconds that triggers a warning only
-             */
-            warnMs?: number;
-        });
-        McpToolAvailableAssertion: {
-            type: "McpToolAvailableAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** @description MCP tool name that must appear in the server's tool list */
-            toolName: string;
-        });
-        McpToolCountChangedAssertion: {
-            type: "McpToolCountChangedAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description Expected tool count; warns when the live count differs
-             */
-            expectedCount?: number;
-        });
-        RedirectCountAssertion: {
-            type: "RedirectCountAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description Maximum number of HTTP redirects allowed before the check fails
-             */
-            maxCount?: number;
-        });
-        RedirectTargetAssertion: {
-            type: "RedirectTargetAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** @description Expected final URL after following redirects */
-            expected: string;
-            /**
-             * @description Comparison operator (equals, contains, less_than, greater_than, etc.)
-             * @enum {string}
-             */
-            operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        });
-        RegexBodyAssertion: {
-            type: "RegexBodyAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** @description Regular expression the response body must match */
-            pattern: string;
-        });
-        ResponseSizeAssertion: {
-            type: "ResponseSizeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description Maximum response body size in bytes before the check fails
-             */
-            maxBytes?: number;
-        });
-        ResponseTimeAssertion: {
-            type: "ResponseTimeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description Maximum allowed response time in milliseconds before the check fails
-             */
-            thresholdMs?: number;
-        });
-        ResponseTimeWarnAssertion: {
-            type: "ResponseTimeWarnAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description HTTP response time in milliseconds that triggers a warning only
-             */
-            warnMs?: number;
-        });
-        SslExpiryAssertion: {
-            type: "SslExpiryAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description Minimum days before TLS certificate expiry; fails or warns below this threshold
-             */
-            minDaysRemaining?: number;
-        });
-        StatusCodeAssertion: {
-            type: "StatusCodeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /** @description Expected status code, range pattern, or wildcard such as 2xx */
-            expected: string;
-            /**
-             * @description Comparison operator (equals, contains, less_than, greater_than, etc.)
-             * @enum {string}
-             */
-            operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        });
-        TcpConnectsAssertion: {
-            type: "TcpConnectsAssertion";
-        } & Omit<components["schemas"]["AssertionConfig"], "type">;
-        TcpResponseTimeAssertion: {
-            type: "TcpResponseTimeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description Maximum TCP connect time in milliseconds before the check fails
-             */
-            maxMs?: number;
-        });
-        TcpResponseTimeWarnAssertion: {
-            type: "TcpResponseTimeWarnAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * Format: int32
-             * @description TCP connect time in milliseconds that triggers a warning only
-             */
-            warnMs?: number;
-        });
-        UpdateAssertionRequest: {
-            config: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
-            /**
-             * @description New outcome severity: FAIL or WARN
-             * @enum {string}
-             */
-            severity?: "fail" | "warn";
-        };
-        MonitorAssertionDto: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: uuid */
-            monitorId?: string;
-            /** @enum {string} */
-            assertionType?: "status_code" | "response_time" | "body_contains" | "json_path" | "header" | "regex" | "dns_resolves" | "dns_response_time" | "dns_expected_ips" | "dns_expected_cname" | "dns_record_contains" | "dns_record_equals" | "dns_txt_contains" | "dns_min_answers" | "dns_max_answers" | "dns_response_time_warn" | "dns_ttl_low" | "dns_ttl_high" | "mcp_connects" | "mcp_response_time" | "mcp_has_capability" | "mcp_tool_available" | "mcp_min_tools" | "mcp_protocol_version" | "mcp_response_time_warn" | "mcp_tool_count_changed" | "ssl_expiry" | "response_size" | "redirect_count" | "redirect_target" | "response_time_warn" | "tcp_connects" | "tcp_response_time" | "tcp_response_time_warn" | "icmp_reachable" | "icmp_response_time" | "icmp_response_time_warn" | "icmp_packet_loss" | "heartbeat_received" | "heartbeat_max_interval" | "heartbeat_interval_drift" | "heartbeat_payload_contains";
-            config?: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
-            /** @enum {string} */
-            severity?: "fail" | "warn";
-        };
-        SingleValueResponseMonitorAssertionDto: {
-            data?: components["schemas"]["MonitorAssertionDto"];
-        };
-        /** @description Replace the alert channels linked to a monitor */
-        SetAlertChannelsRequest: {
-            /** @description IDs of alert channels to link (replaces current list) */
-            channelIds: string[];
-        };
-        SingleValueResponseListUUID: {
-            data?: (string | null)[] | null;
-        };
-        /** @description Request body for adding tags to a monitor. Provide existing tag IDs, inline new tags, or both. */
-        AddMonitorTagsRequest: {
-            /** @description IDs of existing org tags to attach */
-            tagIds?: (string | null)[] | null;
-            /** @description New tags to create (if not already present) and attach */
-            newTags?: components["schemas"]["NewTagRequest"][] | null;
-        };
-        /** @description Replace all assertions; null preserves current */
-        CreateAssertionRequest: {
-            config: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
-            /**
-             * @description Outcome severity: FAIL (fails the check) or WARN (warns without failing)
-             * @enum {string}
-             */
-            severity?: "fail" | "warn";
-        };
-        DnsMonitorConfig: components["schemas"]["MonitorConfig"] & {
-            /** @description Domain name to resolve */
-            hostname: string;
-            /** @description DNS record types to query: A, AAAA, CNAME, MX, NS, TXT, SRV, SOA, CAA, PTR */
-            recordTypes?: ("A" | "AAAA" | "CNAME" | "MX" | "NS" | "TXT" | "SRV" | "SOA" | "CAA" | "PTR" | null)[] | null;
-            /** @description Custom nameservers to query (uses system defaults if omitted) */
-            nameservers?: (string | null)[] | null;
-            /**
-             * Format: int32
-             * @description Per-query timeout in milliseconds
-             */
-            timeoutMs?: number | null;
-            /**
-             * Format: int32
-             * @description Total timeout for all queries in milliseconds
-             */
-            totalTimeoutMs?: number | null;
-        };
         HeartbeatMonitorConfig: components["schemas"]["MonitorConfig"] & {
             /**
              * Format: int32
@@ -4074,6 +3643,28 @@ export interface components {
              */
             gracePeriod: number;
         };
+        HeartbeatPayloadContainsAssertion: {
+            type: "HeartbeatPayloadContainsAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description JSONPath expression into the heartbeat ping JSON payload */
+            path: string;
+            /** @description Expected value to compare against at that path */
+            value: string;
+        });
+        HeartbeatReceivedAssertion: {
+            type: "HeartbeatReceivedAssertion";
+        } & Omit<components["schemas"]["AssertionConfig"], "type">;
+        /** @description HTTP check-type-specific details */
+        Http: {
+            check_type: "Http";
+        } & (Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
+            /** @description Request phase timing breakdown */
+            timing?: {
+                [key: string]: Record<string, never> | null;
+            } | null;
+            /** @description Whether the response body was truncated before storage */
+            bodyTruncated?: boolean | null;
+        });
         HttpMonitorConfig: components["schemas"]["MonitorConfig"] & {
             /** @description Target URL to send requests to */
             url: string;
@@ -4093,2530 +3684,6 @@ export interface components {
             /** @description Whether to verify TLS certificates (default: true) */
             verifyTls?: boolean | null;
         };
-        IcmpMonitorConfig: components["schemas"]["MonitorConfig"] & {
-            /** @description Target hostname or IP address to ping */
-            host: string;
-            /**
-             * Format: int32
-             * @description Number of ICMP packets to send
-             */
-            packetCount?: number | null;
-            /**
-             * Format: int32
-             * @description Ping timeout in milliseconds
-             */
-            timeoutMs?: number | null;
-        };
-        McpServerMonitorConfig: components["schemas"]["MonitorConfig"] & {
-            /** @description Command to execute to start the MCP server */
-            command: string;
-            /** @description Command-line arguments for the MCP server process */
-            args?: (string | null)[] | null;
-            /** @description Environment variables to pass to the MCP server process */
-            env?: {
-                [key: string]: string | null;
-            } | null;
-        };
-        /** @description Updated protocol-specific configuration; null preserves current */
-        MonitorConfig: Record<string, never>;
-        /** @description Inline tag creation — creates the tag if it does not already exist */
-        NewTagRequest: {
-            /** @description Tag name */
-            name: string;
-            /** @description Hex color code (defaults to #6B7280 if omitted) */
-            color?: string | null;
-        };
-        TcpMonitorConfig: components["schemas"]["MonitorConfig"] & {
-            /** @description Target hostname or IP address */
-            host: string;
-            /**
-             * Format: int32
-             * @description TCP port to connect to
-             */
-            port?: number;
-            /**
-             * Format: int32
-             * @description Connection timeout in milliseconds
-             */
-            timeoutMs?: number | null;
-        };
-        UpdateMonitorRequest: {
-            /** @description New monitor name; null preserves current */
-            name?: string | null;
-            config?: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
-            /**
-             * Format: int32
-             * @description New check frequency in seconds (30–86400); null preserves current
-             */
-            frequencySeconds?: number | null;
-            /** @description Enable or disable the monitor; null preserves current */
-            enabled?: boolean | null;
-            /** @description New probe regions; null preserves current */
-            regions?: (string | null)[] | null;
-            /**
-             * @description New management source; null preserves current
-             * @enum {string|null}
-             */
-            managedBy?: "DASHBOARD" | "CLI" | null;
-            /**
-             * Format: uuid
-             * @description New environment ID; null preserves current (use clearEnvironmentId to unset)
-             */
-            environmentId?: string | null;
-            /** @description Set to true to remove the environment association */
-            clearEnvironmentId?: boolean | null;
-            /** @description Replace all assertions; null preserves current */
-            assertions?: components["schemas"]["CreateAssertionRequest"][] | null;
-            auth?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
-            /** @description Set to true to remove authentication */
-            clearAuth?: boolean | null;
-            incidentPolicy?: components["schemas"]["UpdateIncidentPolicyRequest"];
-            /** @description Replace alert channel list; null preserves current */
-            alertChannelIds?: (string | null)[] | null;
-            tags?: components["schemas"]["AddMonitorTagsRequest"];
-        };
-        /** @description Full monitor representation */
-        MonitorDto: {
-            /**
-             * Format: uuid
-             * @description Unique monitor identifier
-             */
-            id?: string;
-            /**
-             * Format: int32
-             * @description Organization this monitor belongs to
-             */
-            organizationId?: number;
-            /** @description Human-readable name for this monitor */
-            name?: string;
-            /** @enum {string} */
-            type?: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
-            config?: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
-            /**
-             * Format: int32
-             * @description Check frequency in seconds (30–86400)
-             */
-            frequencySeconds?: number;
-            /** @description Whether the monitor is active */
-            enabled?: boolean;
-            /** @description Probe regions where checks are executed */
-            regions?: string[];
-            /**
-             * @description Management source: DASHBOARD or CLI
-             * @enum {string}
-             */
-            managedBy?: "DASHBOARD" | "CLI";
-            /**
-             * Format: date-time
-             * @description Timestamp when the monitor was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the monitor was last updated
-             */
-            updatedAt?: string;
-            /** @description Assertions evaluated against each check result; null on list responses */
-            assertions?: components["schemas"]["MonitorAssertionDto"][] | null;
-            /** @description Tags applied to this monitor */
-            tags?: components["schemas"]["TagDto"][] | null;
-            /** @description Heartbeat ping URL; populated for HEARTBEAT monitors only */
-            pingUrl?: string | null;
-            environment?: components["schemas"]["Summary"];
-            auth?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
-            incidentPolicy?: components["schemas"]["IncidentPolicyDto"];
-            /** @description Alert channel IDs linked to this monitor; populated on single-monitor responses */
-            alertChannelIds?: (string | null)[] | null;
-        };
-        SingleValueResponseMonitorDto: {
-            data?: components["schemas"]["MonitorDto"];
-        };
-        /** @description Environment associated with this monitor; null when unassigned */
-        Summary: {
-            /** Format: uuid */
-            id?: string;
-            name?: string;
-            slug?: string;
-        };
-        /** @description Update an organization member's status */
-        ChangeStatusRequest: {
-            /**
-             * @description New membership status (ACTIVE or SUSPENDED)
-             * @enum {string}
-             */
-            status: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
-        };
-        UpdateMaintenanceWindowRequest: {
-            /**
-             * Format: uuid
-             * @description Monitor to attach this maintenance window to; null preserves current
-             */
-            monitorId?: string;
-            /**
-             * Format: date-time
-             * @description Updated start time (ISO 8601)
-             */
-            startsAt: string;
-            /**
-             * Format: date-time
-             * @description Updated end time (ISO 8601)
-             */
-            endsAt: string;
-            /** @description Updated iCal RRULE; null clears the repeat rule */
-            repeatRule?: string;
-            /** @description Updated reason; null clears the existing reason */
-            reason?: string;
-            /** @description Whether to suppress alerts; null preserves current */
-            suppressAlerts?: boolean;
-        };
-        /** @description Scheduled maintenance window for a monitor */
-        MaintenanceWindowDto: {
-            /**
-             * Format: uuid
-             * @description Unique maintenance window identifier
-             */
-            id?: string;
-            /**
-             * Format: uuid
-             * @description Monitor this window applies to; null for org-wide windows
-             */
-            monitorId?: string | null;
-            /**
-             * Format: int32
-             * @description Organization this maintenance window belongs to
-             */
-            organizationId?: number;
-            /**
-             * Format: date-time
-             * @description Scheduled start of the maintenance window
-             */
-            startsAt?: string;
-            /**
-             * Format: date-time
-             * @description Scheduled end of the maintenance window
-             */
-            endsAt?: string;
-            /** @description iCal RRULE for recurring windows; null for one-time */
-            repeatRule?: string | null;
-            /** @description Human-readable reason for the maintenance */
-            reason?: string | null;
-            /** @description Whether alerts are suppressed during this window */
-            suppressAlerts?: boolean;
-            /**
-             * Format: date-time
-             * @description Timestamp when the window was created
-             */
-            createdAt?: string;
-        };
-        SingleValueResponseMaintenanceWindowDto: {
-            data?: components["schemas"]["MaintenanceWindowDto"];
-        };
-        UpdateEnvironmentRequest: {
-            /** @description New environment name; null preserves current */
-            name?: string | null;
-            /** @description Replace all variables; null preserves current */
-            variables?: {
-                [key: string]: string | null;
-            } | null;
-            /** @description Whether this is the default environment; null preserves current */
-            isDefault?: boolean | null;
-        };
-        /** @description Environment with variable substitutions for monitor configs */
-        EnvironmentDto: {
-            /**
-             * Format: uuid
-             * @description Unique environment identifier
-             */
-            id?: string;
-            /**
-             * Format: int32
-             * @description Organization this environment belongs to
-             */
-            orgId?: number;
-            /** @description Human-readable environment name */
-            name?: string;
-            /** @description URL-safe identifier */
-            slug?: string;
-            /** @description Key-value variable pairs available for interpolation */
-            variables?: {
-                [key: string]: string;
-            };
-            /**
-             * Format: date-time
-             * @description Timestamp when the environment was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the environment was last updated
-             */
-            updatedAt?: string;
-            /**
-             * Format: int32
-             * @description Number of monitors using this environment
-             */
-            monitorCount?: number;
-            /** @description Whether this is the default environment for new monitors */
-            isDefault?: boolean;
-        };
-        SingleValueResponseEnvironmentDto: {
-            data?: components["schemas"]["EnvironmentDto"];
-        };
-        /** @description New channel configuration (full replacement, not partial update) */
-        ChannelConfig: {
-            channelType: string;
-        };
-        DiscordChannelConfig: {
-            channelType: "DiscordChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
-            /** @description Discord webhook URL */
-            webhookUrl: string;
-            /** @description Optional Discord role ID to mention in notifications */
-            mentionRoleId?: string | null;
-        });
-        EmailChannelConfig: {
-            channelType: "EmailChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
-            /** @description Email addresses to send notifications to */
-            recipients: string[];
-        });
-        OpsGenieChannelConfig: {
-            channelType: "OpsGenieChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
-            /** @description OpsGenie API key for alert creation */
-            apiKey: string;
-            /** @description OpsGenie API region: us or eu */
-            region?: string | null;
-        });
-        PagerDutyChannelConfig: {
-            channelType: "PagerDutyChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
-            /** @description PagerDuty Events API v2 routing (integration) key */
-            routingKey: string;
-            /** @description Override PagerDuty severity mapping */
-            severityOverride?: string | null;
-        });
-        SlackChannelConfig: {
-            channelType: "SlackChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
-            /** @description Slack incoming webhook URL */
-            webhookUrl: string;
-            /** @description Optional mention text included in notifications, e.g. @channel */
-            mentionText?: string | null;
-        });
-        TeamsChannelConfig: {
-            channelType: "TeamsChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
-            /** @description Microsoft Teams incoming webhook URL */
-            webhookUrl: string;
-        });
-        UpdateAlertChannelRequest: {
-            /** @description New channel name (full replacement, not partial update) */
-            name: string;
-            config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
-        };
-        WebhookChannelConfig: {
-            channelType: "WebhookChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
-            /** @description Webhook endpoint URL that receives alert payloads */
-            url: string;
-            /** @description Optional HMAC signing secret for payload verification */
-            signingSecret?: string | null;
-            /** @description Additional HTTP headers to include in webhook requests */
-            customHeaders?: {
-                [key: string]: string | null;
-            } | null;
-        });
-        /** @description Alert channel with non-sensitive configuration metadata */
-        AlertChannelDto: {
-            /**
-             * Format: uuid
-             * @description Unique alert channel identifier
-             */
-            id: string;
-            /** @description Human-readable channel name */
-            name: string;
-            /**
-             * @description Channel integration type (e.g. SLACK, PAGERDUTY, EMAIL)
-             * @enum {string}
-             */
-            channelType: "email" | "webhook" | "slack" | "pagerduty" | "opsgenie" | "teams" | "discord";
-            /** @description Non-sensitive display metadata; null for older channels */
-            displayConfig?: {
-                [key: string]: Record<string, never> | null;
-            } | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the channel was created
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the channel was last updated
-             */
-            updatedAt: string;
-            /** @description SHA-256 hash of the channel config; use for change detection */
-            configHash?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp of the most recent delivery attempt
-             */
-            lastDeliveryAt?: string | null;
-            /** @description Outcome of the most recent delivery (SUCCESS, FAILED, etc.) */
-            lastDeliveryStatus?: string | null;
-        };
-        SingleValueResponseAlertChannelDto: {
-            data?: components["schemas"]["AlertChannelDto"];
-        };
-        WorkspaceCreateParams: {
-            /** Format: int32 */
-            organizationId?: number;
-            name: string;
-        };
-        ServiceIncidentRequest: {
-            /** Format: uuid */
-            serviceId: string;
-            externalRef: string;
-            severity?: string | null;
-            title: string;
-            shortlink?: string | null;
-            affectedComponents?: (string | null)[] | null;
-            /** Format: uuid */
-            serviceIncidentId?: string | null;
-            action: string;
-            statusText?: string | null;
-        };
-        /** @description Incident triggered by a monitor check failure or manual creation */
-        IncidentDto: {
-            /**
-             * Format: uuid
-             * @description Unique incident identifier
-             */
-            id?: string;
-            /**
-             * Format: uuid
-             * @description Monitor that triggered the incident; null for service or manual incidents
-             */
-            monitorId?: string | null;
-            /**
-             * Format: int32
-             * @description Organization this incident belongs to
-             */
-            organizationId?: number;
-            /**
-             * @description Incident origin: MONITOR, SERVICE, or MANUAL
-             * @enum {string}
-             */
-            source?: "AUTOMATIC" | "MANUAL" | "MONITORS" | "STATUS_DATA" | "RESOURCE_GROUP";
-            /**
-             * @description Current lifecycle status (OPEN, RESOLVED, etc.)
-             * @enum {string}
-             */
-            status?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED";
-            /**
-             * @description Severity level: DOWN, DEGRADED, or MAINTENANCE
-             * @enum {string}
-             */
-            severity?: "DOWN" | "DEGRADED" | "MAINTENANCE";
-            /** @description Short summary of the incident; null for auto-generated incidents */
-            title?: string | null;
-            /** @description Human-readable description of the trigger rule that fired */
-            triggeredByRule?: string | null;
-            /** @description Probe regions that observed the failure */
-            affectedRegions?: string[];
-            /**
-             * Format: int32
-             * @description Number of times this incident has been reopened
-             */
-            reopenCount?: number;
-            /**
-             * Format: int32
-             * @description User who created the incident (manual incidents only)
-             */
-            createdByUserId?: number | null;
-            /** @description Whether this incident is visible on the status page */
-            statusPageVisible?: boolean;
-            /**
-             * Format: uuid
-             * @description Linked vendor service incident ID; null for monitor incidents
-             */
-            serviceIncidentId?: string | null;
-            /**
-             * Format: uuid
-             * @description Linked service catalog ID; null for monitor incidents
-             */
-            serviceId?: string | null;
-            /** @description External reference ID (e.g. PagerDuty incident ID) */
-            externalRef?: string | null;
-            /** @description Service components affected by this incident */
-            affectedComponents?: (string | null)[] | null;
-            /** @description Short URL linking to the incident details */
-            shortlink?: string | null;
-            /**
-             * @description How the incident was resolved (AUTO_RECOVERED, MANUAL, etc.)
-             * @enum {string|null}
-             */
-            resolutionReason?: "MANUAL" | "AUTO_RECOVERED" | "AUTO_RESOLVED" | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the incident was detected or created
-             */
-            startedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the incident was confirmed (multi-region confirmation)
-             */
-            confirmedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the incident was resolved
-             */
-            resolvedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Cooldown window end; new incidents suppressed until this time
-             */
-            cooldownUntil?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the incident record was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the incident was last updated
-             */
-            updatedAt?: string;
-            /** @description Name of the associated monitor; populated on list responses */
-            monitorName?: string | null;
-            /** @description Name of the associated service; populated on list responses */
-            serviceName?: string | null;
-            /** @description Slug of the associated service; populated on list responses */
-            serviceSlug?: string | null;
-            /** @description Type of the associated monitor; populated on list responses */
-            monitorType?: string | null;
-            /**
-             * Format: uuid
-             * @description Resource group that owns this incident; null when not group-managed
-             */
-            resourceGroupId?: string | null;
-            /** @description Name of the resource group; populated on list responses */
-            resourceGroupName?: string | null;
-        };
-        TableValueResultIncidentDto: {
-            data?: components["schemas"]["IncidentDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        SingleValueResponseInteger: {
-            /** Format: int32 */
-            data?: number | null;
-        };
-        CreateAutoIncidentRequest: {
-            /** Format: uuid */
-            monitorId: string;
-            severity?: string | null;
-            triggeredByRule?: string | null;
-            affectedRegions?: (string | null)[] | null;
-            /** Format: date-time */
-            startedAt?: string | null;
-        };
-        SingleValueResponseIncidentDto: {
-            data?: components["schemas"]["IncidentDto"];
-        };
-        ReopenAutoIncidentRequest: {
-            affectedRegions?: string[];
-            severity?: string | null;
-        };
-        AdapterHealthReportRequest: {
-            /** Format: uuid */
-            serviceId: string;
-            success: boolean;
-            errorMessage?: string | null;
-        };
-        AdapterHealthDto: {
-            /**
-             * Format: uuid
-             * @description Service this health record belongs to
-             */
-            serviceId?: string;
-            /** @description URL-safe service identifier */
-            serviceSlug?: string;
-            /** @description Service name */
-            serviceName?: string;
-            /** @description Data source adapter type */
-            adapterType?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp of the last successful poll
-             */
-            lastSuccessAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp of the last failed poll
-             */
-            lastFailureAt?: string | null;
-            /**
-             * Format: int32
-             * @description Number of consecutive poll failures
-             */
-            consecutiveFailures?: number;
-            /** @description Error message from the most recent failure */
-            lastErrorMessage?: string | null;
-            /** @description Whether the adapter is disabled due to repeated failures */
-            disabledByHealth?: boolean;
-            /**
-             * Format: date-time
-             * @description Timestamp when this health record was last updated
-             */
-            updatedAt?: string;
-        };
-        SingleValueResponseAdapterHealthDto: {
-            data?: components["schemas"]["AdapterHealthDto"];
-        };
-        /** @description Create a new organization */
-        CreateOrgRequest: {
-            /** @description Organization name */
-            name: string;
-            /**
-             * Format: email
-             * @description Billing and contact email address
-             */
-            email?: string | null;
-        };
-        SingleValueResponseTransactionDto: {
-            data?: components["schemas"]["TransactionDto"];
-        };
-        /** @description A billing transaction from Paddle */
-        TransactionDto: {
-            /** @description Paddle transaction identifier */
-            id?: string;
-            /** @description Transaction status (e.g. completed, pending) */
-            status?: string | null;
-            /** @description ISO 4217 currency code */
-            currencyCode?: string | null;
-            /** @description Invoice number; null if not invoiced */
-            invoiceNumber?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the transaction was billed
-             */
-            billedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the transaction was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the transaction was last updated
-             */
-            updatedAt?: string;
-            /** @description Total amount as a decimal string (including tax) */
-            total?: string | null;
-            /** @description Subtotal before tax as a decimal string */
-            subtotal?: string | null;
-            /** @description Tax amount as a decimal string */
-            tax?: string | null;
-        };
-        /** @description Minimal request for creating an HTTP monitor quickly */
-        QuickMonitorRequest: {
-            /** @description Target URL to monitor */
-            url: string;
-            /** @description Human-readable monitor name; defaults to the hostname if omitted */
-            name?: string | null;
-            /**
-             * Format: int32
-             * @description Check frequency in seconds (30–86400); defaults to 60
-             */
-            frequencySeconds?: number | null;
-        };
-        OnboardingSetupRequest: {
-            /** @description Organization or team name (max 200 chars) */
-            name: string;
-            /** @description User's role or job title */
-            role?: string | null;
-            /** @description Team size range (e.g. 1-10, 11-50) */
-            teamSize?: string | null;
-        };
-        /** @description URL to analyze for monitor setup suggestions */
-        AnalyzeUrlRequest: {
-            /** @description Target URL to analyze (must be a valid HTTP/HTTPS URL) */
-            url: string;
-        };
-        /** @description Analysis of a URL with monitor setup suggestions */
-        AnalyzeUrlResponse: {
-            /** @description Whether the URL responded during analysis */
-            reachable?: boolean;
-            /**
-             * Format: int64
-             * @description Response time observed during analysis in milliseconds
-             */
-            responseTimeMs?: number;
-            /**
-             * Format: int32
-             * @description HTTP status code from the analysis request
-             */
-            statusCode?: number;
-            /**
-             * Format: date-time
-             * @description TLS certificate expiry date; null for non-HTTPS or unavailable
-             */
-            tlsExpiry?: string | null;
-            /**
-             * Format: int32
-             * @description Days until TLS certificate expires; null if not applicable
-             */
-            tlsDaysRemaining?: number | null;
-            /** @description Response Content-Type header value */
-            contentType?: string | null;
-            /** @description Suggested monitor name derived from the URL hostname */
-            suggestedName?: string;
-            /** @description Recommended assertions based on the URL response */
-            suggestedAssertions?: components["schemas"]["SuggestedAssertion"][];
-            /**
-             * Format: int32
-             * @description Suggested check frequency in seconds based on the URL
-             */
-            suggestedFrequencySeconds?: number;
-        };
-        SingleValueResponseAnalyzeUrlResponse: {
-            data?: components["schemas"]["AnalyzeUrlResponse"];
-        };
-        /** @description Recommended assertions based on the URL response */
-        SuggestedAssertion: {
-            /** @description Assertion type (e.g. status_code, response_time) */
-            type?: string;
-            /** @description Comparison operator (e.g. equals, less_than) */
-            operator?: string;
-            /** @description Expected value to compare against */
-            value?: string;
-        };
-        /** @description Accept an organization invite using the invite token */
-        AcceptInviteRequest: {
-            /** @description Invite token from the invitation email */
-            token: string;
-        };
-        /** @description Result of accepting an organization invite */
-        AcceptInviteDto: {
-            /**
-             * Format: int32
-             * @description Organization the user joined
-             */
-            orgId?: number;
-            /**
-             * Format: int32
-             * @description User who accepted the invite
-             */
-            userId?: number;
-            /**
-             * @description Role assigned to the new member
-             * @enum {string}
-             */
-            orgRole?: "OWNER" | "ADMIN" | "MEMBER";
-            /**
-             * @description Initial membership status after joining
-             * @enum {string}
-             */
-            status?: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
-        };
-        SingleValueResponseAcceptInviteDto: {
-            data?: components["schemas"]["AcceptInviteDto"];
-        };
-        RegisterUserRequest: {
-            /** @description User nickname from the identity provider */
-            nickname?: string | null;
-            /** @description User display name from the identity provider */
-            name?: string | null;
-            /** @description Profile picture URL from the identity provider */
-            picture?: string | null;
-        };
-        /** @description Create a new workspace within the organization */
-        CreateWorkspaceRequest: {
-            /** @description Workspace name */
-            name: string;
-        };
-        /** @description Add an existing user as a member of the organization */
-        AddMemberRequest: {
-            /**
-             * Format: int32
-             * @description ID of the user to add
-             */
-            userId: number;
-            /**
-             * @description Role to assign to the new member
-             * @enum {string}
-             */
-            orgRole: "OWNER" | "ADMIN" | "MEMBER";
-        };
-        /** @description Organization member with role and status */
-        MemberDto: {
-            /**
-             * Format: int32
-             * @description User identifier of the member
-             */
-            userId?: number;
-            /** @description Member email address */
-            email?: string;
-            /** @description Member display name; null if not set */
-            name?: string | null;
-            /**
-             * @description Member role within this organization (OWNER, ADMIN, MEMBER)
-             * @enum {string}
-             */
-            orgRole?: "OWNER" | "ADMIN" | "MEMBER";
-            /**
-             * @description Membership status (ACTIVE, PENDING, SUSPENDED)
-             * @enum {string}
-             */
-            status?: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
-            /**
-             * Format: date-time
-             * @description Timestamp when the member was added to the organization
-             */
-            createdAt?: string;
-        };
-        SingleValueResponseMemberDto: {
-            data?: components["schemas"]["MemberDto"];
-        };
-        CreateWebhookEndpointRequest: {
-            /** @description HTTPS endpoint that receives webhook event payloads */
-            url: string;
-            /** @description Optional human-readable description */
-            description?: string;
-            /** @description Event types to deliver, e.g. monitor.created, incident.resolved */
-            subscribedEvents: string[];
-        };
-        /** @description Event type to use for a test webhook delivery */
-        TestWebhookEndpointRequest: {
-            /** @description Event type to simulate (e.g. monitor.created); null uses a default */
-            eventType?: string | null;
-        };
-        SingleValueResponseWebhookTestResult: {
-            data?: components["schemas"]["WebhookTestResult"];
-        };
-        WebhookTestResult: {
-            success?: boolean;
-            /** Format: int32 */
-            statusCode?: number | null;
-            message?: string;
-            /** Format: int64 */
-            durationMs?: number | null;
-        };
-        SingleValueResponseString: {
-            data?: string | null;
-        };
-        /** @description Result of a data encryption key rotation operation */
-        DekRotationResultDto: {
-            /**
-             * Format: int32
-             * @description DEK version before rotation
-             */
-            previousDekVersion?: number;
-            /**
-             * Format: int32
-             * @description DEK version after rotation
-             */
-            newDekVersion?: number;
-            /**
-             * Format: int32
-             * @description Number of secrets re-encrypted with the new DEK
-             */
-            secretsReEncrypted?: number;
-            /**
-             * Format: int32
-             * @description Number of alert channels re-encrypted with the new DEK
-             */
-            channelsReEncrypted?: number;
-            /**
-             * Format: date-time
-             * @description Timestamp when the rotation was performed
-             */
-            rotatedAt?: string;
-        };
-        SingleValueResponseDekRotationResultDto: {
-            data?: components["schemas"]["DekRotationResultDto"];
-        };
-        /** @description Request body for creating a tag */
-        CreateTagRequest: {
-            /** @description Tag name, unique within the org */
-            name: string;
-            /** @description Hex color code (defaults to #6B7280 if omitted) */
-            color?: string | null;
-        };
-        /** @description Optional body for subscribing to a specific component of a service */
-        ServiceSubscribeRequest: {
-            /**
-             * Format: uuid
-             * @description ID of the component to subscribe to. Omit or null for whole-service subscription.
-             */
-            componentId?: string | null;
-            /** @description Alert sensitivity level. Defaults to INCIDENTS_ONLY when not provided. */
-            alertSensitivity?: string | null;
-        };
-        /** @description Inline uptime percentages for 24h, 7d, 30d */
-        ComponentUptimeSummaryDto: {
-            /**
-             * Format: double
-             * @description Uptime percentage over the last 24 hours
-             * @example 99.95
-             */
-            day?: number | null;
-            /**
-             * Format: double
-             * @description Uptime percentage over the last 7 days
-             * @example 99.98
-             */
-            week?: number | null;
-            /**
-             * Format: double
-             * @description Uptime percentage over the last 30 days
-             * @example 99.92
-             */
-            month?: number | null;
-            /**
-             * @description Data source: vendor_reported or incident_derived
-             * @example vendor_reported
-             */
-            source?: string;
-        };
-        /** @description A first-class service component with lifecycle and uptime data */
-        ServiceComponentDto: {
-            /** Format: uuid */
-            id?: string;
-            externalId?: string;
-            name?: string;
-            status?: string;
-            description?: string | null;
-            /** Format: uuid */
-            groupId?: string | null;
-            /** Format: int32 */
-            position?: number | null;
-            showcase?: boolean;
-            onlyShowIfDegraded?: boolean;
-            /** Format: date-time */
-            startDate?: string | null;
-            /** Format: date-time */
-            vendorCreatedAt?: string | null;
-            lifecycleStatus?: string;
-            /**
-             * @description Data classification: full, status_only, or metric_only
-             * @example full
-             */
-            dataType?: string;
-            /** @description Whether uptime data is available for this component */
-            hasUptime?: boolean;
-            /** @description Geographic region for regional components (AWS, GCP, Azure) */
-            region?: string | null;
-            /** @description Display name of the parent group */
-            groupName?: string | null;
-            uptime?: components["schemas"]["ComponentUptimeSummaryDto"];
-            /** Format: date-time */
-            statusChangedAt?: string | null;
-            /** Format: date-time */
-            firstSeenAt?: string;
-            /** Format: date-time */
-            lastSeenAt?: string;
-            group?: boolean;
-        };
-        /** @description An org-level service subscription with current status information */
-        ServiceSubscriptionDto: {
-            /**
-             * Format: uuid
-             * @description Unique subscription identifier
-             */
-            subscriptionId?: string;
-            /**
-             * Format: uuid
-             * @description Service identifier
-             */
-            serviceId?: string;
-            slug?: string;
-            name?: string;
-            category?: string | null;
-            officialStatusUrl?: string | null;
-            adapterType?: string;
-            /** Format: int32 */
-            pollingIntervalSeconds?: number;
-            enabled?: boolean;
-            /** @description Logo URL from the service catalog */
-            logoUrl?: string | null;
-            /** @description Current overall status; null when the service has never been polled */
-            overallStatus?: string | null;
-            /**
-             * Format: uuid
-             * @description Subscribed component id; null for whole-service subscription
-             */
-            componentId?: string | null;
-            component?: components["schemas"]["ServiceComponentDto"];
-            /**
-             * @description Alert sensitivity: ALL (synthetic + real incidents), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (real + DOWN severity)
-             * @enum {string}
-             */
-            alertSensitivity?: "ALL" | "INCIDENTS_ONLY" | "MAJOR_ONLY";
-            /**
-             * Format: date-time
-             * @description When the organization subscribed to this service
-             */
-            subscribedAt?: string;
-        };
-        SingleValueResponseServiceSubscriptionDto: {
-            data?: components["schemas"]["ServiceSubscriptionDto"];
-        };
-        CreateSecretRequest: {
-            /** @description Unique secret key within the workspace (max 255 chars) */
-            key: string;
-            /** @description Secret value, stored encrypted (max 32KB) */
-            value: string;
-        };
-        /** @description Request body for creating a resource group */
-        CreateResourceGroupRequest: {
-            /** @description Human-readable name for this group */
-            name: string;
-            /** @description Optional description */
-            description?: string | null;
-            /**
-             * Format: uuid
-             * @description Optional notification policy to apply for this group
-             */
-            alertPolicyId?: string | null;
-            /**
-             * Format: int32
-             * @description Default check frequency in seconds applied to members (30–86400)
-             */
-            defaultFrequency?: number | null;
-            /** @description Default regions applied to member monitors */
-            defaultRegions?: (string | null)[] | null;
-            defaultRetryStrategy?: components["schemas"]["RetryStrategy"];
-            /** @description Default alert channel IDs applied to member monitors */
-            defaultAlertChannels?: (string | null)[] | null;
-            /**
-             * Format: uuid
-             * @description Default environment ID applied to member monitors
-             */
-            defaultEnvironmentId?: string | null;
-            /**
-             * @description Health threshold type: COUNT or PERCENTAGE
-             * @enum {string|null}
-             */
-            healthThresholdType?: "COUNT" | "PERCENTAGE" | null;
-            /** @description Health threshold value: count (0+) or percentage (0–100) */
-            healthThresholdValue?: number | null;
-            /** @description Suppress member-level alert notifications when group manages alerting */
-            suppressMemberAlerts?: boolean | null;
-            /**
-             * Format: int32
-             * @description Confirmation delay in seconds before group incident creation (0–600)
-             */
-            confirmationDelaySeconds?: number | null;
-            /**
-             * Format: int32
-             * @description Recovery cooldown in minutes after group incident resolves (0–60)
-             */
-            recoveryCooldownMinutes?: number | null;
-        };
-        /** @description Request body for adding a member to a resource group */
-        AddResourceGroupMemberRequest: {
-            /** @description Type of member: 'monitor' or 'service' */
-            memberType: string;
-            /**
-             * Format: uuid
-             * @description ID of the monitor or service to add
-             */
-            memberId: string;
-        };
-        SingleValueResponseResourceGroupMemberDto: {
-            data?: components["schemas"]["ResourceGroupMemberDto"];
-        };
-        /** @description Request body for creating a notification policy */
-        CreateNotificationPolicyRequest: {
-            /** @description Human-readable name for this policy */
-            name: string;
-            /** @description Match rules to evaluate (all must pass; omit or empty for catch-all) */
-            matchRules?: components["schemas"]["MatchRule"][];
-            escalation: components["schemas"]["EscalationChain"];
-            /**
-             * @description Whether this policy is enabled (default true)
-             * @default true
-             */
-            enabled: boolean;
-            /**
-             * Format: int32
-             * @description Evaluation priority; higher value = evaluated first (default 0)
-             * @default 0
-             */
-            priority: number;
-        };
-        /** @description Event context for a dry-run match evaluation against a notification policy */
-        TestNotificationPolicyRequest: {
-            /** @description Incident severity to test against (e.g. DOWN, DEGRADED, MAINTENANCE) */
-            severity?: string | null;
-            /**
-             * Format: uuid
-             * @description Monitor UUID to test against (monitoring events)
-             */
-            monitorId?: string | null;
-            /** @description Affected region identifiers to test against (monitoring events) */
-            regions?: (string | null)[] | null;
-            /** @description Incident event type to test against — short form (e.g. created, resolved, reopened) or full form (e.g. incident.created) */
-            eventType?: string | null;
-            /** @description Monitor check type to test against (e.g. HTTP, DNS, MCP_SERVER) */
-            monitorType?: string | null;
-            /**
-             * Format: uuid
-             * @description Service catalog UUID to test against (status data events)
-             */
-            serviceId?: string | null;
-            /** @description Component name to test against (status data events, e.g. "Actions") */
-            componentName?: string | null;
-            /** @description Resource group UUIDs the entity belongs to, for resource_group_id_in rules */
-            resourceGroupIds?: (string | null)[] | null;
-        };
-        SingleValueResponseTestMatchResult: {
-            data?: components["schemas"]["TestMatchResult"];
-        };
-        /** @description Result of a dry-run match evaluation against a notification policy */
-        TestMatchResult: {
-            /** @description Whether the policy would match the supplied incident context */
-            matched?: boolean;
-            /** @description Rules that passed evaluation */
-            matchedRules?: string[];
-            /** @description Rules that did not pass evaluation */
-            unmatchedRules?: string[];
-        };
-        /** @description Delivery record for a single channel within a notification dispatch */
-        AlertDeliveryDto: {
-            /** Format: uuid */
-            id?: string;
-            /**
-             * Format: uuid
-             * @description Incident that triggered this delivery
-             */
-            incidentId?: string;
-            /**
-             * Format: uuid
-             * @description Notification dispatch that created this delivery
-             */
-            dispatchId?: string | null;
-            /**
-             * Format: uuid
-             * @description Alert channel ID
-             */
-            channelId?: string;
-            /** @description Human-readable channel name */
-            channel?: string;
-            /** @description Alert channel type (e.g. slack, email, webhook) */
-            channelType?: string;
-            /**
-             * @description Current delivery status
-             * @enum {string}
-             */
-            status?: "PENDING" | "DELIVERED" | "RETRY_PENDING" | "FAILED" | "CANCELLED";
-            /**
-             * @description Incident lifecycle event that triggered this delivery
-             * @enum {string}
-             */
-            eventType?: "INCIDENT_CREATED" | "INCIDENT_RESOLVED" | "INCIDENT_REOPENED";
-            /**
-             * Format: int32
-             * @description 1-based escalation step this delivery belongs to
-             */
-            stepNumber?: number;
-            /**
-             * Format: int32
-             * @description Fire sequence within the step: 1 = initial, 2+ = repeat re-fires
-             */
-            fireCount?: number;
-            /**
-             * Format: int32
-             * @description Number of delivery attempts made
-             */
-            attemptCount?: number;
-            /**
-             * Format: date-time
-             * @description When the last attempt was made
-             */
-            lastAttemptAt?: string | null;
-            /**
-             * Format: date-time
-             * @description When the next retry is scheduled (null if not retrying)
-             */
-            nextRetryAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the delivery was confirmed (null if not yet delivered)
-             */
-            deliveredAt?: string | null;
-            /** @description Error message from the last failed attempt */
-            errorMessage?: string | null;
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        /** @description Dispatch state for a single (incident, notification policy) pair, with delivery history */
-        NotificationDispatchDto: {
-            /**
-             * Format: uuid
-             * @description Unique dispatch record identifier
-             */
-            id?: string;
-            /**
-             * Format: uuid
-             * @description Incident this dispatch is for
-             */
-            incidentId?: string;
-            /**
-             * Format: uuid
-             * @description Notification policy that matched this incident
-             */
-            policyId?: string;
-            /** @description Human-readable name of the matched policy (null if policy has been deleted) */
-            policyName?: string | null;
-            /**
-             * @description Current dispatch state
-             * @enum {string}
-             */
-            status?: "PENDING" | "DISPATCHING" | "DELIVERED" | "ESCALATING" | "ACKNOWLEDGED" | "COMPLETED";
-            /**
-             * @description Why the dispatch reached COMPLETED: EXHAUSTED (all steps ran, no ack), RESOLVED (incident resolved), NO_STEPS (policy had no steps). Null for non-terminal states.
-             * @enum {string|null}
-             */
-            completionReason?: "EXHAUSTED" | "RESOLVED" | "NO_STEPS" | null;
-            /**
-             * Format: int32
-             * @description 1-based index of the currently active escalation step
-             */
-            currentStep?: number;
-            /**
-             * Format: int32
-             * @description Total number of escalation steps in the policy (null if policy has been deleted)
-             */
-            totalSteps?: number | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when this dispatch was acknowledged (null if not acknowledged)
-             */
-            acknowledgedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the next escalation step will fire (null if not scheduled)
-             */
-            nextEscalationAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp of the most recent notification delivery
-             */
-            lastNotifiedAt?: string | null;
-            /** @description Delivery records for all channels associated with this dispatch */
-            deliveries?: components["schemas"]["AlertDeliveryDto"][];
-            /**
-             * Format: date-time
-             * @description Timestamp when the dispatch was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the dispatch was last updated
-             */
-            updatedAt?: string;
-        };
-        SingleValueResponseNotificationDispatchDto: {
-            data?: components["schemas"]["NotificationDispatchDto"];
-        };
-        CreateMonitorRequest: {
-            /** @description Human-readable name for this monitor */
-            name: string;
-            /**
-             * @description Monitor protocol type
-             * @enum {string}
-             */
-            type: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
-            config: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
-            /**
-             * Format: int32
-             * @description Check frequency in seconds (30–86400, default: 60)
-             */
-            frequencySeconds?: number;
-            /** @description Whether the monitor is active (default: true) */
-            enabled?: boolean | null;
-            /** @description Probe regions to run checks from, e.g. us-east, eu-west */
-            regions?: (string | null)[] | null;
-            /**
-             * @description Who manages this monitor: DASHBOARD or CLI
-             * @enum {string}
-             */
-            managedBy: "DASHBOARD" | "CLI";
-            /**
-             * Format: uuid
-             * @description Environment to associate with this monitor
-             */
-            environmentId?: string | null;
-            /** @description Assertions to evaluate against each check result */
-            assertions?: components["schemas"]["CreateAssertionRequest"][] | null;
-            auth?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
-            incidentPolicy?: components["schemas"]["UpdateIncidentPolicyRequest"];
-            /** @description Alert channels to notify when this monitor triggers */
-            alertChannelIds?: (string | null)[] | null;
-            tags?: components["schemas"]["AddMonitorTagsRequest"];
-        };
-        SetMonitorAuthRequest: {
-            config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
-        };
-        AssertionTestResultDto: {
-            /**
-             * @description Assertion type evaluated
-             * @enum {string}
-             */
-            assertionType?: "status_code" | "response_time" | "body_contains" | "json_path" | "header" | "regex" | "dns_resolves" | "dns_response_time" | "dns_expected_ips" | "dns_expected_cname" | "dns_record_contains" | "dns_record_equals" | "dns_txt_contains" | "dns_min_answers" | "dns_max_answers" | "dns_response_time_warn" | "dns_ttl_low" | "dns_ttl_high" | "mcp_connects" | "mcp_response_time" | "mcp_has_capability" | "mcp_tool_available" | "mcp_min_tools" | "mcp_protocol_version" | "mcp_response_time_warn" | "mcp_tool_count_changed" | "ssl_expiry" | "response_size" | "redirect_count" | "redirect_target" | "response_time_warn" | "tcp_connects" | "tcp_response_time" | "tcp_response_time_warn" | "icmp_reachable" | "icmp_response_time" | "icmp_response_time_warn" | "icmp_packet_loss" | "heartbeat_received" | "heartbeat_max_interval" | "heartbeat_interval_drift" | "heartbeat_payload_contains";
-            /** @description Whether the assertion passed */
-            passed?: boolean;
-            /**
-             * @description Assertion severity: FAIL or WARN
-             * @enum {string}
-             */
-            severity?: "fail" | "warn";
-            /** @description Human-readable result description */
-            message?: string;
-            /** @description Expected value */
-            expected?: string | null;
-            /** @description Actual value observed during the test */
-            actual?: string | null;
-        };
-        MonitorTestResultDto: {
-            passed?: boolean;
-            error?: string | null;
-            /** Format: int32 */
-            statusCode?: number | null;
-            /** Format: int64 */
-            responseTimeMs?: number | null;
-            responseHeaders?: {
-                [key: string]: (string | null)[] | null;
-            } | null;
-            bodyPreview?: string | null;
-            /** Format: int64 */
-            responseSizeBytes?: number | null;
-            /** Format: int32 */
-            redirectCount?: number | null;
-            finalUrl?: string | null;
-            assertionResults?: components["schemas"]["AssertionTestResultDto"][];
-            warnings?: (string | null)[] | null;
-        };
-        SingleValueResponseMonitorTestResultDto: {
-            data?: components["schemas"]["MonitorTestResultDto"];
-        };
-        TableValueResultTagDto: {
-            data?: components["schemas"]["TagDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        MonitorTestRequest: {
-            /**
-             * @description Monitor protocol type to test
-             * @enum {string}
-             */
-            type: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
-            config: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
-            /** @description Optional assertions to evaluate against the test result */
-            assertions?: components["schemas"]["CreateAssertionRequest"][] | null;
-        };
-        /** @description Request body for performing a bulk action on multiple monitors */
-        BulkMonitorActionRequest: {
-            /** @description IDs of monitors to act on (max 200) */
-            monitorIds: string[];
-            /**
-             * @description Action to perform: PAUSE, RESUME, DELETE, ADD_TAG, REMOVE_TAG
-             * @enum {string}
-             */
-            action: "PAUSE" | "RESUME" | "DELETE" | "ADD_TAG" | "REMOVE_TAG";
-            /** @description Tag IDs to attach or detach (required for ADD_TAG and REMOVE_TAG) */
-            tagIds?: (string | null)[] | null;
-            /** @description New tags to create and attach (only for ADD_TAG) */
-            newTags?: components["schemas"]["NewTagRequest"][] | null;
-        };
-        /** @description Result of a bulk monitor action, including partial-success details */
-        BulkMonitorActionResult: {
-            /** @description IDs of monitors on which the action succeeded */
-            succeeded?: string[];
-            /** @description Monitors on which the action failed, with the reason for each failure */
-            failed?: components["schemas"]["FailureDetail"][];
-        };
-        /** @description Details about a single monitor that failed the bulk action */
-        FailureDetail: {
-            /**
-             * Format: uuid
-             * @description Monitor ID that failed
-             */
-            monitorId?: string;
-            /** @description Human-readable reason for the failure */
-            reason?: string;
-        };
-        SingleValueResponseBulkMonitorActionResult: {
-            data?: components["schemas"]["BulkMonitorActionResult"];
-        };
-        CreateMaintenanceWindowRequest: {
-            /**
-             * Format: uuid
-             * @description Monitor to attach this maintenance window to; null for org-wide
-             */
-            monitorId?: string;
-            /**
-             * Format: date-time
-             * @description Scheduled start of the maintenance window (ISO 8601)
-             */
-            startsAt: string;
-            /**
-             * Format: date-time
-             * @description Scheduled end of the maintenance window (ISO 8601)
-             */
-            endsAt: string;
-            /** @description iCal RRULE for recurring windows (max 100 chars); null for one-time */
-            repeatRule?: string;
-            /** @description Human-readable reason for the maintenance */
-            reason?: string;
-            /** @description Whether to suppress alerts during this window (default: true) */
-            suppressAlerts?: boolean;
-        };
-        /** @description Invite a new member to the organization by email */
-        CreateInviteRequest: {
-            /**
-             * Format: email
-             * @description Email address to invite
-             */
-            email: string;
-            /**
-             * @description Role to assign on acceptance
-             * @enum {string}
-             */
-            roleOffered: "OWNER" | "ADMIN" | "MEMBER";
-        };
-        /** @description Organization invite sent to an email address */
-        InviteDto: {
-            /**
-             * Format: int32
-             * @description Unique invite identifier
-             */
-            inviteId?: number;
-            /** @description Email address the invite was sent to */
-            email?: string;
-            /**
-             * @description Role that will be assigned to the invitee on acceptance
-             * @enum {string}
-             */
-            roleOffered?: "OWNER" | "ADMIN" | "MEMBER";
-            /**
-             * Format: date-time
-             * @description Timestamp when the invite expires
-             */
-            expiresAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the invite was accepted; null if not yet used
-             */
-            consumedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the invite was revoked; null if active
-             */
-            revokedAt?: string | null;
-        };
-        SingleValueResponseInviteDto: {
-            data?: components["schemas"]["InviteDto"];
-        };
-        CreateManualIncidentRequest: {
-            /** @description Short summary of the incident */
-            title: string;
-            /**
-             * @description Incident severity: DOWN, DEGRADED, or MAINTENANCE
-             * @enum {string}
-             */
-            severity: "DOWN" | "DEGRADED" | "MAINTENANCE";
-            /**
-             * Format: uuid
-             * @description Monitor to associate with this incident
-             */
-            monitorId?: string | null;
-            /** @description Detailed description or context for the incident */
-            body?: string | null;
-        };
-        IncidentDetailDto: {
-            incident?: components["schemas"]["IncidentDto"];
-            updates?: components["schemas"]["IncidentUpdateDto"][];
-        };
-        IncidentUpdateDto: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: uuid */
-            incidentId?: string;
-            /** @enum {string|null} */
-            oldStatus?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED" | null;
-            /** @enum {string|null} */
-            newStatus?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED" | null;
-            body?: string | null;
-            /** @enum {string} */
-            createdBy?: "SYSTEM" | "USER";
-            notifySubscribers?: boolean;
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        SingleValueResponseIncidentDetailDto: {
-            data?: components["schemas"]["IncidentDetailDto"];
-        };
-        AddIncidentUpdateRequest: {
-            /** @description Update message or post-mortem notes */
-            body?: string;
-            /**
-             * @description Updated incident status; null to keep current status
-             * @enum {string}
-             */
-            newStatus?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED";
-            /** @description Whether to notify subscribers of this update */
-            notifySubscribers?: boolean;
-        };
-        ResolveIncidentRequest: {
-            /** @description Optional resolution message or post-mortem notes */
-            body?: string;
-        };
-        CreateEnvironmentRequest: {
-            /** @description Human-readable environment name */
-            name: string;
-            /** @description URL-safe identifier (lowercase alphanumeric, hyphens, underscores) */
-            slug: string;
-            /** @description Initial key-value variable pairs for this environment */
-            variables?: {
-                [key: string]: string | null;
-            } | null;
-            /** @description Whether this is the default environment for new monitors */
-            isDefault?: boolean;
-        };
-        /** @description Request to acquire a deploy lock for the current workspace */
-        AcquireDeployLockRequest: {
-            /** @description Identity of the lock requester (e.g. hostname, CI job ID) */
-            lockedBy: string;
-            /**
-             * Format: int32
-             * @description Lock TTL in minutes (default: 30, max: 60)
-             * @example 30
-             */
-            ttlMinutes?: number | null;
-        };
-        /** @description Represents an active deploy lock for a workspace */
-        DeployLockDto: {
-            /**
-             * Format: uuid
-             * @description Unique lock identifier
-             */
-            id?: string;
-            /** @description Identity of the lock holder (e.g. CLI session ID, username) */
-            lockedBy?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the lock was acquired
-             */
-            lockedAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the lock automatically expires
-             */
-            expiresAt?: string;
-        };
-        SingleValueResponseDeployLockDto: {
-            data?: components["schemas"]["DeployLockDto"];
-        };
-        CreateApiKeyRequest: {
-            /** @description Human-readable name to identify this API key */
-            name: string;
-            /**
-             * Format: date-time
-             * @description Optional expiration timestamp in ISO 8601 format
-             */
-            expiresAt?: string | null;
-        };
-        /** @description Created API key with the full key value — store it now, it won't be shown again */
-        ApiKeyCreateResponse: {
-            /**
-             * Format: int32
-             * @description Unique API key identifier
-             */
-            id?: number;
-            /** @description Human-readable name for this API key */
-            name?: string;
-            /** @description Full API key value in dh_live_* format; store this now */
-            key?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the key was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the key expires; null if no expiration
-             */
-            expiresAt?: string | null;
-        };
-        SingleValueResponseApiKeyCreateResponse: {
-            data?: components["schemas"]["ApiKeyCreateResponse"];
-        };
-        /** @description API key for programmatic access to the DevHelm API */
-        ApiKeyDto: {
-            /**
-             * Format: int32
-             * @description Unique API key identifier
-             */
-            id?: number;
-            /** @description Human-readable name for this API key */
-            name?: string;
-            /** @description Full API key value in dh_live_* format */
-            key?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the key was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the key was last updated
-             */
-            updatedAt?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp of the most recent API call; null if never used
-             */
-            lastUsedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the key was revoked; null if active
-             */
-            revokedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the key expires; null if no expiration
-             */
-            expiresAt?: string | null;
-        };
-        SingleValueResponseApiKeyDto: {
-            data?: components["schemas"]["ApiKeyDto"];
-        };
-        SingleValueResponseAlertDeliveryDto: {
-            data?: components["schemas"]["AlertDeliveryDto"];
-        };
-        CreateAlertChannelRequest: {
-            /** @description Human-readable name for this alert channel */
-            name: string;
-            config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
-        };
-        SingleValueResponseTestChannelResult: {
-            data?: components["schemas"]["TestChannelResult"];
-        };
-        TestChannelResult: {
-            success?: boolean;
-            message?: string;
-        };
-        /** @description Alert channel configuration to test without saving */
-        TestAlertChannelRequest: {
-            config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
-        };
-        ComponentUpdateRequest: {
-            addComponents: string[];
-        };
-        /** @description Request body for updating alert sensitivity on a service subscription */
-        UpdateAlertSensitivityRequest: {
-            /** @description Alert sensitivity: ALL (any status change), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (only DOWN-level incidents) */
-            alertSensitivity: string;
-        };
-        UpdateApiKeyRequest: {
-            /** @description New name for this API key */
-            name: string;
-        };
-        TableValueResultWorkspaceDto: {
-            data?: components["schemas"]["WorkspaceDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        SingleValueResponseMapStringString: {
-            data?: {
-                [key: string]: string | null;
-            } | null;
-        };
-        SingleValueResponseListMonitorAssertionDto: {
-            data?: components["schemas"]["MonitorAssertionDto"][] | null;
-        };
-        SchedulableMonitorDto: {
-            /**
-             * Format: uuid
-             * @description Unique monitor identifier
-             */
-            id?: string;
-            /**
-             * @description Monitor protocol type
-             * @enum {string}
-             */
-            type?: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
-            config?: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
-            /**
-             * Format: int32
-             * @description Check frequency in seconds
-             */
-            frequencySeconds?: number;
-            /** @description Probe regions to execute checks from */
-            regions?: string[];
-            /**
-             * Format: int32
-             * @description Organization this monitor belongs to
-             */
-            organizationId?: number;
-        };
-        TableValueResultAdapterHealthDto: {
-            data?: components["schemas"]["AdapterHealthDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        SingleValueResponseListBillingPlanDto: {
-            data?: components["schemas"]["BillingPlanDto"][] | null;
-        };
-        TableValueResultTransactionDto: {
-            data?: components["schemas"]["TransactionDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultSubscriptionDto: {
-            data?: components["schemas"]["SubscriptionDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        SingleValueResponseUpcomingChargeResponse: {
-            data?: components["schemas"]["UpcomingChargeResponse"];
-        };
-        /** @description Preview of upcoming subscription charge after a plan change */
-        UpcomingChargeResponse: {
-            /**
-             * @description Type of subscription action being previewed
-             * @enum {string}
-             */
-            action?: "UPGRADE" | "DOWNGRADE" | "NOOP";
-            /**
-             * Format: int32
-             * @description Amount due immediately (proration) in smallest currency unit
-             */
-            immediateAmount?: number;
-            /**
-             * Format: int32
-             * @description Amount that will be charged on the next billing cycle
-             */
-            nextBillingAmount?: number;
-            /**
-             * Format: date-time
-             * @description Date of the next billing cycle; null if cancelling
-             */
-            nextBillingDate?: string | null;
-        };
-        /** @description A single resolved entitlement for the organization */
-        EntitlementDto: {
-            /** @description Entitlement key */
-            key?: string;
-            /**
-             * Format: int64
-             * @description Effective limit value (overrides applied)
-             */
-            value?: number;
-            /**
-             * Format: int64
-             * @description Plan-tier default value before overrides
-             */
-            defaultValue?: number;
-            /** @description Whether this entitlement has an org-level override */
-            overridden?: boolean;
-        };
-        /** @description Full entitlement state for an organization: resolved limits, usage, and trial info */
-        EntitlementResponse: {
-            /**
-             * @description Resolved billing plan tier
-             * @enum {string}
-             */
-            tier?: "FREE" | "STARTER" | "PRO" | "TEAM" | "BUSINESS" | "ENTERPRISE";
-            /** @description All entitlements keyed by entitlement key */
-            entitlements?: {
-                [key: string]: components["schemas"]["EntitlementDto"];
-            };
-            /** @description Current usage counters keyed by entitlement key (only for countable resources) */
-            usage?: {
-                [key: string]: number;
-            };
-            /** @description Whether the org is currently on a trial */
-            trialActive?: boolean;
-            /**
-             * Format: date-time
-             * @description Trial expiry date (null if not trialing)
-             */
-            trialExpiresAt?: string | null;
-            /** @description Current subscription status (null if no subscription) */
-            subscriptionStatus?: string | null;
-        };
-        SingleValueResponseEntitlementResponse: {
-            data?: components["schemas"]["EntitlementResponse"];
-        };
-        PaginationParams: {
-            sortBy: string;
-            /** @enum {string} */
-            sortOrder: "ASC" | "DESC";
-            /** Format: int32 */
-            page?: number;
-            /** Format: int32 */
-            size?: number;
-        };
-        /** @description Generic id/value pair for select options and autocomplete */
-        IdValuePair: {
-            /**
-             * Format: int32
-             * @description Numeric identifier
-             */
-            id?: number;
-            /** @description Display label or value */
-            value?: string;
-        };
-        TableValueResultIdValuePair: {
-            data?: components["schemas"]["IdValuePair"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        /** @description Membership summary for an organization the user belongs to */
-        MyOrgItemDto: {
-            /**
-             * Format: int32
-             * @description Organization identifier
-             */
-            orgId?: number;
-            /** @description Organization name */
-            orgName?: string;
-            /**
-             * @description Member role within this organization
-             * @enum {string}
-             */
-            orgRole?: "OWNER" | "ADMIN" | "MEMBER";
-            /**
-             * @description Membership status
-             * @enum {string}
-             */
-            status?: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
-        };
-        TableValueResultMyOrgItemDto: {
-            data?: components["schemas"]["MyOrgItemDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        SseEmitter: {
-            /** Format: int64 */
-            timeout?: number | null;
-        };
-        Pageable: {
-            /** Format: int32 */
-            page?: number;
-            /** Format: int32 */
-            size?: number;
-            sort?: string[];
-        };
-        TableValueResultUserDto: {
-            data?: components["schemas"]["UserDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        AdminStatsDto: {
-            /** Format: int64 */
-            userCount?: number;
-            /** Format: int64 */
-            orgCount?: number;
-            /** Format: int64 */
-            memberCount?: number;
-        };
-        SingleValueResponseAdminStatsDto: {
-            data?: components["schemas"]["AdminStatsDto"];
-        };
-        TableValueResultOrganizationDto: {
-            data?: components["schemas"]["OrganizationDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultMemberDto: {
-            data?: components["schemas"]["MemberDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultWebhookEndpointDto: {
-            data?: components["schemas"]["WebhookEndpointDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultWebhookDeliveryDto: {
-            data?: components["schemas"]["WebhookDeliveryDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        WebhookDeliveryDto: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: uuid */
-            endpointId?: string;
-            eventId?: string;
-            eventType?: string;
-            status?: string;
-            /** Format: int32 */
-            attemptCount?: number;
-            /** Format: int32 */
-            maxAttempts?: number;
-            /** Format: int32 */
-            responseStatus?: number | null;
-            /** Format: int32 */
-            responseLatencyMs?: number | null;
-            errorMessage?: string | null;
-            /** Format: date-time */
-            deliveredAt?: string | null;
-            /** Format: date-time */
-            failedAt?: string | null;
-            /** Format: date-time */
-            nextRetryAt?: string | null;
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        SingleValueResponseWebhookSigningSecretDto: {
-            data?: components["schemas"]["WebhookSigningSecretDto"];
-        };
-        WebhookSigningSecretDto: {
-            configured?: boolean;
-            maskedSecret?: string | null;
-        };
-        /** @description List of all available webhook event types */
-        WebhookEventCatalogEntry: {
-            /** @description Dot-notation event type identifier, e.g. "monitor.created" */
-            type?: string;
-            /** @description Product surface this event belongs to, e.g. "monitoring" or "status_data" */
-            surface?: string;
-            /** @description Human-readable description of when this event fires */
-            description?: string;
-        };
-        WebhookEventCatalogResponse: {
-            /** @description List of all available webhook event types */
-            data?: components["schemas"]["WebhookEventCatalogEntry"][];
-        };
-        /** @description Cursor-paginated response for time-series and append-only data */
-        CursorPageServiceCatalogDto: {
-            /** @description Items on this page */
-            data?: components["schemas"]["ServiceCatalogDto"][];
-            /** @description Opaque cursor for the next page; null when there are no more results */
-            nextCursor?: string | null;
-            /** @description Whether more results exist beyond this page */
-            hasMore?: boolean;
-        };
-        /** @description Items on this page */
-        ServiceCatalogDto: {
-            /** Format: uuid */
-            id?: string;
-            slug?: string;
-            name?: string;
-            category?: string | null;
-            officialStatusUrl?: string | null;
-            developerContext?: string | null;
-            logoUrl?: string | null;
-            adapterType?: string;
-            /** Format: int32 */
-            pollingIntervalSeconds?: number;
-            enabled?: boolean;
-            overallStatus?: string | null;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            /** Format: int64 */
-            componentCount?: number;
-            /** Format: int64 */
-            activeIncidentCount?: number;
-            dataCompleteness?: string;
-        };
-        /** @description A component affected by a scheduled maintenance window */
-        MaintenanceComponentRef: {
-            /**
-             * Format: uuid
-             * @description Component identifier
-             */
-            id?: string;
-            /** @description Component name */
-            name?: string;
-            /** @description Component status at the time of the maintenance update */
-            status?: string;
-        };
-        /** @description A status update within a scheduled maintenance lifecycle */
-        MaintenanceUpdateDto: {
-            /**
-             * Format: uuid
-             * @description Unique update identifier
-             */
-            id?: string;
-            /** @description Status at the time of this update */
-            status?: string;
-            /** @description Update message from the vendor */
-            body?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when this update was posted
-             */
-            displayAt?: string | null;
-        };
-        /** @description A scheduled maintenance window from a vendor status page */
-        ScheduledMaintenanceDto: {
-            /**
-             * Format: uuid
-             * @description Unique maintenance record identifier
-             */
-            id?: string;
-            /** @description Vendor-assigned maintenance identifier */
-            externalId?: string;
-            /** @description Maintenance title as reported by the vendor */
-            title?: string;
-            /** @description Current maintenance status (scheduled, in_progress, completed) */
-            status?: string;
-            /** @description Reported impact level */
-            impact?: string | null;
-            /** @description Vendor-provided short URL to the maintenance page */
-            shortlink?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the maintenance is scheduled to begin
-             */
-            scheduledFor?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the maintenance is scheduled to end
-             */
-            scheduledUntil?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the maintenance actually started
-             */
-            startedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the maintenance was completed
-             */
-            completedAt?: string | null;
-            /** @description Components affected by this maintenance */
-            affectedComponents?: components["schemas"]["MaintenanceComponentRef"][];
-            /** @description Status updates posted during the maintenance lifecycle */
-            updates?: components["schemas"]["MaintenanceUpdateDto"][];
-        };
-        ServiceDetailDto: {
-            /** Format: uuid */
-            id?: string;
-            slug?: string;
-            name?: string;
-            category?: string | null;
-            officialStatusUrl?: string | null;
-            developerContext?: string | null;
-            logoUrl?: string | null;
-            adapterType?: string;
-            /** Format: int32 */
-            pollingIntervalSeconds?: number;
-            enabled?: boolean;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            currentStatus?: components["schemas"]["ServiceStatusDto"];
-            recentIncidents?: components["schemas"]["ServiceIncidentDto"][];
-            components?: components["schemas"]["ServiceComponentDto"][];
-            uptime?: components["schemas"]["ComponentUptimeSummaryDto"];
-            activeMaintenances?: components["schemas"]["ScheduledMaintenanceDto"][];
-            dataCompleteness?: string;
-        };
-        ServiceIncidentDto: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: uuid */
-            serviceId?: string;
-            serviceSlug?: string | null;
-            serviceName?: string | null;
-            externalId?: string | null;
-            title?: string;
-            status?: string;
-            impact?: string | null;
-            /** Format: date-time */
-            startedAt?: string | null;
-            /** Format: date-time */
-            resolvedAt?: string | null;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            shortlink?: string | null;
-            /** Format: date-time */
-            detectedAt?: string | null;
-            /** Format: date-time */
-            vendorCreatedAt?: string | null;
-        };
-        ServiceStatusDto: {
-            overallStatus?: string;
-            /** Format: date-time */
-            lastPolledAt?: string | null;
-        };
-        SingleValueResponseServiceDetailDto: {
-            data?: components["schemas"]["ServiceDetailDto"];
-        };
-        /** @description Uptime response with per-bucket breakdown and overall percentage for the period */
-        ServiceUptimeResponse: {
-            /**
-             * Format: double
-             * @description Overall uptime percentage across the entire period; null when no polling data exists
-             * @example 99.95
-             */
-            overallUptimePct?: number | null;
-            /**
-             * @description Requested period
-             * @example 7d
-             */
-            period?: string;
-            /**
-             * @description Requested granularity
-             * @example hourly
-             */
-            granularity?: string;
-            /** @description Per-bucket breakdown ordered by time ascending */
-            buckets?: components["schemas"]["UptimeBucketDto"][];
-            /**
-             * @description Data source: vendor_reported, incident_derived, or poll_derived
-             * @example vendor_reported
-             */
-            source?: string | null;
-        };
-        SingleValueResponseServiceUptimeResponse: {
-            data?: components["schemas"]["ServiceUptimeResponse"];
-        };
-        /** @description Uptime statistics for a single time bucket */
-        UptimeBucketDto: {
-            /**
-             * Format: date-time
-             * @description Start of the bucket interval (ISO 8601)
-             * @example 2024-01-01T00:00:00Z
-             */
-            timestamp?: string;
-            /**
-             * Format: double
-             * @description Uptime percentage for this bucket; null when no polls occurred
-             * @example 100
-             */
-            uptimePct?: number | null;
-            /**
-             * Format: int64
-             * @description Total number of polls recorded in this bucket
-             * @example 12
-             */
-            totalPolls?: number;
-        };
-        TableValueResultScheduledMaintenanceDto: {
-            data?: components["schemas"]["ScheduledMaintenanceDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultServiceIncidentDto: {
-            data?: components["schemas"]["ServiceIncidentDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        ServiceIncidentDetailDto: {
-            /** Format: uuid */
-            id?: string;
-            title?: string;
-            status?: string;
-            impact?: string | null;
-            /** Format: date-time */
-            startedAt?: string | null;
-            /** Format: date-time */
-            resolvedAt?: string | null;
-            /** Format: date-time */
-            detectedAt?: string | null;
-            shortlink?: string | null;
-            affectedComponents?: (string | null)[] | null;
-            updates?: components["schemas"]["ServiceIncidentUpdateDto"][];
-        };
-        ServiceIncidentUpdateDto: {
-            status?: string;
-            body?: string | null;
-            /** Format: date-time */
-            displayAt?: string | null;
-        };
-        SingleValueResponseServiceIncidentDetailDto: {
-            data?: components["schemas"]["ServiceIncidentDetailDto"];
-        };
-        TableValueResultServiceComponentDto: {
-            data?: components["schemas"]["ServiceComponentDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        /** @description Daily uptime data for a component */
-        ComponentUptimeDayDto: {
-            /**
-             * Format: date-time
-             * @description Date of the daily bucket (ISO 8601)
-             */
-            date?: string;
-            /**
-             * Format: int32
-             * @description Seconds of partial outage observed on this day
-             */
-            partialOutageSeconds?: number;
-            /**
-             * Format: int32
-             * @description Seconds of major outage observed on this day
-             */
-            majorOutageSeconds?: number;
-            /**
-             * Format: double
-             * @description Computed uptime percentage for the day
-             */
-            uptimePercentage?: number;
-            /** @description Incident event references for this day as raw JSON */
-            eventsJson?: string | null;
-            /** @description Data source: vendor_reported or incident_derived */
-            source?: string;
-        };
-        TableValueResultComponentUptimeDayDto: {
-            data?: components["schemas"]["ComponentUptimeDayDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        /** @description Global status summary across all subscribed vendor services */
-        GlobalStatusSummaryDto: {
-            /**
-             * Format: int32
-             * @description Total number of services in the catalog
-             */
-            totalServices?: number;
-            /**
-             * Format: int32
-             * @description Number of services currently fully operational
-             */
-            operationalCount?: number;
-            /**
-             * Format: int32
-             * @description Number of services with degraded status
-             */
-            degradedCount?: number;
-            /**
-             * Format: int32
-             * @description Number of services with partial outage
-             */
-            partialOutageCount?: number;
-            /**
-             * Format: int32
-             * @description Number of services with major outage
-             */
-            majorOutageCount?: number;
-            /**
-             * Format: int32
-             * @description Number of services currently under maintenance
-             */
-            maintenanceCount?: number;
-            /**
-             * Format: int64
-             * @description Total number of active incidents across all services
-             */
-            activeIncidentCount?: number;
-            /** @description Services that are not fully operational */
-            servicesWithIssues?: components["schemas"]["ServiceCatalogDto"][];
-        };
-        SingleValueResponseGlobalStatusSummaryDto: {
-            data?: components["schemas"]["GlobalStatusSummaryDto"];
-        };
-        TableValueResultServiceSubscriptionDto: {
-            data?: components["schemas"]["ServiceSubscriptionDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultSecretDto: {
-            data?: components["schemas"]["SecretDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultResourceGroupDto: {
-            data?: components["schemas"]["ResourceGroupDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        SingleValueResponseResourceGroupHealthDto: {
-            data?: components["schemas"]["ResourceGroupHealthDto"];
-        };
-        /** @description In-app notification for the current user */
-        NotificationDto: {
-            /**
-             * Format: int64
-             * @description Unique notification identifier
-             */
-            id?: number;
-            /** @description Notification category (e.g. incident, monitor, team) */
-            type?: string;
-            /** @description Short notification title */
-            title?: string;
-            /** @description Full notification body; null for title-only notifications */
-            body?: string | null;
-            /** @description Type of the resource this notification is about */
-            resourceType?: string | null;
-            /** @description ID of the resource this notification is about */
-            resourceId?: string | null;
-            /** @description Whether the notification has been read */
-            read?: boolean;
-            /**
-             * Format: date-time
-             * @description Timestamp when the notification was created
-             */
-            createdAt?: string;
-        };
-        TableValueResultNotificationDto: {
-            data?: components["schemas"]["NotificationDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        SingleValueResponseLong: {
-            /** Format: int64 */
-            data?: number | null;
-        };
-        TableValueResultNotificationPolicyDto: {
-            data?: components["schemas"]["NotificationPolicyDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultNotificationDispatchDto: {
-            data?: components["schemas"]["NotificationDispatchDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultMonitorDto: {
-            data?: components["schemas"]["MonitorDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        /** @description A point-in-time version snapshot of a monitor configuration */
-        MonitorVersionDto: {
-            /**
-             * Format: uuid
-             * @description Unique version record identifier
-             */
-            id?: string;
-            /**
-             * Format: uuid
-             * @description Monitor this version belongs to
-             */
-            monitorId?: string;
-            /**
-             * Format: int32
-             * @description Monotonically increasing version number
-             */
-            version?: number;
-            snapshot?: components["schemas"]["MonitorDto"];
-            /**
-             * Format: int32
-             * @description User ID who made the change; null for automated changes
-             */
-            changedById?: number | null;
-            /**
-             * @description Change source (DASHBOARD, CLI, API)
-             * @enum {string}
-             */
-            changedVia?: "API" | "DASHBOARD" | "CLI" | "TERRAFORM";
-            /** @description Human-readable description of what changed */
-            changeSummary?: string | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when this version was recorded
-             */
-            createdAt?: string;
-        };
-        TableValueResultMonitorVersionDto: {
-            data?: components["schemas"]["MonitorVersionDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        SingleValueResponseMonitorVersionDto: {
-            data?: components["schemas"]["MonitorVersionDto"];
-        };
-        /** @description Uptime statistics aggregated from continuous aggregates */
-        UptimeDto: {
-            /**
-             * Format: double
-             * @description Uptime percentage over the requested window; null when no data
-             * @example 99.95
-             */
-            uptimePercentage?: number | null;
-            /**
-             * Format: int64
-             * @description Total number of checks executed
-             * @example 1440
-             */
-            totalChecks?: number;
-            /**
-             * Format: int64
-             * @description Number of checks that passed
-             * @example 1439
-             */
-            passedChecks?: number;
-            /**
-             * Format: double
-             * @description Weighted average latency in milliseconds; null when no data
-             * @example 142.5
-             */
-            avgLatencyMs?: number | null;
-            /**
-             * Format: double
-             * @description 95th-percentile latency in milliseconds (upper bound across regions); null when no data
-             * @example 312
-             */
-            p95LatencyMs?: number | null;
-        };
-        SingleValueResponseUptimeDto: {
-            data?: components["schemas"]["UptimeDto"];
-        };
-        /** @description Cursor-paginated response for time-series and append-only data */
-        CursorPage: {
-            /** @description Items on this page */
-            data?: Record<string, never>[];
-            /** @description Opaque cursor for the next page; null when there are no more results */
-            nextCursor?: string | null;
-            /** @description Whether more results exist beyond this page */
-            hasMore?: boolean;
-        };
-        /** @description Result of evaluating a single assertion against a check result */
-        AssertionResultDto: {
-            /**
-             * @description Assertion type
-             * @example status_code
-             */
-            type?: string;
-            /** @description Whether the assertion passed */
-            passed?: boolean;
-            /**
-             * @description Assertion severity
-             * @enum {string}
-             */
-            severity?: "fail" | "warn";
-            /** @description Human-readable result message */
-            message?: string | null;
-            /**
-             * @description Expected value
-             * @example 200
-             */
-            expected?: string | null;
-            /**
-             * @description Actual value observed
-             * @example 503
-             */
-            actual?: string | null;
-        };
-        /** @description Type-specific details captured during a check execution */
-        CheckResultDetailsDto: {
-            /**
-             * Format: int32
-             * @description HTTP status code of the response
-             * @example 200
-             */
-            statusCode?: number | null;
-            /** @description HTTP response headers */
-            responseHeaders?: {
-                [key: string]: (string | null)[] | null;
-            } | null;
-            /** @description Raw response body snapshot (may be HTML, XML, JSON, or plain text) */
-            responseBodySnapshot?: string | null;
-            /** @description Individual assertion evaluation results */
-            assertionResults?: components["schemas"]["AssertionResultDto"][] | null;
-            tlsInfo?: components["schemas"]["TlsInfoDto"];
-            /**
-             * Format: int32
-             * @description Number of HTTP redirects followed
-             * @example 2
-             */
-            redirectCount?: number | null;
-            /** @description Final URL after redirects */
-            redirectTarget?: string | null;
-            /**
-             * Format: int32
-             * @description Response body size in bytes
-             * @example 4096
-             */
-            responseSizeBytes?: number | null;
-            checkDetails?: components["schemas"]["Dns"] | components["schemas"]["Http"] | components["schemas"]["Icmp"] | components["schemas"]["McpServer"] | components["schemas"]["Tcp"];
-        };
-        /** @description A single check result from a monitor run */
-        CheckResultDto: {
-            /**
-             * Format: uuid
-             * @description Unique identifier of the check result
-             */
-            id?: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the check was executed (ISO 8601)
-             */
-            timestamp?: string;
-            /**
-             * @description Region where the check was executed
-             * @example us-east
-             */
-            region?: string;
-            /**
-             * Format: int32
-             * @description Response time in milliseconds
-             * @example 123
-             */
-            responseTimeMs?: number | null;
-            /**
-             * @description Whether the check passed
-             * @example true
-             */
-            passed?: boolean;
-            /** @description Reason for failure when passed=false */
-            failureReason?: string | null;
-            /** @description Severity hint: 'down' for hard failures, 'degraded' for warn-only failures, null when passing */
-            severityHint?: string | null;
-            details?: components["schemas"]["CheckResultDetailsDto"];
-        };
-        /** @description Check-type-specific details — polymorphic by check_type discriminator */
-        CheckTypeDetailsDto: {
-            check_type: string;
-        };
-        /** @description Cursor-paginated response for time-series and append-only data */
-        CursorPageCheckResultDto: {
-            /** @description Items on this page */
-            data?: components["schemas"]["CheckResultDto"][];
-            /** @description Opaque cursor for the next page; null when there are no more results */
-            nextCursor?: string | null;
-            /** @description Whether more results exist beyond this page */
-            hasMore?: boolean;
-        };
-        /** @description DNS check-type-specific details */
-        Dns: {
-            check_type: "Dns";
-        } & (Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
-            /** @description Target hostname */
-            hostname?: string | null;
-            /** @description Requested DNS record types */
-            requestedTypes?: (string | null)[] | null;
-            /** @description Resolver used for lookup */
-            usedResolver?: string | null;
-            /** @description Resolved DNS records keyed by record type */
-            records?: {
-                [key: string]: ({
-                    [key: string]: Record<string, never> | null;
-                } | null)[] | null;
-            } | null;
-            /** @description DNS resolution attempts */
-            attempts?: ({
-                [key: string]: Record<string, never> | null;
-            } | null)[] | null;
-            /** @description Kind of DNS failure, if any */
-            failureKind?: string | null;
-        });
-        /** @description HTTP check-type-specific details */
-        Http: {
-            check_type: "Http";
-        } & (Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
-            /** @description Request phase timing breakdown */
-            timing?: {
-                [key: string]: Record<string, never> | null;
-            } | null;
-            /** @description Whether the response body was truncated before storage */
-            bodyTruncated?: boolean | null;
-        });
         /** @description ICMP (ping) check-type-specific details */
         Icmp: {
             check_type: "Icmp";
@@ -6663,6 +3730,506 @@ export interface components {
              */
             jitterMs?: number | null;
         });
+        IcmpMonitorConfig: components["schemas"]["MonitorConfig"] & {
+            /** @description Target hostname or IP address to ping */
+            host: string;
+            /**
+             * Format: int32
+             * @description Number of ICMP packets to send
+             */
+            packetCount?: number | null;
+            /**
+             * Format: int32
+             * @description Ping timeout in milliseconds
+             */
+            timeoutMs?: number | null;
+        };
+        IcmpPacketLossAssertion: {
+            type: "IcmpPacketLossAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: double
+             * @description Maximum allowed packet loss percentage before the check fails (0–100)
+             */
+            maxPercent?: number;
+        });
+        IcmpReachableAssertion: {
+            type: "IcmpReachableAssertion";
+        } & Omit<components["schemas"]["AssertionConfig"], "type">;
+        IcmpResponseTimeAssertion: {
+            type: "IcmpResponseTimeAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description Maximum average ICMP round-trip time in milliseconds
+             */
+            maxMs?: number;
+        });
+        IcmpResponseTimeWarnAssertion: {
+            type: "IcmpResponseTimeWarnAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description ICMP round-trip time in milliseconds that triggers a warning only
+             */
+            warnMs?: number;
+        });
+        IncidentDetailDto: {
+            incident: components["schemas"]["IncidentDto"];
+            updates: components["schemas"]["IncidentUpdateDto"][];
+            statusPageIncidents: components["schemas"]["LinkedStatusPageIncidentDto"][] | null;
+        };
+        /** @description Incident triggered by a monitor check failure or manual creation */
+        IncidentDto: {
+            /**
+             * Format: uuid
+             * @description Unique incident identifier
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Monitor that triggered the incident; null for service or manual incidents
+             */
+            monitorId: string | null;
+            /**
+             * Format: int32
+             * @description Organization this incident belongs to
+             */
+            organizationId: number;
+            /**
+             * @description Incident origin: MONITOR, SERVICE, or MANUAL
+             * @enum {string}
+             */
+            source: "AUTOMATIC" | "MANUAL" | "MONITORS" | "STATUS_DATA" | "RESOURCE_GROUP";
+            /**
+             * @description Current lifecycle status (OPEN, RESOLVED, etc.)
+             * @enum {string}
+             */
+            status: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED";
+            /**
+             * @description Severity level: DOWN, DEGRADED, or MAINTENANCE
+             * @enum {string}
+             */
+            severity: "DOWN" | "DEGRADED" | "MAINTENANCE";
+            /** @description Short summary of the incident; null for auto-generated incidents */
+            title: string | null;
+            /** @description Human-readable description of the trigger rule that fired */
+            triggeredByRule: string | null;
+            /** @description Probe regions that observed the failure */
+            affectedRegions: string[];
+            /**
+             * Format: int32
+             * @description Number of times this incident has been reopened
+             */
+            reopenCount: number;
+            /**
+             * Format: int32
+             * @description User who created the incident (manual incidents only)
+             */
+            createdByUserId: number | null;
+            /** @description Whether this incident is visible on the status page */
+            statusPageVisible: boolean;
+            /**
+             * Format: uuid
+             * @description Linked vendor service incident ID; null for monitor incidents
+             */
+            serviceIncidentId: string | null;
+            /**
+             * Format: uuid
+             * @description Linked service catalog ID; null for monitor incidents
+             */
+            serviceId: string | null;
+            /** @description External reference ID (e.g. PagerDuty incident ID) */
+            externalRef: string | null;
+            /** @description Service components affected by this incident */
+            affectedComponents: (string | null)[] | null;
+            /** @description Short URL linking to the incident details */
+            shortlink: string | null;
+            /**
+             * @description How the incident was resolved (AUTO_RECOVERED, MANUAL, etc.)
+             * @enum {string|null}
+             */
+            resolutionReason: "MANUAL" | "AUTO_RECOVERED" | "AUTO_RESOLVED" | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the incident was detected or created
+             */
+            startedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the incident was confirmed (multi-region confirmation)
+             */
+            confirmedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the incident was resolved
+             */
+            resolvedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Cooldown window end; new incidents suppressed until this time
+             */
+            cooldownUntil: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the incident record was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the incident was last updated
+             */
+            updatedAt: string;
+            /** @description Name of the associated monitor; populated on list responses */
+            monitorName: string | null;
+            /** @description Name of the associated service; populated on list responses */
+            serviceName: string | null;
+            /** @description Slug of the associated service; populated on list responses */
+            serviceSlug: string | null;
+            /** @description Type of the associated monitor; populated on list responses */
+            monitorType: string | null;
+            /**
+             * Format: uuid
+             * @description Resource group that owns this incident; null when not group-managed
+             */
+            resourceGroupId: string | null;
+            /** @description Name of the resource group; populated on list responses */
+            resourceGroupName: string | null;
+        };
+        IncidentFilterParams: {
+            /** @enum {string} */
+            status: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED";
+            /** @enum {string} */
+            severity: "DOWN" | "DEGRADED" | "MAINTENANCE";
+            /** @enum {string} */
+            source: "AUTOMATIC" | "MANUAL" | "MONITORS" | "STATUS_DATA" | "RESOURCE_GROUP";
+            /** Format: uuid */
+            monitorId: string;
+            /** Format: uuid */
+            serviceId: string;
+            /** Format: uuid */
+            resourceGroupId: string;
+            /** Format: uuid */
+            tagId: string | null;
+            /** Format: uuid */
+            environmentId: string | null;
+            /** Format: date-time */
+            startedFrom: string | null;
+            /** Format: date-time */
+            startedTo: string | null;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+        };
+        /** @description Incident detection, confirmation, and recovery policy for a monitor */
+        IncidentPolicyDto: {
+            /**
+             * Format: uuid
+             * @description Unique incident policy identifier
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Monitor this policy is attached to
+             */
+            monitorId: string;
+            /** @description Array of trigger rules defining when an incident should be raised */
+            triggerRules: components["schemas"]["TriggerRule"][];
+            confirmation: components["schemas"]["ConfirmationPolicy"];
+            recovery: components["schemas"]["RecoveryPolicy"];
+            /**
+             * Format: date-time
+             * @description Timestamp when the policy was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the policy was last updated
+             */
+            updatedAt: string;
+            /**
+             * Format: int32
+             * @description Number of regions configured on the monitor (only set in internal API responses)
+             */
+            monitorRegionCount: number | null;
+            /**
+             * Format: int32
+             * @description Monitor check frequency in seconds (only set in internal API responses)
+             */
+            checkFrequencySeconds: number | null;
+        };
+        /** @description Lightweight reference to an incident overlapping this day */
+        IncidentRef: {
+            /**
+             * Format: uuid
+             * @description Status page incident ID
+             */
+            id: string;
+            /** @description Incident title */
+            title: string;
+            /** @description Incident impact level */
+            impact: string;
+        };
+        /** @description Incident summary counters */
+        IncidentsSummaryDto: {
+            /** Format: int64 */
+            active: number;
+            /** Format: int64 */
+            resolvedToday: number;
+            /** Format: double */
+            mttr30d: number | null;
+        };
+        IncidentUpdateDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            incidentId: string;
+            /** @enum {string|null} */
+            oldStatus: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED" | null;
+            /** @enum {string|null} */
+            newStatus: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED" | null;
+            body: string | null;
+            /** @enum {string} */
+            createdBy: "SYSTEM" | "USER";
+            notifySubscribers: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        IntegrationConfigSchemaDto: {
+            connectionFields: components["schemas"]["IntegrationFieldDto"][];
+            channelFields: components["schemas"]["IntegrationFieldDto"][];
+        };
+        IntegrationDto: {
+            type: string;
+            name: string;
+            description: string;
+            logoUrl: string;
+            authType: string;
+            /** @enum {string} */
+            tierAvailability: "FREE" | "STARTER" | "PRO" | "TEAM" | "BUSINESS" | "ENTERPRISE";
+            lifecycle: string;
+            setupGuideUrl: string;
+            configSchema: components["schemas"]["IntegrationConfigSchemaDto"];
+        };
+        IntegrationFieldDto: {
+            key: string;
+            label: string;
+            type: string;
+            required: boolean;
+            sensitive: boolean;
+            placeholder?: string | null;
+            helpText?: string | null;
+            options?: (string | null)[] | null;
+            default?: string | null;
+        };
+        /** @description Organization invite sent to an email address */
+        InviteDto: {
+            /**
+             * Format: int32
+             * @description Unique invite identifier
+             */
+            inviteId: number;
+            /** @description Email address the invite was sent to */
+            email: string;
+            /**
+             * @description Role that will be assigned to the invitee on acceptance
+             * @enum {string}
+             */
+            roleOffered: "OWNER" | "ADMIN" | "MEMBER";
+            /**
+             * Format: date-time
+             * @description Timestamp when the invite expires
+             */
+            expiresAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the invite was accepted; null if not yet used
+             */
+            consumedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the invite was revoked; null if active
+             */
+            revokedAt: string | null;
+        };
+        JsonPathAssertion: {
+            type: "JsonPathAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description JSONPath expression to extract a value from the response body */
+            path: string;
+            /** @description Expected value to compare against */
+            expected: string;
+            /**
+             * @description Comparison operator (equals, contains, less_than, greater_than, etc.)
+             * @enum {string}
+             */
+            operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
+        });
+        /** @description API key metadata */
+        KeyInfo: {
+            /**
+             * Format: int32
+             * @description Key ID
+             */
+            id: number;
+            /** @description Human-readable key name */
+            name: string;
+            /**
+             * Format: date-time
+             * @description When the key was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description When the key expires (null = never)
+             */
+            expiresAt: string | null;
+            /**
+             * Format: date-time
+             * @description Last time the key was used
+             */
+            lastUsedAt: string | null;
+        };
+        LinkedStatusPageIncidentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            statusPageId: string;
+            statusPageName: string;
+            statusPageSlug: string;
+            title: string;
+            /** @enum {string} */
+            status: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED";
+            /** @enum {string} */
+            impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL";
+            scheduled: boolean;
+            /** Format: date-time */
+            publishedAt: string | null;
+        };
+        /** @description A component affected by a scheduled maintenance window */
+        MaintenanceComponentRef: {
+            /**
+             * Format: uuid
+             * @description Component identifier
+             */
+            id: string;
+            /** @description Component name */
+            name: string;
+            /** @description Component status at the time of the maintenance update */
+            status: string;
+        };
+        /** @description A status update within a scheduled maintenance lifecycle */
+        MaintenanceUpdateDto: {
+            /**
+             * Format: uuid
+             * @description Unique update identifier
+             */
+            id: string;
+            /** @description Status at the time of this update */
+            status: string;
+            /** @description Update message from the vendor */
+            body: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when this update was posted
+             */
+            displayAt: string | null;
+        };
+        /** @description Scheduled maintenance window for a monitor */
+        MaintenanceWindowDto: {
+            /**
+             * Format: uuid
+             * @description Unique maintenance window identifier
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Monitor this window applies to; null for org-wide windows
+             */
+            monitorId: string | null;
+            /**
+             * Format: int32
+             * @description Organization this maintenance window belongs to
+             */
+            organizationId: number;
+            /**
+             * Format: date-time
+             * @description Scheduled start of the maintenance window
+             */
+            startsAt: string;
+            /**
+             * Format: date-time
+             * @description Scheduled end of the maintenance window
+             */
+            endsAt: string;
+            /** @description iCal RRULE for recurring windows; null for one-time */
+            repeatRule: string | null;
+            /** @description Human-readable reason for the maintenance */
+            reason: string | null;
+            /** @description Whether alerts are suppressed during this window */
+            suppressAlerts: boolean;
+            /**
+             * Format: date-time
+             * @description Timestamp when the window was created
+             */
+            createdAt: string;
+        };
+        /** @description Match rules to evaluate (all must pass; omit or empty for catch-all) */
+        MatchRule: {
+            /** @description Rule type, e.g. severity_gte, monitor_id_in, region_in */
+            type: string;
+            /** @description Comparison value for single-value rules like severity_gte */
+            value?: string | null;
+            /** @description Monitor UUIDs to match for monitor_id_in rules */
+            monitorIds?: (string | null)[] | null;
+            /** @description Region codes to match for region_in rules */
+            regions?: (string | null)[] | null;
+            /** @description Values list for multi-value rules like monitor_type_in */
+            values?: (string | null)[] | null;
+        };
+        McpConnectsAssertion: {
+            type: "McpConnectsAssertion";
+        } & Omit<components["schemas"]["AssertionConfig"], "type">;
+        McpHasCapabilityAssertion: {
+            type: "McpHasCapabilityAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Capability name the server must advertise, e.g. tools or resources */
+            capability: string;
+        });
+        McpMinToolsAssertion: {
+            type: "McpMinToolsAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description Minimum number of tools the server must expose
+             */
+            min?: number;
+        });
+        McpProtocolVersionAssertion: {
+            type: "McpProtocolVersionAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Expected MCP protocol version string from the server handshake */
+            version: string;
+        });
+        McpResponseTimeAssertion: {
+            type: "McpResponseTimeAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description Maximum allowed MCP check duration in milliseconds
+             */
+            maxMs?: number;
+        });
+        McpResponseTimeWarnAssertion: {
+            type: "McpResponseTimeWarnAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description MCP check duration in milliseconds that triggers a warning only
+             */
+            warnMs?: number;
+        });
         /** @description MCP server check-type-specific details */
         McpServer: {
             check_type: "McpServer";
@@ -6691,6 +4258,1884 @@ export interface components {
              */
             promptCount?: number | null;
         });
+        McpServerMonitorConfig: components["schemas"]["MonitorConfig"] & {
+            /** @description Command to execute to start the MCP server */
+            command: string;
+            /** @description Command-line arguments for the MCP server process */
+            args?: (string | null)[] | null;
+            /** @description Environment variables to pass to the MCP server process */
+            env?: {
+                [key: string]: string | null;
+            } | null;
+        };
+        McpToolAvailableAssertion: {
+            type: "McpToolAvailableAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description MCP tool name that must appear in the server's tool list */
+            toolName: string;
+        });
+        McpToolCountChangedAssertion: {
+            type: "McpToolCountChangedAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description Expected tool count; warns when the live count differs
+             */
+            expectedCount?: number;
+        });
+        /** @description Organization member with role and status */
+        MemberDto: {
+            /**
+             * Format: int32
+             * @description User identifier of the member
+             */
+            userId: number;
+            /** @description Member email address */
+            email: string;
+            /** @description Member display name; null if not set */
+            name: string | null;
+            /**
+             * @description Member role within this organization (OWNER, ADMIN, MEMBER)
+             * @enum {string}
+             */
+            orgRole: "OWNER" | "ADMIN" | "MEMBER";
+            /**
+             * @description Membership status (ACTIVE, PENDING, SUSPENDED)
+             * @enum {string}
+             */
+            status: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
+            /**
+             * Format: date-time
+             * @description Timestamp when the member was added to the organization
+             */
+            createdAt: string;
+        };
+        MonitorAssertionDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            monitorId: string;
+            /** @enum {string} */
+            assertionType: "status_code" | "response_time" | "body_contains" | "json_path" | "header" | "regex" | "dns_resolves" | "dns_response_time" | "dns_expected_ips" | "dns_expected_cname" | "dns_record_contains" | "dns_record_equals" | "dns_txt_contains" | "dns_min_answers" | "dns_max_answers" | "dns_response_time_warn" | "dns_ttl_low" | "dns_ttl_high" | "mcp_connects" | "mcp_response_time" | "mcp_has_capability" | "mcp_tool_available" | "mcp_min_tools" | "mcp_protocol_version" | "mcp_response_time_warn" | "mcp_tool_count_changed" | "ssl_expiry" | "response_size" | "redirect_count" | "redirect_target" | "response_time_warn" | "tcp_connects" | "tcp_response_time" | "tcp_response_time_warn" | "icmp_reachable" | "icmp_response_time" | "icmp_response_time_warn" | "icmp_packet_loss" | "heartbeat_received" | "heartbeat_max_interval" | "heartbeat_interval_drift" | "heartbeat_payload_contains";
+            config?: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
+            /** @enum {string} */
+            severity: "fail" | "warn";
+        };
+        /** @description New authentication configuration (full replacement) */
+        MonitorAuthConfig: {
+            type: string;
+        };
+        MonitorAuthDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            monitorId: string;
+            /** @enum {string} */
+            authType: "bearer" | "basic" | "header" | "api_key";
+            config?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
+        };
+        /** @description Updated protocol-specific configuration; null preserves current */
+        MonitorConfig: Record<string, never>;
+        /** @description Full monitor representation */
+        MonitorDto: {
+            /**
+             * Format: uuid
+             * @description Unique monitor identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this monitor belongs to
+             */
+            organizationId: number;
+            /** @description Human-readable name for this monitor */
+            name: string;
+            /** @enum {string} */
+            type: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
+            config?: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
+            /**
+             * Format: int32
+             * @description Check frequency in seconds (30–86400)
+             */
+            frequencySeconds: number;
+            /** @description Whether the monitor is active */
+            enabled: boolean;
+            /** @description Probe regions where checks are executed */
+            regions: string[];
+            /**
+             * @description Management source: DASHBOARD or CLI
+             * @enum {string}
+             */
+            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM";
+            /**
+             * Format: date-time
+             * @description Timestamp when the monitor was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the monitor was last updated
+             */
+            updatedAt: string;
+            /** @description Assertions evaluated against each check result; null on list responses */
+            assertions: components["schemas"]["MonitorAssertionDto"][] | null;
+            /** @description Tags applied to this monitor */
+            tags: components["schemas"]["TagDto"][] | null;
+            /** @description Heartbeat ping URL; populated for HEARTBEAT monitors only */
+            pingUrl: string | null;
+            environment: components["schemas"]["Summary"];
+            auth?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
+            incidentPolicy: components["schemas"]["IncidentPolicyDto"];
+            /** @description Alert channel IDs linked to this monitor; populated on single-monitor responses */
+            alertChannelIds: (string | null)[] | null;
+        };
+        /** @description Monitors that reference this secret; null on create/update responses */
+        MonitorReference: {
+            /**
+             * Format: uuid
+             * @description Monitor identifier
+             */
+            id: string;
+            /** @description Monitor name */
+            name: string;
+        };
+        /** @description Dashboard summary counters for monitors */
+        MonitorsSummaryDto: {
+            /**
+             * Format: int64
+             * @description Total number of monitors in the organization
+             */
+            total: number;
+            /**
+             * Format: int64
+             * @description Number of monitors currently passing
+             */
+            up: number;
+            /**
+             * Format: int64
+             * @description Number of monitors currently failing (DOWN severity)
+             */
+            down: number;
+            /**
+             * Format: int64
+             * @description Number of monitors with degraded status
+             */
+            degraded: number;
+            /**
+             * Format: int64
+             * @description Number of disabled monitors
+             */
+            paused: number;
+            /**
+             * Format: double
+             * @description Average uptime percentage across all monitors over last 24h
+             */
+            avgUptime24h: number | null;
+            /**
+             * Format: double
+             * @description Average uptime percentage across all monitors over last 30 days
+             */
+            avgUptime30d: number | null;
+        };
+        MonitorTestRequest: {
+            /**
+             * @description Monitor protocol type to test
+             * @enum {string}
+             */
+            type: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
+            config: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
+            /** @description Optional assertions to evaluate against the test result */
+            assertions?: components["schemas"]["CreateAssertionRequest"][] | null;
+        };
+        MonitorTestResultDto: {
+            passed: boolean;
+            error: string | null;
+            /** Format: int32 */
+            statusCode: number | null;
+            /** Format: int64 */
+            responseTimeMs: number | null;
+            responseHeaders: {
+                [key: string]: (string | null)[] | null;
+            } | null;
+            bodyPreview: string | null;
+            /** Format: int64 */
+            responseSizeBytes: number | null;
+            /** Format: int32 */
+            redirectCount: number | null;
+            finalUrl: string | null;
+            assertionResults: components["schemas"]["AssertionTestResultDto"][];
+            warnings: (string | null)[] | null;
+        };
+        /** @description A point-in-time version snapshot of a monitor configuration */
+        MonitorVersionDto: {
+            /**
+             * Format: uuid
+             * @description Unique version record identifier
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Monitor this version belongs to
+             */
+            monitorId: string;
+            /**
+             * Format: int32
+             * @description Monotonically increasing version number
+             */
+            version: number;
+            snapshot: components["schemas"]["MonitorDto"];
+            /**
+             * Format: int32
+             * @description User ID who made the change; null for automated changes
+             */
+            changedById: number | null;
+            /**
+             * @description Change source (DASHBOARD, CLI, API)
+             * @enum {string}
+             */
+            changedVia: "API" | "DASHBOARD" | "CLI" | "TERRAFORM";
+            /** @description Human-readable description of what changed */
+            changeSummary: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when this version was recorded
+             */
+            createdAt: string;
+        };
+        /** @description Inline tag creation — creates the tag if it does not already exist */
+        NewTagRequest: {
+            /** @description Tag name */
+            name: string;
+            /** @description Hex color code (defaults to #6B7280 if omitted) */
+            color?: string | null;
+        };
+        /** @description Dispatch state for a single (incident, notification policy) pair, with delivery history */
+        NotificationDispatchDto: {
+            /**
+             * Format: uuid
+             * @description Unique dispatch record identifier
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Incident this dispatch is for
+             */
+            incidentId: string;
+            /**
+             * Format: uuid
+             * @description Notification policy that matched this incident
+             */
+            policyId: string;
+            /** @description Human-readable name of the matched policy (null if policy has been deleted) */
+            policyName: string | null;
+            /**
+             * @description Current dispatch state
+             * @enum {string}
+             */
+            status: "PENDING" | "DISPATCHING" | "DELIVERED" | "ESCALATING" | "ACKNOWLEDGED" | "COMPLETED";
+            /**
+             * @description Why the dispatch reached COMPLETED: EXHAUSTED (all steps ran, no ack), RESOLVED (incident resolved), NO_STEPS (policy had no steps). Null for non-terminal states.
+             * @enum {string|null}
+             */
+            completionReason: "EXHAUSTED" | "RESOLVED" | "NO_STEPS" | null;
+            /**
+             * Format: int32
+             * @description 1-based index of the currently active escalation step
+             */
+            currentStep: number;
+            /**
+             * Format: int32
+             * @description Total number of escalation steps in the policy (null if policy has been deleted)
+             */
+            totalSteps: number | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when this dispatch was acknowledged (null if not acknowledged)
+             */
+            acknowledgedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the next escalation step will fire (null if not scheduled)
+             */
+            nextEscalationAt: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp of the most recent notification delivery
+             */
+            lastNotifiedAt: string | null;
+            /** @description Delivery records for all channels associated with this dispatch */
+            deliveries: components["schemas"]["AlertDeliveryDto"][];
+            /**
+             * Format: date-time
+             * @description Timestamp when the dispatch was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the dispatch was last updated
+             */
+            updatedAt: string;
+        };
+        /** @description In-app notification for the current user */
+        NotificationDto: {
+            /**
+             * Format: int64
+             * @description Unique notification identifier
+             */
+            id: number;
+            /** @description Notification category (e.g. incident, monitor, team) */
+            type: string;
+            /** @description Short notification title */
+            title: string;
+            /** @description Full notification body; null for title-only notifications */
+            body: string | null;
+            /** @description Type of the resource this notification is about */
+            resourceType: string | null;
+            /** @description ID of the resource this notification is about */
+            resourceId: string | null;
+            /** @description Whether the notification has been read */
+            read: boolean;
+            /**
+             * Format: date-time
+             * @description Timestamp when the notification was created
+             */
+            createdAt: string;
+        };
+        /** @description Org-level notification policy with match rules and escalation chain */
+        NotificationPolicyDto: {
+            /**
+             * Format: uuid
+             * @description Unique notification policy identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this policy belongs to
+             */
+            organizationId: number;
+            /** @description Human-readable name for this policy */
+            name: string;
+            /** @description Match rules (all must pass; empty = catch-all) */
+            matchRules: components["schemas"]["MatchRule"][];
+            escalation: components["schemas"]["EscalationChain"];
+            /** @description Whether this policy is active */
+            enabled: boolean;
+            /**
+             * Format: int32
+             * @description Evaluation order; higher value = evaluated first
+             */
+            priority: number;
+            /**
+             * Format: date-time
+             * @description Timestamp when the policy was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the policy was last updated
+             */
+            updatedAt: string;
+        };
+        OpsGenieChannelConfig: {
+            channelType: "OpsGenieChannelConfig";
+        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+            /** @description OpsGenie API key for alert creation */
+            apiKey: string;
+            /** @description OpsGenie API region: us or eu */
+            region?: string | null;
+        });
+        /** @description Organization account details */
+        OrganizationDto: {
+            /**
+             * Format: int32
+             * @description Unique organization identifier
+             */
+            id: number;
+            /** @description Organization name */
+            name: string;
+            /** @description Billing and contact email */
+            email: string | null;
+            /** @description Team size range (e.g. 1-10, 11-50) */
+            size: string | null;
+            /** @description Industry vertical (e.g. SaaS, Fintech) */
+            industry: string | null;
+            /** @description Organization website URL */
+            websiteUrl: string | null;
+        };
+        /** @description Organization the key belongs to */
+        OrgInfo: {
+            /**
+             * Format: int32
+             * @description Organization ID
+             */
+            id: number;
+            /** @description Organization name */
+            name: string;
+        };
+        Pageable: {
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            sort: string[];
+        };
+        PagerDutyChannelConfig: {
+            channelType: "PagerDutyChannelConfig";
+        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+            /** @description PagerDuty Events API v2 routing (integration) key */
+            routingKey: string;
+            /** @description Override PagerDuty severity mapping */
+            severityOverride?: string | null;
+        });
+        /** @description A top-level page section (either a group or an ungrouped component) */
+        PageSection: {
+            /**
+             * Format: uuid
+             * @description Group ID when this section is a group
+             */
+            groupId: string | null;
+            /**
+             * Format: uuid
+             * @description Component ID when this section is an ungrouped component
+             */
+            componentId: string | null;
+            /**
+             * Format: int32
+             * @description Position on the page (0-based)
+             */
+            pageOrder: number;
+        };
+        /** @description Billing plan and entitlement state */
+        PlanInfo: {
+            /**
+             * @description Resolved plan tier
+             * @enum {string}
+             */
+            tier: "FREE" | "STARTER" | "PRO" | "TEAM" | "BUSINESS" | "ENTERPRISE";
+            /** @description Subscription status (null if no subscription) */
+            subscriptionStatus: string | null;
+            /** @description Whether the org is on a trial */
+            trialActive: boolean;
+            /**
+             * Format: date-time
+             * @description Trial expiry (null if not trialing)
+             */
+            trialExpiresAt: string | null;
+            /** @description Entitlement limits keyed by entitlement name */
+            entitlements: {
+                [key: string]: components["schemas"]["EntitlementDto"];
+            };
+            /** @description Current usage counters keyed by entitlement name */
+            usage: {
+                [key: string]: number;
+            };
+        };
+        PublishStatusPageIncidentRequest: {
+            /** @description Customer-facing title; null keeps draft value */
+            title: string | null;
+            /**
+             * @description Impact level; null keeps draft value
+             * @enum {string|null}
+             */
+            impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL" | null;
+            /**
+             * @description Incident status; null keeps draft value (must be an active status)
+             * @enum {string|null}
+             */
+            status: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED" | null;
+            /** @description Initial update body; null keeps draft value */
+            body: string | null;
+            /** @description Affected components; null keeps draft value */
+            affectedComponents: components["schemas"]["AffectedComponent"][] | null;
+            /** @description Whether to notify subscribers (default: true) */
+            notifySubscribers: boolean | null;
+        };
+        /** @description Rate-limit quota for the current sliding window */
+        RateLimitInfo: {
+            /**
+             * Format: int64
+             * @description Maximum requests allowed per window
+             */
+            requestsPerMinute: number;
+            /**
+             * Format: int64
+             * @description Requests remaining in the current window
+             */
+            remaining: number;
+            /**
+             * Format: int64
+             * @description Sliding window size in milliseconds
+             */
+            windowMs: number;
+        };
+        /** @description Auto-recovery settings */
+        RecoveryPolicy: {
+            /**
+             * Format: int32
+             * @description Consecutive passing checks required to auto-resolve the incident
+             */
+            consecutiveSuccesses: number;
+            /**
+             * Format: int32
+             * @description Minimum regions that must be passing before recovery can complete
+             */
+            minRegionsPassing: number;
+            /**
+             * Format: int32
+             * @description Minutes after resolve before a new incident may open on the same monitor
+             */
+            cooldownMinutes: number;
+        };
+        RedirectCountAssertion: {
+            type: "RedirectCountAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description Maximum number of HTTP redirects allowed before the check fails
+             */
+            maxCount?: number;
+        });
+        RedirectTargetAssertion: {
+            type: "RedirectTargetAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Expected final URL after following redirects */
+            expected: string;
+            /**
+             * @description Comparison operator (equals, contains, less_than, greater_than, etc.)
+             * @enum {string}
+             */
+            operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
+        });
+        RegexBodyAssertion: {
+            type: "RegexBodyAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Regular expression the response body must match */
+            pattern: string;
+        });
+        /** @description Latest check result for a single region */
+        RegionStatusDto: {
+            /**
+             * @description Region identifier
+             * @example us-east
+             */
+            region: string;
+            /**
+             * @description Whether the last check in this region passed
+             * @example true
+             */
+            passed: boolean;
+            /**
+             * Format: int32
+             * @description Response time in milliseconds for the last check
+             * @example 95
+             */
+            responseTimeMs: number | null;
+            /**
+             * Format: date-time
+             * @description Timestamp of the last check in this region (ISO 8601)
+             */
+            timestamp: string;
+            /** @description Severity hint: 'down' for hard failures, 'degraded' for warn-only failures, null when passing */
+            severityHint: string | null;
+        };
+        /** @description Request body for removing tags from a monitor */
+        RemoveMonitorTagsRequest: {
+            /** @description IDs of the tags to detach from the monitor */
+            tagIds: string[];
+        };
+        /** @description Batch component reorder request */
+        ReorderComponentsRequest: {
+            /** @description Ordered list of component IDs with their new positions */
+            positions: components["schemas"]["ComponentPosition"][];
+        };
+        /** @description Reorder page-level layout: groups and ungrouped components share one ordering */
+        ReorderPageLayoutRequest: {
+            /** @description Top-level sections in their new order */
+            sections: components["schemas"]["PageSection"][];
+            /** @description Within-group component ordering; only needed for groups whose internal order changed */
+            groupOrders?: components["schemas"]["GroupComponentOrder"][] | null;
+        };
+        ResolveIncidentRequest: {
+            /** @description Optional resolution message or post-mortem notes */
+            body: string;
+        };
+        /** @description Resource group with health summary and optional member details */
+        ResourceGroupDto: {
+            /**
+             * Format: uuid
+             * @description Unique resource group identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this group belongs to
+             */
+            organizationId: number;
+            /** @description Human-readable group name */
+            name: string;
+            /** @description URL-safe group identifier */
+            slug: string;
+            /** @description Optional group description */
+            description: string | null;
+            /**
+             * Format: uuid
+             * @description Notification policy applied to this group
+             */
+            alertPolicyId: string | null;
+            /**
+             * Format: int32
+             * @description Default check frequency in seconds for member monitors
+             */
+            defaultFrequency: number | null;
+            /** @description Default regions for member monitors */
+            defaultRegions: (string | null)[] | null;
+            defaultRetryStrategy: components["schemas"]["RetryStrategy"];
+            /** @description Default alert channel IDs for member monitors */
+            defaultAlertChannels: (string | null)[] | null;
+            /**
+             * Format: uuid
+             * @description Default environment ID for member monitors
+             */
+            defaultEnvironmentId: string | null;
+            /**
+             * @description Health threshold type: COUNT or PERCENTAGE
+             * @enum {string|null}
+             */
+            healthThresholdType: "COUNT" | "PERCENTAGE" | null;
+            /** @description Health threshold value */
+            healthThresholdValue: number | null;
+            /** @description When true, member-level incidents skip notification dispatch; only group alerts fire */
+            suppressMemberAlerts: boolean;
+            /**
+             * Format: int32
+             * @description Seconds to wait after health threshold breach before creating group incident
+             */
+            confirmationDelaySeconds: number | null;
+            /**
+             * Format: int32
+             * @description Cooldown minutes after group incident resolves before a new one can open
+             */
+            recoveryCooldownMinutes: number | null;
+            health: components["schemas"]["ResourceGroupHealthDto"];
+            /** @description Member list with individual statuses; populated on detail GET only */
+            members: components["schemas"]["ResourceGroupMemberDto"][] | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the group was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the group was last updated
+             */
+            updatedAt: string;
+        };
+        /** @description Aggregated health summary for a resource group */
+        ResourceGroupHealthDto: {
+            /**
+             * @description Worst-of health status across all members
+             * @enum {string}
+             */
+            status: "operational" | "maintenance" | "degraded" | "down";
+            /**
+             * Format: int32
+             * @description Total number of members in the group
+             */
+            totalMembers: number;
+            /**
+             * Format: int32
+             * @description Number of members currently in operational status
+             */
+            operationalCount: number;
+            /**
+             * Format: int32
+             * @description Number of members with an active incident or non-operational status
+             */
+            activeIncidents: number;
+            /**
+             * @description Computed group health status based on threshold: 'healthy', 'degraded', or 'down'. Null when no health threshold is configured.
+             * @enum {string|null}
+             */
+            thresholdStatus: "healthy" | "degraded" | "down" | null;
+            /**
+             * Format: int32
+             * @description Number of failing members at time of last evaluation
+             */
+            failingCount: number | null;
+        };
+        /** @description A single member of a resource group with its computed health status */
+        ResourceGroupMemberDto: {
+            /**
+             * Format: uuid
+             * @description Unique group member record identifier
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Resource group this member belongs to
+             */
+            groupId: string;
+            /** @description Type of member: 'monitor' or 'service' */
+            memberType: string;
+            /**
+             * Format: uuid
+             * @description Monitor ID; set when memberType is 'monitor'
+             */
+            monitorId: string | null;
+            /**
+             * Format: uuid
+             * @description Service ID; set when memberType is 'service'
+             */
+            serviceId: string | null;
+            /** @description Display name of the referenced monitor or service */
+            name: string | null;
+            /** @description Slug identifier for the service (services only); used for icons and uptime API calls */
+            slug: string | null;
+            /**
+             * Format: uuid
+             * @description Subscription ID for the service (services only); used to link to the dependency detail page
+             */
+            subscriptionId: string | null;
+            /**
+             * @description Computed health status for this member
+             * @enum {string}
+             */
+            status: "operational" | "maintenance" | "degraded" | "down";
+            /** @description Effective check frequency label showing the group default when the monitor inherits it; null for services or when no group default is configured */
+            effectiveFrequency: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the member was added to the group
+             */
+            createdAt: string;
+            /**
+             * Format: double
+             * @description 24h uptime percentage; populated when includeMetrics=true
+             */
+            uptime24h: number | null;
+            /** @description Uptime tick values (0-100) for last-24h mini chart; populated when includeMetrics=true */
+            chartData: (number | null)[] | null;
+            /**
+             * Format: double
+             * @description Average latency in ms (monitors only); populated when includeMetrics=true
+             */
+            avgLatencyMs: number | null;
+            /**
+             * Format: double
+             * @description P95 latency in ms (monitors only); populated when includeMetrics=true
+             */
+            p95LatencyMs: number | null;
+            /**
+             * Format: date-time
+             * @description Timestamp of the most recent health check; populated when includeMetrics=true
+             */
+            lastCheckedAt: string | null;
+            /** @description Monitor type (HTTP, DNS, TCP, ICMP, HEARTBEAT, MCP); monitors only */
+            monitorType: string | null;
+            /** @description Environment name; monitors only */
+            environmentName: string | null;
+        };
+        ResponseSizeAssertion: {
+            type: "ResponseSizeAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description Maximum response body size in bytes before the check fails
+             */
+            maxBytes?: number;
+        });
+        ResponseTimeAssertion: {
+            type: "ResponseTimeAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description Maximum allowed response time in milliseconds before the check fails
+             */
+            thresholdMs?: number;
+        });
+        ResponseTimeWarnAssertion: {
+            type: "ResponseTimeWarnAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description HTTP response time in milliseconds that triggers a warning only
+             */
+            warnMs?: number;
+        });
+        /** @description Dashboard summary: current status, per-region latest results, and chart data */
+        ResultSummaryDto: {
+            /**
+             * @description Derived current status across all regions
+             * @enum {string}
+             */
+            currentStatus: "up" | "degraded" | "down" | "unknown";
+            /** @description Latest check result per region */
+            latestPerRegion: components["schemas"]["RegionStatusDto"][];
+            /** @description Time-bucketed chart data for the requested window */
+            chartData: components["schemas"]["ChartBucketDto"][];
+            /**
+             * Format: double
+             * @description Uptime percentage over the last 24 hours; null when no data
+             * @example 99.95
+             */
+            uptime24h: number | null;
+            /**
+             * Format: double
+             * @description Uptime percentage for the selected chart window; null when no data
+             * @example 99.8
+             */
+            uptimeWindow: number | null;
+        };
+        /** @description Default retry strategy for member monitors; null clears */
+        RetryStrategy: {
+            /** @description Retry strategy kind, e.g. fixed interval between attempts */
+            type: string;
+            /**
+             * Format: int32
+             * @description Maximum number of retries after a failed check
+             */
+            maxRetries?: number;
+            /**
+             * Format: int32
+             * @description Delay between retry attempts in seconds
+             */
+            interval?: number;
+        };
+        /** @description A scheduled maintenance window from a vendor status page */
+        ScheduledMaintenanceDto: {
+            /**
+             * Format: uuid
+             * @description Unique maintenance record identifier
+             */
+            id: string;
+            /** @description Vendor-assigned maintenance identifier */
+            externalId: string;
+            /** @description Maintenance title as reported by the vendor */
+            title: string;
+            /** @description Current maintenance status (scheduled, in_progress, completed) */
+            status: string;
+            /** @description Reported impact level */
+            impact: string | null;
+            /** @description Vendor-provided short URL to the maintenance page */
+            shortlink: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the maintenance is scheduled to begin
+             */
+            scheduledFor: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the maintenance is scheduled to end
+             */
+            scheduledUntil: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the maintenance actually started
+             */
+            startedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the maintenance was completed
+             */
+            completedAt: string | null;
+            /** @description Components affected by this maintenance */
+            affectedComponents: components["schemas"]["MaintenanceComponentRef"][];
+            /** @description Status updates posted during the maintenance lifecycle */
+            updates: components["schemas"]["MaintenanceUpdateDto"][];
+        };
+        /** @description Secret with change-detection hash; plaintext value is never returned */
+        SecretDto: {
+            /**
+             * Format: uuid
+             * @description Unique secret identifier
+             */
+            id: string;
+            /** @description Secret key name, unique within the workspace */
+            key: string;
+            /**
+             * Format: int32
+             * @description DEK version at the time of last encryption
+             */
+            dekVersion: number;
+            /** @description SHA-256 hex digest of the current plaintext; use for change detection */
+            valueHash: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the secret was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the secret was last updated
+             */
+            updatedAt: string;
+            /** @description Monitors that reference this secret; null on create/update responses */
+            usedByMonitors: components["schemas"]["MonitorReference"][] | null;
+        };
+        /** @description Admin-editable SEO metadata for pSEO pages */
+        SeoMetadataDto: {
+            /** @description Short description for meta tags (max 160 chars) */
+            shortDescription: string | null;
+            /** @description Full description for the service page */
+            description: string | null;
+            /** @description Long-form about text for the About section on pSEO pages */
+            about: string | null;
+        };
+        /** @description Related services */
+        ServiceCatalogDto: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            name: string;
+            category: string | null;
+            officialStatusUrl: string | null;
+            developerContext: string | null;
+            logoUrl: string | null;
+            adapterType: string;
+            /** Format: int32 */
+            pollingIntervalSeconds: number;
+            enabled: boolean;
+            published: boolean;
+            overallStatus: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: int64 */
+            componentCount: number;
+            /** Format: int64 */
+            activeIncidentCount: number;
+            dataCompleteness: string;
+            /**
+             * Format: double
+             * @description Aggregated 30-day uptime percentage across all components
+             */
+            uptime30d: number | null;
+        };
+        /** @description A first-class service component with lifecycle and uptime data */
+        ServiceComponentDto: {
+            /** Format: uuid */
+            id: string;
+            externalId: string;
+            name: string;
+            status: string;
+            description: string | null;
+            /** Format: uuid */
+            groupId: string | null;
+            /** Format: int32 */
+            position: number | null;
+            showcase: boolean;
+            onlyShowIfDegraded: boolean;
+            /** Format: date-time */
+            startDate: string | null;
+            /** Format: date-time */
+            vendorCreatedAt: string | null;
+            lifecycleStatus: string;
+            /**
+             * @description Data classification: full, status_only, or metric_only
+             * @example full
+             */
+            dataType: string;
+            /** @description Whether uptime data is available for this component */
+            hasUptime: boolean;
+            /** @description Geographic region for regional components (AWS, GCP, Azure) */
+            region: string | null;
+            /** @description Display name of the parent group */
+            groupName: string | null;
+            uptime: components["schemas"]["ComponentUptimeSummaryDto"];
+            /** Format: date-time */
+            statusChangedAt: string | null;
+            /** Format: date-time */
+            firstSeenAt: string;
+            /** Format: date-time */
+            lastSeenAt: string;
+            group: boolean;
+        };
+        ServiceDetailDto: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            name: string;
+            category: string | null;
+            officialStatusUrl: string | null;
+            developerContext: string | null;
+            logoUrl: string | null;
+            adapterType: string;
+            /** Format: int32 */
+            pollingIntervalSeconds: number;
+            enabled: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            currentStatus: components["schemas"]["ServiceStatusDto"];
+            recentIncidents: components["schemas"]["ServiceIncidentDto"][];
+            components: components["schemas"]["ServiceComponentDto"][];
+            uptime: components["schemas"]["ComponentUptimeSummaryDto"];
+            activeMaintenances: components["schemas"]["ScheduledMaintenanceDto"][];
+            dataCompleteness: string;
+            seoMetadata: components["schemas"]["SeoMetadataDto"];
+            relatedServices: components["schemas"]["ServiceCatalogDto"][] | null;
+        };
+        ServiceIncidentDetailDto: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            status: string;
+            impact: string | null;
+            /** Format: date-time */
+            startedAt: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: date-time */
+            detectedAt: string | null;
+            shortlink: string | null;
+            affectedComponents: (string | null)[] | null;
+            updates: components["schemas"]["ServiceIncidentUpdateDto"][];
+        };
+        ServiceIncidentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            serviceId: string;
+            serviceSlug: string | null;
+            serviceName: string | null;
+            externalId: string | null;
+            title: string;
+            status: string;
+            impact: string | null;
+            /** Format: date-time */
+            startedAt: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: date-time */
+            updatedAt: string | null;
+            shortlink: string | null;
+            /** Format: date-time */
+            detectedAt: string | null;
+            /** Format: date-time */
+            vendorCreatedAt: string | null;
+        };
+        ServiceIncidentUpdateDto: {
+            status: string;
+            body: string | null;
+            /** Format: date-time */
+            displayAt: string | null;
+        };
+        ServiceLiveStatusDto: {
+            /** @description Current overall status of the service, e.g. operational, degraded_performance */
+            overallStatus: string | null;
+            /** @description Current status of each active component */
+            componentStatuses: components["schemas"]["ComponentStatusDto"][];
+            /**
+             * Format: int32
+             * @description Number of currently unresolved incidents
+             */
+            activeIncidentCount: number;
+            /** @description ISO 8601 timestamp of the last status poll */
+            lastPolledAt: string | null;
+        };
+        ServiceStatusDto: {
+            overallStatus: string;
+            /** Format: date-time */
+            lastPolledAt: string | null;
+        };
+        /** @description Optional body for subscribing to a specific component of a service */
+        ServiceSubscribeRequest: {
+            /**
+             * Format: uuid
+             * @description ID of the component to subscribe to. Omit or null for whole-service subscription.
+             */
+            componentId: string | null;
+            /** @description Alert sensitivity level. Defaults to INCIDENTS_ONLY when not provided. */
+            alertSensitivity: string | null;
+        };
+        /** @description An org-level service subscription with current status information */
+        ServiceSubscriptionDto: {
+            /**
+             * Format: uuid
+             * @description Unique subscription identifier
+             */
+            subscriptionId: string;
+            /**
+             * Format: uuid
+             * @description Service identifier
+             */
+            serviceId: string;
+            slug: string;
+            name: string;
+            category: string | null;
+            officialStatusUrl: string | null;
+            adapterType: string;
+            /** Format: int32 */
+            pollingIntervalSeconds: number;
+            enabled: boolean;
+            /** @description Logo URL from the service catalog */
+            logoUrl: string | null;
+            /** @description Current overall status; null when the service has never been polled */
+            overallStatus: string | null;
+            /**
+             * Format: uuid
+             * @description Subscribed component id; null for whole-service subscription
+             */
+            componentId: string | null;
+            component: components["schemas"]["ServiceComponentDto"];
+            /**
+             * @description Alert sensitivity: ALL (synthetic + real incidents), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (real + DOWN severity)
+             * @enum {string}
+             */
+            alertSensitivity: "ALL" | "INCIDENTS_ONLY" | "MAJOR_ONLY";
+            /**
+             * Format: date-time
+             * @description When the organization subscribed to this service
+             */
+            subscribedAt: string;
+        };
+        /** @description Uptime response with per-bucket breakdown and overall percentage for the period */
+        ServiceUptimeResponse: {
+            /**
+             * Format: double
+             * @description Overall uptime percentage across the entire period; null when no polling data exists
+             * @example 99.95
+             */
+            overallUptimePct: number | null;
+            /**
+             * @description Requested period
+             * @example 7d
+             */
+            period: string;
+            /**
+             * @description Requested granularity
+             * @example hourly
+             */
+            granularity: string;
+            /** @description Per-bucket breakdown ordered by time ascending */
+            buckets: components["schemas"]["UptimeBucketDto"][];
+            /**
+             * @description Data source: vendor_reported, incident_derived, or poll_derived
+             * @example vendor_reported
+             */
+            source: string | null;
+        };
+        /** @description Replace the alert channels linked to a monitor */
+        SetAlertChannelsRequest: {
+            /** @description IDs of alert channels to link (replaces current list) */
+            channelIds: string[];
+        };
+        SetMonitorAuthRequest: {
+            config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
+        };
+        SingleValueResponseAlertChannelDto: {
+            data: components["schemas"]["AlertChannelDto"];
+        };
+        SingleValueResponseAlertDeliveryDto: {
+            data: components["schemas"]["AlertDeliveryDto"];
+        };
+        SingleValueResponseApiKeyCreateResponse: {
+            data: components["schemas"]["ApiKeyCreateResponse"];
+        };
+        SingleValueResponseApiKeyDto: {
+            data: components["schemas"]["ApiKeyDto"];
+        };
+        SingleValueResponseAuthMeResponse: {
+            data: components["schemas"]["AuthMeResponse"];
+        };
+        SingleValueResponseBulkMonitorActionResult: {
+            data: components["schemas"]["BulkMonitorActionResult"];
+        };
+        SingleValueResponseDashboardOverviewDto: {
+            data: components["schemas"]["DashboardOverviewDto"];
+        };
+        SingleValueResponseDekRotationResultDto: {
+            data: components["schemas"]["DekRotationResultDto"];
+        };
+        SingleValueResponseDeployLockDto: {
+            data: components["schemas"]["DeployLockDto"];
+        };
+        SingleValueResponseEnvironmentDto: {
+            data: components["schemas"]["EnvironmentDto"];
+        };
+        SingleValueResponseGlobalStatusSummaryDto: {
+            data: components["schemas"]["GlobalStatusSummaryDto"];
+        };
+        SingleValueResponseIncidentDetailDto: {
+            data: components["schemas"]["IncidentDetailDto"];
+        };
+        SingleValueResponseIncidentPolicyDto: {
+            data: components["schemas"]["IncidentPolicyDto"];
+        };
+        SingleValueResponseInviteDto: {
+            data: components["schemas"]["InviteDto"];
+        };
+        SingleValueResponseListUUID: {
+            data: (string | null)[] | null;
+        };
+        SingleValueResponseLong: {
+            /** Format: int64 */
+            data: number | null;
+        };
+        SingleValueResponseMaintenanceWindowDto: {
+            data: components["schemas"]["MaintenanceWindowDto"];
+        };
+        SingleValueResponseMapStringListComponentUptimeDayDto: {
+            data: {
+                [key: string]: components["schemas"]["ComponentUptimeDayDto"][] | null;
+            } | null;
+        };
+        SingleValueResponseMonitorAssertionDto: {
+            data: components["schemas"]["MonitorAssertionDto"];
+        };
+        SingleValueResponseMonitorAuthDto: {
+            data: components["schemas"]["MonitorAuthDto"];
+        };
+        SingleValueResponseMonitorDto: {
+            data: components["schemas"]["MonitorDto"];
+        };
+        SingleValueResponseMonitorTestResultDto: {
+            data: components["schemas"]["MonitorTestResultDto"];
+        };
+        SingleValueResponseMonitorVersionDto: {
+            data: components["schemas"]["MonitorVersionDto"];
+        };
+        SingleValueResponseNotificationDispatchDto: {
+            data: components["schemas"]["NotificationDispatchDto"];
+        };
+        SingleValueResponseNotificationPolicyDto: {
+            data: components["schemas"]["NotificationPolicyDto"];
+        };
+        SingleValueResponseOrganizationDto: {
+            data: components["schemas"]["OrganizationDto"];
+        };
+        SingleValueResponseResourceGroupDto: {
+            data: components["schemas"]["ResourceGroupDto"];
+        };
+        SingleValueResponseResourceGroupHealthDto: {
+            data: components["schemas"]["ResourceGroupHealthDto"];
+        };
+        SingleValueResponseResourceGroupMemberDto: {
+            data: components["schemas"]["ResourceGroupMemberDto"];
+        };
+        SingleValueResponseResultSummaryDto: {
+            data: components["schemas"]["ResultSummaryDto"];
+        };
+        SingleValueResponseSecretDto: {
+            data: components["schemas"]["SecretDto"];
+        };
+        SingleValueResponseServiceDetailDto: {
+            data: components["schemas"]["ServiceDetailDto"];
+        };
+        SingleValueResponseServiceIncidentDetailDto: {
+            data: components["schemas"]["ServiceIncidentDetailDto"];
+        };
+        SingleValueResponseServiceLiveStatusDto: {
+            data: components["schemas"]["ServiceLiveStatusDto"];
+        };
+        SingleValueResponseServiceSubscriptionDto: {
+            data: components["schemas"]["ServiceSubscriptionDto"];
+        };
+        SingleValueResponseServiceUptimeResponse: {
+            data: components["schemas"]["ServiceUptimeResponse"];
+        };
+        SingleValueResponseStatusPageComponentDto: {
+            data: components["schemas"]["StatusPageComponentDto"];
+        };
+        SingleValueResponseStatusPageComponentGroupDto: {
+            data: components["schemas"]["StatusPageComponentGroupDto"];
+        };
+        SingleValueResponseStatusPageCustomDomainDto: {
+            data: components["schemas"]["StatusPageCustomDomainDto"];
+        };
+        SingleValueResponseStatusPageDto: {
+            data: components["schemas"]["StatusPageDto"];
+        };
+        SingleValueResponseStatusPageIncidentDto: {
+            data: components["schemas"]["StatusPageIncidentDto"];
+        };
+        SingleValueResponseStatusPageSubscriberDto: {
+            data: components["schemas"]["StatusPageSubscriberDto"];
+        };
+        SingleValueResponseString: {
+            data: string | null;
+        };
+        SingleValueResponseTagDto: {
+            data: components["schemas"]["TagDto"];
+        };
+        SingleValueResponseTestChannelResult: {
+            data: components["schemas"]["TestChannelResult"];
+        };
+        SingleValueResponseTestMatchResult: {
+            data: components["schemas"]["TestMatchResult"];
+        };
+        SingleValueResponseUptimeDto: {
+            data: components["schemas"]["UptimeDto"];
+        };
+        SingleValueResponseWebhookEndpointDto: {
+            data: components["schemas"]["WebhookEndpointDto"];
+        };
+        SingleValueResponseWebhookSigningSecretDto: {
+            data: components["schemas"]["WebhookSigningSecretDto"];
+        };
+        SingleValueResponseWebhookTestResult: {
+            data: components["schemas"]["WebhookTestResult"];
+        };
+        SingleValueResponseWorkspaceDto: {
+            data: components["schemas"]["WorkspaceDto"];
+        };
+        SlackChannelConfig: {
+            channelType: "SlackChannelConfig";
+        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+            /** @description Slack incoming webhook URL */
+            webhookUrl: string;
+            /** @description Optional mention text included in notifications, e.g. @channel */
+            mentionText?: string | null;
+        });
+        SslExpiryAssertion: {
+            type: "SslExpiryAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description Minimum days before TLS certificate expiry; fails or warns below this threshold
+             */
+            minDaysRemaining?: number;
+        });
+        StatusCodeAssertion: {
+            type: "StatusCodeAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /** @description Expected status code, range pattern, or wildcard such as 2xx */
+            expected: string;
+            /**
+             * @description Comparison operator (equals, contains, less_than, greater_than, etc.)
+             * @enum {string}
+             */
+            operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
+        });
+        /** @description Updated branding configuration; null preserves current */
+        StatusPageBranding: {
+            /** @description URL for the logo image displayed in the header */
+            logoUrl: string | null;
+            /** @description URL for the browser tab favicon */
+            faviconUrl: string | null;
+            /** @description Primary brand color as hex, e.g. #4F46E5; drives accent/links/buttons */
+            brandColor: string | null;
+            /** @description Page body background color as hex, e.g. #FAFAFA */
+            pageBackground: string | null;
+            /** @description Card/surface background color as hex, e.g. #FFFFFF */
+            cardBackground: string | null;
+            /** @description Primary text color as hex, e.g. #09090B */
+            textColor: string | null;
+            /** @description Card border color as hex, e.g. #E4E4E7 */
+            borderColor: string | null;
+            /** @description Header layout style (reserved for future use) */
+            headerStyle: string | null;
+            /** @description Color theme: light or dark (default: light) */
+            theme: string | null;
+            /** @description URL where visitors can report a problem */
+            reportUrl: string | null;
+            /** @description Whether to hide the 'Powered by DevHelm' footer badge */
+            hidePoweredBy: boolean;
+            /** @description Custom CSS injected via <style> on the public page — grants full style control */
+            customCss: string | null;
+            /** @description Custom HTML injected into <head> on the public page — grants full script control (analytics, pixels) */
+            customHeadHtml: string | null;
+        };
+        StatusPageComponentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            statusPageId: string;
+            /** Format: uuid */
+            groupId: string | null;
+            name: string;
+            description: string | null;
+            /** @enum {string} */
+            type: "MONITOR" | "GROUP" | "STATIC";
+            /** Format: uuid */
+            monitorId: string | null;
+            /** Format: uuid */
+            resourceGroupId: string | null;
+            /** @enum {string} */
+            currentStatus: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE";
+            showUptime: boolean;
+            /** Format: int32 */
+            displayOrder: number;
+            /** Format: int32 */
+            pageOrder: number;
+            excludeFromOverall: boolean;
+            /** Format: date-time */
+            startDate: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        StatusPageComponentGroupDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            statusPageId: string;
+            name: string;
+            description: string | null;
+            /** Format: int32 */
+            displayOrder: number;
+            /** Format: int32 */
+            pageOrder: number;
+            collapsed: boolean;
+            components: components["schemas"]["StatusPageComponentDto"][] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        StatusPageCustomDomainDto: {
+            /** Format: uuid */
+            id: string;
+            hostname: string;
+            /** @enum {string} */
+            status: "PENDING_VERIFICATION" | "VERIFICATION_FAILED" | "VERIFIED" | "SSL_PENDING" | "ACTIVE" | "FAILED" | "REMOVED";
+            /** @enum {string} */
+            verificationMethod: "CNAME" | "TXT";
+            verificationToken: string;
+            verificationCnameTarget: string;
+            /** Format: date-time */
+            verifiedAt: string | null;
+            verificationError: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            primary: boolean;
+        };
+        StatusPageDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            organizationId: number;
+            /** Format: int32 */
+            workspaceId: number;
+            name: string;
+            slug: string;
+            description: string | null;
+            branding: components["schemas"]["StatusPageBranding"];
+            /** @enum {string} */
+            visibility: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED";
+            enabled: boolean;
+            /** @enum {string} */
+            incidentMode: "MANUAL" | "REVIEW" | "AUTOMATIC";
+            /** Format: int32 */
+            componentCount: number | null;
+            /** Format: int64 */
+            subscriberCount: number | null;
+            /** @enum {string|null} */
+            overallStatus: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE" | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        StatusPageIncidentComponentDto: {
+            /** Format: uuid */
+            statusPageComponentId: string;
+            /** @enum {string} */
+            componentStatus: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE";
+            componentName: string;
+        };
+        StatusPageIncidentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            statusPageId: string;
+            title: string;
+            /** @enum {string} */
+            status: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED";
+            /** @enum {string} */
+            impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL";
+            scheduled: boolean;
+            /** Format: date-time */
+            scheduledFor: string | null;
+            /** Format: date-time */
+            scheduledUntil: string | null;
+            autoResolve: boolean;
+            /** Format: uuid */
+            incidentId: string | null;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: int32 */
+            createdByUserId: number | null;
+            postmortemBody: string | null;
+            postmortemUrl: string | null;
+            affectedComponents: components["schemas"]["StatusPageIncidentComponentDto"][] | null;
+            updates: components["schemas"]["StatusPageIncidentUpdateDto"][] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        StatusPageIncidentUpdateDto: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            status: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED";
+            body: string;
+            /** @enum {string} */
+            createdBy: "USER" | "SYSTEM";
+            /** Format: int32 */
+            createdByUserId: number | null;
+            notifySubscribers: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        StatusPageSubscriberDto: {
+            /** Format: uuid */
+            id: string;
+            email: string;
+            confirmed: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        /** @description Environment associated with this monitor; null when unassigned */
+        Summary: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            slug: string;
+        };
+        TableValueResultAlertChannelDto: {
+            data: components["schemas"]["AlertChannelDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultAlertDeliveryDto: {
+            data: components["schemas"]["AlertDeliveryDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultApiKeyDto: {
+            data: components["schemas"]["ApiKeyDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultAuditEventDto: {
+            data: components["schemas"]["AuditEventDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultCategoryDto: {
+            data: components["schemas"]["CategoryDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultComponentUptimeDayDto: {
+            data: components["schemas"]["ComponentUptimeDayDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultDeliveryAttemptDto: {
+            data: components["schemas"]["DeliveryAttemptDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultEnvironmentDto: {
+            data: components["schemas"]["EnvironmentDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultIncidentDto: {
+            data: components["schemas"]["IncidentDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultIntegrationDto: {
+            data: components["schemas"]["IntegrationDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultInviteDto: {
+            data: components["schemas"]["InviteDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultMaintenanceWindowDto: {
+            data: components["schemas"]["MaintenanceWindowDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultMemberDto: {
+            data: components["schemas"]["MemberDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultMonitorDto: {
+            data: components["schemas"]["MonitorDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultMonitorVersionDto: {
+            data: components["schemas"]["MonitorVersionDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultNotificationDispatchDto: {
+            data: components["schemas"]["NotificationDispatchDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultNotificationDto: {
+            data: components["schemas"]["NotificationDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultNotificationPolicyDto: {
+            data: components["schemas"]["NotificationPolicyDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultResourceGroupDto: {
+            data: components["schemas"]["ResourceGroupDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultScheduledMaintenanceDto: {
+            data: components["schemas"]["ScheduledMaintenanceDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultSecretDto: {
+            data: components["schemas"]["SecretDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultServiceComponentDto: {
+            data: components["schemas"]["ServiceComponentDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultServiceIncidentDto: {
+            data: components["schemas"]["ServiceIncidentDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultServiceSubscriptionDto: {
+            data: components["schemas"]["ServiceSubscriptionDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultStatusPageComponentDto: {
+            data: components["schemas"]["StatusPageComponentDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultStatusPageComponentGroupDto: {
+            data: components["schemas"]["StatusPageComponentGroupDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultStatusPageCustomDomainDto: {
+            data: components["schemas"]["StatusPageCustomDomainDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultStatusPageDto: {
+            data: components["schemas"]["StatusPageDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultStatusPageIncidentDto: {
+            data: components["schemas"]["StatusPageIncidentDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultStatusPageSubscriberDto: {
+            data: components["schemas"]["StatusPageSubscriberDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultTagDto: {
+            data: components["schemas"]["TagDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultWebhookDeliveryDto: {
+            data: components["schemas"]["WebhookDeliveryDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultWebhookEndpointDto: {
+            data: components["schemas"]["WebhookEndpointDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        TableValueResultWorkspaceDto: {
+            data: components["schemas"]["WorkspaceDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements: number | null;
+            /** Format: int32 */
+            totalPages: number | null;
+        };
+        /** @description Tag for organizing and filtering monitors */
+        TagDto: {
+            /**
+             * Format: uuid
+             * @description Unique tag identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this tag belongs to
+             */
+            organizationId: number;
+            /** @description Tag name, unique within the org */
+            name: string;
+            /** @description Hex color code for display (e.g. #6B7280) */
+            color: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the tag was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the tag was last updated
+             */
+            updatedAt: string;
+        };
         /** @description TCP check-type-specific details */
         Tcp: {
             check_type: "Tcp";
@@ -6709,474 +6154,627 @@ export interface components {
             /** @description Whether a TCP connection was established */
             connected?: boolean;
         });
+        TcpConnectsAssertion: {
+            type: "TcpConnectsAssertion";
+        } & Omit<components["schemas"]["AssertionConfig"], "type">;
+        TcpMonitorConfig: components["schemas"]["MonitorConfig"] & {
+            /** @description Target hostname or IP address */
+            host: string;
+            /**
+             * Format: int32
+             * @description TCP port to connect to
+             */
+            port?: number;
+            /**
+             * Format: int32
+             * @description Connection timeout in milliseconds
+             */
+            timeoutMs?: number | null;
+        };
+        TcpResponseTimeAssertion: {
+            type: "TcpResponseTimeAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description Maximum TCP connect time in milliseconds before the check fails
+             */
+            maxMs?: number;
+        });
+        TcpResponseTimeWarnAssertion: {
+            type: "TcpResponseTimeWarnAssertion";
+        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * Format: int32
+             * @description TCP connect time in milliseconds that triggers a warning only
+             */
+            warnMs?: number;
+        });
+        TeamsChannelConfig: {
+            channelType: "TeamsChannelConfig";
+        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+            /** @description Microsoft Teams incoming webhook URL */
+            webhookUrl: string;
+        });
+        /** @description Alert channel configuration to test without saving */
+        TestAlertChannelRequest: {
+            config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
+        };
+        TestChannelResult: {
+            success: boolean;
+            message: string;
+        };
+        /** @description Result of a dry-run match evaluation against a notification policy */
+        TestMatchResult: {
+            /** @description Whether the policy would match the supplied incident context */
+            matched: boolean;
+            /** @description Rules that passed evaluation */
+            matchedRules: string[];
+            /** @description Rules that did not pass evaluation */
+            unmatchedRules: string[];
+        };
+        /** @description Event context for a dry-run match evaluation against a notification policy */
+        TestNotificationPolicyRequest: {
+            /** @description Incident severity to test against (e.g. DOWN, DEGRADED, MAINTENANCE) */
+            severity: string | null;
+            /**
+             * Format: uuid
+             * @description Monitor UUID to test against (monitoring events)
+             */
+            monitorId: string | null;
+            /** @description Affected region identifiers to test against (monitoring events) */
+            regions: (string | null)[] | null;
+            /** @description Incident event type to test against — short form (e.g. created, resolved, reopened) or full form (e.g. incident.created) */
+            eventType: string | null;
+            /** @description Monitor check type to test against (e.g. HTTP, DNS, MCP_SERVER) */
+            monitorType: string | null;
+            /**
+             * Format: uuid
+             * @description Service catalog UUID to test against (status data events)
+             */
+            serviceId: string | null;
+            /** @description Component name to test against (status data events, e.g. "Actions") */
+            componentName: string | null;
+            /** @description Resource group UUIDs the entity belongs to, for resource_group_id_in rules */
+            resourceGroupIds: (string | null)[] | null;
+        };
+        /** @description Event type to use for a test webhook delivery */
+        TestWebhookEndpointRequest: {
+            /** @description Event type to simulate (e.g. monitor.created); null uses a default */
+            eventType: string | null;
+        };
         /** @description TLS/SSL certificate details for HTTPS targets */
         TlsInfoDto: {
             /**
              * @description Certificate subject common name
              * @example *.example.com
              */
-            subjectCn?: string | null;
+            subjectCn: string | null;
             /** @description Subject Alternative Names */
-            subjectSan?: (string | null)[] | null;
+            subjectSan: (string | null)[] | null;
             /**
              * @description Issuer common name
              * @example R3
              */
-            issuerCn?: string | null;
+            issuerCn: string | null;
             /**
              * @description Issuer organisation
              * @example Let's Encrypt
              */
-            issuerOrg?: string | null;
+            issuerOrg: string | null;
             /** @description Certificate validity start (ISO 8601 UTC) */
-            notBefore?: string | null;
+            notBefore: string | null;
             /** @description Certificate validity end (ISO 8601 UTC) */
-            notAfter?: string | null;
+            notAfter: string | null;
             /** @description Certificate serial number */
-            serialNumber?: string | null;
+            serialNumber: string | null;
             /**
              * @description TLS protocol version
              * @example TLSv1.3
              */
-            tlsVersion?: string | null;
+            tlsVersion: string | null;
             /** @description Negotiated cipher suite */
-            cipherSuite?: string | null;
+            cipherSuite: string | null;
             /** @description Whether the chain validated against the OS trust store */
-            chainValid?: boolean | null;
+            chainValid: boolean | null;
         };
-        /** @description Aggregated metrics for a time bucket */
-        ChartBucketDto: {
+        /** @description Array of trigger rules defining when an incident should be raised */
+        TriggerRule: {
             /**
-             * Format: date-time
-             * @description Start of the time bucket (ISO 8601)
-             * @example 2026-03-12T10:00:00Z
-             */
-            bucket?: string;
-            /**
-             * Format: double
-             * @description Uptime percentage for this bucket; null when no data
-             * @example 100
-             */
-            uptimePercent?: number | null;
-            /**
-             * Format: double
-             * @description Weighted average latency in milliseconds for this bucket
-             * @example 120.3
-             */
-            avgLatencyMs?: number | null;
-            /**
-             * Format: double
-             * @description 95th percentile latency in milliseconds (max across regions)
-             * @example 250
-             */
-            p95LatencyMs?: number | null;
-            /**
-             * Format: double
-             * @description 99th percentile latency in milliseconds (max across regions)
-             * @example 480
-             */
-            p99LatencyMs?: number | null;
-        };
-        /** @description Latest check result for a single region */
-        RegionStatusDto: {
-            /**
-             * @description Region identifier
-             * @example us-east
-             */
-            region?: string;
-            /**
-             * @description Whether the last check in this region passed
-             * @example true
-             */
-            passed?: boolean;
-            /**
-             * Format: int32
-             * @description Response time in milliseconds for the last check
-             * @example 95
-             */
-            responseTimeMs?: number | null;
-            /**
-             * Format: date-time
-             * @description Timestamp of the last check in this region (ISO 8601)
-             */
-            timestamp?: string;
-            /** @description Severity hint: 'down' for hard failures, 'degraded' for warn-only failures, null when passing */
-            severityHint?: string | null;
-        };
-        /** @description Dashboard summary: current status, per-region latest results, and chart data */
-        ResultSummaryDto: {
-            /**
-             * @description Derived current status across all regions
+             * @description Condition that opens or escalates an incident from check results
              * @enum {string}
              */
-            currentStatus?: "up" | "degraded" | "down" | "unknown";
-            /** @description Latest check result per region */
-            latestPerRegion?: components["schemas"]["RegionStatusDto"][];
-            /** @description Time-bucketed chart data for the requested window */
-            chartData?: components["schemas"]["ChartBucketDto"][];
-            /**
-             * Format: double
-             * @description Uptime percentage over the last 24 hours; null when no data
-             * @example 99.95
-             */
-            uptime24h?: number | null;
-            /**
-             * Format: double
-             * @description Uptime percentage for the selected chart window; null when no data
-             * @example 99.8
-             */
-            uptimeWindow?: number | null;
-        };
-        SingleValueResponseResultSummaryDto: {
-            data?: components["schemas"]["ResultSummaryDto"];
-        };
-        TableValueResultMaintenanceWindowDto: {
-            data?: components["schemas"]["MaintenanceWindowDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultInviteDto: {
-            data?: components["schemas"]["InviteDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        IntegrationCatalogResponse: {
-            data?: components["schemas"]["IntegrationDto"][];
-        };
-        IntegrationConfigSchemaDto: {
-            connectionFields?: components["schemas"]["IntegrationFieldDto"][];
-            channelFields?: components["schemas"]["IntegrationFieldDto"][];
-        };
-        IntegrationDto: {
-            type?: string;
-            name?: string;
-            description?: string;
-            logoUrl?: string;
-            authType?: string;
-            /** @enum {string} */
-            tierAvailability?: "FREE" | "STARTER" | "PRO" | "TEAM" | "BUSINESS" | "ENTERPRISE";
-            lifecycle?: string;
-            setupGuideUrl?: string;
-            configSchema?: components["schemas"]["IntegrationConfigSchemaDto"];
-        };
-        IntegrationFieldDto: {
-            key: string;
-            label: string;
-            type: string;
-            required: boolean;
-            sensitive: boolean;
-            placeholder?: string | null;
-            helpText?: string | null;
-            options?: (string | null)[] | null;
-            default?: string | null;
-        };
-        IncidentFilterParams: {
-            /** @enum {string} */
-            status?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED";
-            /** @enum {string} */
-            severity?: "DOWN" | "DEGRADED" | "MAINTENANCE";
-            /** @enum {string} */
-            source?: "AUTOMATIC" | "MANUAL" | "MONITORS" | "STATUS_DATA" | "RESOURCE_GROUP";
-            /** Format: uuid */
-            monitorId?: string;
-            /** Format: uuid */
-            serviceId?: string;
-            /** Format: uuid */
-            resourceGroupId?: string;
-            /** Format: uuid */
-            tagId?: string | null;
-            /** Format: uuid */
-            environmentId?: string | null;
-            /** Format: date-time */
-            startedFrom?: string | null;
-            /** Format: date-time */
-            startedTo?: string | null;
-            /** Format: int32 */
-            page?: number;
-            /** Format: int32 */
-            size?: number;
-        };
-        TableValueResultEnvironmentDto: {
-            data?: components["schemas"]["EnvironmentDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        /** @description Combined dashboard overview for monitors and incidents */
-        DashboardOverviewDto: {
-            monitors?: components["schemas"]["MonitorsSummaryDto"];
-            incidents?: components["schemas"]["IncidentsSummaryDto"];
-        };
-        /** @description Incident summary counters */
-        IncidentsSummaryDto: {
-            /** Format: int64 */
-            active?: number;
-            /** Format: int64 */
-            resolvedToday?: number;
-            /** Format: double */
-            mttr30d?: number | null;
-        };
-        /** @description Dashboard summary counters for monitors */
-        MonitorsSummaryDto: {
-            /**
-             * Format: int64
-             * @description Total number of monitors in the organization
-             */
-            total?: number;
-            /**
-             * Format: int64
-             * @description Number of monitors currently passing
-             */
-            up?: number;
-            /**
-             * Format: int64
-             * @description Number of monitors currently failing (DOWN severity)
-             */
-            down?: number;
-            /**
-             * Format: int64
-             * @description Number of monitors with degraded status
-             */
-            degraded?: number;
-            /**
-             * Format: int64
-             * @description Number of disabled monitors
-             */
-            paused?: number;
-            /**
-             * Format: double
-             * @description Average uptime percentage across all monitors over last 24h
-             */
-            avgUptime24h?: number | null;
-            /**
-             * Format: double
-             * @description Average uptime percentage across all monitors over last 30 days
-             */
-            avgUptime30d?: number | null;
-        };
-        SingleValueResponseDashboardOverviewDto: {
-            data?: components["schemas"]["DashboardOverviewDto"];
-        };
-        /** @description Service category with its count of catalog entries */
-        CategoryDto: {
-            /** @description Category name (e.g. CI/CD, Cloud, Payments) */
-            category?: string;
-            /**
-             * Format: int64
-             * @description Number of services in this category
-             */
-            serviceCount?: number;
-        };
-        TableValueResultCategoryDto: {
-            data?: components["schemas"]["CategoryDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        /** @description Identity, organization, plan, and rate-limit info for the authenticated API key */
-        AuthMeResponse: {
-            key?: components["schemas"]["KeyInfo"];
-            organization?: components["schemas"]["OrgInfo"];
-            plan?: components["schemas"]["PlanInfo"];
-            rateLimits?: components["schemas"]["RateLimitInfo"];
-        };
-        /** @description API key metadata */
-        KeyInfo: {
+            type: "consecutive_failures" | "failures_in_window" | "response_time";
             /**
              * Format: int32
-             * @description Key ID
+             * @description Failure count for consecutive or windowed failure rules
              */
-            id?: number;
-            /** @description Human-readable key name */
-            name?: string;
-            /**
-             * Format: date-time
-             * @description When the key was created
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description When the key expires (null = never)
-             */
-            expiresAt?: string | null;
-            /**
-             * Format: date-time
-             * @description Last time the key was used
-             */
-            lastUsedAt?: string | null;
-        };
-        /** @description Organization the key belongs to */
-        OrgInfo: {
+            count?: number | null;
             /**
              * Format: int32
-             * @description Organization ID
+             * @description Window length in minutes for failures-in-window rules
              */
-            id?: number;
-            /** @description Organization name */
-            name?: string;
-        };
-        /** @description Billing plan and entitlement state */
-        PlanInfo: {
+            windowMinutes?: number | null;
             /**
-             * @description Resolved plan tier
+             * @description Whether the rule applies per region or across regions
+             * @enum {string|null}
+             */
+            scope: "per_region" | "any_region" | null;
+            /**
+             * Format: int32
+             * @description Response time threshold in milliseconds for response-time rules
+             */
+            thresholdMs?: number | null;
+            /**
+             * @description Incident severity when this rule fires
              * @enum {string}
              */
-            tier?: "FREE" | "STARTER" | "PRO" | "TEAM" | "BUSINESS" | "ENTERPRISE";
-            /** @description Subscription status (null if no subscription) */
-            subscriptionStatus?: string | null;
-            /** @description Whether the org is on a trial */
-            trialActive?: boolean;
+            severity: "down" | "degraded";
             /**
-             * Format: date-time
-             * @description Trial expiry (null if not trialing)
+             * @description How response times are aggregated for response-time rules
+             * @enum {string|null}
              */
-            trialExpiresAt?: string | null;
-            /** @description Entitlement limits keyed by entitlement name */
-            entitlements?: {
-                [key: string]: components["schemas"]["EntitlementDto"];
-            };
-            /** @description Current usage counters keyed by entitlement name */
-            usage?: {
-                [key: string]: number;
-            };
+            aggregationType?: "all_exceed" | "average" | "p95" | "max" | null;
         };
-        /** @description Rate-limit quota for the current sliding window */
-        RateLimitInfo: {
-            /**
-             * Format: int64
-             * @description Maximum requests allowed per window
-             */
-            requestsPerMinute?: number;
-            /**
-             * Format: int64
-             * @description Requests remaining in the current window
-             */
-            remaining?: number;
-            /**
-             * Format: int64
-             * @description Sliding window size in milliseconds
-             */
-            windowMs?: number;
+        UpdateAlertChannelRequest: {
+            /** @description New channel name (full replacement, not partial update) */
+            name: string;
+            config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
         };
-        SingleValueResponseAuthMeResponse: {
-            data?: components["schemas"]["AuthMeResponse"];
+        /** @description Request body for updating alert sensitivity on a service subscription */
+        UpdateAlertSensitivityRequest: {
+            /** @description Alert sensitivity: ALL (any status change), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (only DOWN-level incidents) */
+            alertSensitivity: string;
         };
-        AuditEventDto: {
-            /**
-             * Format: int64
-             * @description Unique audit event identifier
-             */
-            id?: number;
-            /**
-             * Format: int32
-             * @description User ID who performed the action; null for system actions
-             */
-            actorId?: number | null;
-            /** @description Email of the actor; null for system actions */
-            actorEmail?: string | null;
-            /** @description Audit action type (e.g. monitor.created, api_key.revoked) */
-            action?: string;
-            /** @description Type of resource affected (e.g. monitor, api_key) */
-            resourceType?: string | null;
-            /** @description ID of the affected resource */
-            resourceId?: string | null;
-            /** @description Human-readable name of the affected resource */
-            resourceName?: string | null;
-            /** @description Additional context about the action */
-            metadata?: {
-                [key: string]: Record<string, never> | null;
-            } | null;
-            /**
-             * Format: date-time
-             * @description Timestamp when the action was performed
-             */
-            createdAt?: string;
+        UpdateApiKeyRequest: {
+            /** @description New name for this API key */
+            name: string;
         };
-        PageResultAuditEventDto: {
-            data?: components["schemas"]["AuditEventDto"][];
-            /** Format: int32 */
-            page?: number;
-            /** Format: int32 */
-            size?: number;
-            /** Format: int64 */
-            totalElements?: number;
-            /** Format: int32 */
-            totalPages?: number;
-            hasNext?: boolean;
+        UpdateAssertionRequest: {
+            config: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
+            /**
+             * @description New outcome severity: FAIL or WARN
+             * @enum {string}
+             */
+            severity?: "fail" | "warn";
         };
-        TableValueResultApiKeyDto: {
-            data?: components["schemas"]["ApiKeyDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        /** @description Single delivery attempt with request/response audit data */
-        DeliveryAttemptDto: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: uuid */
-            deliveryId?: string;
-            /**
-             * Format: int32
-             * @description 1-based attempt number
-             */
-            attemptNumber?: number;
-            /** @description Outcome: SUCCESS, FAILED, TIMEOUT, ERROR */
-            status?: string;
-            /**
-             * Format: int32
-             * @description HTTP response status code from the external service
-             */
-            responseStatusCode?: number | null;
-            /** @description JSON payload sent to the external service */
-            requestPayload?: string | null;
-            /** @description Response body from the external service (truncated) */
-            responseBody?: string | null;
-            /** @description Error message if the attempt failed */
-            errorMessage?: string | null;
-            /**
-             * Format: int32
-             * @description Round-trip time in milliseconds
-             */
-            responseTimeMs?: number | null;
-            /** @description External identifier (e.g. PagerDuty dedup_key, SES MessageId, webhook delivery UUID) */
-            externalId?: string | null;
-            /** @description HTTP request headers sent to the external service */
-            requestHeaders?: {
+        UpdateEnvironmentRequest: {
+            /** @description New environment name; null preserves current */
+            name: string | null;
+            /** @description Replace all variables; null preserves current */
+            variables: {
                 [key: string]: string | null;
             } | null;
+            /** @description Whether this is the default environment; null preserves current */
+            isDefault: boolean | null;
+        };
+        /** @description Request body for updating an incident policy */
+        UpdateIncidentPolicyRequest: {
+            /** @description Array of trigger rules; at least one required */
+            triggerRules: components["schemas"]["TriggerRule"][];
+            confirmation: components["schemas"]["ConfirmationPolicy"];
+            recovery: components["schemas"]["RecoveryPolicy"];
+        };
+        UpdateMaintenanceWindowRequest: {
+            /**
+             * Format: uuid
+             * @description Monitor to attach this maintenance window to; null preserves current
+             */
+            monitorId?: string;
+            /**
+             * Format: date-time
+             * @description Updated start time (ISO 8601)
+             */
+            startsAt: string;
+            /**
+             * Format: date-time
+             * @description Updated end time (ISO 8601)
+             */
+            endsAt: string;
+            /** @description Updated iCal RRULE; null clears the repeat rule */
+            repeatRule?: string;
+            /** @description Updated reason; null clears the existing reason */
+            reason?: string;
+            /** @description Whether to suppress alerts; null preserves current */
+            suppressAlerts?: boolean;
+        };
+        UpdateMonitorAuthRequest: {
+            config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
+        };
+        UpdateMonitorRequest: {
+            /** @description New monitor name; null preserves current */
+            name: string | null;
+            config?: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
+            /**
+             * Format: int32
+             * @description New check frequency in seconds (30–86400); null preserves current
+             */
+            frequencySeconds: number | null;
+            /** @description Enable or disable the monitor; null preserves current */
+            enabled: boolean | null;
+            /** @description New probe regions; null preserves current */
+            regions: (string | null)[] | null;
+            /**
+             * @description New management source; null preserves current
+             * @enum {string|null}
+             */
+            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM" | null;
+            /**
+             * Format: uuid
+             * @description New environment ID; null preserves current (use clearEnvironmentId to unset)
+             */
+            environmentId: string | null;
+            /** @description Set to true to remove the environment association */
+            clearEnvironmentId: boolean | null;
+            /** @description Replace all assertions; null preserves current */
+            assertions: components["schemas"]["CreateAssertionRequest"][] | null;
+            auth?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
+            /** @description Set to true to remove authentication */
+            clearAuth: boolean | null;
+            incidentPolicy: components["schemas"]["UpdateIncidentPolicyRequest"];
+            /** @description Replace alert channel list; null preserves current */
+            alertChannelIds: (string | null)[] | null;
+            tags: components["schemas"]["AddMonitorTagsRequest"];
+        };
+        /** @description Request body for updating a notification policy (null fields are preserved) */
+        UpdateNotificationPolicyRequest: {
+            /** @description Human-readable name for this policy; null preserves current */
+            name: string;
+            /** @description Match rules to evaluate (all must pass; omit or empty for catch-all) */
+            matchRules: components["schemas"]["MatchRule"][];
+            escalation: components["schemas"]["EscalationChain"];
+            /** @description Whether this policy is enabled; null preserves current */
+            enabled: boolean;
+            /**
+             * Format: int32
+             * @description Evaluation priority; higher value = evaluated first; null preserves current
+             */
+            priority: number;
+        };
+        UpdateOrgDetailsRequest: {
+            /** @description New organization name (max 200 chars) */
+            name: string;
+            /**
+             * Format: email
+             * @description New billing and contact email address
+             */
+            email: string;
+            /** @description Team size range (e.g. 1-10, 11-50) */
+            size?: string;
+            /** @description Industry vertical (e.g. SaaS, Fintech) */
+            industry?: string;
+            /** @description Organization website URL (max 255 chars) */
+            websiteUrl?: string;
+        };
+        /** @description Request body for updating a resource group */
+        UpdateResourceGroupRequest: {
+            /** @description Human-readable name for this group */
+            name: string;
+            /** @description Optional description; null clears the existing value */
+            description?: string | null;
+            /**
+             * Format: uuid
+             * @description Optional notification policy to apply for this group; null clears the existing value
+             */
+            alertPolicyId?: string | null;
+            /**
+             * Format: int32
+             * @description Default check frequency in seconds for members (30–86400); null clears
+             */
+            defaultFrequency?: number | null;
+            /** @description Default regions for member monitors; null clears */
+            defaultRegions?: (string | null)[] | null;
+            defaultRetryStrategy?: components["schemas"]["RetryStrategy"];
+            /** @description Default alert channel IDs for member monitors; null clears */
+            defaultAlertChannels?: (string | null)[] | null;
+            /**
+             * Format: uuid
+             * @description Default environment ID for member monitors; null clears
+             */
+            defaultEnvironmentId?: string | null;
+            /**
+             * @description Health threshold type: COUNT or PERCENTAGE; null disables threshold
+             * @enum {string|null}
+             */
+            healthThresholdType?: "COUNT" | "PERCENTAGE" | null;
+            /** @description Health threshold value; null disables threshold */
+            healthThresholdValue?: number | null;
+            /** @description Suppress member-level alert notifications; null preserves current value */
+            suppressMemberAlerts?: boolean | null;
+            /**
+             * Format: int32
+             * @description Confirmation delay in seconds; null clears
+             */
+            confirmationDelaySeconds?: number | null;
+            /**
+             * Format: int32
+             * @description Recovery cooldown in minutes; null clears
+             */
+            recoveryCooldownMinutes?: number | null;
+        };
+        UpdateSecretRequest: {
+            /** @description New secret value, stored encrypted (max 32KB) */
+            value: string;
+        };
+        UpdateStatusPageComponentGroupRequest: {
+            /** @description New group name; null preserves current */
+            name: string | null;
+            /** @description New description; null preserves current, empty string clears */
+            description: string | null;
+            /**
+             * Format: int32
+             * @description New position in the group list; null preserves current
+             */
+            displayOrder: number | null;
+            /** @description Whether the group is collapsed by default; null preserves current */
+            collapsed: boolean | null;
+        };
+        UpdateStatusPageComponentRequest: {
+            /** @description New component name; null preserves current */
+            name: string | null;
+            /** @description New description; null preserves current, empty string clears */
+            description: string | null;
+            /**
+             * Format: uuid
+             * @description Move to a different group; null preserves current
+             */
+            groupId: string | null;
+            /** @description Remove the component from its group (default: false) */
+            removeFromGroup: boolean | null;
+            /** @description Whether to show the uptime bar; null preserves current */
+            showUptime: boolean | null;
+            /**
+             * Format: int32
+             * @description New position in the component list; null preserves current
+             */
+            displayOrder: number | null;
+            /** @description Exclude from overall status calculation; null preserves current */
+            excludeFromOverall: boolean | null;
+            /**
+             * Format: date
+             * @description Date from which to start showing uptime data; null preserves current
+             */
+            startDate: string | null;
+        };
+        UpdateStatusPageIncidentRequest: {
+            /** @description New title; null preserves current */
+            title: string | null;
+            /**
+             * @description New status; null preserves current
+             * @enum {string|null}
+             */
+            status: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED" | null;
+            /**
+             * @description New impact level; null preserves current
+             * @enum {string|null}
+             */
+            impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL" | null;
+            /** @description Updated affected components; null preserves current */
+            affectedComponents: components["schemas"]["AffectedComponent"][] | null;
+            /** @description Postmortem body in markdown; empty string clears */
+            postmortemBody: string | null;
+            /** @description URL to an external postmortem document; empty string clears */
+            postmortemUrl: string | null;
+        };
+        UpdateStatusPageRequest: {
+            /** @description New name; null preserves current */
+            name: string | null;
+            /** @description New description; null preserves current, empty string clears */
+            description: string | null;
+            branding: components["schemas"]["StatusPageBranding"];
+            /**
+             * @description Page visibility; null preserves current
+             * @enum {string|null}
+             */
+            visibility: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED" | null;
+            /** @description Whether the page is enabled; null preserves current */
+            enabled: boolean | null;
+            /**
+             * @description Incident mode: MANUAL, REVIEW, or AUTOMATIC; null preserves current
+             * @enum {string|null}
+             */
+            incidentMode: "MANUAL" | "REVIEW" | "AUTOMATIC" | null;
+        };
+        /** @description Request body for updating a tag; null fields are left unchanged */
+        UpdateTagRequest: {
+            /** @description New tag name */
+            name: string | null;
+            /** @description New hex color code */
+            color: string | null;
+        };
+        UpdateWebhookEndpointRequest: {
+            /** @description New webhook URL; null preserves current */
+            url: string | null;
+            /** @description New description; null preserves current */
+            description: string | null;
+            /** @description Replace subscribed events; null preserves current */
+            subscribedEvents: (string | null)[] | null;
+            /** @description Enable or disable delivery; null preserves current */
+            enabled: boolean | null;
+        };
+        /** @description Update workspace details */
+        UpdateWorkspaceRequest: {
+            /** @description New workspace name */
+            name: string;
+        };
+        /** @description Uptime statistics for a single time bucket */
+        UptimeBucketDto: {
+            /**
+             * Format: date-time
+             * @description Start of the bucket interval (ISO 8601)
+             * @example 2024-01-01T00:00:00Z
+             */
+            timestamp: string;
+            /**
+             * Format: double
+             * @description Uptime percentage for this bucket; null when no polls occurred
+             * @example 100
+             */
+            uptimePct: number | null;
+            /**
+             * Format: int64
+             * @description Total number of polls recorded in this bucket
+             * @example 12
+             */
+            totalPolls: number;
+        };
+        /** @description Uptime statistics aggregated from continuous aggregates */
+        UptimeDto: {
+            /**
+             * Format: double
+             * @description Uptime percentage over the requested window; null when no data
+             * @example 99.95
+             */
+            uptimePercentage: number | null;
+            /**
+             * Format: int64
+             * @description Total number of checks executed
+             * @example 1440
+             */
+            totalChecks: number;
+            /**
+             * Format: int64
+             * @description Number of checks that passed
+             * @example 1439
+             */
+            passedChecks: number;
+            /**
+             * Format: double
+             * @description Weighted average latency in milliseconds; null when no data
+             * @example 142.5
+             */
+            avgLatencyMs: number | null;
+            /**
+             * Format: double
+             * @description 95th-percentile latency in milliseconds (upper bound across regions); null when no data
+             * @example 312
+             */
+            p95LatencyMs: number | null;
+        };
+        WebhookChannelConfig: {
+            channelType: "WebhookChannelConfig";
+        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+            /** @description Webhook endpoint URL that receives alert payloads */
+            url: string;
+            /** @description Optional HMAC signing secret for payload verification */
+            signingSecret?: string | null;
+            /** @description Additional HTTP headers to include in webhook requests */
+            customHeaders?: {
+                [key: string]: string | null;
+            } | null;
+        });
+        WebhookDeliveryDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            endpointId: string;
+            eventId: string;
+            eventType: string;
+            status: string;
+            /** Format: int32 */
+            attemptCount: number;
+            /** Format: int32 */
+            maxAttempts: number;
+            /** Format: int32 */
+            responseStatus: number | null;
+            /** Format: int32 */
+            responseLatencyMs: number | null;
+            errorMessage: string | null;
             /** Format: date-time */
-            attemptedAt?: string;
+            deliveredAt: string | null;
+            /** Format: date-time */
+            failedAt: string | null;
+            /** Format: date-time */
+            nextRetryAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
         };
-        TableValueResultDeliveryAttemptDto: {
-            data?: components["schemas"]["DeliveryAttemptDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultAlertChannelDto: {
-            data?: components["schemas"]["AlertChannelDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        TableValueResultAlertDeliveryDto: {
-            data?: components["schemas"]["AlertDeliveryDto"][];
-            hasNext?: boolean;
-            hasPrev?: boolean;
-        };
-        /** @description Request body for removing tags from a monitor */
-        RemoveMonitorTagsRequest: {
-            /** @description IDs of the tags to detach from the monitor */
-            tagIds: string[];
-        };
-        /** @description Summary of policies affected by channel deletion */
-        DeleteChannelResult: {
+        /** @description Webhook endpoint that receives event delivery payloads */
+        WebhookEndpointDto: {
+            /**
+             * Format: uuid
+             * @description Unique webhook endpoint identifier
+             */
+            id: string;
+            /** @description HTTPS endpoint URL that receives event payloads */
+            url: string;
+            /** @description Human-readable description of this endpoint */
+            description: string | null;
+            /** @description Event types this endpoint is subscribed to */
+            subscribedEvents: string[];
+            /** @description Whether delivery is enabled for this endpoint */
+            enabled: boolean;
             /**
              * Format: int32
-             * @description Number of notification policies whose escalation steps were modified
+             * @description Number of consecutive delivery failures
              */
-            affectedPolicies?: number;
+            consecutiveFailures: number;
+            /** @description Reason the endpoint was auto-disabled */
+            disabledReason: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the endpoint was auto-disabled
+             */
+            disabledAt: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the endpoint was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the endpoint was last updated
+             */
+            updatedAt: string;
+        };
+        /** @description List of all available webhook event types */
+        WebhookEventCatalogEntry: {
+            /** @description Dot-notation event type identifier, e.g. "monitor.created" */
+            type: string;
+            /** @description Product surface this event belongs to, e.g. "monitoring" or "status_data" */
+            surface: string;
+            /** @description Human-readable description of when this event fires */
+            description: string;
+        };
+        WebhookEventCatalogResponse: {
+            /** @description List of all available webhook event types */
+            data: components["schemas"]["WebhookEventCatalogEntry"][];
+        };
+        WebhookSigningSecretDto: {
+            configured: boolean;
+            maskedSecret: string | null;
+        };
+        WebhookTestResult: {
+            success: boolean;
+            /** Format: int32 */
+            statusCode: number | null;
+            message: string;
+            /** Format: int64 */
+            durationMs: number | null;
+        };
+        /** @description Workspace within an organization */
+        WorkspaceDto: {
             /**
              * Format: int32
-             * @description Number of notification policies disabled because they had no remaining channels
+             * @description Unique workspace identifier
              */
-            disabledPolicies?: number;
+            id: number;
+            /**
+             * Format: date-time
+             * @description Timestamp when the workspace was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the workspace was last updated
+             */
+            updatedAt: string;
+            /** @description Workspace name */
+            name: string;
+            /**
+             * Format: int32
+             * @description Organization this workspace belongs to
+             */
+            orgId: number;
         };
     };
     responses: never;
@@ -7187,86 +6785,11 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    updateSubscription: {
+    list_14: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-                subscriptionId: number;
+            query: {
+                pageable: components["schemas"]["Pageable"];
             };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateSubscriptionRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseSubscriptionDto"];
-                };
-            };
-        };
-    };
-    updateOrgDetails: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateOrgDetailsRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseOrganizationDto"];
-                };
-            };
-        };
-    };
-    advanceStage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateOnboardingStageRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseUserDto"];
-                };
-            };
-        };
-    };
-    me: {
-        parameters: {
-            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -7279,12 +6802,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseUserDto"];
+                    "*/*": components["schemas"]["TableValueResultAlertChannelDto"];
                 };
             };
         };
     };
-    updateProfile: {
+    create_15: {
         parameters: {
             query?: never;
             header?: never;
@@ -7293,795 +6816,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateProfileRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseUserDto"];
-                };
-            };
-        };
-    };
-    getNotificationPreferences: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseNotificationPreferencesDto"];
-                };
-            };
-        };
-    };
-    updateNotificationPreferences: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateNotificationPreferencesRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseNotificationPreferencesDto"];
-                };
-            };
-        };
-    };
-    getWorkspace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
-                };
-            };
-        };
-    };
-    updateWorkspace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateWorkspaceRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
-                };
-            };
-        };
-    };
-    deleteWorkspace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    updateUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateUserRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseUserDto"];
-                };
-            };
-        };
-    };
-    updateOrganization: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateOrgDetailsRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseOrganizationDto"];
-                };
-            };
-        };
-    };
-    updateMemberRole: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-                userId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChangeRoleRequest"];
-            };
-        };
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
-                };
-            };
-        };
-    };
-    update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateWorkspaceRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
-                };
-            };
-        };
-    };
-    delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWebhookEndpointDto"];
-                };
-            };
-        };
-    };
-    update_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateWebhookEndpointRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWebhookEndpointDto"];
-                };
-            };
-        };
-    };
-    delete_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    getById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseTagDto"];
-                };
-            };
-        };
-    };
-    update_2: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateTagRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseTagDto"];
-                };
-            };
-        };
-    };
-    delete_2: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    update_3: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                key: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateSecretRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseSecretDto"];
-                };
-            };
-        };
-    };
-    delete_3: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                key: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_2: {
-        parameters: {
-            query?: {
-                includeMetrics?: boolean;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseResourceGroupDto"];
-                };
-            };
-        };
-    };
-    update_4: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateResourceGroupRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseResourceGroupDto"];
-                };
-            };
-        };
-    };
-    delete_4: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_3: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseOrganizationDto"];
-                };
-            };
-        };
-    };
-    update_5: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateOrgDetailsRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseOrganizationDto"];
-                };
-            };
-        };
-    };
-    markRead: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    markAllRead: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    getById_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseNotificationPolicyDto"];
-                };
-            };
-        };
-    };
-    update_6: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateNotificationPolicyRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseNotificationPolicyDto"];
-                };
-            };
-        };
-    };
-    delete_5: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_4: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Monitor UUID */
-                monitorId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Policy found */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IncidentPolicyDto"];
-                };
-            };
-            /** @description Monitor or policy not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentPolicyDto"];
-                };
-            };
-        };
-    };
-    update_7: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Monitor UUID */
-                monitorId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateIncidentPolicyRequest"];
-            };
-        };
-        responses: {
-            /** @description Policy updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IncidentPolicyDto"];
-                };
-            };
-            /** @description Validation error in JSONB shape */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentPolicyDto"];
-                };
-            };
-            /** @description Monitor or policy not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentPolicyDto"];
-                };
-            };
-        };
-    };
-    update_8: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                monitorId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateMonitorAuthRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorAuthDto"];
-                };
-            };
-        };
-    };
-    set: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                monitorId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetMonitorAuthRequest"];
+                "application/json": components["schemas"]["CreateAlertChannelRequest"];
             };
         };
         responses: {
@@ -8091,358 +6826,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorAuthDto"];
+                    "*/*": components["schemas"]["SingleValueResponseAlertChannelDto"];
                 };
             };
         };
     };
-    remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                monitorId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    update_9: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                monitorId: string;
-                assertionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAssertionRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorAssertionDto"];
-                };
-            };
-        };
-    };
-    remove_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                monitorId: string;
-                assertionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    setChannels: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                monitorId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetAlertChannelsRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseListUUID"];
-                };
-            };
-        };
-    };
-    get_5: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
-                };
-            };
-        };
-    };
-    update_10: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateMonitorRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
-                };
-            };
-        };
-    };
-    delete_6: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    changeStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChangeStatusRequest"];
-            };
-        };
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    changeRole: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChangeRoleRequest"];
-            };
-        };
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    getById_2: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMaintenanceWindowDto"];
-                };
-            };
-        };
-    };
-    update_11: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateMaintenanceWindowRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMaintenanceWindowDto"];
-                };
-            };
-        };
-    };
-    delete_7: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_6: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseEnvironmentDto"];
-                };
-            };
-        };
-    };
-    update_12: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateEnvironmentRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseEnvironmentDto"];
-                };
-            };
-        };
-    };
-    delete_8: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    update_13: {
+    update_14: {
         parameters: {
             query?: never;
             header?: never;
@@ -8468,7 +6857,7 @@ export interface operations {
             };
         };
     };
-    delete_9: {
+    delete_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -8490,23 +6879,175 @@ export interface operations {
             };
         };
     };
-    handleWebhook: {
+    listDeliveries_1: {
         parameters: {
             query?: never;
-            header: {
-                "paddle-signature": string;
+            header?: never;
+            path: {
+                id: string;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultAlertDeliveryDto"];
+                };
+            };
+        };
+    };
+    test_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseTestChannelResult"];
+                };
+            };
+        };
+    };
+    testConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": string;
+                "application/json": components["schemas"]["TestAlertChannelRequest"];
             };
         };
         responses: {
             /** @description OK */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseTestChannelResult"];
+                };
+            };
+        };
+    };
+    listAttempts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultDeliveryAttemptDto"];
+                };
+            };
+        };
+    };
+    retry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseAlertDeliveryDto"];
+                };
+            };
+        };
+    };
+    list_13: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultApiKeyDto"];
+                };
+            };
+        };
+    };
+    create_14: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateApiKeyRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseApiKeyCreateResponse"];
+                };
+            };
+        };
+    };
+    delete_11: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8514,156 +7055,18 @@ export interface operations {
             };
         };
     };
-    create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["WorkspaceCreateParams"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
-                };
-            };
-        };
-    };
-    createOrResolve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ServiceIncidentRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultIncidentDto"];
-                };
-            };
-        };
-    };
-    reEvaluateGroupHealthForService: {
+    update_15: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                serviceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseInteger"];
-                };
-            };
-        };
-    };
-    reEvaluateGroupHealthForMonitor: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                monitorId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseInteger"];
-                };
-            };
-        };
-    };
-    createAutoIncident: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateAutoIncidentRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentDto"];
-                };
-            };
-        };
-    };
-    resolveAutoIncident: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentDto"];
-                };
-            };
-        };
-    };
-    reopenAutoIncident: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
+                id: number;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReopenAutoIncidentRequest"];
+                "application/json": components["schemas"]["UpdateApiKeyRequest"];
             };
         };
         responses: {
@@ -8673,16 +7076,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentDto"];
+                    "*/*": components["schemas"]["SingleValueResponseApiKeyDto"];
                 };
             };
         };
     };
-    runEscalationTick: {
+    regenerate: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -8693,16 +7098,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseInteger"];
+                    "*/*": components["schemas"]["SingleValueResponseApiKeyCreateResponse"];
                 };
             };
         };
     };
-    syncFromPaddle: {
+    revoke_1: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -8713,67 +7120,129 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseInteger"];
+                    "*/*": components["schemas"]["SingleValueResponseApiKeyDto"];
                 };
             };
         };
     };
-    getAllHealth: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultAdapterHealthDto"];
-                };
-            };
-        };
-    };
-    reportOutcome: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AdapterHealthReportRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseAdapterHealthDto"];
-                };
-            };
-        };
-    };
-    create_1: {
+    list_19: {
         parameters: {
             query?: {
-                ifNotExists?: boolean;
+                action?: string;
+                actorId?: number;
+                resourceType?: string;
+                from?: string;
+                to?: string;
+                page?: number;
+                size?: number;
             };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultAuditEventDto"];
+                };
+            };
+        };
+    };
+    me_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseAuthMeResponse"];
+                };
+            };
+        };
+    };
+    listCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultCategoryDto"];
+                };
+            };
+        };
+    };
+    overview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseDashboardOverviewDto"];
+                };
+            };
+        };
+    };
+    current: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseDeployLockDto"];
+                };
+            };
+        };
+    };
+    acquire: {
+        parameters: {
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateOrgRequest"];
+                "application/json": components["schemas"]["AcquireDeployLockRequest"];
             };
         };
         responses: {
@@ -8783,20 +7252,54 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseOrganizationDto"];
+                    "*/*": components["schemas"]["SingleValueResponseDeployLockDto"];
                 };
             };
         };
     };
-    list: {
+    release: {
         parameters: {
-            query?: {
-                limit?: number;
-            };
+            query?: never;
             header?: never;
             path: {
-                orgId: number;
+                lockId: string;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forceRelease: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_12: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -8807,23 +7310,21 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultTransactionDto"];
+                    "*/*": components["schemas"]["TableValueResultEnvironmentDto"];
                 };
             };
         };
     };
-    createSubscriptionTransaction: {
+    create_13: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                orgId: number;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateSubscriptionRequest"];
+                "application/json": components["schemas"]["CreateEnvironmentRequest"];
             };
         };
         responses: {
@@ -8833,456 +7334,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseTransactionDto"];
+                    "*/*": components["schemas"]["SingleValueResponseEnvironmentDto"];
                 };
             };
         };
     };
-    quickMonitor: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["QuickMonitorRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
-                };
-            };
-        };
-    };
-    completeSetup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["OnboardingSetupRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseUserDto"];
-                };
-            };
-        };
-    };
-    analyzeUrl: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AnalyzeUrlRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseAnalyzeUrlResponse"];
-                };
-            };
-        };
-    };
-    accept: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AcceptInviteRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseAcceptInviteDto"];
-                };
-            };
-        };
-    };
-    register: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegisterUserRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseUserDto"];
-                };
-            };
-        };
-    };
-    listWorkspaces: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultWorkspaceDto"];
-                };
-            };
-        };
-    };
-    createWorkspace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWorkspaceRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
-                };
-            };
-        };
-    };
-    listMembers: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultMemberDto"];
-                };
-            };
-        };
-    };
-    addMember: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddMemberRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMemberDto"];
-                };
-            };
-        };
-    };
-    reEnableAdapter: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                serviceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseAdapterHealthDto"];
-                };
-            };
-        };
-    };
-    list_1: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultWorkspaceDto"];
-                };
-            };
-        };
-    };
-    create_2: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWorkspaceRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
-                };
-            };
-        };
-    };
-    list_2: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultWebhookEndpointDto"];
-                };
-            };
-        };
-    };
-    create_3: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWebhookEndpointRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWebhookEndpointDto"];
-                };
-            };
-        };
-    };
-    test: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["TestWebhookEndpointRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWebhookTestResult"];
-                };
-            };
-        };
-    };
-    rotateSigningSecret: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseString"];
-                };
-            };
-        };
-    };
-    rotateDek: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseDekRotationResultDto"];
-                };
-            };
-        };
-    };
-    list_3: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultTagDto"];
-                };
-            };
-        };
-    };
-    create_4: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateTagRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseTagDto"];
-                };
-            };
-        };
-    };
-    subscribe: {
+    get_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -9291,30 +7348,6 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["ServiceSubscribeRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseServiceSubscriptionDto"];
-                };
-            };
-        };
-    };
-    list_4: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
         requestBody?: never;
         responses: {
             /** @description OK */
@@ -9323,113 +7356,25 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultSecretDto"];
+                    "*/*": components["schemas"]["SingleValueResponseEnvironmentDto"];
                 };
             };
         };
     };
-    create_5: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateSecretRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseSecretDto"];
-                };
-            };
-        };
-    };
-    list_5: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultResourceGroupDto"];
-                };
-            };
-        };
-    };
-    create_6: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateResourceGroupRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseResourceGroupDto"];
-                };
-            };
-        };
-    };
-    addMember_1: {
+    update_13: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                slug: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AddResourceGroupMemberRequest"];
+                "application/json": components["schemas"]["UpdateEnvironmentRequest"];
             };
         };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseResourceGroupMemberDto"];
-                };
-            };
-        };
-    };
-    list_6: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
@@ -9437,474 +7382,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultNotificationPolicyDto"];
+                    "*/*": components["schemas"]["SingleValueResponseEnvironmentDto"];
                 };
             };
         };
     };
-    create_7: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateNotificationPolicyRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseNotificationPolicyDto"];
-                };
-            };
-        };
-    };
-    test_1: {
+    delete_9: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TestNotificationPolicyRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseTestMatchResult"];
-                };
-            };
-        };
-    };
-    acknowledge: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseNotificationDispatchDto"];
-                };
-            };
-        };
-    };
-    list_7: {
-        parameters: {
-            query: {
-                /** @description Filter by enabled state */
-                enabled?: boolean;
-                /** @description Filter by monitor type */
-                type?: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
-                /** @description Filter by managed-by source */
-                managedBy?: "DASHBOARD" | "CLI";
-                /** @description Filter by tag names, comma-separated (e.g. prod,critical) */
-                tags?: string;
-                /** @description Case-insensitive name search */
-                search?: string;
-                /** @description Filter by environment ID */
-                environmentId?: string;
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultMonitorDto"];
-                };
-            };
-        };
-    };
-    create_8: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateMonitorRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
-                };
-            };
-        };
-    };
-    add: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                monitorId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateAssertionRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorAssertionDto"];
-                };
-            };
-        };
-    };
-    testExisting: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorTestResultDto"];
-                };
-            };
-        };
-    };
-    getMonitorTags: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultTagDto"];
-                };
-            };
-        };
-    };
-    addMonitorTags: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddMonitorTagsRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultTagDto"];
-                };
-            };
-        };
-    };
-    removeMonitorTags: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RemoveMonitorTagsRequest"];
-            };
-        };
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    rotateToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
-                };
-            };
-        };
-    };
-    resume: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
-                };
-            };
-        };
-    };
-    pause: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
-                };
-            };
-        };
-    };
-    testAdHoc: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MonitorTestRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorTestResultDto"];
-                };
-            };
-        };
-    };
-    bulkAction: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BulkMonitorActionRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseBulkMonitorActionResult"];
-                };
-            };
-        };
-    };
-    list_8: {
-        parameters: {
-            query?: {
-                /** @description Filter by monitor UUID */
-                monitorId?: string;
-                /** @description Filter by status: 'active' or 'upcoming' */
-                filter?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultMaintenanceWindowDto"];
-                };
-            };
-        };
-    };
-    create_9: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateMaintenanceWindowRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMaintenanceWindowDto"];
-                };
-            };
-        };
-    };
-    list_9: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultInviteDto"];
-                };
-            };
-        };
-    };
-    create_10: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateInviteRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseInviteDto"];
-                };
-            };
-        };
-    };
-    revoke: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inviteId: number;
+                slug: string;
             };
             cookie?: never;
         };
@@ -9916,126 +7404,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    resend: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inviteId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseInviteDto"];
-                };
-            };
-        };
-    };
-    list_10: {
-        parameters: {
-            query: {
-                params: components["schemas"]["IncidentFilterParams"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultIncidentDto"];
-                };
-            };
-        };
-    };
-    create_11: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateManualIncidentRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentDetailDto"];
-                };
-            };
-        };
-    };
-    addUpdate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddIncidentUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentDetailDto"];
-                };
-            };
-        };
-    };
-    resolve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["ResolveIncidentRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentDetailDto"];
-                };
             };
         };
     };
@@ -10097,7 +7465,9 @@ export interface operations {
     };
     list_11: {
         parameters: {
-            query?: never;
+            query: {
+                params: components["schemas"]["IncidentFilterParams"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -10110,7 +7480,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultEnvironmentDto"];
+                    "*/*": components["schemas"]["TableValueResultIncidentDto"];
                 };
             };
         };
@@ -10124,7 +7494,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateEnvironmentRequest"];
+                "application/json": components["schemas"]["CreateManualIncidentRequest"];
             };
         };
         responses: {
@@ -10134,149 +7504,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseEnvironmentDto"];
+                    "*/*": components["schemas"]["SingleValueResponseIncidentDetailDto"];
                 };
             };
         };
     };
-    current: {
-        parameters: {
-            query?: never;
-            header?: {
-                "x-phelm-workspace-id"?: number;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseDeployLockDto"];
-                };
-            };
-        };
-    };
-    acquire: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Target workspace ID (defaults to 1) */
-                "x-phelm-workspace-id"?: number;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AcquireDeployLockRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseDeployLockDto"];
-                };
-            };
-        };
-    };
-    list_12: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultApiKeyDto"];
-                };
-            };
-        };
-    };
-    create_13: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateApiKeyRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseApiKeyCreateResponse"];
-                };
-            };
-        };
-    };
-    revoke_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseApiKeyDto"];
-                };
-            };
-        };
-    };
-    regenerate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseApiKeyCreateResponse"];
-                };
-            };
-        };
-    };
-    retry: {
+    get_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -10293,21 +7526,25 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseAlertDeliveryDto"];
+                    "*/*": components["schemas"]["SingleValueResponseIncidentDetailDto"];
                 };
             };
         };
     };
-    list_13: {
+    resolve: {
         parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
+            query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ResolveIncidentRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -10315,21 +7552,23 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultAlertChannelDto"];
+                    "*/*": components["schemas"]["SingleValueResponseIncidentDetailDto"];
                 };
             };
         };
     };
-    create_14: {
+    addUpdate: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateAlertChannelRequest"];
+                "application/json": components["schemas"]["AddIncidentUpdateRequest"];
             };
         };
         responses: {
@@ -10339,17 +7578,81 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseAlertChannelDto"];
+                    "*/*": components["schemas"]["SingleValueResponseIncidentDetailDto"];
                 };
             };
         };
     };
-    test_2: {
+    list_18: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultIntegrationDto"];
+                };
+            };
+        };
+    };
+    list_10: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultInviteDto"];
+                };
+            };
+        };
+    };
+    create_11: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInviteRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseInviteDto"];
+                };
+            };
+        };
+    };
+    resend: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                inviteId: number;
             };
             cookie?: never;
         };
@@ -10361,94 +7664,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseTestChannelResult"];
+                    "*/*": components["schemas"]["SingleValueResponseInviteDto"];
                 };
             };
         };
     };
-    testConfig: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TestAlertChannelRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseTestChannelResult"];
-                };
-            };
-        };
-    };
-    addComponents: {
+    revoke: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                serviceId: string;
-                externalRef: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ComponentUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultIncidentDto"];
-                };
-            };
-        };
-    };
-    updateAlertSensitivity: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAlertSensitivityRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseServiceSubscriptionDto"];
-                };
-            };
-        };
-    };
-    delete_10: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
+                inviteId: number;
             };
             cookie?: never;
         };
@@ -10463,18 +7689,89 @@ export interface operations {
             };
         };
     };
-    update_14: {
+    list_9: {
+        parameters: {
+            query?: {
+                /** @description Filter by monitor UUID */
+                monitorId?: string;
+                /** @description Filter by status: 'active' or 'upcoming' */
+                filter?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultMaintenanceWindowDto"];
+                };
+            };
+        };
+    };
+    create_10: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMaintenanceWindowRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMaintenanceWindowDto"];
+                };
+            };
+        };
+    };
+    getById_2: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMaintenanceWindowDto"];
+                };
+            };
+        };
+    };
+    update_12: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateApiKeyRequest"];
+                "application/json": components["schemas"]["UpdateMaintenanceWindowRequest"];
             };
         };
         responses: {
@@ -10484,841 +7781,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseApiKeyDto"];
+                    "*/*": components["schemas"]["SingleValueResponseMaintenanceWindowDto"];
                 };
             };
         };
     };
-    get_7: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
-                };
-            };
-        };
-    };
-    listWorkspaces_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultWorkspaceDto"];
-                };
-            };
-        };
-    };
-    policy: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentPolicyDto"];
-                };
-            };
-        };
-    };
-    getEnvVariables: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMapStringString"];
-                };
-            };
-        };
-    };
-    auth: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorAuthDto"];
-                };
-            };
-        };
-    };
-    getAssertions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseListMonitorAssertionDto"];
-                };
-            };
-        };
-    };
-    activeIncident: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentDto"];
-                };
-            };
-        };
-    };
-    schedulable: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SchedulableMonitorDto"][];
-                };
-            };
-        };
-    };
-    getPublicPlans: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseListBillingPlanDto"];
-                };
-            };
-        };
-    };
-    listActive: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultSubscriptionDto"];
-                };
-            };
-        };
-    };
-    cancel: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    getUpcomingCharge: {
-        parameters: {
-            query: {
-                priceId: number;
-            };
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseUpcomingChargeResponse"];
-                };
-            };
-        };
-    };
-    getManagementUrls: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseMapStringString"];
-                };
-            };
-        };
-    };
-    getCustomerAuthToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseString"];
-                };
-            };
-        };
-    };
-    getEntitlements: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseEntitlementResponse"];
-                };
-            };
-        };
-    };
-    searchOrganizations: {
-        parameters: {
-            query: {
-                query: string;
-                paginationParams: components["schemas"]["PaginationParams"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultIdValuePair"];
-                };
-            };
-        };
-    };
-    myOrgs: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultMyOrgItemDto"];
-                };
-            };
-        };
-    };
-    stream: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/event-stream": components["schemas"]["SseEmitter"];
-                };
-            };
-        };
-    };
-    listUsers: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultUserDto"];
-                };
-            };
-        };
-    };
-    getStats: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseAdminStatsDto"];
-                };
-            };
-        };
-    };
-    listOrgs: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultOrganizationDto"];
-                };
-            };
-        };
-    };
-    getAdapterHealth: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultAdapterHealthDto"];
-                };
-            };
-        };
-    };
-    listDeliveries: {
-        parameters: {
-            query?: {
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultWebhookDeliveryDto"];
-                };
-            };
-        };
-    };
-    getSigningSecretInfo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWebhookSigningSecretDto"];
-                };
-            };
-        };
-    };
-    listEvents: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["WebhookEventCatalogResponse"];
-                };
-            };
-        };
-    };
-    listServices: {
-        parameters: {
-            query?: {
-                /** @description Filter by category (exact match) */
-                category?: string;
-                /** @description Filter by current overall_status (exact match) */
-                status?: string;
-                /** @description Opaque cursor from a previous response */
-                cursor?: string;
-                /** @description Page size (1–100, default 20) */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CursorPageServiceCatalogDto"];
-                };
-            };
-        };
-    };
-    getService: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slugOrId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseServiceDetailDto"];
-                };
-            };
-        };
-    };
-    getServiceUptime: {
-        parameters: {
-            query?: {
-                /** @description Time window */
-                period?: "24h" | "7d" | "30d" | "90d" | "1y" | "2y" | "all";
-                /** @description Bucket granularity */
-                granularity?: "hourly" | "daily" | "monthly";
-            };
-            header?: never;
-            path: {
-                slugOrId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseServiceUptimeResponse"];
-                };
-            };
-        };
-    };
-    getScheduledMaintenances: {
-        parameters: {
-            query?: {
-                /** @description Filter by status (e.g. scheduled, in_progress, verifying, completed) */
-                status?: string[];
-            };
-            header?: never;
-            path: {
-                slugOrId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultScheduledMaintenanceDto"];
-                };
-            };
-        };
-    };
-    listIncidents: {
-        parameters: {
-            query: {
-                /** @description Earliest start date (ISO 8601 date) */
-                from?: string;
-                /** @description Filter: active (unresolved), resolved, or omit for all */
-                status?: "active" | "resolved";
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path: {
-                slugOrId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultServiceIncidentDto"];
-                };
-            };
-        };
-    };
-    getIncident: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slugOrId: string;
-                incidentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseServiceIncidentDetailDto"];
-                };
-            };
-        };
-    };
-    getComponents: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slugOrId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultServiceComponentDto"];
-                };
-            };
-        };
-    };
-    getComponentUptime: {
-        parameters: {
-            query?: {
-                /** @description Time window */
-                period?: "7d" | "30d" | "90d" | "1y";
-            };
-            header?: never;
-            path: {
-                slugOrId: string;
-                componentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultComponentUptimeDayDto"];
-                };
-            };
-        };
-    };
-    getGlobalStatusSummary: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseGlobalStatusSummaryDto"];
-                };
-            };
-        };
-    };
-    listCrossServiceIncidents: {
-        parameters: {
-            query: {
-                /** @description Earliest start date (ISO 8601 date) */
-                from?: string;
-                /** @description Filter: active (unresolved), resolved, or omit for all */
-                status?: "active" | "resolved";
-                /** @description Filter by service category */
-                category?: string;
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultServiceIncidentDto"];
-                };
-            };
-        };
-    };
-    list_14: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultServiceSubscriptionDto"];
-                };
-            };
-        };
-    };
-    get_8: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseServiceSubscriptionDto"];
-                };
-            };
-        };
-    };
-    unsubscribe: {
+    delete_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -11338,148 +7806,13 @@ export interface operations {
             };
         };
     };
-    getHealth: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseResourceGroupHealthDto"];
-                };
-            };
-        };
-    };
-    list_15: {
-        parameters: {
-            query?: {
-                unreadOnly?: boolean;
-                page?: number;
-                size?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultNotificationDto"];
-                };
-            };
-        };
-    };
-    unreadCount: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseLong"];
-                };
-            };
-        };
-    };
-    listDispatches: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultNotificationDispatchDto"];
-                };
-            };
-        };
-    };
-    listByIncident: {
-        parameters: {
-            query: {
-                /** @description UUID of the incident to inspect */
-                incident_id: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultNotificationDispatchDto"];
-                };
-            };
-        };
-    };
-    getById_3: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseNotificationDispatchDto"];
-                };
-            };
-        };
-    };
-    listVersions: {
+    list_17: {
         parameters: {
             query: {
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -11490,18 +7823,143 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultMonitorVersionDto"];
+                    "*/*": components["schemas"]["TableValueResultMemberDto"];
                 };
             };
         };
     };
-    getVersion: {
+    remove_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    changeRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeRoleRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    changeStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_8: {
+        parameters: {
+            query: {
+                /** @description Filter by enabled state */
+                enabled?: boolean;
+                /** @description Filter by monitor type */
+                type?: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
+                /** @description Filter by managed-by source */
+                managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM";
+                /** @description Filter by tag names, comma-separated (e.g. prod,critical) */
+                tags?: string;
+                /** @description Case-insensitive name search */
+                search?: string;
+                /** @description Filter by environment ID */
+                environmentId?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultMonitorDto"];
+                };
+            };
+        };
+    };
+    create_9: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMonitorRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
+                };
+            };
+        };
+    };
+    get_6: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 id: string;
-                version: number;
             };
             cookie?: never;
         };
@@ -11513,17 +7971,40 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseMonitorVersionDto"];
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
                 };
             };
         };
     };
-    getUptime: {
+    update_11: {
         parameters: {
-            query?: {
-                /** @description Time window for uptime calculation */
-                window?: "24h" | "7d" | "30d" | "90d";
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
             };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMonitorRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
+                };
+            };
+        };
+    };
+    delete_7: {
+        parameters: {
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -11532,40 +8013,33 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Uptime statistics */
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    pause: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["UptimeDto"];
-                };
-            };
-            /** @description Invalid window parameter */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseUptimeDto"];
-                };
-            };
-            /** @description Monitor does not belong to the caller's org */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseUptimeDto"];
-                };
-            };
-            /** @description Monitor not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseUptimeDto"];
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
                 };
             };
         };
@@ -11687,49 +8161,7 @@ export interface operations {
             };
         };
     };
-    list_16: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultMemberDto"];
-                };
-            };
-        };
-    };
-    list_17: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IntegrationCatalogResponse"];
-                };
-            };
-        };
-    };
-    get_9: {
+    resume: {
         parameters: {
             query?: never;
             header?: never;
@@ -11746,16 +8178,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseIncidentDetailDto"];
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
                 };
             };
         };
     };
-    overview: {
+    rotateToken: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -11766,16 +8200,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseDashboardOverviewDto"];
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
                 };
             };
         };
     };
-    listCategories: {
+    getMonitorTags: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -11786,16 +8222,68 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultCategoryDto"];
+                    "*/*": components["schemas"]["TableValueResultTagDto"];
                 };
             };
         };
     };
-    me_1: {
+    addMonitorTags: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddMonitorTagsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultTagDto"];
+                };
+            };
+        };
+    };
+    removeMonitorTags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RemoveMonitorTagsRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    testExisting: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -11806,19 +8294,638 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["SingleValueResponseAuthMeResponse"];
+                    "*/*": components["schemas"]["SingleValueResponseMonitorTestResultDto"];
                 };
             };
         };
     };
-    list_18: {
+    getUptime: {
         parameters: {
             query?: {
-                action?: string;
-                actorId?: number;
-                resourceType?: string;
-                from?: string;
-                to?: string;
+                /** @description Time window for uptime calculation */
+                window?: "24h" | "7d" | "30d" | "90d";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Uptime statistics */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UptimeDto"];
+                };
+            };
+            /** @description Invalid window parameter */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseUptimeDto"];
+                };
+            };
+            /** @description Monitor does not belong to the caller's org */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseUptimeDto"];
+                };
+            };
+            /** @description Monitor not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseUptimeDto"];
+                };
+            };
+        };
+    };
+    listVersions: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultMonitorVersionDto"];
+                };
+            };
+        };
+    };
+    getVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                version: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorVersionDto"];
+                };
+            };
+        };
+    };
+    setChannels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                monitorId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetAlertChannelsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseListUUID"];
+                };
+            };
+        };
+    };
+    add: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                monitorId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAssertionRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorAssertionDto"];
+                };
+            };
+        };
+    };
+    update_10: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                monitorId: string;
+                assertionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAssertionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorAssertionDto"];
+                };
+            };
+        };
+    };
+    remove_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                monitorId: string;
+                assertionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_9: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                monitorId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMonitorAuthRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorAuthDto"];
+                };
+            };
+        };
+    };
+    set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                monitorId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetMonitorAuthRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorAuthDto"];
+                };
+            };
+        };
+    };
+    remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                monitorId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Monitor UUID */
+                monitorId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Policy found */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IncidentPolicyDto"];
+                };
+            };
+            /** @description Monitor or policy not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseIncidentPolicyDto"];
+                };
+            };
+        };
+    };
+    update_8: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Monitor UUID */
+                monitorId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateIncidentPolicyRequest"];
+            };
+        };
+        responses: {
+            /** @description Policy updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IncidentPolicyDto"];
+                };
+            };
+            /** @description Validation error in JSONB shape */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseIncidentPolicyDto"];
+                };
+            };
+            /** @description Monitor or policy not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseIncidentPolicyDto"];
+                };
+            };
+        };
+    };
+    bulkAction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkMonitorActionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseBulkMonitorActionResult"];
+                };
+            };
+        };
+    };
+    testAdHoc: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitorTestRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorTestResultDto"];
+                };
+            };
+        };
+    };
+    listByIncident: {
+        parameters: {
+            query: {
+                /** @description UUID of the incident to inspect */
+                incident_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultNotificationDispatchDto"];
+                };
+            };
+        };
+    };
+    getById_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseNotificationDispatchDto"];
+                };
+            };
+        };
+    };
+    acknowledge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseNotificationDispatchDto"];
+                };
+            };
+        };
+    };
+    list_7: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultNotificationPolicyDto"];
+                };
+            };
+        };
+    };
+    create_8: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateNotificationPolicyRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseNotificationPolicyDto"];
+                };
+            };
+        };
+    };
+    getById_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseNotificationPolicyDto"];
+                };
+            };
+        };
+    };
+    update_7: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNotificationPolicyRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseNotificationPolicyDto"];
+                };
+            };
+        };
+    };
+    delete_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listDispatches: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultNotificationDispatchDto"];
+                };
+            };
+        };
+    };
+    test_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestNotificationPolicyRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseTestMatchResult"];
+                };
+            };
+        };
+    };
+    list_16: {
+        parameters: {
+            query?: {
+                unreadOnly?: boolean;
                 page?: number;
                 size?: number;
             };
@@ -11834,12 +8941,228 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["PageResultAuditEventDto"];
+                    "*/*": components["schemas"]["TableValueResultNotificationDto"];
                 };
             };
         };
     };
-    listAttempts: {
+    markRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    markAllRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    unreadCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseLong"];
+                };
+            };
+        };
+    };
+    get_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseOrganizationDto"];
+                };
+            };
+        };
+    };
+    update_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateOrgDetailsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseOrganizationDto"];
+                };
+            };
+        };
+    };
+    list_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultResourceGroupDto"];
+                };
+            };
+        };
+    };
+    create_7: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateResourceGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseResourceGroupDto"];
+                };
+            };
+        };
+    };
+    get_3: {
+        parameters: {
+            query?: {
+                includeMetrics?: boolean;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseResourceGroupDto"];
+                };
+            };
+        };
+    };
+    update_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateResourceGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseResourceGroupDto"];
+                };
+            };
+        };
+    };
+    delete_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getHealth: {
         parameters: {
             query?: never;
             header?: never;
@@ -11856,12 +9179,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultDeliveryAttemptDto"];
+                    "*/*": components["schemas"]["SingleValueResponseResourceGroupHealthDto"];
                 };
             };
         };
     };
-    listDeliveries_1: {
+    addMember_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -11870,57 +9193,20 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddResourceGroupMemberRequest"];
+            };
+        };
         responses: {
-            /** @description OK */
-            200: {
+            /** @description Created */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultAlertDeliveryDto"];
+                    "*/*": components["schemas"]["SingleValueResponseResourceGroupMemberDto"];
                 };
-            };
-        };
-    };
-    delete_11: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    removeMember: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orgId: number;
-                userId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -11945,34 +9231,82 @@ export interface operations {
             };
         };
     };
-    remove_2: {
+    list_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultSecretDto"];
+                };
+            };
+        };
+    };
+    create_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSecretRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSecretDto"];
+                };
+            };
+        };
+    };
+    update_4: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                userId: number;
+                key: string;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSecretRequest"];
+            };
+        };
         responses: {
-            /** @description No Content */
-            204: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSecretDto"];
+                };
             };
         };
     };
-    release: {
+    delete_4: {
         parameters: {
             query?: never;
-            header?: {
-                "x-phelm-workspace-id"?: number;
-            };
+            header?: never;
             path: {
-                lockId: string;
+                key: string;
             };
             cookie?: never;
         };
@@ -11987,13 +9321,1615 @@ export interface operations {
             };
         };
     };
-    forceRelease: {
+    list_15: {
         parameters: {
             query?: never;
-            header?: {
-                "x-phelm-workspace-id"?: number;
-            };
+            header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultServiceSubscriptionDto"];
+                };
+            };
+        };
+    };
+    get_9: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseServiceSubscriptionDto"];
+                };
+            };
+        };
+    };
+    unsubscribe_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateAlertSensitivity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAlertSensitivityRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseServiceSubscriptionDto"];
+                };
+            };
+        };
+    };
+    subscribe_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ServiceSubscribeRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseServiceSubscriptionDto"];
+                };
+            };
+        };
+    };
+    listServices: {
+        parameters: {
+            query?: {
+                /** @description Filter by category (exact match) */
+                category?: string;
+                /** @description Filter by current overall_status (exact match) */
+                status?: string;
+                /** @description Filter by published status for pSEO pages */
+                published?: boolean;
+                /** @description Opaque cursor from a previous response */
+                cursor?: string;
+                /** @description Page size (1–100, default 20) */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CursorPageServiceCatalogDto"];
+                };
+            };
+        };
+    };
+    getService: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slugOrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseServiceDetailDto"];
+                };
+            };
+        };
+    };
+    getComponents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slugOrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultServiceComponentDto"];
+                };
+            };
+        };
+    };
+    getComponentUptime: {
+        parameters: {
+            query?: {
+                /** @description Time window */
+                period?: "7d" | "30d" | "90d" | "1y";
+            };
+            header?: never;
+            path: {
+                slugOrId: string;
+                componentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultComponentUptimeDayDto"];
+                };
+            };
+        };
+    };
+    getBatchComponentUptime: {
+        parameters: {
+            query?: {
+                /** @description Time window */
+                period?: "7d" | "30d" | "90d" | "1y";
+            };
+            header?: never;
+            path: {
+                slugOrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMapStringListComponentUptimeDayDto"];
+                };
+            };
+        };
+    };
+    listIncidents_1: {
+        parameters: {
+            query: {
+                /** @description Earliest start date (ISO 8601 date) */
+                from?: string;
+                /** @description Filter: active (unresolved), resolved, or omit for all */
+                status?: "active" | "resolved";
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                slugOrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultServiceIncidentDto"];
+                };
+            };
+        };
+    };
+    getIncident_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slugOrId: string;
+                incidentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseServiceIncidentDetailDto"];
+                };
+            };
+        };
+    };
+    getServiceLiveStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slugOrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseServiceLiveStatusDto"];
+                };
+            };
+        };
+    };
+    getScheduledMaintenances: {
+        parameters: {
+            query?: {
+                /** @description Filter by status (e.g. scheduled, in_progress, verifying, completed) */
+                status?: string[];
+            };
+            header?: never;
+            path: {
+                slugOrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultScheduledMaintenanceDto"];
+                };
+            };
+        };
+    };
+    getServiceUptime: {
+        parameters: {
+            query?: {
+                /** @description Time window */
+                period?: "24h" | "7d" | "30d" | "90d" | "1y" | "2y" | "all";
+                /** @description Bucket granularity */
+                granularity?: "hourly" | "daily" | "monthly";
+            };
+            header?: never;
+            path: {
+                slugOrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseServiceUptimeResponse"];
+                };
+            };
+        };
+    };
+    listCrossServiceIncidents: {
+        parameters: {
+            query: {
+                /** @description Earliest start date (ISO 8601 date) */
+                from?: string;
+                /** @description Filter: active (unresolved), resolved, or omit for all */
+                status?: "active" | "resolved";
+                /** @description Filter by service category */
+                category?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultServiceIncidentDto"];
+                };
+            };
+        };
+    };
+    getGlobalStatusSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseGlobalStatusSummaryDto"];
+                };
+            };
+        };
+    };
+    list_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageDto"];
+                };
+            };
+        };
+    };
+    create_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStatusPageRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageDto"];
+                };
+            };
+        };
+    };
+    get_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageDto"];
+                };
+            };
+        };
+    };
+    update_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusPageRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageDto"];
+                };
+            };
+        };
+    };
+    delete_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listComponents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageComponentDto"];
+                };
+            };
+        };
+    };
+    createComponent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStatusPageComponentRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageComponentDto"];
+                };
+            };
+        };
+    };
+    updateComponent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                componentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusPageComponentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageComponentDto"];
+                };
+            };
+        };
+    };
+    deleteComponent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                componentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    componentUptime_1: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+                componentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultComponentUptimeDayDto"];
+                };
+            };
+        };
+    };
+    reorderComponents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderComponentsRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listDomains: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageCustomDomainDto"];
+                };
+            };
+        };
+    };
+    addDomain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddCustomDomainRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageCustomDomainDto"];
+                };
+            };
+        };
+    };
+    removeDomain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                domainId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    verifyDomain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                domainId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageCustomDomainDto"];
+                };
+            };
+        };
+    };
+    listGroups: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageComponentGroupDto"];
+                };
+            };
+        };
+    };
+    createGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStatusPageComponentGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageComponentGroupDto"];
+                };
+            };
+        };
+    };
+    updateGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusPageComponentGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageComponentGroupDto"];
+                };
+            };
+        };
+    };
+    deleteGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listIncidents: {
+        parameters: {
+            query: {
+                status?: ("INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED")[];
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageIncidentDto"];
+                };
+            };
+        };
+    };
+    createIncident: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStatusPageIncidentRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageIncidentDto"];
+                };
+            };
+        };
+    };
+    getIncident: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                incidentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageIncidentDto"];
+                };
+            };
+        };
+    };
+    updateIncident: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                incidentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusPageIncidentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageIncidentDto"];
+                };
+            };
+        };
+    };
+    deleteIncident: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                incidentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dismissIncident: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                incidentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    publishIncident: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                incidentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PublishStatusPageIncidentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageIncidentDto"];
+                };
+            };
+        };
+    };
+    postIncidentUpdate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                incidentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStatusPageIncidentUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageIncidentDto"];
+                };
+            };
+        };
+    };
+    reorderLayout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderPageLayoutRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listSubscribers: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageSubscriberDto"];
+                };
+            };
+        };
+    };
+    addSubscriber: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminAddSubscriberRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageSubscriberDto"];
+                };
+            };
+        };
+    };
+    removeSubscriber: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                subscriberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_3: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultTagDto"];
+                };
+            };
+        };
+    };
+    create_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTagRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseTagDto"];
+                };
+            };
+        };
+    };
+    getById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseTagDto"];
+                };
+            };
+        };
+    };
+    update_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTagRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseTagDto"];
+                };
+            };
+        };
+    };
+    delete_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    rotateDek: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseDekRotationResultDto"];
+                };
+            };
+        };
+    };
+    list_2: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultWebhookEndpointDto"];
+                };
+            };
+        };
+    };
+    create_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWebhookEndpointRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWebhookEndpointDto"];
+                };
+            };
+        };
+    };
+    get_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWebhookEndpointDto"];
+                };
+            };
+        };
+    };
+    update_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWebhookEndpointRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWebhookEndpointDto"];
+                };
+            };
+        };
+    };
+    delete_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listDeliveries: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultWebhookDeliveryDto"];
+                };
+            };
+        };
+    };
+    test: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["TestWebhookEndpointRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWebhookTestResult"];
+                };
+            };
+        };
+    };
+    listEvents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WebhookEventCatalogResponse"];
+                };
+            };
+        };
+    };
+    getSigningSecretInfo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWebhookSigningSecretDto"];
+                };
+            };
+        };
+    };
+    rotateSigningSecret: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseString"];
+                };
+            };
+        };
+    };
+    list_1: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultWorkspaceDto"];
+                };
+            };
+        };
+    };
+    create_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkspaceRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
+                };
+            };
+        };
+    };
+    get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
+                };
+            };
+        };
+    };
+    update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkspaceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
+                };
+            };
+        };
+    };
+    delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: number;
+            };
             cookie?: never;
         };
         requestBody?: never;

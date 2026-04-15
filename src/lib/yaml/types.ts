@@ -14,6 +14,7 @@ export type ResourceType =
   | 'tag' | 'environment' | 'secret' | 'alertChannel'
   | 'notificationPolicy' | 'webhook' | 'resourceGroup'
   | 'monitor' | 'dependency' | 'groupMembership'
+  | 'statusPage'
 
 /** Resource types that have a full ResourceHandler implementation. */
 export type HandledResourceType = Exclude<ResourceType, 'groupMembership'>
@@ -21,7 +22,7 @@ export type HandledResourceType = Exclude<ResourceType, 'groupMembership'>
 export type RefType =
   | 'tags' | 'environments' | 'secrets' | 'alertChannels'
   | 'notificationPolicies' | 'webhooks' | 'resourceGroups'
-  | 'monitors' | 'dependencies'
+  | 'monitors' | 'dependencies' | 'statusPages'
 
 /** Maps each RefType to the API DTO stored in RefEntry.raw. */
 export interface RefTypeDtoMap {
@@ -34,6 +35,7 @@ export interface RefTypeDtoMap {
   resourceGroups: Schemas['ResourceGroupDto']
   monitors: Schemas['MonitorDto']
   dependencies: Schemas['ServiceSubscriptionDto']
+  statusPages: Schemas['StatusPageDto']
 }
 
 export interface Change {
@@ -62,4 +64,5 @@ export const RESOURCE_ORDER: ResourceType[] = [
   'tag', 'environment', 'secret', 'alertChannel',
   'notificationPolicy', 'webhook', 'resourceGroup',
   'monitor', 'dependency', 'groupMembership',
+  'statusPage',
 ]
