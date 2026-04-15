@@ -9,9 +9,14 @@ export default class StatusPagesComponentsCreate extends Command {
   static flags = {
     ...globalFlags,
     name: Flags.string({description: 'Component name', required: true}),
-    type: Flags.string({description: 'Component type', required: true, options: ['STATIC', 'MONITOR']}),
-    'monitor-id': Flags.string({description: 'Monitor ID (for MONITOR type)'}),
-    'group-id': Flags.string({description: 'Component group ID'}),
+    type: Flags.string({description: 'Component type', required: true, options: ['STATIC', 'MONITOR', 'GROUP']}),
+    'monitor-id': Flags.string({description: 'Monitor ID (required when type=MONITOR)'}),
+    'resource-group-id': Flags.string({description: 'Resource group ID (required when type=GROUP)'}),
+    'group-id': Flags.string({description: 'Component group ID for visual grouping'}),
+    description: Flags.string({description: 'Component description'}),
+    'display-order': Flags.integer({description: 'Position in the component list'}),
+    'exclude-from-overall': Flags.boolean({description: 'Exclude from overall status calculation'}),
+    'show-uptime': Flags.boolean({description: 'Whether to show the uptime bar', allowNo: true}),
   }
 
   async run() {
@@ -19,7 +24,12 @@ export default class StatusPagesComponentsCreate extends Command {
     const client = buildClient(flags)
     const body: Record<string, unknown> = {name: flags.name, type: flags.type}
     if (flags['monitor-id']) body.monitorId = flags['monitor-id']
+    if (flags['resource-group-id']) body.resourceGroupId = flags['resource-group-id']
     if (flags['group-id']) body.groupId = flags['group-id']
+    if (flags.description) body.description = flags.description
+    if (flags['display-order'] !== undefined) body.displayOrder = flags['display-order']
+    if (flags['exclude-from-overall'] !== undefined) body.excludeFromOverall = flags['exclude-from-overall']
+    if (flags['show-uptime'] !== undefined) body.showUptime = flags['show-uptime']
     const resp = await apiPost<{data?: unknown}>(client, `/api/v1/status-pages/${args.id}/components`, body)
     display(this, resp.data ?? resp, flags.output)
   }

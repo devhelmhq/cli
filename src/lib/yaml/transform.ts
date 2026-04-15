@@ -243,3 +243,28 @@ export function toCreateStatusPageRequest(page: YamlStatusPage): Schemas['Create
     incidentMode: page.incidentMode ?? null,
   }
 }
+
+export function toUpdateStatusPageRequest(page: YamlStatusPage): Schemas['UpdateStatusPageRequest'] {
+  return {
+    name: page.name,
+    description: page.description ?? null,
+    visibility: page.visibility ?? null,
+    enabled: page.enabled ?? null,
+    incidentMode: page.incidentMode ?? null,
+    branding: {
+      logoUrl: null,
+      faviconUrl: null,
+      brandColor: null,
+      pageBackground: null,
+      cardBackground: null,
+      textColor: null,
+      borderColor: null,
+      headerStyle: null,
+      theme: null,
+      reportUrl: null,
+      hidePoweredBy: false,
+      customCss: null,
+      customHeadHtml: null,
+    },
+  }
+}

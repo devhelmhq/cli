@@ -45,7 +45,7 @@ import {
   toCreateWebhookRequest, toCreateResourceGroupRequest,
   toCreateMonitorRequest, toUpdateMonitorRequest, toAuthConfig,
   toCreateAssertionRequest, toIncidentPolicy,
-  toCreateStatusPageRequest,
+  toCreateStatusPageRequest, toUpdateStatusPageRequest,
 } from './transform.js'
 import {fetchPaginated} from '../typed-api.js'
 import {checkedFetch, apiPatch} from '../api-client.js'
@@ -700,9 +700,11 @@ const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto']
     return pageId
   },
   async applyUpdate(yaml, id, refs, client) {
-    const body = toCreateStatusPageRequest(yaml) as Schemas['UpdateStatusPageRequest']
+    const body = toUpdateStatusPageRequest(yaml)
     await apiPut(client, `/api/v1/status-pages/${id}`, body)
-    await syncSubResources(yaml, id, refs, client)
+    if (yaml.componentGroups || yaml.components) {
+      await syncSubResources(yaml, id, refs, client)
+    }
   },
   deletePath: (id) => `/api/v1/status-pages/${id}`,
 })

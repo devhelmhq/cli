@@ -10,16 +10,17 @@ export default class StatusPagesIncidentsCreate extends Command {
     ...globalFlags,
     title: Flags.string({description: 'Incident title', required: true}),
     impact: Flags.string({description: 'Incident impact', required: true, options: ['NONE', 'MINOR', 'MAJOR', 'CRITICAL']}),
-    body: Flags.string({description: 'Incident body/message'}),
+    body: Flags.string({description: 'Initial update body in markdown', required: true}),
     status: Flags.string({description: 'Incident status', options: ['INVESTIGATING', 'IDENTIFIED', 'MONITORING', 'RESOLVED']}),
+    scheduled: Flags.boolean({description: 'Whether this is a scheduled maintenance'}),
   }
 
   async run() {
     const {args, flags} = await this.parse(StatusPagesIncidentsCreate)
     const client = buildClient(flags)
-    const body: Record<string, unknown> = {title: flags.title, impact: flags.impact}
-    if (flags.body) body.body = flags.body
+    const body: Record<string, unknown> = {title: flags.title, impact: flags.impact, body: flags.body}
     if (flags.status) body.status = flags.status
+    if (flags.scheduled) body.scheduled = flags.scheduled
     const resp = await apiPost<{data?: unknown}>(client, `/api/v1/status-pages/${args.id}/incidents`, body)
     display(this, resp.data ?? resp, flags.output)
   }
