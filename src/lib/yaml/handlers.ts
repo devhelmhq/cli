@@ -36,7 +36,7 @@ import type {HandledResourceType, RefType} from './types.js'
 import type {
   YamlTag, YamlEnvironment, YamlSecret, YamlAlertChannel,
   YamlNotificationPolicy, YamlWebhook, YamlResourceGroup,
-  YamlMonitor, YamlDependency,
+  YamlMonitor, YamlDependency, YamlStatusPage,
 } from './schema.js'
 import type {YamlSectionKey} from './schema.js'
 import {
@@ -45,9 +45,11 @@ import {
   toCreateWebhookRequest, toCreateResourceGroupRequest,
   toCreateMonitorRequest, toUpdateMonitorRequest, toAuthConfig,
   toCreateAssertionRequest, toIncidentPolicy,
+  toCreateStatusPageRequest, toUpdateStatusPageRequest,
 } from './transform.js'
 import {fetchPaginated} from '../typed-api.js'
 import {checkedFetch, apiPatch} from '../api-client.js'
+import {apiPost, apiPut, apiDelete as apiDeleteRaw} from '../api-client.js'
 
 type Schemas = components['schemas']
 
@@ -198,7 +200,8 @@ const tagHandler = defineHandler<YamlTag, Schemas['TagDto'], TagSnapshot>({
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
-    await checkedFetch(client.PUT('/api/v1/tags/{id}', {params: {path: {id}}, body: toCreateTagRequest(yaml)}))
+    const body = toCreateTagRequest(yaml) as Schemas['UpdateTagRequest']
+    await checkedFetch(client.PUT('/api/v1/tags/{id}', {params: {path: {id}}, body}))
   },
   deletePath: (id) => `/api/v1/tags/${id}`,
 })
@@ -236,7 +239,7 @@ const environmentHandler = defineHandler<YamlEnvironment, Schemas['EnvironmentDt
   },
   async applyUpdate(yaml, _id, _refs, client) {
     await checkedFetch(client.PUT('/api/v1/environments/{slug}', {params: {path: {slug: yaml.slug}}, body: {
-      name: yaml.name, variables: yaml.variables ?? null, isDefault: yaml.isDefault,
+      name: yaml.name, variables: yaml.variables ?? null, isDefault: yaml.isDefault ?? null,
     }}))
   },
   deletePath: (_id, refKey) => `/api/v1/environments/${refKey}`,
@@ -360,7 +363,8 @@ const notificationPolicyHandler = defineHandler<YamlNotificationPolicy, Schemas[
     return resp.data?.id != null ? String(resp.data.id) : undefined
   },
   async applyUpdate(yaml, id, refs, client) {
-    await checkedFetch(client.PUT('/api/v1/notification-policies/{id}', {params: {path: {id}}, body: toCreateNotificationPolicyRequest(yaml, refs)}))
+    const body = toCreateNotificationPolicyRequest(yaml, refs) as Schemas['UpdateNotificationPolicyRequest']
+    await checkedFetch(client.PUT('/api/v1/notification-policies/{id}', {params: {path: {id}}, body}))
   },
   deletePath: (id) => `/api/v1/notification-policies/${id}`,
 })
@@ -399,10 +403,11 @@ const webhookHandler = defineHandler<YamlWebhook, Schemas['WebhookEndpointDto'],
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
-    await checkedFetch(client.PUT('/api/v1/webhooks/{id}', {params: {path: {id}}, body: {
+    const body = {
       ...toCreateWebhookRequest(yaml),
       enabled: yaml.enabled ?? null,
-    }}))
+    } as Schemas['UpdateWebhookEndpointRequest']
+    await checkedFetch(client.PUT('/api/v1/webhooks/{id}', {params: {path: {id}}, body}))
   },
   deletePath: (id) => `/api/v1/webhooks/${id}`,
 })
@@ -647,6 +652,118 @@ const dependencyHandler = defineHandler<YamlDependency, Schemas['ServiceSubscrip
   deletePath: (id) => `/api/v1/service-subscriptions/${id}`,
 })
 
+// ── Status Page ─────────────────────────────────────────────────────────
+
+type StatusPageSnapshot = {
+  name: string
+  slug: string
+  description: string | null
+  visibility: string
+  enabled: boolean
+  incidentMode: string
+}
+
+const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto'], StatusPageSnapshot>({
+  resourceType: 'statusPage',
+  refType: 'statusPages',
+  configKey: 'statusPages',
+  listPath: '/api/v1/status-pages',
+
+  getRefKey: (yaml) => yaml.slug,
+  getApiRefKey: (api) => api.slug ?? '',
+  getApiId: (api) => String(api.id ?? ''),
+
+  toDesiredSnapshot: (yaml, api) => ({
+    name: yaml.name,
+    slug: yaml.slug,
+    description: yaml.description ?? api.description ?? null,
+    visibility: yaml.visibility ?? api.visibility ?? 'PUBLIC',
+    enabled: yaml.enabled ?? api.enabled ?? true,
+    incidentMode: yaml.incidentMode ?? api.incidentMode ?? 'AUTOMATIC',
+  }),
+  toCurrentSnapshot: (api) => ({
+    name: api.name ?? '',
+    slug: api.slug ?? '',
+    description: api.description ?? null,
+    visibility: api.visibility ?? 'PUBLIC',
+    enabled: api.enabled ?? true,
+    incidentMode: api.incidentMode ?? 'AUTOMATIC',
+  }),
+
+  fetchAll: (client) => fetchPaginated<Schemas['StatusPageDto']>(client, '/api/v1/status-pages'),
+
+  async applyCreate(yaml, refs, client) {
+    const resp = await apiPost<{data?: Schemas['StatusPageDto']}>(client, '/api/v1/status-pages', toCreateStatusPageRequest(yaml))
+    const pageId = resp.data?.id
+    if (!pageId) return undefined
+    await syncSubResources(yaml, pageId, refs, client)
+    return pageId
+  },
+  async applyUpdate(yaml, id, refs, client) {
+    const body = toUpdateStatusPageRequest(yaml)
+    await apiPut(client, `/api/v1/status-pages/${id}`, body)
+    if (yaml.componentGroups || yaml.components) {
+      await syncSubResources(yaml, id, refs, client)
+    }
+  },
+  deletePath: (id) => `/api/v1/status-pages/${id}`,
+})
+
+/**
+ * Sync component groups and components on a status page after create/update.
+ * This is a simplified reconciliation: delete all existing, then recreate.
+ * Necessary because groups/components have ordering and dependencies.
+ */
+async function syncSubResources(
+  yaml: YamlStatusPage,
+  pageId: string,
+  refs: ResolvedRefs,
+  client: ApiClient,
+): Promise<void> {
+  if (!yaml.componentGroups && !yaml.components) return
+
+  const existingComponents = await fetchPaginated<Schemas['StatusPageComponentDto']>(
+    client, `/api/v1/status-pages/${pageId}/components`,
+  )
+  const existingGroups = await fetchPaginated<Schemas['StatusPageComponentGroupDto']>(
+    client, `/api/v1/status-pages/${pageId}/groups`,
+  )
+
+  for (const c of existingComponents) {
+    await apiDeleteRaw(client, `/api/v1/status-pages/${pageId}/components/${c.id}`)
+  }
+  for (const g of existingGroups) {
+    await apiDeleteRaw(client, `/api/v1/status-pages/${pageId}/groups/${g.id}`)
+  }
+
+  const groupNameToId = new Map<string, string>()
+  for (const [i, g] of (yaml.componentGroups ?? []).entries()) {
+    const resp = await apiPost<{data?: Schemas['StatusPageComponentGroupDto']}>(
+      client, `/api/v1/status-pages/${pageId}/groups`,
+      {name: g.name, description: g.description ?? null, displayOrder: i, collapsed: g.collapsed ?? true},
+    )
+    if (resp.data?.id) groupNameToId.set(g.name, resp.data.id)
+  }
+
+  for (const [i, c] of (yaml.components ?? []).entries()) {
+    const body: Record<string, unknown> = {
+      name: c.name,
+      type: c.type,
+      description: c.description ?? null,
+      displayOrder: i,
+      showUptime: c.showUptime ?? true,
+    }
+    if (c.group && groupNameToId.has(c.group)) body.groupId = groupNameToId.get(c.group)
+    if (c.type === 'MONITOR' && c.monitor) {
+      body.monitorId = refs.resolve('monitors', c.monitor) ?? c.monitor
+    }
+    if (c.type === 'GROUP' && c.resourceGroup) {
+      body.resourceGroupId = refs.resolve('resourceGroups', c.resourceGroup) ?? c.resourceGroup
+    }
+    await apiPost(client, `/api/v1/status-pages/${pageId}/components`, body)
+  }
+}
+
 // ── Handler registry ────────────────────────────────────────────────────
 
 /**
@@ -662,6 +779,7 @@ export const HANDLER_MAP: Record<HandledResourceType, ResourceHandler> = {
   resourceGroup: resourceGroupHandler,
   monitor: monitorHandler,
   dependency: dependencyHandler,
+  statusPage: statusPageHandler,
 }
 
 /** @internal – used by tests to look up a handler by resource type */

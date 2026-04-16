@@ -15,7 +15,7 @@ export default class Status extends Command {
     const {flags} = await this.parse(Status)
     const client = buildClient(flags)
     const resp = await apiGet<{data?: DashboardOverviewDto}>(client, '/api/v1/dashboard/overview')
-    const overview = resp.data ?? {}
+    const overview = resp.data ?? ({} as DashboardOverviewDto)
 
     const format = flags.output as OutputFormat
     if (format === 'json' || format === 'yaml') {
@@ -23,8 +23,8 @@ export default class Status extends Command {
       return
     }
 
-    const m = overview.monitors ?? {}
-    const i = overview.incidents ?? {}
+    const m = overview.monitors ?? ({} as NonNullable<DashboardOverviewDto['monitors']>)
+    const i = overview.incidents ?? ({} as NonNullable<DashboardOverviewDto['incidents']>)
     this.log('')
     this.log('  Monitors')
     this.log(`    Total: ${m.total ?? 0}    Up: ${m.up ?? 0}    Down: ${m.down ?? 0}    Degraded: ${m.degraded ?? 0}    Paused: ${m.paused ?? 0}`)

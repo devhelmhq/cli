@@ -9,6 +9,7 @@ import type {
   YamlDependency, YamlAssertion, YamlAuth, YamlIncidentPolicy,
   YamlEscalationStep, YamlMatchRule,
   YamlChannelConfig, YamlMonitorConfig,
+  YamlStatusPage, YamlStatusPageComponent, YamlStatusPageComponentGroup,
 } from './schema.js'
 import {
   MONITOR_TYPES, HTTP_METHODS, DNS_RECORD_TYPES,
@@ -16,6 +17,7 @@ import {
   CHANNEL_TYPES, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
   TRIGGER_RULE_TYPES, TRIGGER_SCOPES, TRIGGER_SEVERITIES, TRIGGER_AGGREGATIONS,
   MIN_FREQUENCY, MAX_FREQUENCY,
+  STATUS_PAGE_VISIBILITIES, STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
 } from './schema.js'
 
 export interface ValidationError {
@@ -81,7 +83,7 @@ function validateConfig(config: DevhelmConfig, ctx: ValidationContext): void {
     config.secrets?.length || config.alertChannels?.length ||
     config.notificationPolicies?.length || config.webhooks?.length ||
     config.resourceGroups?.length || config.monitors?.length ||
-    config.dependencies?.length
+    config.dependencies?.length || config.statusPages?.length
 
   if (!hasAnyResource) {
     ctx.error('', 'Config has no resource definitions. Add at least one section (monitors, tags, etc.)')
@@ -98,6 +100,7 @@ function validateConfig(config: DevhelmConfig, ctx: ValidationContext): void {
   if (config.resourceGroups) validateArray(config.resourceGroups, 'resourceGroups', ctx, validateResourceGroup)
   if (config.monitors) validateArray(config.monitors, 'monitors', ctx, validateMonitor)
   if (config.dependencies) validateArray(config.dependencies, 'dependencies', ctx, validateDependency)
+  if (config.statusPages) validateArray(config.statusPages, 'statusPages', ctx, validateStatusPage)
 }
 
 function collectDeclarations(config: DevhelmConfig, ctx: ValidationContext): void {
@@ -110,6 +113,7 @@ function collectDeclarations(config: DevhelmConfig, ctx: ValidationContext): voi
   for (const g of config.resourceGroups ?? []) if (g.name) ctx.declareRef('resourceGroups', g.name, 'resourceGroups')
   for (const m of config.monitors ?? []) if (m.name) ctx.declareRef('monitors', m.name, 'monitors')
   for (const d of config.dependencies ?? []) if (d.service) ctx.declareRef('dependencies', d.service, 'dependencies')
+  for (const sp of config.statusPages ?? []) if (sp.slug) ctx.declareRef('statusPages', sp.slug, 'statusPages')
 }
 
 // ── Generic array validator ────────────────────────────────────────────
@@ -468,6 +472,63 @@ function validateDependency(dep: YamlDependency, path: string, ctx: ValidationCo
   requireString(dep, 'service', path, ctx)
   if (dep.alertSensitivity && !ALERT_SENSITIVITIES.includes(dep.alertSensitivity as typeof ALERT_SENSITIVITIES[number])) {
     ctx.error(`${path}.alertSensitivity`, `Must be one of: ${ALERT_SENSITIVITIES.join(', ')}`)
+  }
+}
+
+function validateStatusPage(page: YamlStatusPage, path: string, ctx: ValidationContext): void {
+  requireString(page, 'name', path, ctx)
+  requireString(page, 'slug', path, ctx)
+  if (page.slug && !/^[a-z0-9-]+$/.test(page.slug)) {
+    ctx.error(`${path}.slug`, 'Slug must be lowercase alphanumeric with hyphens')
+  }
+  if (page.visibility && !STATUS_PAGE_VISIBILITIES.includes(page.visibility)) {
+    ctx.error(`${path}.visibility`, `Must be one of: ${STATUS_PAGE_VISIBILITIES.join(', ')}`)
+  }
+  if (page.incidentMode && !STATUS_PAGE_INCIDENT_MODES.includes(page.incidentMode)) {
+    ctx.error(`${path}.incidentMode`, `Must be one of: ${STATUS_PAGE_INCIDENT_MODES.join(', ')}`)
+  }
+
+  const groupNames = new Set<string>()
+  if (page.componentGroups) {
+    for (let i = 0; i < page.componentGroups.length; i++) {
+      validateStatusPageComponentGroup(page.componentGroups[i], `${path}.componentGroups[${i}]`, ctx, groupNames)
+    }
+  }
+
+  if (page.components) {
+    for (let i = 0; i < page.components.length; i++) {
+      validateStatusPageComponent(page.components[i], `${path}.components[${i}]`, ctx, groupNames)
+    }
+  }
+}
+
+function validateStatusPageComponentGroup(group: YamlStatusPageComponentGroup, path: string, ctx: ValidationContext, names: Set<string>): void {
+  requireString(group, 'name', path, ctx)
+  if (group.name) {
+    if (names.has(group.name)) {
+      ctx.error(path, `Duplicate component group name "${group.name}"`)
+    }
+    names.add(group.name)
+  }
+}
+
+function validateStatusPageComponent(comp: YamlStatusPageComponent, path: string, ctx: ValidationContext, groupNames: Set<string>): void {
+  requireString(comp, 'name', path, ctx)
+  if (!comp.type) {
+    ctx.error(`${path}.type`, '"type" is required')
+  } else if (!STATUS_PAGE_COMPONENT_TYPES.includes(comp.type)) {
+    ctx.error(`${path}.type`, `Must be one of: ${STATUS_PAGE_COMPONENT_TYPES.join(', ')}`)
+  }
+  if (comp.type === 'MONITOR' && !comp.monitor) {
+    ctx.error(`${path}.monitor`, 'MONITOR component requires "monitor" reference')
+  }
+  if (comp.type === 'GROUP' && !comp.resourceGroup) {
+    ctx.error(`${path}.resourceGroup`, 'GROUP component requires "resourceGroup" reference')
+  }
+  if (comp.monitor) ctx.checkRef('monitors', comp.monitor, `${path}.monitor`)
+  if (comp.resourceGroup) ctx.checkRef('resourceGroups', comp.resourceGroup, `${path}.resourceGroup`)
+  if (comp.group && !groupNames.has(comp.group)) {
+    ctx.warn(`${path}.group`, `Component group "${comp.group}" not found in this status page's componentGroups`)
   }
 }
 

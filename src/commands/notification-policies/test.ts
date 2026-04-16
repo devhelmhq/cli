@@ -11,7 +11,7 @@ export default class NotificationPoliciesTest extends Command {
   async run() {
     const {args, flags} = await this.parse(NotificationPoliciesTest)
     const client = buildClient(flags)
-    await checkedFetch(client.POST('/api/v1/notification-policies/{id}/test', {params: {path: {id: args.id}}, body: {}}))
+    await checkedFetch(client.POST('/api/v1/notification-policies/{id}/test', {params: {path: {id: args.id}}, body: {severity: null, monitorId: null, regions: null, eventType: null, monitorType: null, serviceId: null, componentName: null, resourceGroupIds: null}}))
     this.log('Test dispatch sent.')
   }
 }

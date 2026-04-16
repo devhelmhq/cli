@@ -8,7 +8,7 @@ import type {
   YamlResourceGroup, YamlWebhook, YamlTag, YamlEnvironment,
   YamlSecret, YamlAssertion, YamlAuth,
   YamlIncidentPolicy, YamlEscalationStep, YamlMatchRule,
-  ChannelType,
+  ChannelType, YamlStatusPage,
 } from './schema.js'
 import type {ResolvedRefs} from './resolver.js'
 
@@ -171,8 +171,8 @@ export function toUpdateMonitorRequest(
     name: monitor.name,
     config: monitor.config as Schemas['UpdateMonitorRequest']['config'],
     managedBy: 'CLI',
-    frequencySeconds: monitor.frequency,
-    enabled: monitor.enabled,
+    frequencySeconds: monitor.frequency ?? null,
+    enabled: monitor.enabled ?? null,
     regions: monitor.regions ?? null,
     environmentId: monitor.environment ? refs.resolve('environments', monitor.environment) ?? null : null,
     assertions: monitor.assertions?.map(toCreateAssertionRequest) ?? null,
@@ -184,8 +184,8 @@ export function toUpdateMonitorRequest(
       newTags: monitor.tags
         .filter((n) => !refs.resolve('tags', n))
         .map((n) => ({name: n})),
-    } : undefined,
-  }
+    } : {tagIds: null, newTags: null},
+  } as Schemas['UpdateMonitorRequest']
 }
 
 export function toCreateAssertionRequest(a: YamlAssertion): Schemas['CreateAssertionRequest'] {
@@ -220,13 +220,51 @@ export function toIncidentPolicy(policy: YamlIncidentPolicy): Schemas['UpdateInc
     })),
     confirmation: {
       type: policy.confirmation.type,
-      minRegionsFailing: policy.confirmation.minRegionsFailing,
-      maxWaitSeconds: policy.confirmation.maxWaitSeconds,
+      minRegionsFailing: policy.confirmation.minRegionsFailing ?? 0,
+      maxWaitSeconds: policy.confirmation.maxWaitSeconds ?? 0,
     },
     recovery: {
-      consecutiveSuccesses: policy.recovery.consecutiveSuccesses,
-      minRegionsPassing: policy.recovery.minRegionsPassing,
-      cooldownMinutes: policy.recovery.cooldownMinutes,
+      consecutiveSuccesses: policy.recovery.consecutiveSuccesses ?? 1,
+      minRegionsPassing: policy.recovery.minRegionsPassing ?? 1,
+      cooldownMinutes: policy.recovery.cooldownMinutes ?? 0,
+    },
+  }
+}
+
+// ── Status Page ────────────────────────────────────────────────────────
+
+export function toCreateStatusPageRequest(page: YamlStatusPage): Schemas['CreateStatusPageRequest'] {
+  return {
+    name: page.name,
+    slug: page.slug,
+    description: page.description ?? null,
+    visibility: page.visibility ?? null,
+    enabled: page.enabled ?? null,
+    incidentMode: page.incidentMode ?? null,
+  }
+}
+
+export function toUpdateStatusPageRequest(page: YamlStatusPage): Schemas['UpdateStatusPageRequest'] {
+  return {
+    name: page.name,
+    description: page.description ?? null,
+    visibility: page.visibility ?? null,
+    enabled: page.enabled ?? null,
+    incidentMode: page.incidentMode ?? null,
+    branding: {
+      logoUrl: null,
+      faviconUrl: null,
+      brandColor: null,
+      pageBackground: null,
+      cardBackground: null,
+      textColor: null,
+      borderColor: null,
+      headerStyle: null,
+      theme: null,
+      reportUrl: null,
+      hidePoweredBy: false,
+      customCss: null,
+      customHeadHtml: null,
     },
   }
 }

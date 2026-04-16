@@ -8,7 +8,7 @@ import type {ApiClient} from '../api-client.js'
 import {checkedFetch, apiDelete} from '../api-client.js'
 import {HANDLER_MAP} from './handlers.js'
 import type {Changeset, Change, HandledResourceType} from './types.js'
-import type {ResolvedRefs} from './resolver.js'
+import type {ResolvedRefs, RefEntry} from './resolver.js'
 import type {StateEntry} from './state.js'
 
 export interface ApplyResult {
@@ -50,7 +50,7 @@ export async function apply(
       const id = await handler.applyCreate(change.desired, refs, client)
       if (id) {
         refs.set(handler.refType, change.refKey, {
-          id, refKey: change.refKey, raw: change.desired as Record<string, unknown>,
+          id, refKey: change.refKey, raw: change.desired as RefEntry['raw'],
         })
         stateEntries.push({
           resourceType: change.resourceType,

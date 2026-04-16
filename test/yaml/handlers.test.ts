@@ -13,7 +13,7 @@ import {YAML_SECTION_KEYS} from '../../src/lib/yaml/schema.js'
 const ALL_HANDLED_TYPES: HandledResourceType[] = [
   'tag', 'environment', 'secret', 'alertChannel',
   'notificationPolicy', 'webhook', 'resourceGroup',
-  'monitor', 'dependency',
+  'monitor', 'dependency', 'statusPage',
 ]
 
 describe('handler registry', () => {
@@ -31,9 +31,9 @@ describe('handler registry', () => {
     }
   })
 
-  it('allHandlers returns all 9 handlers', () => {
+  it('allHandlers returns all 10 handlers', () => {
     const handlers = allHandlers()
-    expect(handlers).toHaveLength(9)
+    expect(handlers).toHaveLength(10)
     const types = new Set(handlers.map((h) => h.resourceType))
     for (const type of ALL_HANDLED_TYPES) {
       expect(types.has(type), `allHandlers() missing ${type}`).toBe(true)
@@ -67,6 +67,7 @@ describe('handler metadata', () => {
     ['resourceGroup', 'resourceGroups', 'resourceGroups', '/api/v1/resource-groups'],
     ['monitor', 'monitors', 'monitors', '/api/v1/monitors'],
     ['dependency', 'dependencies', 'dependencies', '/api/v1/service-subscriptions'],
+    ['statusPage', 'statusPages', 'statusPages', '/api/v1/status-pages'],
   ] as const)('%s → refType=%s, configKey=%s, listPath=%s', (type, refType, configKey, listPath) => {
     const h = getHandler(type)
     expect(h.refType).toBe(refType)
@@ -85,6 +86,7 @@ describe('handler getRefKey', () => {
   it('resourceGroup uses name', () => expect(getHandler('resourceGroup').getRefKey({name: 'API'})).toBe('API'))
   it('monitor uses name', () => expect(getHandler('monitor').getRefKey({name: 'M'})).toBe('M'))
   it('dependency uses service slug', () => expect(getHandler('dependency').getRefKey({service: 'gh'})).toBe('gh'))
+  it('statusPage uses slug', () => expect(getHandler('statusPage').getRefKey({slug: 'my-page', name: 'My Page'})).toBe('my-page'))
 })
 
 describe('handler getApiRefKey + getApiId', () => {
@@ -125,6 +127,7 @@ describe('handler deletePath', () => {
     ['resourceGroup', '/api/v1/resource-groups/id-1'],
     ['monitor', '/api/v1/monitors/id-1'],
     ['dependency', '/api/v1/service-subscriptions/id-1'],
+    ['statusPage', '/api/v1/status-pages/id-1'],
   ] as const)('%s → %s', (type, expectedPath) => {
     expect(getHandler(type).deletePath('id-1', 'ref-1')).toBe(expectedPath)
   })

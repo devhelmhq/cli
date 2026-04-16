@@ -406,3 +406,41 @@ export const DEPENDENCIES: ResourceConfig<ServiceSubscriptionDto> = {
     {header: 'ENABLED', get: (r) => String(r.enabled ?? '')},
   ],
 }
+
+export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
+  name: 'status page',
+  plural: 'status-pages',
+  apiPath: '/api/v1/status-pages',
+  columns: [
+    {header: 'ID', get: (r) => r.id ?? ''},
+    {header: 'NAME', get: (r) => r.name ?? ''},
+    {header: 'SLUG', get: (r) => r.slug ?? ''},
+    {header: 'VISIBILITY', get: (r) => r.visibility ?? ''},
+    {header: 'ENABLED', get: (r) => String(r.enabled ?? '')},
+    {header: 'STATUS', get: (r) => r.overallStatus ?? ''},
+  ],
+  createFlags: {
+    name: Flags.string({description: desc('CreateStatusPageRequest', 'name'), required: true}),
+    slug: Flags.string({description: desc('CreateStatusPageRequest', 'slug'), required: true}),
+    description: Flags.string({description: desc('CreateStatusPageRequest', 'description')}),
+    visibility: Flags.string({description: desc('CreateStatusPageRequest', 'visibility'), options: ['PUBLIC']}),
+    'incident-mode': Flags.string({description: desc('CreateStatusPageRequest', 'incidentMode'), options: ['MANUAL', 'REVIEW', 'AUTOMATIC']}),
+  },
+  updateFlags: {
+    name: Flags.string({description: desc('UpdateStatusPageRequest', 'name')}),
+    description: Flags.string({description: desc('UpdateStatusPageRequest', 'description')}),
+    visibility: Flags.string({description: desc('UpdateStatusPageRequest', 'visibility'), options: ['PUBLIC']}),
+    enabled: Flags.boolean({description: 'Whether the page is enabled', allowNo: true}),
+    'incident-mode': Flags.string({description: desc('UpdateStatusPageRequest', 'incidentMode'), options: ['MANUAL', 'REVIEW', 'AUTOMATIC']}),
+  },
+  bodyBuilder: (raw) => {
+    const body: Record<string, unknown> = {}
+    if (raw.name !== undefined) body.name = raw.name
+    if (raw.slug !== undefined) body.slug = raw.slug
+    if (raw.description !== undefined) body.description = raw.description
+    if (raw.visibility !== undefined) body.visibility = raw.visibility
+    if (raw.enabled !== undefined) body.enabled = raw.enabled
+    if (raw['incident-mode'] !== undefined) body.incidentMode = raw['incident-mode']
+    return body
+  },
+}

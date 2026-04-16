@@ -32,6 +32,7 @@ const RESOURCE_ENTITLEMENT_MAP: Record<string, string> = {
   resourceGroup: 'resource_groups',
   environment: 'environments',
   secret: 'secrets',
+  statusPage: 'status_pages',
 }
 
 /**
@@ -45,7 +46,7 @@ export async function checkEntitlements(
   let data: AuthMeResponse
   try {
     const resp = await checkedFetch<{data?: AuthMeResponse}>(client.GET('/api/v1/auth/me'))
-    data = resp.data ?? {}
+    data = resp.data ?? ({} as AuthMeResponse)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     process.stderr.write(`Entitlement check skipped: ${msg}\n`)
