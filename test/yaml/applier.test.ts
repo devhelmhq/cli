@@ -257,7 +257,7 @@ describe('applier', () => {
       expect(result.succeeded).toHaveLength(1)
       expect(mockPut).toHaveBeenCalledWith('/api/v1/environments/{slug}', {
         params: {path: {slug: 'prod'}},
-        body: {name: 'Prod', variables: {KEY: 'val'}, isDefault: undefined},
+        body: {name: 'Prod', variables: {KEY: 'val'}, isDefault: null},
       })
     })
 

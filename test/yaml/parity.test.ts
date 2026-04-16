@@ -21,6 +21,7 @@ const CLI_RESOURCE_CONFIGS = [
   {config: resources.WEBHOOKS, yamlKey: 'webhooks'},
   {config: resources.API_KEYS, yamlKey: null},
   {config: resources.DEPENDENCIES, yamlKey: 'dependencies'},
+  {config: resources.STATUS_PAGES, yamlKey: 'statusPages'},
 ] as const
 
 describe('CLI ↔ YAML parity', () => {
