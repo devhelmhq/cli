@@ -66,7 +66,7 @@ describe('idempotency', () => {
   })
 
   it('same YAML + same API state for alert channels (hash match) → zero changes', () => {
-    const channelConfig = {channelType: 'SlackChannelConfig', webhookUrl: 'https://hooks.slack.com/test'}
+    const channelConfig = {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/test'}
     const configHash = sha256Hex(stableStringify(channelConfig))
 
     const config: DevhelmConfig = {
@@ -87,7 +87,7 @@ describe('idempotency', () => {
   })
 
   it('alert channel config change (different hash) → one update', () => {
-    const oldConfig = {channelType: 'SlackChannelConfig', webhookUrl: 'https://hooks.slack.com/old'}
+    const oldConfig = {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/old'}
     const oldHash = sha256Hex(stableStringify(oldConfig))
 
     const config: DevhelmConfig = {
@@ -203,7 +203,7 @@ describe('idempotency', () => {
 
   it('full stack config unchanged → zero changes across all resource types', () => {
     const secretValue = 'my-api-token'
-    const channelConfig = {channelType: 'SlackChannelConfig', webhookUrl: 'https://hooks.slack.com/test'}
+    const channelConfig = {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/test'}
     const channelHash = sha256Hex(stableStringify(channelConfig))
 
     const config: DevhelmConfig = {

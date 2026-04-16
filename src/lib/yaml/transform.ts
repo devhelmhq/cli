@@ -8,22 +8,28 @@ import type {
   YamlResourceGroup, YamlWebhook, YamlTag, YamlEnvironment,
   YamlSecret, YamlAssertion, YamlAuth,
   YamlIncidentPolicy, YamlEscalationStep, YamlMatchRule,
-  ChannelType, YamlStatusPage,
+  YamlStatusPage,
 } from './schema.js'
 import type {ResolvedRefs} from './resolver.js'
 
 type Schemas = components['schemas']
 
-// ── Channel type discriminator mapping ─────────────────────────────────
+// ── Discriminator wire-format derivation ───────────────────────────────
+// The API's Jackson @JsonSubTypes wire names follow a consistent rule:
+//   strip class suffix → PascalCase → snake_case
+// This function derives the wire name algorithmically so we never
+// maintain a hardcoded map that drifts from the API source of truth.
 
-const CHANNEL_TYPE_DISCRIMINATOR: Record<ChannelType, string> = {
-  slack: 'SlackChannelConfig',
-  discord: 'DiscordChannelConfig',
-  email: 'EmailChannelConfig',
-  webhook: 'WebhookChannelConfig',
-  pagerduty: 'PagerDutyChannelConfig',
-  opsgenie: 'OpsGenieChannelConfig',
-  teams: 'TeamsChannelConfig',
+function pascalToSnake(s: string): string {
+  return s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/([A-Z])([A-Z][a-z])/g, '$1_$2').toLowerCase()
+}
+
+function assertionWireType(schemaName: string): string {
+  return pascalToSnake(schemaName.replace(/Assertion$/, ''))
+}
+
+function authWireType(schemaName: string): string {
+  return pascalToSnake(schemaName.replace(/AuthConfig$/, ''))
 }
 
 // ── Tag ────────────────────────────────────────────────────────────────
@@ -55,8 +61,7 @@ export function toCreateSecretRequest(secret: YamlSecret): Schemas['CreateSecret
 // ── Alert Channel ──────────────────────────────────────────────────────
 
 export function toCreateAlertChannelRequest(channel: YamlAlertChannel): Schemas['CreateAlertChannelRequest'] {
-  const channelType = CHANNEL_TYPE_DISCRIMINATOR[channel.type]
-  const config = {channelType, ...channel.config} as Schemas['CreateAlertChannelRequest']['config']
+  const config = {channelType: channel.type, ...channel.config} as Schemas['CreateAlertChannelRequest']['config']
   return {name: channel.name, config}
 }
 
@@ -189,21 +194,22 @@ export function toUpdateMonitorRequest(
 }
 
 export function toCreateAssertionRequest(a: YamlAssertion): Schemas['CreateAssertionRequest'] {
-  const config = {type: a.type, ...(a.config ?? {})} as Schemas['CreateAssertionRequest']['config']
+  const config = {type: assertionWireType(a.type), ...(a.config ?? {})} as Schemas['CreateAssertionRequest']['config']
   return {config, severity: a.severity}
 }
 
 export function toAuthConfig(auth: YamlAuth, refs: ResolvedRefs): Schemas['CreateMonitorRequest']['auth'] {
   const secretId = refs.resolve('secrets', auth.secret) ?? undefined
+  const wireType = authWireType(auth.type)
   switch (auth.type) {
     case 'BearerAuthConfig':
-      return {type: 'BearerAuthConfig', vaultSecretId: secretId ?? null} as Schemas['BearerAuthConfig']
+      return {type: wireType, vaultSecretId: secretId ?? null} as Schemas['BearerAuthConfig']
     case 'BasicAuthConfig':
-      return {type: 'BasicAuthConfig', vaultSecretId: secretId ?? null} as Schemas['BasicAuthConfig']
+      return {type: wireType, vaultSecretId: secretId ?? null} as Schemas['BasicAuthConfig']
     case 'ApiKeyAuthConfig':
-      return {type: 'ApiKeyAuthConfig', headerName: auth.headerName, vaultSecretId: secretId ?? null} as Schemas['ApiKeyAuthConfig']
+      return {type: wireType, headerName: auth.headerName, vaultSecretId: secretId ?? null} as Schemas['ApiKeyAuthConfig']
     case 'HeaderAuthConfig':
-      return {type: 'HeaderAuthConfig', headerName: auth.headerName, vaultSecretId: secretId ?? null} as Schemas['HeaderAuthConfig']
+      return {type: wireType, headerName: auth.headerName, vaultSecretId: secretId ?? null} as Schemas['HeaderAuthConfig']
   }
 }
 
