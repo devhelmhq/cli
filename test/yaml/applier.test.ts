@@ -290,7 +290,7 @@ describe('applier', () => {
         '/api/v1/alert-channels/{id}',
         {params: {path: {id: 'ch-1'}}, body: expect.objectContaining({
           name: 'slack',
-          config: expect.objectContaining({channelType: 'SlackChannelConfig', webhookUrl: 'url'}),
+          config: expect.objectContaining({channelType: 'slack', webhookUrl: 'url'}),
         })},
       )
     })

@@ -84,7 +84,7 @@ describe('transforms', () => {
       }
       const req = toCreateAlertChannelRequest(channel)
       expect(req.name).toBe('ops')
-      expect(req.config).toHaveProperty('channelType', 'SlackChannelConfig')
+      expect(req.config).toHaveProperty('channelType', 'slack')
       expect(req.config).toHaveProperty('webhookUrl', 'https://hooks.slack.com/test')
     })
 
@@ -94,19 +94,19 @@ describe('transforms', () => {
         config: {recipients: ['a@test.com']},
       }
       const req = toCreateAlertChannelRequest(channel)
-      expect(req.config).toHaveProperty('channelType', 'EmailChannelConfig')
+      expect(req.config).toHaveProperty('channelType', 'email')
       expect(req.config).toHaveProperty('recipients', ['a@test.com'])
     })
 
     it('transforms all 7 channel types', () => {
       const types = [
-        {type: 'slack' as const, config: {webhookUrl: 'url'}, expected: 'SlackChannelConfig'},
-        {type: 'discord' as const, config: {webhookUrl: 'url'}, expected: 'DiscordChannelConfig'},
-        {type: 'email' as const, config: {recipients: ['a@b.com']}, expected: 'EmailChannelConfig'},
-        {type: 'pagerduty' as const, config: {routingKey: 'key'}, expected: 'PagerDutyChannelConfig'},
-        {type: 'opsgenie' as const, config: {apiKey: 'key'}, expected: 'OpsGenieChannelConfig'},
-        {type: 'teams' as const, config: {webhookUrl: 'url'}, expected: 'TeamsChannelConfig'},
-        {type: 'webhook' as const, config: {url: 'url'}, expected: 'WebhookChannelConfig'},
+        {type: 'slack' as const, config: {webhookUrl: 'url'}, expected: 'slack'},
+        {type: 'discord' as const, config: {webhookUrl: 'url'}, expected: 'discord'},
+        {type: 'email' as const, config: {recipients: ['a@b.com']}, expected: 'email'},
+        {type: 'pagerduty' as const, config: {routingKey: 'key'}, expected: 'pagerduty'},
+        {type: 'opsgenie' as const, config: {apiKey: 'key'}, expected: 'opsgenie'},
+        {type: 'teams' as const, config: {webhookUrl: 'url'}, expected: 'teams'},
+        {type: 'webhook' as const, config: {url: 'url'}, expected: 'webhook'},
       ]
       for (const {type, config, expected} of types) {
         const req = toCreateAlertChannelRequest({name: 'test', type, config})
@@ -337,10 +337,10 @@ describe('transforms', () => {
     it('transforms all 4 auth types', () => {
       const refs = refsWithChannels()
       const authTypes = [
-        {type: 'BearerAuthConfig' as const, expectedType: 'BearerAuthConfig'},
-        {type: 'BasicAuthConfig' as const, expectedType: 'BasicAuthConfig'},
-        {type: 'ApiKeyAuthConfig' as const, expectedType: 'ApiKeyAuthConfig', headerName: 'X-Key'},
-        {type: 'HeaderAuthConfig' as const, expectedType: 'HeaderAuthConfig', headerName: 'Authorization'},
+        {type: 'BearerAuthConfig' as const, expectedType: 'bearer'},
+        {type: 'BasicAuthConfig' as const, expectedType: 'basic'},
+        {type: 'ApiKeyAuthConfig' as const, expectedType: 'api_key', headerName: 'X-Key'},
+        {type: 'HeaderAuthConfig' as const, expectedType: 'header', headerName: 'Authorization'},
       ]
       for (const at of authTypes) {
         const monitor: YamlMonitor = {
