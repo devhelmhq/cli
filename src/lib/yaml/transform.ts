@@ -14,22 +14,33 @@ import type {ResolvedRefs} from './resolver.js'
 
 type Schemas = components['schemas']
 
-// ── Discriminator wire-format derivation ───────────────────────────────
-// The API's Jackson @JsonSubTypes wire names follow a consistent rule:
-//   strip class suffix → PascalCase → snake_case
-// This function derives the wire name algorithmically so we never
-// maintain a hardcoded map that drifts from the API source of truth.
+// ── Discriminator wire-format helpers ─────────────────────────────────
+// YAML now uses snake_case names that match the API wire format directly.
+// These helpers convert between YAML/wire names and PascalCase schema names
+// for any code that needs the reverse mapping (e.g. reading API responses).
 
-function pascalToSnake(s: string): string {
+export function pascalToSnake(s: string): string {
   return s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/([A-Z])([A-Z][a-z])/g, '$1_$2').toLowerCase()
 }
 
-function assertionWireType(schemaName: string): string {
+export function snakeToPascal(s: string): string {
+  return s.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join('')
+}
+
+export function assertionSchemaToWire(schemaName: string): string {
   return pascalToSnake(schemaName.replace(/Assertion$/, ''))
 }
 
-function authWireType(schemaName: string): string {
+export function assertionWireToSchema(wire: string): string {
+  return snakeToPascal(wire) + 'Assertion'
+}
+
+export function authSchemaToWire(schemaName: string): string {
   return pascalToSnake(schemaName.replace(/AuthConfig$/, ''))
+}
+
+export function authWireToSchema(wire: string): string {
+  return snakeToPascal(wire) + 'AuthConfig'
 }
 
 // ── Tag ────────────────────────────────────────────────────────────────
@@ -142,6 +153,27 @@ export function toCreateResourceGroupRequest(
 
 // ── Monitor ────────────────────────────────────────────────────────────
 
+/**
+ * Narrow YAML monitor config to the API config union. The YAML schema
+ * (zod) only accepts configs whose shape matches one of the API config
+ * types; we route on `monitor.type` so the type-assertion is at least
+ * partitioned per monitor type and any shape drift surfaces as a zod
+ * parse failure before reaching this function.
+ */
+function toMonitorConfig(
+  monitor: YamlMonitor,
+): Schemas['CreateMonitorRequest']['config'] {
+  const cfg = monitor.config as unknown
+  switch (monitor.type) {
+    case 'HTTP': return cfg as Schemas['HttpMonitorConfig']
+    case 'DNS': return cfg as Schemas['DnsMonitorConfig']
+    case 'TCP': return cfg as Schemas['TcpMonitorConfig']
+    case 'ICMP': return cfg as Schemas['IcmpMonitorConfig']
+    case 'HEARTBEAT': return cfg as Schemas['HeartbeatMonitorConfig']
+    case 'MCP_SERVER': return cfg as Schemas['McpServerMonitorConfig']
+  }
+}
+
 export function toCreateMonitorRequest(
   monitor: YamlMonitor,
   refs: ResolvedRefs,
@@ -149,7 +181,7 @@ export function toCreateMonitorRequest(
   return {
     name: monitor.name,
     type: monitor.type,
-    config: monitor.config as Schemas['CreateMonitorRequest']['config'],
+    config: toMonitorConfig(monitor),
     managedBy: 'CLI',
     frequencySeconds: monitor.frequency,
     enabled: monitor.enabled,
@@ -174,7 +206,7 @@ export function toUpdateMonitorRequest(
 ): Schemas['UpdateMonitorRequest'] {
   return {
     name: monitor.name,
-    config: monitor.config as Schemas['UpdateMonitorRequest']['config'],
+    config: toMonitorConfig(monitor) as Schemas['UpdateMonitorRequest']['config'],
     managedBy: 'CLI',
     frequencySeconds: monitor.frequency ?? null,
     enabled: monitor.enabled ?? null,
@@ -194,22 +226,21 @@ export function toUpdateMonitorRequest(
 }
 
 export function toCreateAssertionRequest(a: YamlAssertion): Schemas['CreateAssertionRequest'] {
-  const config = {type: assertionWireType(a.type), ...(a.config ?? {})} as Schemas['CreateAssertionRequest']['config']
+  const config = {type: a.type, ...(a.config ?? {})} as Schemas['CreateAssertionRequest']['config']
   return {config, severity: a.severity}
 }
 
 export function toAuthConfig(auth: YamlAuth, refs: ResolvedRefs): Schemas['CreateMonitorRequest']['auth'] {
   const secretId = refs.resolve('secrets', auth.secret) ?? undefined
-  const wireType = authWireType(auth.type)
   switch (auth.type) {
-    case 'BearerAuthConfig':
-      return {type: wireType, vaultSecretId: secretId ?? null} as Schemas['BearerAuthConfig']
-    case 'BasicAuthConfig':
-      return {type: wireType, vaultSecretId: secretId ?? null} as Schemas['BasicAuthConfig']
-    case 'ApiKeyAuthConfig':
-      return {type: wireType, headerName: auth.headerName, vaultSecretId: secretId ?? null} as Schemas['ApiKeyAuthConfig']
-    case 'HeaderAuthConfig':
-      return {type: wireType, headerName: auth.headerName, vaultSecretId: secretId ?? null} as Schemas['HeaderAuthConfig']
+    case 'bearer':
+      return {type: 'bearer', vaultSecretId: secretId ?? null} as Schemas['BearerAuthConfig']
+    case 'basic':
+      return {type: 'basic', vaultSecretId: secretId ?? null} as Schemas['BasicAuthConfig']
+    case 'api_key':
+      return {type: 'api_key', headerName: auth.headerName, vaultSecretId: secretId ?? null} as Schemas['ApiKeyAuthConfig']
+    case 'header':
+      return {type: 'header', headerName: auth.headerName, vaultSecretId: secretId ?? null} as Schemas['HeaderAuthConfig']
   }
 }
 
@@ -251,26 +282,15 @@ export function toCreateStatusPageRequest(page: YamlStatusPage): Schemas['Create
 }
 
 export function toUpdateStatusPageRequest(page: YamlStatusPage): Schemas['UpdateStatusPageRequest'] {
+  // Branding is intentionally omitted — YAML does not currently model branding,
+  // and sending a body with null branding fields would reset user-configured
+  // branding on every deploy. The API's "null preserves current" semantic applies
+  // at the top level; omitting `branding` leaves it untouched.
   return {
     name: page.name,
     description: page.description ?? null,
     visibility: page.visibility ?? null,
     enabled: page.enabled ?? null,
     incidentMode: page.incidentMode ?? null,
-    branding: {
-      logoUrl: null,
-      faviconUrl: null,
-      brandColor: null,
-      pageBackground: null,
-      cardBackground: null,
-      textColor: null,
-      borderColor: null,
-      headerStyle: null,
-      theme: null,
-      reportUrl: null,
-      hidePoweredBy: false,
-      customCss: null,
-      customHeadHtml: null,
-    },
   }
 }

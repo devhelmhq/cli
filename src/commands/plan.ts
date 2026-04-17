@@ -2,7 +2,7 @@ import {Command, Flags} from '@oclif/core'
 import {createApiClient} from '../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../lib/auth.js'
 import {EXIT_CODES} from '../lib/errors.js'
-import {loadConfig, validate, fetchAllRefs, diff, formatPlan, changesetToJson} from '../lib/yaml/index.js'
+import {loadConfig, validate, fetchAllRefs, diff, formatPlan, changesetToJson, readState, emptyState, processMovedBlocks, writeState, StateFileCorruptError} from '../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../lib/yaml/entitlements.js'
 
 export default class Plan extends Command {
@@ -54,7 +54,7 @@ export default class Plan extends Command {
     try {
       config = loadConfig(flags.file)
     } catch (err) {
-      this.error((err as Error).message, {exit: 1})
+      this.error(err instanceof Error ? err.message : String(err), {exit: 1})
     }
 
     const result = validate(config)
@@ -77,8 +77,35 @@ export default class Plan extends Command {
       verbose: flags.verbose,
     })
 
+    let currentState
+    try {
+      currentState = readState() ?? emptyState()
+    } catch (err) {
+      if (err instanceof StateFileCorruptError) {
+        this.error(err.message, {exit: 1})
+      }
+      throw err
+    }
+
+    if (config.moved && config.moved.length > 0) {
+      const moveWarnings = processMovedBlocks(currentState, config.moved)
+      for (const w of moveWarnings) {
+        if (flags.output !== 'json') this.warn(w)
+      }
+      writeState(currentState)
+    }
+
     if (flags.output !== 'json') this.log('Fetching current state from API...')
-    const refs = await fetchAllRefs(client)
+    const refs = await fetchAllRefs(client, currentState)
+
+    if (refs.collisions.length > 0 && flags.output !== 'json') {
+      for (const c of refs.collisions) {
+        this.warn(
+          `Duplicate ${c.refType} reference "${c.refKey}" — ${c.apiIds.length} API resources share this name. ` +
+          `Using ${c.winnerApiId}. Rename one in the API or use a \`moved\` block to disambiguate.`,
+        )
+      }
+    }
 
     const changeset = diff(config, refs, {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']})
 

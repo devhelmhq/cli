@@ -98,8 +98,12 @@ export async function checkEntitlements(
 }
 
 export function formatEntitlementWarnings(warnings: EntitlementWarning[]): string {
-  const lines = warnings.map((w) =>
-    `  ⚠ ${w.resource}: deploying ${w.creating} new but only ${w.limit - w.current} remaining (${w.current}/${w.limit} used)`,
-  )
+  const lines = warnings.map((w) => {
+    // current may exceed limit (e.g. user was grandfathered into a higher
+    // plan then downgraded); clamp "remaining" to 0 so we never show a
+    // misleading negative number.
+    const remaining = Math.max(0, w.limit - w.current)
+    return `  ⚠ ${w.resource}: deploying ${w.creating} new but only ${remaining} remaining (${w.current}/${w.limit} used)`
+  })
   return lines.join('\n')
 }

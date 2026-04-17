@@ -38,6 +38,12 @@ export interface RefTypeDtoMap {
   statusPages: Schemas['StatusPageDto']
 }
 
+export interface AttributeDiff {
+  field: string
+  old: unknown
+  new: unknown
+}
+
 export interface Change {
   action: ChangeAction
   resourceType: ResourceType
@@ -45,6 +51,8 @@ export interface Change {
   existingId?: string
   desired?: unknown
   current?: unknown
+  /** Attribute-level diffs for update changes */
+  attributeDiffs?: AttributeDiff[]
 }
 
 export interface DiffOptions {

@@ -4,12 +4,16 @@
  * Supports:
  *   ${VAR}           — required, fails if unset
  *   ${VAR:-default}  — with fallback value
+ *   $$               — literal '$' (escape sequence)
  *
  * Interpolation runs on the raw YAML string before parsing,
  * so it works in any value position (strings, URLs, etc.).
  */
 
-const ENV_VAR_PATTERN = /\$\{([^}]+)\}/g
+// Matches either a literal-$ escape ($$) or a ${…} expression. The
+// alternation is ordered so $$ is consumed before a following ${…} could
+// be interpreted as an expression.
+const ENV_VAR_OR_ESCAPE_PATTERN = /\$\$|\$\{([^}]+)\}/g
 
 export class InterpolationError extends Error {
   constructor(
@@ -26,16 +30,18 @@ export class InterpolationError extends Error {
  * Throws InterpolationError if a required variable is not set.
  */
 export function interpolate(input: string, env: Record<string, string | undefined> = process.env): string {
-  return input.replace(ENV_VAR_PATTERN, (_match, expr: string) => {
-    const separatorIdx = expr.indexOf(':-')
+  return input.replace(ENV_VAR_OR_ESCAPE_PATTERN, (match, expr: string | undefined) => {
+    if (match === '$$') return '$'
+    const e = expr as string
+    const separatorIdx = e.indexOf(':-')
     if (separatorIdx !== -1) {
-      const varName = expr.slice(0, separatorIdx)
-      const fallback = expr.slice(separatorIdx + 2)
+      const varName = e.slice(0, separatorIdx)
+      const fallback = e.slice(separatorIdx + 2)
       const value = env[varName]
       return value !== undefined && value !== '' ? value : fallback
     }
 
-    const varName = expr.trim()
+    const varName = e.trim()
     const value = env[varName]
     if (value === undefined || value === '') {
       throw new InterpolationError(
@@ -55,8 +61,9 @@ export function interpolate(input: string, env: Record<string, string | undefine
 export function findVariables(input: string): string[] {
   const vars: string[] = []
   let match: RegExpExecArray | null
-  const re = new RegExp(ENV_VAR_PATTERN.source, 'g')
+  const re = new RegExp(ENV_VAR_OR_ESCAPE_PATTERN.source, 'g')
   while ((match = re.exec(input)) !== null) {
+    if (match[0] === '$$') continue
     const expr = match[1]
     const separatorIdx = expr.indexOf(':-')
     vars.push(separatorIdx !== -1 ? expr.slice(0, separatorIdx) : expr.trim())
@@ -70,9 +77,10 @@ export function findVariables(input: string): string[] {
  */
 export function findMissingVariables(input: string, env: Record<string, string | undefined> = process.env): string[] {
   const missing: string[] = []
-  const re = new RegExp(ENV_VAR_PATTERN.source, 'g')
+  const re = new RegExp(ENV_VAR_OR_ESCAPE_PATTERN.source, 'g')
   let match: RegExpExecArray | null
   while ((match = re.exec(input)) !== null) {
+    if (match[0] === '$$') continue
     const expr = match[1]
     const separatorIdx = expr.indexOf(':-')
     if (separatorIdx === -1) {

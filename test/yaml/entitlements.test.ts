@@ -156,6 +156,83 @@ describe('entitlements', () => {
       expect(result!.header).toMatch(/monitors:\s*8\/10/)
     })
 
+    it('warns when creating statusPages exceeds limit', async () => {
+      mockGet.mockResolvedValueOnce({
+        data: {
+          plan: {
+            tier: 'FREE',
+            entitlements: {status_pages: {value: 1}},
+            usage: {status_pages: 1},
+          },
+        },
+      })
+      const changeset: Changeset = {
+        creates: [{action: 'create', resourceType: 'statusPage', refKey: 'p1'}],
+        updates: [], deletes: [], memberships: [],
+      }
+      const result = await checkEntitlements(fakeClient, changeset)
+      expect(result).not.toBeNull()
+      expect(result!.warnings).toHaveLength(1)
+      expect(result!.warnings[0]).toMatchObject({
+        resource: 'status_pages', current: 1, creating: 1, limit: 1,
+      })
+    })
+
+    it('no warning when statusPage creates under limit', async () => {
+      mockGet.mockResolvedValueOnce({
+        data: {
+          plan: {
+            tier: 'PRO',
+            entitlements: {status_pages: {value: 5}},
+            usage: {status_pages: 2},
+          },
+        },
+      })
+      const changeset: Changeset = {
+        creates: [
+          {action: 'create', resourceType: 'statusPage', refKey: 'p1'},
+          {action: 'create', resourceType: 'statusPage', refKey: 'p2'},
+        ],
+        updates: [], deletes: [], memberships: [],
+      }
+      const result = await checkEntitlements(fakeClient, changeset)
+      expect(result).not.toBeNull()
+      expect(result!.warnings).toHaveLength(0)
+    })
+
+    it('ignores tag creates (no entitlement mapping)', async () => {
+      mockGet.mockResolvedValueOnce({
+        data: {
+          plan: {
+            tier: 'FREE',
+            entitlements: {monitors: {value: 10}},
+            usage: {monitors: 0},
+          },
+        },
+      })
+      const changeset: Changeset = {
+        creates: [
+          {action: 'create', resourceType: 'tag', refKey: 't1'},
+          {action: 'create', resourceType: 'tag', refKey: 't2'},
+        ],
+        updates: [], deletes: [], memberships: [],
+      }
+      const result = await checkEntitlements(fakeClient, changeset)
+      expect(result).not.toBeNull()
+      // tag isn't mapped to an entitlement key, so no warnings even if
+      // hypothetical limits existed.
+      expect(result!.warnings).toHaveLength(0)
+    })
+
+    it('clamps remaining at zero when current exceeds limit', () => {
+      const output = formatEntitlementWarnings([{
+        resource: 'status_pages', current: 5, creating: 1, limit: 1,
+      }])
+      // current > limit would give negative "remaining"; clamp to 0.
+      expect(output).toContain('0 remaining')
+      expect(output).not.toContain('-')
+    })
+
     it('handles multiple resource types', async () => {
       mockGet.mockResolvedValueOnce({
         data: {

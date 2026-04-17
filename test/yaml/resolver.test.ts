@@ -70,12 +70,13 @@ describe('ResolvedRefs', () => {
     expect(refs.allEntries('secrets')).toHaveLength(0)
   })
 
-  it('set overwrites existing entry', () => {
+  it('set with same id updates raw in place', () => {
     const refs = new ResolvedRefs()
     refs.set('tags', 'prod', {id: '1', refKey: 'prod', raw: {}})
-    refs.set('tags', 'prod', {id: '2', refKey: 'prod', raw: {updated: true}})
-    expect(refs.resolve('tags', 'prod')).toBe('2')
+    refs.set('tags', 'prod', {id: '1', refKey: 'prod', raw: {updated: true}})
+    expect(refs.resolve('tags', 'prod')).toBe('1')
     expect(refs.get('tags', 'prod')!.raw).toEqual({updated: true})
+    expect(refs.collisions).toHaveLength(0)
   })
 
   it('types are isolated', () => {
@@ -90,5 +91,79 @@ describe('ResolvedRefs', () => {
     const refs = new ResolvedRefs()
     refs.set('monitors', 'api', {id: 'mon-1', refKey: 'api', managedBy: 'CLI', raw: {}})
     expect(refs.get('monitors', 'api')!.managedBy).toBe('CLI')
+  })
+
+  it('stores matchSource metadata', () => {
+    const refs = new ResolvedRefs()
+    refs.set('monitors', 'api', {id: 'mon-1', refKey: 'api', raw: {}, matchSource: 'state'})
+    expect(refs.get('monitors', 'api')!.matchSource).toBe('state')
+  })
+
+  describe('collision detection', () => {
+    it('records collision when two different ids use the same refKey', () => {
+      const refs = new ResolvedRefs()
+      refs.set('monitors', 'api', {id: 'mon-1', refKey: 'api', raw: {}, matchSource: 'name'})
+      refs.set('monitors', 'api', {id: 'mon-2', refKey: 'api', raw: {}, matchSource: 'name'})
+
+      expect(refs.collisions).toHaveLength(1)
+      expect(refs.collisions[0]).toMatchObject({
+        refType: 'monitors',
+        refKey: 'api',
+        apiIds: ['mon-1', 'mon-2'],
+        winnerApiId: 'mon-1',
+      })
+    })
+
+    it('deduplicates repeated collisions on the same refKey', () => {
+      const refs = new ResolvedRefs()
+      refs.set('tags', 'prod', {id: 't-1', refKey: 'prod', raw: {}, matchSource: 'name'})
+      refs.set('tags', 'prod', {id: 't-2', refKey: 'prod', raw: {}, matchSource: 'name'})
+      refs.set('tags', 'prod', {id: 't-3', refKey: 'prod', raw: {}, matchSource: 'name'})
+
+      expect(refs.collisions).toHaveLength(1)
+      expect(refs.collisions[0].apiIds.sort()).toEqual(['t-1', 't-2', 't-3'])
+    })
+
+    it('state-matched entry wins over name-matched entry', () => {
+      const refs = new ResolvedRefs()
+      refs.set('monitors', 'api', {id: 'mon-old', refKey: 'api', raw: {}, matchSource: 'name'})
+      refs.set('monitors', 'api', {id: 'mon-new', refKey: 'api', raw: {}, matchSource: 'state'})
+
+      expect(refs.resolve('monitors', 'api')).toBe('mon-new')
+      expect(refs.collisions).toHaveLength(1)
+      expect(refs.collisions[0].winnerApiId).toBe('mon-new')
+    })
+
+    it('earlier state-matched entry wins over later name-matched entry', () => {
+      const refs = new ResolvedRefs()
+      refs.set('monitors', 'api', {id: 'mon-state', refKey: 'api', raw: {}, matchSource: 'state'})
+      refs.set('monitors', 'api', {id: 'mon-name', refKey: 'api', raw: {}, matchSource: 'name'})
+
+      expect(refs.resolve('monitors', 'api')).toBe('mon-state')
+      expect(refs.collisions).toHaveLength(1)
+      expect(refs.collisions[0].winnerApiId).toBe('mon-state')
+    })
+
+    it('same id re-set is a no-op and does not record a collision', () => {
+      const refs = new ResolvedRefs()
+      refs.set('tags', 'prod', {id: 't-1', refKey: 'prod', raw: {}, matchSource: 'name'})
+      refs.set('tags', 'prod', {id: 't-1', refKey: 'prod', raw: {updated: true}, matchSource: 'name'})
+      expect(refs.collisions).toHaveLength(0)
+      expect(refs.get('tags', 'prod')!.raw).toEqual({updated: true})
+    })
+
+    it('collisions across different types are tracked independently', () => {
+      const refs = new ResolvedRefs()
+      refs.set('monitors', 'api', {id: 'm-1', refKey: 'api', raw: {}, matchSource: 'name'})
+      refs.set('monitors', 'api', {id: 'm-2', refKey: 'api', raw: {}, matchSource: 'name'})
+      refs.set('tags', 'api', {id: 't-1', refKey: 'api', raw: {}, matchSource: 'name'})
+      refs.set('tags', 'api', {id: 't-2', refKey: 'api', raw: {}, matchSource: 'name'})
+
+      expect(refs.collisions).toHaveLength(2)
+      const monitorCollision = refs.collisions.find((c) => c.refType === 'monitors')
+      const tagCollision = refs.collisions.find((c) => c.refType === 'tags')
+      expect(monitorCollision).toBeDefined()
+      expect(tagCollision).toBeDefined()
+    })
   })
 })

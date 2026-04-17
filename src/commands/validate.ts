@@ -40,11 +40,12 @@ export default class Validate extends Command {
     try {
       config = parseConfigFile(args.file, !flags['skip-env'])
     } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
       if (isJson) {
-        this.log(JSON.stringify({valid: false, errors: [{path: '', message: (err as Error).message}], warnings: []}, null, 2))
+        this.log(JSON.stringify({valid: false, errors: [{path: '', message: msg}], warnings: []}, null, 2))
         this.exit(1)
       }
-      this.error((err as Error).message, {exit: 1})
+      this.error(msg, {exit: 1})
     }
 
     const result = validate(config)

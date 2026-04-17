@@ -37,6 +37,7 @@ import type {
   YamlTag, YamlEnvironment, YamlSecret, YamlAlertChannel,
   YamlNotificationPolicy, YamlWebhook, YamlResourceGroup,
   YamlMonitor, YamlDependency, YamlStatusPage,
+  YamlStatusPageComponentGroup, YamlStatusPageComponent,
 } from './schema.js'
 import type {YamlSectionKey} from './schema.js'
 import {
@@ -50,6 +51,9 @@ import {
 import {fetchPaginated} from '../typed-api.js'
 import {checkedFetch, apiPatch} from '../api-client.js'
 import {apiPost, apiPut, apiDelete as apiDeleteRaw} from '../api-client.js'
+import type {ChildCollectionDef} from './child-reconciler.js'
+import {diffChildren, applyChildDiff} from './child-reconciler.js'
+import type {ChildStateEntry} from './state.js'
 
 type Schemas = components['schemas']
 
@@ -65,6 +69,16 @@ type Schemas = components['schemas']
  * storage.  defineHandler verifies all field accesses at compile time,
  * then type-erases to the default form.
  */
+/**
+ * Rich outcome for handlers that manage child collections. Handlers that
+ * don't manage children can still return a bare string (for applyCreate) or
+ * void (for applyUpdate); the applier normalizes both forms.
+ */
+export interface ApplyOutcome {
+  id?: string
+  children?: Record<string, ChildStateEntry>
+}
+
 export interface ResourceHandler<TYaml = unknown, TApiDto = unknown> {
   readonly resourceType: HandledResourceType
   readonly refType: RefType
@@ -79,9 +93,16 @@ export interface ResourceHandler<TYaml = unknown, TApiDto = unknown> {
   hasChanged(yaml: TYaml, api: TApiDto, refs: ResolvedRefs): boolean
 
   fetchAll(client: ApiClient): Promise<TApiDto[]>
-  applyCreate(yaml: TYaml, refs: ResolvedRefs, client: ApiClient): Promise<string | undefined>
-  applyUpdate(yaml: TYaml, existingId: string, refs: ResolvedRefs, client: ApiClient): Promise<void>
+  applyCreate(
+    yaml: TYaml, refs: ResolvedRefs, client: ApiClient, priorChildren?: Record<string, ChildStateEntry>,
+  ): Promise<ApplyOutcome | string | undefined>
+  applyUpdate(
+    yaml: TYaml, existingId: string, refs: ResolvedRefs, client: ApiClient, priorChildren?: Record<string, ChildStateEntry>,
+  ): Promise<ApplyOutcome | void>
   deletePath(id: string, refKey: string): string
+
+  /** Compute per-field attribute diffs between desired YAML and current API state */
+  computeAttributeDiffs?(yaml: TYaml, api: TApiDto, refs: ResolvedRefs): Array<{field: string; old: unknown; new: unknown}>
 }
 
 // ── Handler definition (snapshot-based) ─────────────────────────────────
@@ -106,9 +127,29 @@ interface HandlerDef<TYaml, TApiDto, TSnapshot> {
   toCurrentSnapshot(api: TApiDto): TSnapshot
 
   fetchAll(client: ApiClient): Promise<TApiDto[]>
-  applyCreate(yaml: TYaml, refs: ResolvedRefs, client: ApiClient): Promise<string | undefined>
-  applyUpdate(yaml: TYaml, existingId: string, refs: ResolvedRefs, client: ApiClient): Promise<void>
+  applyCreate(
+    yaml: TYaml, refs: ResolvedRefs, client: ApiClient, priorChildren?: Record<string, ChildStateEntry>,
+  ): Promise<ApplyOutcome | string | undefined>
+  applyUpdate(
+    yaml: TYaml, existingId: string, refs: ResolvedRefs, client: ApiClient, priorChildren?: Record<string, ChildStateEntry>,
+  ): Promise<ApplyOutcome | void>
   deletePath(id: string, refKey: string): string
+}
+
+/**
+ * Normalize the possibly-string return of applyCreate into a uniform outcome.
+ */
+export function normalizeCreateOutcome(raw: ApplyOutcome | string | undefined): ApplyOutcome | undefined {
+  if (raw === undefined) return undefined
+  if (typeof raw === 'string') return {id: raw}
+  return raw
+}
+
+/**
+ * Normalize the possibly-void return of applyUpdate into a uniform outcome.
+ */
+export function normalizeUpdateOutcome(raw: ApplyOutcome | void): ApplyOutcome {
+  return raw ?? {}
 }
 
 /**
@@ -132,6 +173,19 @@ function defineHandler<TYaml, TApiDto, TSnapshot>(
 
     hasChanged(yaml: TYaml, api: TApiDto, refs: ResolvedRefs): boolean {
       return !isEqual(h.toDesiredSnapshot(yaml, api, refs), h.toCurrentSnapshot(api))
+    },
+
+    computeAttributeDiffs(yaml: TYaml, api: TApiDto, refs: ResolvedRefs) {
+      const desired = h.toDesiredSnapshot(yaml, api, refs) as Record<string, unknown>
+      const current = h.toCurrentSnapshot(api) as Record<string, unknown>
+      const diffs: Array<{field: string; old: unknown; new: unknown}> = []
+      const allKeys = new Set([...Object.keys(desired), ...Object.keys(current)])
+      for (const key of allKeys) {
+        if (!isEqual(desired[key], current[key])) {
+          diffs.push({field: key, old: current[key], new: desired[key]})
+        }
+      }
+      return diffs
     },
 
     fetchAll: h.fetchAll,
@@ -506,7 +560,7 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
 
   toDesiredSnapshot: (yaml, api, refs) => ({
     name: yaml.name,
-    config: yaml.config as MonitorSnapshot['config'],
+    config: yaml.config as unknown as MonitorSnapshot['config'],
     frequencySeconds: yaml.frequency ?? api.frequencySeconds ?? null,
     enabled: yaml.enabled ?? api.enabled ?? null,
     regions: yaml.regions !== undefined
@@ -663,6 +717,228 @@ type StatusPageSnapshot = {
   incidentMode: string
 }
 
+// ── Status page child collection definitions ────────────────────────────
+
+function makeGroupCollectionDef(
+  client: ApiClient,
+): ChildCollectionDef<YamlStatusPageComponentGroup, Schemas['StatusPageComponentGroupDto']> {
+  return {
+    name: 'groups',
+    identityKey: (yaml) => yaml.name,
+    apiIdentityKey: (api) => api.name ?? '',
+    apiId: (api) => String(api.id),
+    toDesiredSnapshot: (yaml) => ({
+      name: yaml.name,
+      description: yaml.description ?? null,
+      collapsed: yaml.collapsed ?? true,
+    }),
+    toCurrentSnapshot: (api) => ({
+      name: api.name ?? '',
+      description: api.description ?? null,
+      collapsed: api.collapsed ?? true,
+    }),
+    async applyCreate(parentId, yaml, index) {
+      const resp = await apiPost<{data?: Schemas['StatusPageComponentGroupDto']}>(
+        client, `/api/v1/status-pages/${parentId}/groups`,
+        {name: yaml.name, description: yaml.description ?? null, displayOrder: index, collapsed: yaml.collapsed ?? true},
+      )
+      return String(resp.data?.id ?? '')
+    },
+    async applyUpdate(parentId, childId, yaml, index) {
+      await apiPut(client, `/api/v1/status-pages/${parentId}/groups/${childId}`,
+        {name: yaml.name, description: yaml.description ?? null, displayOrder: index, collapsed: yaml.collapsed ?? true},
+      )
+    },
+    async applyDelete(parentId, childId) {
+      await apiDeleteRaw(client, `/api/v1/status-pages/${parentId}/groups/${childId}`)
+    },
+  }
+}
+
+function makeComponentCollectionDef(
+  client: ApiClient,
+  refs: ResolvedRefs,
+  groupNameToId: Map<string, string>,
+): ChildCollectionDef<YamlStatusPageComponent, Schemas['StatusPageComponentDto']> {
+  return {
+    name: 'components',
+    identityKey: (yaml) => yaml.name,
+    apiIdentityKey: (api) => api.name ?? '',
+    apiId: (api) => String(api.id),
+    toDesiredSnapshot: (yaml) => ({
+      name: yaml.name,
+      description: yaml.description ?? null,
+      type: yaml.type,
+      showUptime: yaml.showUptime ?? true,
+      group: yaml.group ?? null,
+      monitor: yaml.monitor ?? null,
+      resourceGroup: yaml.resourceGroup ?? null,
+    }),
+    toCurrentSnapshot: (api) => {
+      // Reverse-resolve groupId/monitorId/resourceGroupId to names for comparison
+      let groupName: string | null = null
+      if (api.groupId) {
+        for (const [name, id] of groupNameToId) {
+          if (id === api.groupId) {groupName = name; break}
+        }
+      }
+      let monitorName: string | null = null
+      if (api.monitorId) {
+        for (const entry of refs.allEntries('monitors')) {
+          if (entry.id === api.monitorId) {monitorName = entry.refKey; break}
+        }
+      }
+      let resourceGroupName: string | null = null
+      if (api.resourceGroupId) {
+        for (const entry of refs.allEntries('resourceGroups')) {
+          if (entry.id === String(api.resourceGroupId)) {resourceGroupName = entry.refKey; break}
+        }
+      }
+      return {
+        name: api.name ?? '',
+        description: api.description ?? null,
+        type: api.type ?? 'STATIC',
+        showUptime: api.showUptime ?? true,
+        group: groupName,
+        monitor: monitorName,
+        resourceGroup: resourceGroupName,
+      }
+    },
+    async applyCreate(parentId, yaml, index) {
+      const body: Record<string, unknown> = {
+        name: yaml.name, type: yaml.type,
+        description: yaml.description ?? null,
+        displayOrder: index, showUptime: yaml.showUptime ?? true,
+      }
+      if (yaml.group && groupNameToId.has(yaml.group)) body.groupId = groupNameToId.get(yaml.group)
+      if (yaml.type === 'MONITOR' && yaml.monitor) {
+        body.monitorId = refs.resolve('monitors', yaml.monitor) ?? yaml.monitor
+      }
+      if (yaml.type === 'GROUP' && yaml.resourceGroup) {
+        body.resourceGroupId = refs.resolve('resourceGroups', yaml.resourceGroup) ?? yaml.resourceGroup
+      }
+      const resp = await apiPost<{data?: Schemas['StatusPageComponentDto']}>(
+        client, `/api/v1/status-pages/${parentId}/components`, body,
+      )
+      return String(resp.data?.id ?? '')
+    },
+    async applyUpdate(parentId, childId, yaml, index) {
+      const body: Record<string, unknown> = {
+        name: yaml.name,
+        description: yaml.description ?? null,
+        displayOrder: index, showUptime: yaml.showUptime ?? true,
+      }
+      if (yaml.group && groupNameToId.has(yaml.group)) {
+        body.groupId = groupNameToId.get(yaml.group)
+      } else if (!yaml.group) {
+        body.removeFromGroup = true
+      }
+      await apiPut(client, `/api/v1/status-pages/${parentId}/components/${childId}`, body)
+    },
+    async applyDelete(parentId, childId) {
+      await apiDeleteRaw(client, `/api/v1/status-pages/${parentId}/components/${childId}`)
+    },
+    async applyReorder(parentId, orderedIds) {
+      const positions = orderedIds.map((id, i) => ({componentId: id, displayOrder: i, groupId: null}))
+      await apiPut(client, `/api/v1/status-pages/${parentId}/components/reorder`, {positions})
+    },
+  }
+}
+
+/**
+ * Reconcile groups and components on a status page using the child reconciler.
+ * Replaces the old delete-all/recreate-all approach with individual CRUD.
+ *
+ * Omission vs empty semantics (critical — must not mass-delete):
+ *   - key omitted (undefined) → do NOT reconcile; preserve existing API state and prior state children
+ *   - key explicitly `[]` → reconcile to empty (deletes all remote children of that kind)
+ *   - key with entries → reconcile to that desired set
+ *
+ * Components need group IDs, so if only `components` is present we still must
+ * fetch existing groups to resolve `group` references, but we never mutate them.
+ */
+async function reconcileStatusPageChildren(
+  yaml: YamlStatusPage,
+  pageId: string,
+  refs: ResolvedRefs,
+  client: ApiClient,
+  stateChildren: Record<string, ChildStateEntry> = {},
+): Promise<Record<string, ChildStateEntry>> {
+  const reconcileGroups = yaml.componentGroups !== undefined
+  const reconcileComponents = yaml.components !== undefined
+  if (!reconcileGroups && !reconcileComponents) return {}
+
+  // Carry prior state children for any kind we are NOT reconciling, so they
+  // remain tracked after this apply.
+  const carriedState: Record<string, ChildStateEntry> = {}
+
+  // Phase 1: Groups — fetch if we will reconcile OR if components need the name→id map
+  let existingGroups: Schemas['StatusPageComponentGroupDto'][] = []
+  let groupChildState: Record<string, ChildStateEntry> = {}
+  if (reconcileGroups || reconcileComponents) {
+    existingGroups = await fetchPaginated<Schemas['StatusPageComponentGroupDto']>(
+      client, `/api/v1/status-pages/${pageId}/groups`,
+    )
+  }
+
+  if (reconcileGroups) {
+    const groupDef = makeGroupCollectionDef(client)
+    const groupStateChildren: Record<string, ChildStateEntry> = {}
+    for (const [key, entry] of Object.entries(stateChildren)) {
+      if (key.startsWith('groups.')) groupStateChildren[key] = entry
+    }
+
+    const desiredGroups = yaml.componentGroups ?? []
+    const groupDiff = diffChildren(groupDef, desiredGroups, existingGroups, groupStateChildren)
+    const groupResult = await applyChildDiff(
+      groupDef, pageId, desiredGroups, groupDiff, existingGroups, groupStateChildren,
+    )
+    groupChildState = groupResult.childState
+  } else {
+    // Preserve any group entries from prior state
+    for (const [key, entry] of Object.entries(stateChildren)) {
+      if (key.startsWith('groups.')) carriedState[key] = entry
+    }
+  }
+
+  // Build group name → ID map (needed only if reconciling components)
+  const groupNameToId = new Map<string, string>()
+  for (const g of existingGroups) {
+    groupNameToId.set(g.name ?? '', String(g.id))
+  }
+  for (const [key, entry] of Object.entries(groupChildState)) {
+    const name = key.replace('groups.', '')
+    groupNameToId.set(name, entry.apiId)
+  }
+
+  // Phase 2: Components
+  let componentChildState: Record<string, ChildStateEntry> = {}
+  if (reconcileComponents) {
+    const componentDef = makeComponentCollectionDef(client, refs, groupNameToId)
+    const existingComponents = await fetchPaginated<Schemas['StatusPageComponentDto']>(
+      client, `/api/v1/status-pages/${pageId}/components`,
+    )
+
+    const componentStateChildren: Record<string, ChildStateEntry> = {}
+    for (const [key, entry] of Object.entries(stateChildren)) {
+      if (key.startsWith('components.')) componentStateChildren[key] = entry
+    }
+
+    const desiredComponents = yaml.components ?? []
+    const componentDiff = diffChildren(componentDef, desiredComponents, existingComponents, componentStateChildren)
+    const componentResult = await applyChildDiff(
+      componentDef, pageId, desiredComponents, componentDiff, existingComponents, componentStateChildren,
+    )
+    componentChildState = componentResult.childState
+  } else {
+    for (const [key, entry] of Object.entries(stateChildren)) {
+      if (key.startsWith('components.')) carriedState[key] = entry
+    }
+  }
+
+  return {...carriedState, ...groupChildState, ...componentChildState}
+}
+
 const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto'], StatusPageSnapshot>({
   resourceType: 'statusPage',
   refType: 'statusPages',
@@ -692,77 +968,24 @@ const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto']
 
   fetchAll: (client) => fetchPaginated<Schemas['StatusPageDto']>(client, '/api/v1/status-pages'),
 
-  async applyCreate(yaml, refs, client) {
+  async applyCreate(yaml, refs, client, priorChildren) {
     const resp = await apiPost<{data?: Schemas['StatusPageDto']}>(client, '/api/v1/status-pages', toCreateStatusPageRequest(yaml))
     const pageId = resp.data?.id
     if (!pageId) return undefined
-    await syncSubResources(yaml, pageId, refs, client)
-    return pageId
+    const children = await reconcileStatusPageChildren(yaml, pageId, refs, client, priorChildren ?? {})
+    return {id: pageId, children}
   },
-  async applyUpdate(yaml, id, refs, client) {
+  async applyUpdate(yaml, id, refs, client, priorChildren) {
     const body = toUpdateStatusPageRequest(yaml)
     await apiPut(client, `/api/v1/status-pages/${id}`, body)
-    if (yaml.componentGroups || yaml.components) {
-      await syncSubResources(yaml, id, refs, client)
+    let children = priorChildren ?? {}
+    if (yaml.componentGroups !== undefined || yaml.components !== undefined) {
+      children = await reconcileStatusPageChildren(yaml, id, refs, client, priorChildren ?? {})
     }
+    return {children}
   },
   deletePath: (id) => `/api/v1/status-pages/${id}`,
 })
-
-/**
- * Sync component groups and components on a status page after create/update.
- * This is a simplified reconciliation: delete all existing, then recreate.
- * Necessary because groups/components have ordering and dependencies.
- */
-async function syncSubResources(
-  yaml: YamlStatusPage,
-  pageId: string,
-  refs: ResolvedRefs,
-  client: ApiClient,
-): Promise<void> {
-  if (!yaml.componentGroups && !yaml.components) return
-
-  const existingComponents = await fetchPaginated<Schemas['StatusPageComponentDto']>(
-    client, `/api/v1/status-pages/${pageId}/components`,
-  )
-  const existingGroups = await fetchPaginated<Schemas['StatusPageComponentGroupDto']>(
-    client, `/api/v1/status-pages/${pageId}/groups`,
-  )
-
-  for (const c of existingComponents) {
-    await apiDeleteRaw(client, `/api/v1/status-pages/${pageId}/components/${c.id}`)
-  }
-  for (const g of existingGroups) {
-    await apiDeleteRaw(client, `/api/v1/status-pages/${pageId}/groups/${g.id}`)
-  }
-
-  const groupNameToId = new Map<string, string>()
-  for (const [i, g] of (yaml.componentGroups ?? []).entries()) {
-    const resp = await apiPost<{data?: Schemas['StatusPageComponentGroupDto']}>(
-      client, `/api/v1/status-pages/${pageId}/groups`,
-      {name: g.name, description: g.description ?? null, displayOrder: i, collapsed: g.collapsed ?? true},
-    )
-    if (resp.data?.id) groupNameToId.set(g.name, resp.data.id)
-  }
-
-  for (const [i, c] of (yaml.components ?? []).entries()) {
-    const body: Record<string, unknown> = {
-      name: c.name,
-      type: c.type,
-      description: c.description ?? null,
-      displayOrder: i,
-      showUptime: c.showUptime ?? true,
-    }
-    if (c.group && groupNameToId.has(c.group)) body.groupId = groupNameToId.get(c.group)
-    if (c.type === 'MONITOR' && c.monitor) {
-      body.monitorId = refs.resolve('monitors', c.monitor) ?? c.monitor
-    }
-    if (c.type === 'GROUP' && c.resourceGroup) {
-      body.resourceGroupId = refs.resolve('resourceGroups', c.resourceGroup) ?? c.resourceGroup
-    }
-    await apiPost(client, `/api/v1/status-pages/${pageId}/components`, body)
-  }
-}
 
 // ── Handler registry ────────────────────────────────────────────────────
 

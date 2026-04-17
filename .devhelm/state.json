@@ -1,0 +1,14 @@
+{
+  "version": "2",
+  "serial": 1,
+  "lastDeployedAt": "2026-04-16T18:27:40.629Z",
+  "resources": {
+    "tags.cli-surface-test": {
+      "resourceType": "tag",
+      "attributes": {
+        "name": "cli-surface-test"
+      },
+      "children": {}
+    }
+  }
+}

@@ -45,9 +45,11 @@ export const HEALTH_THRESHOLD_TYPES = ['COUNT', 'PERCENTAGE'] as const
 export const MIN_FREQUENCY = 30
 export const MAX_FREQUENCY = 86400
 
-// ── Assertion type names (discriminator values) ────────────────────────
+// ── Assertion type names ────────────────────────────────────────────
+// PascalCase names are the OpenAPI schema names (API source of truth).
+// Snake_case names are the user-facing YAML vocabulary and wire format.
 
-export const ASSERTION_TYPES = [
+export const ASSERTION_SCHEMA_NAMES = [
   'StatusCodeAssertion', 'ResponseTimeAssertion', 'ResponseTimeWarnAssertion',
   'BodyContainsAssertion', 'RegexBodyAssertion', 'HeaderValueAssertion',
   'JsonPathAssertion', 'SslExpiryAssertion', 'ResponseSizeAssertion',
@@ -67,7 +69,12 @@ export const ASSERTION_TYPES = [
   'McpMinToolsAssertion', 'McpProtocolVersionAssertion', 'McpToolCountChangedAssertion',
 ] as const
 
-export type AssertionType = (typeof ASSERTION_TYPES)[number]
+/** @deprecated Use ASSERTION_SCHEMA_NAMES — kept for backward compat */
+export const ASSERTION_TYPES = ASSERTION_SCHEMA_NAMES
+
+export type AssertionSchemaName = (typeof ASSERTION_SCHEMA_NAMES)[number]
+/** @deprecated Use AssertionSchemaName */
+export type AssertionType = AssertionSchemaName
 
 // ── Monitor config types (YAML mirrors API directly) ───────────────────
 
@@ -122,7 +129,7 @@ export type YamlMonitorConfig =
 // ── Assertion config (YAML mirrors API discriminated union) ────────────
 
 export interface YamlAssertion {
-  type: AssertionType
+  type: string
   config?: Record<string, unknown>
   severity?: AssertionSeverity
 }
@@ -130,23 +137,23 @@ export interface YamlAssertion {
 // ── Auth config (with vault secret name reference) ─────────────────────
 
 export interface YamlBearerAuth {
-  type: 'BearerAuthConfig'
+  type: 'bearer'
   secret: string
 }
 
 export interface YamlBasicAuth {
-  type: 'BasicAuthConfig'
+  type: 'basic'
   secret: string
 }
 
 export interface YamlApiKeyAuth {
-  type: 'ApiKeyAuthConfig'
+  type: 'api_key'
   headerName: string
   secret: string
 }
 
 export interface YamlHeaderAuth {
-  type: 'HeaderAuthConfig'
+  type: 'header'
   headerName: string
   secret: string
 }
@@ -393,9 +400,15 @@ export interface YamlDefaults {
 
 // ── Top-level config ───────────────────────────────────────────────────
 
+export interface MovedBlock {
+  from: string
+  to: string
+}
+
 export interface DevhelmConfig {
   version?: string
   defaults?: YamlDefaults
+  moved?: MovedBlock[]
   tags?: YamlTag[]
   environments?: YamlEnvironment[]
   secrets?: YamlSecret[]

@@ -78,16 +78,16 @@ monitors:
     alertChannels: [ops-slack]
     environment: production
     assertions:
-      - type: StatusCodeAssertion
+      - type: status_code
         config:
           expected: "200"
           operator: equals
         severity: fail
-      - type: ResponseTimeAssertion
+      - type: response_time
         config:
           thresholdMs: 2000
         severity: warn
-      - type: SslExpiryAssertion
+      - type: ssl_expiry
         config:
           minDaysRemaining: 30
         severity: warn
@@ -101,7 +101,7 @@ monitors:
     tags: [production, api]
     alertChannels: [ops-slack, pagerduty-critical]
     auth:
-      type: BearerAuthConfig
+      type: bearer
       secret: bearer-token
     incidentPolicy:
       triggerRules:
@@ -130,7 +130,7 @@ monitors:
       recordTypes: [A, AAAA, MX]
     frequency: 300
     assertions:
-      - type: DnsResolvesAssertion
+      - type: dns_resolves
         severity: fail
 
   - name: TCP Database

@@ -1,6 +1,8 @@
 /**
  * Parse a YAML string (or multiple files) into a typed DevhelmConfig.
  * Handles env var interpolation, multi-file merging, and defaults application.
+ * Zod schemas validate the raw YAML parse output — unknown keys and type
+ * mismatches are rejected with clear, path-qualified error messages.
  */
 import {readFileSync, existsSync, statSync, readdirSync} from 'node:fs'
 import {join, resolve} from 'node:path'
@@ -9,6 +11,7 @@ import {parse as parseYaml} from 'yaml'
 import type {DevhelmConfig, YamlMonitor, YamlMonitorDefaults} from './schema.js'
 import {YAML_SECTION_KEYS} from './schema.js'
 import {interpolate, findMissingVariables} from './interpolation.js'
+import {DevhelmConfigSchema, formatZodErrors} from './zod-schemas.js'
 
 export class ParseError extends Error {
   constructor(message: string, public readonly file?: string) {
@@ -54,7 +57,16 @@ export function parseConfigFile(filePath: string, resolveEnv = true): DevhelmCon
     throw new ParseError('Config file is empty or not a YAML object', filePath)
   }
 
-  return parsed as DevhelmConfig
+  const result = DevhelmConfigSchema.safeParse(parsed)
+  if (!result.success) {
+    const messages = formatZodErrors(result.error)
+    throw new ParseError(
+      `Schema validation failed:\n  ${messages.join('\n  ')}`,
+      filePath,
+    )
+  }
+
+  return result.data as DevhelmConfig
 }
 
 /**

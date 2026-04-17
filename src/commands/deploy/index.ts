@@ -3,7 +3,7 @@ import {Command, Flags} from '@oclif/core'
 import {createApiClient, apiPost, apiDelete} from '../../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
 import {EXIT_CODES} from '../../lib/errors.js'
-import {loadConfig, validate, fetchAllRefs, diff, formatPlan, changesetToJson, apply, writeState, buildState} from '../../lib/yaml/index.js'
+import {loadConfig, validate, fetchAllRefs, diff, formatPlan, changesetToJson, apply, writeState, buildStateV2, readState, emptyState, processMovedBlocks, resourceAddress, StateFileCorruptError} from '../../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../../lib/yaml/entitlements.js'
 
 const DEFAULT_LOCK_TTL = 30
@@ -81,7 +81,7 @@ export default class Deploy extends Command {
     try {
       config = loadConfig(flags.file)
     } catch (err) {
-      this.error((err as Error).message, {exit: 1})
+      this.error(err instanceof Error ? err.message : String(err), {exit: 1})
     }
 
     const result = validate(config)
@@ -104,8 +104,35 @@ export default class Deploy extends Command {
       verbose: flags.verbose,
     })
 
+    let currentState
+    try {
+      currentState = readState() ?? emptyState()
+    } catch (err) {
+      if (err instanceof StateFileCorruptError) {
+        this.error(err.message, {exit: 1})
+      }
+      throw err
+    }
+
+    if (config.moved && config.moved.length > 0) {
+      const moveWarnings = processMovedBlocks(currentState, config.moved)
+      for (const w of moveWarnings) {
+        if (!isJson) this.warn(w)
+      }
+      writeState(currentState)
+    }
+
     if (!isJson) this.log('Fetching current state from API...')
-    const refs = await fetchAllRefs(client)
+    const refs = await fetchAllRefs(client, currentState)
+
+    if (refs.collisions.length > 0 && !isJson) {
+      for (const c of refs.collisions) {
+        this.warn(
+          `Duplicate ${c.refType} reference "${c.refKey}" — ${c.apiIds.length} API resources share this name. ` +
+          `Using ${c.winnerApiId}. Rename one in the API or use a \`moved\` block to disambiguate.`,
+        )
+      }
+    }
 
     const changeset = diff(config, refs, {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']})
 
@@ -168,7 +195,7 @@ export default class Deploy extends Command {
 
     try {
       if (!isJson) this.log('Applying changes...')
-      const applyResult = await apply(changeset, refs, client)
+      const applyResult = await apply(changeset, refs, client, currentState)
 
       if (isJson) {
         this.log(JSON.stringify({
@@ -177,8 +204,9 @@ export default class Deploy extends Command {
         }, null, 2))
       } else {
         for (const s of applyResult.succeeded) {
-          const icon = s.action === 'delete' ? '-' : s.action === 'update' ? '~' : '+'
-          this.log(`  ${icon} ${s.resourceType} "${s.refKey}" — ${s.action}d`)
+          const icon = iconForAction(s.action)
+          const pastTense = pastTenseForAction(s.action)
+          this.log(`  ${icon} ${s.resourceType} "${s.refKey}" — ${pastTense}`)
         }
 
         if (applyResult.failed.length > 0) {
@@ -191,7 +219,16 @@ export default class Deploy extends Command {
         this.log(`\nDone: ${applyResult.succeeded.length} succeeded, ${applyResult.failed.length} failed.`)
       }
 
-      writeState(buildState(applyResult.stateEntries))
+      const deletedAddresses = new Set(
+        applyResult.deletedRefKeys.map((d) => resourceAddress(d.resourceType, d.refKey)),
+      )
+      const newState = buildStateV2(applyResult.stateEntries, currentState.serial)
+      for (const [addr, entry] of Object.entries(currentState.resources)) {
+        if (!(addr in newState.resources) && !deletedAddresses.has(addr)) {
+          newState.resources[addr] = entry
+        }
+      }
+      writeState(newState)
 
       if (applyResult.failed.length > 0) {
         this.exit(EXIT_CODES.PARTIAL_FAILURE)
@@ -257,6 +294,35 @@ export default class Deploy extends Command {
   private async releaseLock(client: ReturnType<typeof createApiClient>, lockId: string): Promise<void> {
     try {
       await apiDelete(client, `/api/v1/deploy/lock/${lockId}`)
-    } catch { /* best-effort release */ }
+    } catch (err) {
+      // Best-effort: lock auto-expires via TTL, but surface the failure so users
+      // can investigate if locks accumulate (e.g. API connectivity issues).
+      const msg = err instanceof Error ? err.message : String(err)
+      this.warn(`Failed to release deploy lock ${lockId}: ${msg} (lock will auto-expire)`)
+    }
+  }
+}
+
+/**
+ * Icon + past-tense label for an apply action. Supports core CRUD plus
+ * membership-style actions (`add`, `remove`). Unknown actions get a neutral `•`.
+ */
+function iconForAction(action: string): string {
+  switch (action) {
+    case 'create': case 'add': return '+'
+    case 'update': return '~'
+    case 'delete': case 'remove': return '-'
+    default: return '•'
+  }
+}
+
+function pastTenseForAction(action: string): string {
+  switch (action) {
+    case 'create': return 'created'
+    case 'update': return 'updated'
+    case 'delete': return 'deleted'
+    case 'add': return 'added'
+    case 'remove': return 'removed'
+    default: return action
   }
 }
