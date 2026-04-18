@@ -6,15 +6,25 @@
  */
 import type {ApiClient} from '../api-client.js'
 import {checkedFetch, apiDelete} from '../api-client.js'
-import {HANDLER_MAP} from './handlers.js'
-import type {Changeset, Change, HandledResourceType} from './types.js'
+import {HANDLER_MAP, normalizeCreateOutcome, normalizeUpdateOutcome} from './handlers.js'
+import type {Changeset, Change, HandledResourceType, ResourceType} from './types.js'
 import type {ResolvedRefs, RefEntry} from './resolver.js'
-import type {StateEntry} from './state.js'
+import type {ChildStateEntry, DeployState} from './state.js'
+import {resourceAddress} from './state.js'
+
+export interface AppliedStateEntry {
+  resourceType: ResourceType
+  refKey: string
+  apiId: string
+  attributes: Record<string, unknown>
+  children: Record<string, ChildStateEntry>
+}
 
 export interface ApplyResult {
   succeeded: AppliedChange[]
   failed: FailedChange[]
-  stateEntries: StateEntry[]
+  stateEntries: AppliedStateEntry[]
+  deletedRefKeys: Array<{resourceType: ResourceType; refKey: string}>
 }
 
 export interface AppliedChange {
@@ -34,29 +44,52 @@ export interface FailedChange {
 /**
  * Apply the changeset to the API. Returns results with successes/failures.
  * Updates refs in-place as new resources are created (for downstream refs).
+ *
+ * `priorState` is optional — when provided, children tracked in prior state
+ * are forwarded to handlers that manage child collections (e.g. status pages)
+ * so per-child identity and rename detection survive across deploys.
  */
 export async function apply(
   changeset: Changeset,
   refs: ResolvedRefs,
   client: ApiClient,
+  priorState?: DeployState,
 ): Promise<ApplyResult> {
   const succeeded: AppliedChange[] = []
   const failed: FailedChange[] = []
-  const stateEntries: StateEntry[] = []
+  const stateEntries: AppliedStateEntry[] = []
+  const deletedRefKeys: Array<{resourceType: ResourceType; refKey: string}> = []
+
+  function lookupPriorChildren(
+    resourceType: ResourceType, refKey: string,
+  ): Record<string, ChildStateEntry> {
+    if (!priorState) return {}
+    const addr = resourceAddress(resourceType, refKey)
+    return priorState.resources[addr]?.children ?? {}
+  }
 
   for (const change of changeset.creates) {
     try {
       const handler = lookupHandler(change.resourceType, 'create')
-      const id = await handler.applyCreate(change.desired, refs, client)
+      const priorChildren = lookupPriorChildren(change.resourceType as ResourceType, change.refKey)
+      const raw = await handler.applyCreate(change.desired, refs, client, priorChildren)
+      const outcome = normalizeCreateOutcome(raw)
+      const id = outcome?.id
       if (id) {
+        // Store YAML as raw — this is acceptable because refs are only used
+        // for ID resolution during the rest of the apply batch (creates,
+        // updates, deletes, memberships look up by id). hasChanged() and
+        // attribute diffs are computed in diff() *before* apply() runs, so
+        // YAML-shaped raw here never participates in drift detection.
         refs.set(handler.refType, change.refKey, {
           id, refKey: change.refKey, raw: change.desired as RefEntry['raw'],
         })
         stateEntries.push({
-          resourceType: change.resourceType,
+          resourceType: change.resourceType as ResourceType,
           refKey: change.refKey,
-          id,
-          createdAt: new Date().toISOString(),
+          apiId: id,
+          attributes: {name: change.refKey},
+          children: outcome?.children ?? {},
         })
         succeeded.push({action: 'create', resourceType: change.resourceType, refKey: change.refKey, id})
       } else {
@@ -76,14 +109,17 @@ export async function apply(
   for (const change of changeset.updates) {
     try {
       const handler = lookupHandler(change.resourceType, 'update')
-      await handler.applyUpdate(change.desired, change.existingId!, refs, client)
+      const priorChildren = lookupPriorChildren(change.resourceType as ResourceType, change.refKey)
+      const raw = await handler.applyUpdate(change.desired, change.existingId!, refs, client, priorChildren)
+      const outcome = normalizeUpdateOutcome(raw)
       succeeded.push({action: 'update', resourceType: change.resourceType, refKey: change.refKey, id: change.existingId})
       if (change.existingId) {
         stateEntries.push({
-          resourceType: change.resourceType,
+          resourceType: change.resourceType as ResourceType,
           refKey: change.refKey,
-          id: change.existingId,
-          createdAt: new Date().toISOString(),
+          apiId: change.existingId,
+          attributes: {name: change.refKey},
+          children: outcome.children ?? priorChildren,
         })
       }
     } catch (err) {
@@ -99,6 +135,7 @@ export async function apply(
       const handler = lookupHandler(change.resourceType, 'delete')
       await apiDelete(client, handler.deletePath(change.existingId!, change.refKey))
       succeeded.push({action: 'delete', resourceType: change.resourceType, refKey: change.refKey})
+      deletedRefKeys.push({resourceType: change.resourceType as ResourceType, refKey: change.refKey})
     } catch (err) {
       failed.push({
         action: 'delete', resourceType: change.resourceType,
@@ -120,7 +157,7 @@ export async function apply(
     }
   }
 
-  return {succeeded, failed, stateEntries}
+  return {succeeded, failed, stateEntries, deletedRefKeys}
 }
 
 interface MembershipCreatePayload {

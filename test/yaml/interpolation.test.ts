@@ -32,6 +32,25 @@ describe('interpolation', () => {
       expect(() => interpolate('${MISSING}', {})).toThrow(InterpolationError)
     })
 
+    it('treats empty-string env value as missing for required vars (POSIX :- semantics)', () => {
+      // CI systems often export missing secrets as empty strings; we surface
+      // that as a hard error so a misconfigured deploy fails loudly rather
+      // than silently producing empty URLs/tokens.
+      expect(() => interpolate('${API_TOKEN}', {API_TOKEN: ''})).toThrow(InterpolationError)
+      try {
+        interpolate('${API_TOKEN}', {API_TOKEN: ''})
+      } catch (err) {
+        expect((err as InterpolationError).message).toMatch(/empty string/)
+        expect((err as InterpolationError).message).toMatch(/\$\{API_TOKEN:-\}/)
+      }
+    })
+
+    it('${VAR:-} explicitly allows an empty value', () => {
+      expect(interpolate('${MAYBE_EMPTY:-}', {})).toBe('')
+      expect(interpolate('${MAYBE_EMPTY:-}', {MAYBE_EMPTY: ''})).toBe('')
+      expect(interpolate('${MAYBE_EMPTY:-}', {MAYBE_EMPTY: 'set'})).toBe('set')
+    })
+
     it('throws with helpful message', () => {
       try {
         interpolate('${SECRET_KEY}', {})
@@ -83,6 +102,21 @@ describe('interpolation', () => {
       const result = interpolate(input, {A: 'first'})
       expect(result).toBe('line1: first\nline2: default')
     })
+
+    it('escapes $$ to a literal $', () => {
+      const result = interpolate('price: $$100', {})
+      expect(result).toBe('price: $100')
+    })
+
+    it('$$ before a ${VAR} is escaped, not interpolation', () => {
+      const result = interpolate('$${VAR}', {VAR: 'unused'})
+      expect(result).toBe('${VAR}')
+    })
+
+    it('supports mixing $$ escapes and ${VAR} interpolation', () => {
+      const result = interpolate('$$price=${VAR}', {VAR: '5'})
+      expect(result).toBe('$price=5')
+    })
   })
 
   describe('findVariables', () => {
@@ -98,6 +132,10 @@ describe('interpolation', () => {
     it('finds duplicates', () => {
       const vars = findVariables('${A} ${A}')
       expect(vars).toEqual(['A', 'A'])
+    })
+
+    it('ignores $$ escapes', () => {
+      expect(findVariables('$${A} ${B}')).toEqual(['B'])
     })
   })
 

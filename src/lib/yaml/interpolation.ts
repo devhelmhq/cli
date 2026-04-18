@@ -2,14 +2,26 @@
  * Environment variable interpolation for YAML config values.
  *
  * Supports:
- *   ${VAR}           — required, fails if unset
- *   ${VAR:-default}  — with fallback value
+ *   ${VAR}           — required, fails if unset *or* set to the empty string
+ *   ${VAR:-default}  — with fallback (used when VAR is unset *or* empty)
+ *   $$               — literal '$' (escape sequence)
  *
- * Interpolation runs on the raw YAML string before parsing,
- * so it works in any value position (strings, URLs, etc.).
+ * **Empty-string semantics.** This module treats `VAR=""` identically to
+ * `VAR` being unset, matching POSIX shell `${VAR:-default}` semantics
+ * (Bash's `:-` operator). Most CI systems export "missing" secrets as the
+ * empty string rather than leaving them unset; treating those as missing
+ * surfaces the misconfiguration immediately instead of silently producing
+ * empty URLs/tokens. To allow an explicit empty value, use the form
+ * `${VAR:-}` (i.e. an empty default).
+ *
+ * Interpolation runs on the raw YAML string before parsing, so it works
+ * in any value position (strings, URLs, etc.).
  */
 
-const ENV_VAR_PATTERN = /\$\{([^}]+)\}/g
+// Matches either a literal-$ escape ($$) or a ${…} expression. The
+// alternation is ordered so $$ is consumed before a following ${…} could
+// be interpreted as an expression.
+const ENV_VAR_OR_ESCAPE_PATTERN = /\$\$|\$\{([^}]+)\}/g
 
 export class InterpolationError extends Error {
   constructor(
@@ -26,22 +38,26 @@ export class InterpolationError extends Error {
  * Throws InterpolationError if a required variable is not set.
  */
 export function interpolate(input: string, env: Record<string, string | undefined> = process.env): string {
-  return input.replace(ENV_VAR_PATTERN, (_match, expr: string) => {
-    const separatorIdx = expr.indexOf(':-')
+  return input.replace(ENV_VAR_OR_ESCAPE_PATTERN, (match, expr: string | undefined) => {
+    if (match === '$$') return '$'
+    const e = expr as string
+    const separatorIdx = e.indexOf(':-')
     if (separatorIdx !== -1) {
-      const varName = expr.slice(0, separatorIdx)
-      const fallback = expr.slice(separatorIdx + 2)
+      const varName = e.slice(0, separatorIdx)
+      const fallback = e.slice(separatorIdx + 2)
       const value = env[varName]
       return value !== undefined && value !== '' ? value : fallback
     }
 
-    const varName = expr.trim()
+    const varName = e.trim()
     const value = env[varName]
     if (value === undefined || value === '') {
       throw new InterpolationError(
         varName,
-        `Environment variable \${${varName}} is required but not set. ` +
-        `Set it in your environment or use \${${varName}:-default} for a fallback.`,
+        `Environment variable \${${varName}} is required but not set ` +
+        `(or set to an empty string). Set a non-empty value, use ` +
+        `\${${varName}:-default} for a fallback, or \${${varName}:-} to ` +
+        `allow an empty value.`,
       )
     }
     return value
@@ -55,8 +71,9 @@ export function interpolate(input: string, env: Record<string, string | undefine
 export function findVariables(input: string): string[] {
   const vars: string[] = []
   let match: RegExpExecArray | null
-  const re = new RegExp(ENV_VAR_PATTERN.source, 'g')
+  const re = new RegExp(ENV_VAR_OR_ESCAPE_PATTERN.source, 'g')
   while ((match = re.exec(input)) !== null) {
+    if (match[0] === '$$') continue
     const expr = match[1]
     const separatorIdx = expr.indexOf(':-')
     vars.push(separatorIdx !== -1 ? expr.slice(0, separatorIdx) : expr.trim())
@@ -70,9 +87,10 @@ export function findVariables(input: string): string[] {
  */
 export function findMissingVariables(input: string, env: Record<string, string | undefined> = process.env): string[] {
   const missing: string[] = []
-  const re = new RegExp(ENV_VAR_PATTERN.source, 'g')
+  const re = new RegExp(ENV_VAR_OR_ESCAPE_PATTERN.source, 'g')
   let match: RegExpExecArray | null
   while ((match = re.exec(input)) !== null) {
+    if (match[0] === '$$') continue
     const expr = match[1]
     const separatorIdx = expr.indexOf(':-')
     if (separatorIdx === -1) {

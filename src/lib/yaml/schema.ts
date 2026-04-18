@@ -45,9 +45,11 @@ export const HEALTH_THRESHOLD_TYPES = ['COUNT', 'PERCENTAGE'] as const
 export const MIN_FREQUENCY = 30
 export const MAX_FREQUENCY = 86400
 
-// ── Assertion type names (discriminator values) ────────────────────────
+// ── Assertion type names ────────────────────────────────────────────
+// PascalCase names are the OpenAPI schema names (API source of truth).
+// Snake_case names are the user-facing YAML vocabulary and wire format.
 
-export const ASSERTION_TYPES = [
+export const ASSERTION_SCHEMA_NAMES = [
   'StatusCodeAssertion', 'ResponseTimeAssertion', 'ResponseTimeWarnAssertion',
   'BodyContainsAssertion', 'RegexBodyAssertion', 'HeaderValueAssertion',
   'JsonPathAssertion', 'SslExpiryAssertion', 'ResponseSizeAssertion',
@@ -67,7 +69,12 @@ export const ASSERTION_TYPES = [
   'McpMinToolsAssertion', 'McpProtocolVersionAssertion', 'McpToolCountChangedAssertion',
 ] as const
 
-export type AssertionType = (typeof ASSERTION_TYPES)[number]
+/** @deprecated Use ASSERTION_SCHEMA_NAMES — kept for backward compat */
+export const ASSERTION_TYPES = ASSERTION_SCHEMA_NAMES
+
+export type AssertionSchemaName = (typeof ASSERTION_SCHEMA_NAMES)[number]
+/** @deprecated Use AssertionSchemaName */
+export type AssertionType = AssertionSchemaName
 
 // ── Monitor config types (YAML mirrors API directly) ───────────────────
 
@@ -122,7 +129,7 @@ export type YamlMonitorConfig =
 // ── Assertion config (YAML mirrors API discriminated union) ────────────
 
 export interface YamlAssertion {
-  type: AssertionType
+  type: string
   config?: Record<string, unknown>
   severity?: AssertionSeverity
 }
@@ -130,23 +137,23 @@ export interface YamlAssertion {
 // ── Auth config (with vault secret name reference) ─────────────────────
 
 export interface YamlBearerAuth {
-  type: 'BearerAuthConfig'
+  type: 'bearer'
   secret: string
 }
 
 export interface YamlBasicAuth {
-  type: 'BasicAuthConfig'
+  type: 'basic'
   secret: string
 }
 
 export interface YamlApiKeyAuth {
-  type: 'ApiKeyAuthConfig'
+  type: 'api_key'
   headerName: string
   secret: string
 }
 
 export interface YamlHeaderAuth {
-  type: 'HeaderAuthConfig'
+  type: 'header'
   headerName: string
   secret: string
 }
@@ -326,11 +333,13 @@ export interface YamlMonitor {
   frequency?: number
   enabled?: boolean
   regions?: string[]
-  environment?: string
+  /** null = explicitly clear an existing environment association on update. */
+  environment?: string | null
   tags?: string[]
   alertChannels?: string[]
   assertions?: YamlAssertion[]
-  auth?: YamlAuth
+  /** null = explicitly clear existing auth on update. */
+  auth?: YamlAuth | null
   incidentPolicy?: YamlIncidentPolicy
 }
 
@@ -342,13 +351,40 @@ export interface YamlDependency {
 
 // ── Status Page types ──────────────────────────────────────────────────
 
-export type StatusPageVisibility = 'PUBLIC' | 'PASSWORD' | 'IP_RESTRICTED'
+// Note: the API's SpVisibility enum also declares PASSWORD and IP_RESTRICTED,
+// but those modes are not yet wired to storage or enforcement server-side.
+// YAML/CLI deliberately only accepts PUBLIC until the API implements them
+// so users cannot set a value that silently has no effect.
+export type StatusPageVisibility = 'PUBLIC'
 export type StatusPageIncidentMode = 'MANUAL' | 'REVIEW' | 'AUTOMATIC'
 export type StatusPageComponentType = 'MONITOR' | 'GROUP' | 'STATIC'
 
-export const STATUS_PAGE_VISIBILITIES: readonly StatusPageVisibility[] = ['PUBLIC', 'PASSWORD', 'IP_RESTRICTED']
+export const STATUS_PAGE_VISIBILITIES: readonly StatusPageVisibility[] = ['PUBLIC']
 export const STATUS_PAGE_INCIDENT_MODES: readonly StatusPageIncidentMode[] = ['MANUAL', 'REVIEW', 'AUTOMATIC']
 export const STATUS_PAGE_COMPONENT_TYPES: readonly StatusPageComponentType[] = ['MONITOR', 'GROUP', 'STATIC']
+
+/**
+ * Visual tokens applied to the public status page. Every field is optional;
+ * omitted keys inherit the design-system defaults. The YAML shape mirrors the
+ * API's StatusPageBranding record (JSONB). See
+ * `api/src/main/java/io/devhelm/db/model/StatusPageBranding.java` for the
+ * field → CSS-variable mapping.
+ */
+export interface YamlStatusPageBranding {
+  logoUrl?: string
+  faviconUrl?: string
+  brandColor?: string
+  pageBackground?: string
+  cardBackground?: string
+  textColor?: string
+  borderColor?: string
+  headerStyle?: string
+  theme?: string
+  reportUrl?: string
+  hidePoweredBy?: boolean
+  customCss?: string
+  customHeadHtml?: string
+}
 
 export interface YamlStatusPageComponentGroup {
   name: string
@@ -364,6 +400,10 @@ export interface YamlStatusPageComponent {
   resourceGroup?: string
   group?: string
   showUptime?: boolean
+  /** Exclude from overall status calculation (e.g. third-party deps). */
+  excludeFromOverall?: boolean
+  /** ISO 8601 date (YYYY-MM-DD) — uptime history starts from this day. */
+  startDate?: string
 }
 
 export interface YamlStatusPage {
@@ -373,6 +413,7 @@ export interface YamlStatusPage {
   visibility?: StatusPageVisibility
   enabled?: boolean
   incidentMode?: StatusPageIncidentMode
+  branding?: YamlStatusPageBranding
   componentGroups?: YamlStatusPageComponentGroup[]
   components?: YamlStatusPageComponent[]
 }
@@ -393,9 +434,15 @@ export interface YamlDefaults {
 
 // ── Top-level config ───────────────────────────────────────────────────
 
+export interface MovedBlock {
+  from: string
+  to: string
+}
+
 export interface DevhelmConfig {
   version?: string
   defaults?: YamlDefaults
+  moved?: MovedBlock[]
   tags?: YamlTag[]
   environments?: YamlEnvironment[]
   secrets?: YamlSecret[]

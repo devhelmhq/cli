@@ -2,7 +2,7 @@ import {Command, Flags} from '@oclif/core'
 import {createApiClient} from '../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../lib/auth.js'
 import {EXIT_CODES} from '../lib/errors.js'
-import {loadConfig, validate, fetchAllRefs, diff, formatPlan, changesetToJson} from '../lib/yaml/index.js'
+import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, formatPlan, changesetToJson, readState, emptyState, previewMovedBlocks, StateFileCorruptError} from '../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../lib/yaml/entitlements.js'
 
 export default class Plan extends Command {
@@ -54,7 +54,7 @@ export default class Plan extends Command {
     try {
       config = loadConfig(flags.file)
     } catch (err) {
-      this.error((err as Error).message, {exit: 1})
+      this.error(err instanceof Error ? err.message : String(err), {exit: 1})
     }
 
     const result = validate(config)
@@ -77,10 +77,56 @@ export default class Plan extends Command {
       verbose: flags.verbose,
     })
 
-    if (flags.output !== 'json') this.log('Fetching current state from API...')
-    const refs = await fetchAllRefs(client)
+    let currentState
+    try {
+      currentState = readState() ?? emptyState()
+    } catch (err) {
+      if (err instanceof StateFileCorruptError) {
+        this.error(err.message, {exit: 1})
+      }
+      throw err
+    }
 
-    const changeset = diff(config, refs, {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']})
+    // Preview moved-block effects (warnings only) without persisting state.
+    // `devhelm plan` is read-only; the actual rewrite happens during `deploy`.
+    if (config.moved && config.moved.length > 0) {
+      const {state: previewState, warnings} = previewMovedBlocks(currentState, config.moved)
+      currentState = previewState
+      for (const w of warnings) {
+        if (flags.output !== 'json') this.warn(w)
+      }
+    }
+
+    if (flags.output !== 'json') this.log('Fetching current state from API...')
+    const refs = await fetchAllRefs(client, currentState)
+    // Pre-register YAML-only resources with placeholder IDs so existing
+    // resources can resolve references to brand-new peers during snapshot
+    // computation (e.g. notification policy escalating into a new channel).
+    registerYamlPendingRefs(refs, config)
+
+    if (refs.collisions.length > 0 && flags.output !== 'json') {
+      for (const c of refs.collisions) {
+        this.warn(
+          `Duplicate ${c.refType} reference "${c.refKey}" — ${c.apiIds.length} API resources share this name. ` +
+          `Using ${c.winnerApiId}. Rename one in the API or use a \`moved\` block to disambiguate.`,
+        )
+      }
+    }
+
+    const planResult = validatePlanRefs(config, refs)
+    if (planResult.errors.length > 0) {
+      this.log(`\nValidation failed: ${planResult.errors.length} error(s)\n`)
+      for (const e of planResult.errors) {
+        this.log(`  ✗ ${e.path}: ${e.message}`)
+      }
+      this.error('Fix validation errors first', {exit: 4})
+    }
+
+    const changeset = diff(
+      config, refs,
+      {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']},
+      currentState,
+    )
 
     const entitlementCheck = await checkEntitlements(client, changeset)
 

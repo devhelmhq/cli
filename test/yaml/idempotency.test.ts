@@ -108,6 +108,30 @@ describe('idempotency', () => {
     expect(cs.updates[0].refKey).toBe('Slack Alerts')
   })
 
+  it('YAML tags: [] + API monitor with no tags → zero changes (regression)', () => {
+    // apiTagsToSnapshot used to return {tagIds: null, newTags: []}, while
+    // the desired snapshot built from `tags: []` produced {tagIds: [], ...},
+    // causing a perpetual update on every plan.
+    const config: DevhelmConfig = {
+      monitors: [{
+        name: 'API', type: 'HTTP',
+        config: {url: 'https://api.example.com', method: 'GET'},
+        tags: [],
+      }],
+    }
+    const refs = buildRefs([
+      {type: 'monitors', key: 'API', id: 'm1', raw: {
+        name: 'API', type: 'HTTP', config: {url: 'https://api.example.com', method: 'GET'},
+        enabled: true, frequencySeconds: undefined, managedBy: 'CLI', regions: null,
+        environmentId: null, assertionIds: null, authType: null, incidentPolicy: null,
+        alertChannelIds: null, tags: null,
+      }, managedBy: 'CLI'},
+    ])
+    const cs = diff(config, refs)
+    expect(cs.creates).toHaveLength(0)
+    expect(cs.updates).toHaveLength(0)
+  })
+
   it('adding one monitor to existing set → only that monitor in creates', () => {
     const config: DevhelmConfig = {
       monitors: [
@@ -240,13 +264,43 @@ describe('idempotency', () => {
     expect(cs.deletes).toHaveLength(0)
   })
 
+  it('monitor with API-expanded null config fields → zero changes (snapshot null-strip)', () => {
+    // Regression for the A1 BDD failure: API echoes back JSONB monitor
+    // configs with every optional HttpMonitorConfig field expanded to null
+    // (customHeaders, requestBody, contentType, verifyTls). The user's YAML
+    // only specifies url+method. Pre-fix: phantom drift on every plan.
+    const config: DevhelmConfig = {
+      monitors: [{
+        name: 'API', type: 'HTTP',
+        config: {url: 'https://api.example.com/health', method: 'GET'},
+      }],
+    }
+    const refs = buildRefs([
+      {type: 'monitors', key: 'API', id: 'm1', raw: {
+        name: 'API', type: 'HTTP',
+        config: {
+          url: 'https://api.example.com/health', method: 'GET',
+          customHeaders: null, requestBody: null, contentType: null, verifyTls: null,
+        },
+        enabled: undefined, frequencySeconds: undefined, managedBy: 'CLI',
+        regions: null, environmentId: null, assertionIds: null, authType: null,
+        incidentPolicy: null, alertChannelIds: null, tagIds: null,
+      }, managedBy: 'CLI'},
+    ])
+    const cs = diff(config, refs)
+    expect(cs.updates.filter(c => c.resourceType === 'monitor')).toHaveLength(0)
+  })
+
   it('notification policy with matching escalation → zero changes', () => {
     const refs = buildRefs([
       {type: 'alertChannels', key: 'Slack', id: 'ac-1', raw: {name: 'Slack', channelType: 'slack'}},
       {type: 'notificationPolicies', key: 'Default', id: 'np1', raw: {
         name: 'Default', enabled: true, priority: 0,
+        // Real API echoes `requireAck: false` for unset boolean (Jackson
+        // serializes Boolean.FALSE for null on the response side). The CLI
+        // sends `false` explicitly to match — see toEscalationStep.
         escalation: {
-          steps: [{channelIds: ['ac-1'], delayMinutes: 0, requireAck: null, repeatIntervalSeconds: null}],
+          steps: [{channelIds: ['ac-1'], delayMinutes: 0, requireAck: false, repeatIntervalSeconds: null}],
           onResolve: null, onReopen: null,
         },
         matchRules: null,

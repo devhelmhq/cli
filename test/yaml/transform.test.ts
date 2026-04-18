@@ -4,11 +4,13 @@ import {
   toCreateAlertChannelRequest, toCreateNotificationPolicyRequest,
   toCreateWebhookRequest, toCreateResourceGroupRequest,
   toCreateMonitorRequest, toUpdateMonitorRequest,
+  toCreateStatusPageRequest, toUpdateStatusPageRequest,
 } from '../../src/lib/yaml/transform.js'
 import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
 import type {
   YamlTag, YamlEnvironment, YamlAlertChannel,
   YamlNotificationPolicy, YamlWebhook, YamlResourceGroup, YamlMonitor,
+  YamlStatusPage,
 } from '../../src/lib/yaml/schema.js'
 
 function emptyRefs(): ResolvedRefs {
@@ -183,6 +185,19 @@ describe('transforms', () => {
       expect(req.priority).toBe(0)
     })
 
+    it('defaults requireAck to false (matches API persistence) for unspecified steps', () => {
+      // Regression for the A1 BDD failure: pre-fix the transform sent
+      // `requireAck: null`, but the API echoed back `false`, producing
+      // phantom drift on every plan after a fresh deploy.
+      const refs = refsWithChannels()
+      const policy: YamlNotificationPolicy = {
+        name: 'p',
+        escalation: {steps: [{channels: ['ops-slack']}]},
+      }
+      const req = toCreateNotificationPolicyRequest(policy, refs)
+      expect(req.escalation.steps[0].requireAck).toBe(false)
+    })
+
     it('transforms multiple escalation steps with delays', () => {
       const refs = refsWithChannels()
       const policy: YamlNotificationPolicy = {
@@ -337,10 +352,10 @@ describe('transforms', () => {
     it('transforms all 4 auth types', () => {
       const refs = refsWithChannels()
       const authTypes = [
-        {type: 'BearerAuthConfig' as const, expectedType: 'bearer'},
-        {type: 'BasicAuthConfig' as const, expectedType: 'basic'},
-        {type: 'ApiKeyAuthConfig' as const, expectedType: 'api_key', headerName: 'X-Key'},
-        {type: 'HeaderAuthConfig' as const, expectedType: 'header', headerName: 'Authorization'},
+        {type: 'bearer' as const, expectedType: 'bearer'},
+        {type: 'basic' as const, expectedType: 'basic'},
+        {type: 'api_key' as const, expectedType: 'api_key', headerName: 'X-Key'},
+        {type: 'header' as const, expectedType: 'header', headerName: 'Authorization'},
       ]
       for (const at of authTypes) {
         const monitor: YamlMonitor = {
@@ -428,6 +443,168 @@ describe('transforms', () => {
       expect(req.regions).toEqual(['eu-west'])
       expect(req.tags!.tagIds).toEqual(['tag-1'])
       expect(req.alertChannelIds).toEqual(['ch-123'])
+    })
+
+    it('emits clearAuth when YAML auth is null', () => {
+      const refs = emptyRefs()
+      const monitor: YamlMonitor = {
+        name: 'Test', type: 'HTTP',
+        config: {url: 'https://x.com', method: 'GET'},
+        auth: null,
+      }
+      const req = toUpdateMonitorRequest(monitor, refs)
+      expect(req.clearAuth).toBe(true)
+      expect(req.auth).toBeUndefined()
+    })
+
+    it('does not emit clearAuth when YAML auth is omitted', () => {
+      const refs = emptyRefs()
+      const monitor: YamlMonitor = {
+        name: 'Test', type: 'HTTP',
+        config: {url: 'https://x.com', method: 'GET'},
+      }
+      const req = toUpdateMonitorRequest(monitor, refs)
+      expect(req.clearAuth).toBeUndefined()
+    })
+
+    it('emits clearEnvironmentId when YAML environment is null', () => {
+      const refs = emptyRefs()
+      const monitor: YamlMonitor = {
+        name: 'Test', type: 'HTTP',
+        config: {url: 'https://x.com', method: 'GET'},
+        environment: null,
+      }
+      const req = toUpdateMonitorRequest(monitor, refs)
+      expect(req.clearEnvironmentId).toBe(true)
+      expect(req.environmentId).toBeNull()
+    })
+
+    it('does not emit clearEnvironmentId when YAML environment is omitted', () => {
+      const refs = emptyRefs()
+      const monitor: YamlMonitor = {
+        name: 'Test', type: 'HTTP',
+        config: {url: 'https://x.com', method: 'GET'},
+      }
+      const req = toUpdateMonitorRequest(monitor, refs)
+      expect(req.clearEnvironmentId).toBeUndefined()
+    })
+  })
+
+  describe('toCreateStatusPageRequest', () => {
+    it('transforms required fields', () => {
+      const page: YamlStatusPage = {name: 'Public Status', slug: 'public'}
+      const req = toCreateStatusPageRequest(page)
+      expect(req.name).toBe('Public Status')
+      expect(req.slug).toBe('public')
+    })
+
+    it('defaults optional fields to null', () => {
+      const page: YamlStatusPage = {name: 'S', slug: 's'}
+      const req = toCreateStatusPageRequest(page)
+      expect(req.description).toBeNull()
+      expect(req.visibility).toBeNull()
+      expect(req.enabled).toBeNull()
+      expect(req.incidentMode).toBeNull()
+    })
+
+    it('passes through visibility, enabled, incidentMode', () => {
+      const page: YamlStatusPage = {
+        name: 'Internal', slug: 'internal',
+        description: 'Company internal dashboard',
+        visibility: 'PUBLIC',
+        enabled: false,
+        incidentMode: 'MANUAL',
+      }
+      const req = toCreateStatusPageRequest(page)
+      expect(req.description).toBe('Company internal dashboard')
+      expect(req.visibility).toBe('PUBLIC')
+      expect(req.enabled).toBe(false)
+      expect(req.incidentMode).toBe('MANUAL')
+    })
+
+    it('sends branding when provided (hidePoweredBy defaults to false)', () => {
+      const page: YamlStatusPage = {
+        name: 'S', slug: 's',
+        branding: {logoUrl: 'https://example.com/logo.png', brandColor: '#4F46E5'},
+      }
+      const req = toCreateStatusPageRequest(page)
+      expect(req.branding).toMatchObject({
+        logoUrl: 'https://example.com/logo.png',
+        brandColor: '#4F46E5',
+        hidePoweredBy: false,
+      })
+    })
+
+    it('sends branding as null when omitted (preserves current on create)', () => {
+      const page: YamlStatusPage = {name: 'S', slug: 's'}
+      const req = toCreateStatusPageRequest(page)
+      expect(req.branding).toBeNull()
+    })
+
+    it('does not include children in create request', () => {
+      const page: YamlStatusPage = {
+        name: 'S', slug: 's',
+        componentGroups: [{name: 'API'}],
+        components: [{name: 'Web', type: 'STATIC'}],
+      }
+      const req = toCreateStatusPageRequest(page) as unknown as Record<string, unknown>
+      expect(req.componentGroups).toBeUndefined()
+      expect(req.components).toBeUndefined()
+    })
+  })
+
+  describe('toUpdateStatusPageRequest', () => {
+    it('includes name and passes through visibility', () => {
+      const page: YamlStatusPage = {
+        name: 'Updated Name', slug: 'public',
+        visibility: 'PUBLIC', enabled: true,
+      }
+      const req = toUpdateStatusPageRequest(page)
+      expect(req.name).toBe('Updated Name')
+      expect(req.visibility).toBe('PUBLIC')
+      expect(req.enabled).toBe(true)
+    })
+
+    it('sends branding as null when omitted (null preserves current server-side)', () => {
+      const page: YamlStatusPage = {name: 'S', slug: 's'}
+      const req = toUpdateStatusPageRequest(page)
+      expect(req.branding).toBeNull()
+    })
+
+    it('serializes branding when provided in YAML', () => {
+      const page: YamlStatusPage = {
+        name: 'S', slug: 's',
+        branding: {
+          brandColor: '#000000',
+          hidePoweredBy: true,
+          customCss: '.x { color: red; }',
+        },
+      }
+      const req = toUpdateStatusPageRequest(page)
+      expect(req.branding).toMatchObject({
+        brandColor: '#000000',
+        hidePoweredBy: true,
+        customCss: '.x { color: red; }',
+        // Unspecified fields are emitted as null, matching server-side
+        // "null = use design-system default" semantics.
+        logoUrl: null,
+        faviconUrl: null,
+      })
+    })
+
+    it('does not include slug (not updatable post-create)', () => {
+      const page: YamlStatusPage = {name: 'S', slug: 's'}
+      const req = toUpdateStatusPageRequest(page) as unknown as Record<string, unknown>
+      expect(req.slug).toBeUndefined()
+    })
+
+    it('sends null for omitted optional fields (API: null preserves current)', () => {
+      const page: YamlStatusPage = {name: 'S', slug: 's'}
+      const req = toUpdateStatusPageRequest(page)
+      expect(req.description).toBeNull()
+      expect(req.visibility).toBeNull()
+      expect(req.enabled).toBeNull()
+      expect(req.incidentMode).toBeNull()
     })
   })
 })

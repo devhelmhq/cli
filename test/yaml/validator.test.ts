@@ -1,8 +1,9 @@
 import {describe, it, expect} from 'vitest'
 import {join, dirname} from 'node:path'
 import {fileURLToPath} from 'node:url'
-import {parseConfigFile} from '../../src/lib/yaml/parser.js'
-import {validate} from '../../src/lib/yaml/validator.js'
+import {parseConfigFile, ParseError} from '../../src/lib/yaml/parser.js'
+import {validate, validatePlanRefs} from '../../src/lib/yaml/validator.js'
+import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
 import type {DevhelmConfig} from '../../src/lib/yaml/schema.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -37,31 +38,27 @@ describe('validator', () => {
 
   describe('invalid configs', () => {
     it('errors on missing monitor name', () => {
-      const config = parseConfigFile(join(fixtures, 'invalid', 'missing-name.yml'))
-      const result = validate(config)
-      expect(result.errors.length).toBeGreaterThan(0)
-      expect(result.errors.some((e) => e.path.includes('name'))).toBe(true)
+      const fn = () => parseConfigFile(join(fixtures, 'invalid', 'missing-name.yml'))
+      expect(fn).toThrow(ParseError)
+      expect(fn).toThrow(/name/)
     })
 
     it('errors on bad frequency', () => {
-      const config = parseConfigFile(join(fixtures, 'invalid', 'bad-frequency.yml'))
-      const result = validate(config)
-      expect(result.errors.length).toBeGreaterThan(0)
-      expect(result.errors.some((e) => e.message.includes('Frequency'))).toBe(true)
+      const fn = () => parseConfigFile(join(fixtures, 'invalid', 'bad-frequency.yml'))
+      expect(fn).toThrow(ParseError)
+      expect(fn).toThrow(/frequency/i)
     })
 
     it('errors on invalid monitor type', () => {
-      const config = parseConfigFile(join(fixtures, 'invalid', 'bad-type.yml'))
-      const result = validate(config)
-      expect(result.errors.length).toBeGreaterThan(0)
-      expect(result.errors.some((e) => e.message.includes('Invalid type'))).toBe(true)
+      const fn = () => parseConfigFile(join(fixtures, 'invalid', 'bad-type.yml'))
+      expect(fn).toThrow(ParseError)
+      expect(fn).toThrow(/type/)
     })
 
     it('errors on invalid channel type', () => {
-      const config = parseConfigFile(join(fixtures, 'invalid', 'bad-channel-type.yml'))
-      const result = validate(config)
-      expect(result.errors.length).toBeGreaterThan(0)
-      expect(result.errors.some((e) => e.message.includes('Invalid channel type'))).toBe(true)
+      const fn = () => parseConfigFile(join(fixtures, 'invalid', 'bad-channel-type.yml'))
+      expect(fn).toThrow(ParseError)
+      expect(fn).toThrow(/type/)
     })
 
     it('errors on duplicate names', () => {
@@ -77,9 +74,9 @@ describe('validator', () => {
     })
 
     it('errors on empty escalation steps', () => {
-      const config = parseConfigFile(join(fixtures, 'invalid', 'bad-escalation.yml'))
-      const result = validate(config)
-      expect(result.errors.some((e) => e.message.includes('at least one step'))).toBe(true)
+      const fn = () => parseConfigFile(join(fixtures, 'invalid', 'bad-escalation.yml'))
+      expect(fn).toThrow(ParseError)
+      expect(fn).toThrow(/steps/)
     })
   })
 
@@ -380,39 +377,39 @@ describe('validator', () => {
       expect(result.errors.some((e) => e.message.includes('secret'))).toBe(true)
     })
 
-    it('errors when ApiKeyAuthConfig missing headerName', () => {
+    it('errors when api_key auth missing headerName', () => {
       const config: DevhelmConfig = {
         secrets: [{key: 'my-key', value: 'val'}],
         monitors: [{
           name: 'test', type: 'HTTP',
           config: {url: 'https://x.com', method: 'GET'},
-          auth: {type: 'ApiKeyAuthConfig', secret: 'my-key'},
+          auth: {type: 'api_key', secret: 'my-key'} as DevhelmConfig['monitors'] extends (infer M)[] | undefined ? NonNullable<M>['auth'] : never,
         }],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('headerName'))).toBe(true)
     })
 
-    it('errors when HeaderAuthConfig missing headerName', () => {
+    it('errors when header auth missing headerName', () => {
       const config: DevhelmConfig = {
         secrets: [{key: 'my-key', value: 'val'}],
         monitors: [{
           name: 'test', type: 'HTTP',
           config: {url: 'https://x.com', method: 'GET'},
-          auth: {type: 'HeaderAuthConfig', secret: 'my-key'},
+          auth: {type: 'header', secret: 'my-key'} as DevhelmConfig['monitors'] extends (infer M)[] | undefined ? NonNullable<M>['auth'] : never,
         }],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('headerName'))).toBe(true)
     })
 
-    it('passes when ApiKeyAuthConfig has headerName', () => {
+    it('passes when api_key auth has headerName', () => {
       const config: DevhelmConfig = {
         secrets: [{key: 'my-key', value: 'val'}],
         monitors: [{
           name: 'test', type: 'HTTP',
           config: {url: 'https://x.com', method: 'GET'},
-          auth: {type: 'ApiKeyAuthConfig', secret: 'my-key', headerName: 'X-API-Key'},
+          auth: {type: 'api_key', secret: 'my-key', headerName: 'X-API-Key'},
         }],
       }
       const result = validate(config)
@@ -741,7 +738,7 @@ describe('validator', () => {
         monitors: [{
           name: 'test', type: 'HTTP',
           config: {url: 'https://x.com', method: 'GET'},
-          assertions: [{type: 'StatusCodeAssertion', severity: 'error', config: {operator: 'INVALID_OP'}}],
+          assertions: [{type: 'status_code', severity: 'error', config: {operator: 'INVALID_OP'}}],
         }],
       }
       const result = validate(config)
@@ -768,5 +765,268 @@ describe('validator', () => {
       const versionWarnings = result.warnings.filter((w) => w.path === 'version')
       expect(versionWarnings).toHaveLength(0)
     })
+  })
+
+  describe('statusPages', () => {
+    it('accepts a minimal valid status page', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{name: 'Public', slug: 'public'}],
+      }
+      const result = validate(config)
+      expect(result.errors).toHaveLength(0)
+    })
+
+    it('errors when name is missing', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{slug: 'public'} as never],
+      }
+      const result = validate(config)
+      expect(result.errors.some((e) => e.path === 'statusPages[0].name')).toBe(true)
+    })
+
+    it('errors when slug is missing', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{name: 'P'} as never],
+      }
+      const result = validate(config)
+      expect(result.errors.some((e) => e.path === 'statusPages[0].slug')).toBe(true)
+    })
+
+    it('errors on invalid slug format', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{name: 'P', slug: 'Not_Valid'}],
+      }
+      const result = validate(config)
+      expect(result.errors.some((e) =>
+        e.path === 'statusPages[0].slug' && /lowercase alphanumeric/.test(e.message),
+      )).toBe(true)
+    })
+
+    it('errors on invalid visibility', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{name: 'P', slug: 'p', visibility: 'SECRET' as never}],
+      }
+      const result = validate(config)
+      expect(result.errors.some((e) => e.path === 'statusPages[0].visibility')).toBe(true)
+    })
+
+    it('errors on invalid incidentMode', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{name: 'P', slug: 'p', incidentMode: 'MAGIC' as never}],
+      }
+      const result = validate(config)
+      expect(result.errors.some((e) => e.path === 'statusPages[0].incidentMode')).toBe(true)
+    })
+
+    it('errors on duplicate status page slugs', () => {
+      const config: DevhelmConfig = {
+        statusPages: [
+          {name: 'P1', slug: 'shared'},
+          {name: 'P2', slug: 'shared'},
+        ],
+      }
+      const result = validate(config)
+      expect(result.errors.some((e) => /Duplicate statusPages/.test(e.message))).toBe(true)
+    })
+
+    it('errors on duplicate component group names within a page', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'p',
+          componentGroups: [{name: 'API'}, {name: 'API'}],
+        }],
+      }
+      const result = validate(config)
+      expect(result.errors.some((e) =>
+        /Duplicate component group name/.test(e.message),
+      )).toBe(true)
+    })
+
+    it('accepts duplicate group names across different pages', () => {
+      const config: DevhelmConfig = {
+        statusPages: [
+          {name: 'P1', slug: 'p1', componentGroups: [{name: 'API'}]},
+          {name: 'P2', slug: 'p2', componentGroups: [{name: 'API'}]},
+        ],
+      }
+      const result = validate(config)
+      expect(result.errors).toHaveLength(0)
+    })
+
+    it('errors when MONITOR component lacks monitor reference', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'p',
+          components: [{name: 'Web', type: 'MONITOR'}],
+        }],
+      }
+      const result = validate(config)
+      expect(result.errors.some((e) =>
+        e.path === 'statusPages[0].components[0].monitor',
+      )).toBe(true)
+    })
+
+    it('errors when GROUP component lacks resourceGroup reference', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'p',
+          components: [{name: 'G', type: 'GROUP'}],
+        }],
+      }
+      const result = validate(config)
+      expect(result.errors.some((e) =>
+        e.path === 'statusPages[0].components[0].resourceGroup',
+      )).toBe(true)
+    })
+
+    it('accepts STATIC component without monitor or resourceGroup', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'p',
+          components: [{name: 'Static', type: 'STATIC'}],
+        }],
+      }
+      const result = validate(config)
+      expect(result.errors).toHaveLength(0)
+    })
+
+    it('errors on invalid component type', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'p',
+          components: [{name: 'X', type: 'WEIRD' as never}],
+        }],
+      }
+      const result = validate(config)
+      expect(result.errors.some((e) =>
+        e.path === 'statusPages[0].components[0].type',
+      )).toBe(true)
+    })
+
+    it('warns when component references non-existent monitor', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'p',
+          components: [{name: 'Web', type: 'MONITOR', monitor: 'missing'}],
+        }],
+      }
+      const result = validate(config)
+      expect(result.warnings.some((w) =>
+        w.path === 'statusPages[0].components[0].monitor',
+      )).toBe(true)
+    })
+
+    it('warns when component references non-existent resourceGroup', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'p',
+          components: [{name: 'G', type: 'GROUP', resourceGroup: 'missing'}],
+        }],
+      }
+      const result = validate(config)
+      expect(result.warnings.some((w) =>
+        w.path === 'statusPages[0].components[0].resourceGroup',
+      )).toBe(true)
+    })
+
+    it('no warning when component references defined monitor/resourceGroup', () => {
+      const config: DevhelmConfig = {
+        monitors: [{name: 'api', type: 'HTTP', config: {url: 'https://x', method: 'GET'}}],
+        resourceGroups: [{name: 'core'}],
+        statusPages: [{
+          name: 'P', slug: 'p',
+          components: [
+            {name: 'Web', type: 'MONITOR', monitor: 'api'},
+            {name: 'Core', type: 'GROUP', resourceGroup: 'core'},
+          ],
+        }],
+      }
+      const result = validate(config)
+      expect(result.errors).toHaveLength(0)
+      expect(result.warnings.filter((w) =>
+        w.path.startsWith('statusPages[0]'),
+      )).toHaveLength(0)
+    })
+
+    it('warns when component.group does not match any declared group', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'p',
+          componentGroups: [{name: 'API'}],
+          components: [{name: 'Static', type: 'STATIC', group: 'Not Declared'}],
+        }],
+      }
+      const result = validate(config)
+      expect(result.warnings.some((w) =>
+        w.path === 'statusPages[0].components[0].group',
+      )).toBe(true)
+    })
+
+    it('does not warn when component.group matches declared group', () => {
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'p',
+          componentGroups: [{name: 'API'}],
+          components: [{name: 'Static', type: 'STATIC', group: 'API'}],
+        }],
+      }
+      const result = validate(config)
+      const groupWarnings = result.warnings.filter((w) =>
+        w.path === 'statusPages[0].components[0].group',
+      )
+      expect(groupWarnings).toHaveLength(0)
+    })
+  })
+})
+
+describe('validatePlanRefs', () => {
+  function refsWithEnvironment(opts: {refKey: string; apiSlug: string; matchSource?: 'state' | 'name'}) {
+    const refs = new ResolvedRefs()
+    refs.set('environments', opts.refKey, {
+      id: 'env-1',
+      refKey: opts.refKey,
+      raw: {id: 'env-1', name: 'X', slug: opts.apiSlug, isDefault: false, variables: null},
+      matchSource: opts.matchSource ?? 'state',
+    })
+    return refs
+  }
+
+  it('errors when state-matched environment slug differs from YAML slug', () => {
+    const config: DevhelmConfig = {
+      environments: [{name: 'Production', slug: 'production'}],
+    }
+    const refs = refsWithEnvironment({refKey: 'production', apiSlug: 'prod'})
+    const result = validatePlanRefs(config, refs)
+    expect(result.errors).toHaveLength(1)
+    expect(result.errors[0].path).toBe('environments[0].slug')
+    expect(result.errors[0].message).toMatch(/slug rename.*not supported/)
+  })
+
+  it('passes when YAML slug matches API slug', () => {
+    const config: DevhelmConfig = {
+      environments: [{name: 'Production', slug: 'production'}],
+    }
+    const refs = refsWithEnvironment({refKey: 'production', apiSlug: 'production'})
+    const result = validatePlanRefs(config, refs)
+    expect(result.errors).toHaveLength(0)
+  })
+
+  it('does not flag name-matched (non-state) environments', () => {
+    // Without state-based matching the resolver wouldn't have placed a
+    // mismatched-slug entry under this refKey at all, but we double-check
+    // we don't false-positive when matchSource is 'name'.
+    const config: DevhelmConfig = {
+      environments: [{name: 'Production', slug: 'production'}],
+    }
+    const refs = refsWithEnvironment({refKey: 'production', apiSlug: 'prod', matchSource: 'name'})
+    const result = validatePlanRefs(config, refs)
+    expect(result.errors).toHaveLength(0)
+  })
+
+  it('passes when no environments are defined', () => {
+    const config: DevhelmConfig = {monitors: []}
+    const refs = new ResolvedRefs()
+    const result = validatePlanRefs(config, refs)
+    expect(result.errors).toHaveLength(0)
   })
 })

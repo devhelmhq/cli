@@ -1601,6 +1601,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/services/{slugOrId}/poll-results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List poll results for a service (cursor-paginated) */
+        get: operations["listPollResults"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/services/{slugOrId}/poll-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get aggregated poll metrics and chart data for a service */
+        get: operations["getPollSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/services/{slugOrId}/uptime": {
         parameters: {
             query?: never;
@@ -2248,9 +2282,9 @@ export interface components {
         /** @description Request body for adding tags to a monitor. Provide existing tag IDs, inline new tags, or both. */
         AddMonitorTagsRequest: {
             /** @description IDs of existing org tags to attach */
-            tagIds: (string | null)[] | null;
+            tagIds?: string[] | null;
             /** @description New tags to create (if not already present) and attach */
-            newTags: components["schemas"]["NewTagRequest"][] | null;
+            newTags?: components["schemas"]["NewTagRequest"][] | null;
         };
         /** @description Request body for adding a member to a resource group */
         AddResourceGroupMemberRequest: {
@@ -2282,6 +2316,21 @@ export interface components {
              */
             status: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE";
         };
+        /** @description Non-sensitive alert channel configuration metadata */
+        AlertChannelDisplayConfig: {
+            /** @description Email recipients list (email channels) */
+            recipients?: string[] | null;
+            /** @description OpsGenie API region: us or eu */
+            region?: string | null;
+            /** @description PagerDuty severity override (critical, error, warning, info) */
+            severityOverride?: string | null;
+            /** @description Discord role ID to mention in notifications */
+            mentionRoleId?: string | null;
+            /** @description Custom HTTP headers for webhook requests */
+            customHeaders?: {
+                [key: string]: string | null;
+            } | null;
+        };
         /** @description Alert channel with non-sensitive configuration metadata */
         AlertChannelDto: {
             /**
@@ -2296,10 +2345,7 @@ export interface components {
              * @enum {string}
              */
             channelType: "email" | "webhook" | "slack" | "pagerduty" | "opsgenie" | "teams" | "discord";
-            /** @description Non-sensitive display metadata; null for older channels */
-            displayConfig?: {
-                [key: string]: Record<string, never> | null;
-            } | null;
+            displayConfig?: components["schemas"]["AlertChannelDisplayConfig"] | null;
             /**
              * Format: date-time
              * @description Timestamp when the channel was created
@@ -2333,7 +2379,7 @@ export interface components {
              * Format: uuid
              * @description Notification dispatch that created this delivery
              */
-            dispatchId: string | null;
+            dispatchId?: string | null;
             /**
              * Format: uuid
              * @description Alert channel ID
@@ -2372,25 +2418,23 @@ export interface components {
              * Format: date-time
              * @description When the last attempt was made
              */
-            lastAttemptAt: string | null;
+            lastAttemptAt?: string | null;
             /**
              * Format: date-time
              * @description When the next retry is scheduled (null if not retrying)
              */
-            nextRetryAt: string | null;
+            nextRetryAt?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the delivery was confirmed (null if not yet delivered)
              */
-            deliveredAt: string | null;
+            deliveredAt?: string | null;
             /** @description Error message from the last failed attempt */
-            errorMessage: string | null;
+            errorMessage?: string | null;
             /** Format: date-time */
             createdAt: string;
         };
-        ApiKeyAuthConfig: {
-            type: "ApiKeyAuthConfig";
-        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+        ApiKeyAuthConfig: Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
             /** @description HTTP header name that carries the API key */
             headerName: string;
             /**
@@ -2398,7 +2442,13 @@ export interface components {
              * @description Vault secret ID for the API key value
              */
             vaultSecretId?: string | null;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "api_key";
+        };
         /** @description Created API key with the full key value — store it now, it won't be shown again */
         ApiKeyCreateResponse: {
             /**
@@ -2419,7 +2469,7 @@ export interface components {
              * Format: date-time
              * @description Timestamp when the key expires; null if no expiration
              */
-            expiresAt: string | null;
+            expiresAt?: string | null;
         };
         /** @description API key for programmatic access to the DevHelm API */
         ApiKeyDto: {
@@ -2446,17 +2496,17 @@ export interface components {
              * Format: date-time
              * @description Timestamp of the most recent API call; null if never used
              */
-            lastUsedAt: string | null;
+            lastUsedAt?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the key was revoked; null if active
              */
-            revokedAt: string | null;
+            revokedAt?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the key expires; null if no expiration
              */
-            expiresAt: string | null;
+            expiresAt?: string | null;
         };
         /** @description New assertion configuration (full replacement) */
         AssertionConfig: {
@@ -2477,24 +2527,24 @@ export interface components {
              */
             severity: "fail" | "warn";
             /** @description Human-readable result message */
-            message: string | null;
+            message?: string | null;
             /**
              * @description Expected value
              * @example 200
              */
-            expected: string | null;
+            expected?: string | null;
             /**
              * @description Actual value observed
              * @example 503
              */
-            actual: string | null;
+            actual?: string | null;
         };
         AssertionTestResultDto: {
             /**
              * @description Assertion type evaluated
              * @enum {string}
              */
-            assertionType: "status_code" | "response_time" | "body_contains" | "json_path" | "header" | "regex" | "dns_resolves" | "dns_response_time" | "dns_expected_ips" | "dns_expected_cname" | "dns_record_contains" | "dns_record_equals" | "dns_txt_contains" | "dns_min_answers" | "dns_max_answers" | "dns_response_time_warn" | "dns_ttl_low" | "dns_ttl_high" | "mcp_connects" | "mcp_response_time" | "mcp_has_capability" | "mcp_tool_available" | "mcp_min_tools" | "mcp_protocol_version" | "mcp_response_time_warn" | "mcp_tool_count_changed" | "ssl_expiry" | "response_size" | "redirect_count" | "redirect_target" | "response_time_warn" | "tcp_connects" | "tcp_response_time" | "tcp_response_time_warn" | "icmp_reachable" | "icmp_response_time" | "icmp_response_time_warn" | "icmp_packet_loss" | "heartbeat_received" | "heartbeat_max_interval" | "heartbeat_interval_drift" | "heartbeat_payload_contains";
+            assertionType: "status_code" | "response_time" | "body_contains" | "json_path" | "header_value" | "regex_body" | "dns_resolves" | "dns_response_time" | "dns_expected_ips" | "dns_expected_cname" | "dns_record_contains" | "dns_record_equals" | "dns_txt_contains" | "dns_min_answers" | "dns_max_answers" | "dns_response_time_warn" | "dns_ttl_low" | "dns_ttl_high" | "mcp_connects" | "mcp_response_time" | "mcp_has_capability" | "mcp_tool_available" | "mcp_min_tools" | "mcp_protocol_version" | "mcp_response_time_warn" | "mcp_tool_count_changed" | "ssl_expiry" | "response_size" | "redirect_count" | "redirect_target" | "response_time_warn" | "tcp_connects" | "tcp_response_time" | "tcp_response_time_warn" | "icmp_reachable" | "icmp_response_time" | "icmp_response_time_warn" | "icmp_packet_loss" | "heartbeat_received" | "heartbeat_max_interval" | "heartbeat_interval_drift" | "heartbeat_payload_contains";
             /** @description Whether the assertion passed */
             passed: boolean;
             /**
@@ -2505,9 +2555,9 @@ export interface components {
             /** @description Human-readable result description */
             message: string;
             /** @description Expected value */
-            expected: string | null;
+            expected?: string | null;
             /** @description Actual value observed during the test */
-            actual: string | null;
+            actual?: string | null;
         };
         AuditEventDto: {
             /**
@@ -2519,19 +2569,19 @@ export interface components {
              * Format: int32
              * @description User ID who performed the action; null for system actions
              */
-            actorId: number | null;
+            actorId?: number | null;
             /** @description Email of the actor; null for system actions */
-            actorEmail: string | null;
+            actorEmail?: string | null;
             /** @description Audit action type (e.g. monitor.created, api_key.revoked) */
             action: string;
             /** @description Type of resource affected (e.g. monitor, api_key) */
-            resourceType: string | null;
+            resourceType?: string | null;
             /** @description ID of the affected resource */
-            resourceId: string | null;
+            resourceId?: string | null;
             /** @description Human-readable name of the affected resource */
-            resourceName: string | null;
+            resourceName?: string | null;
             /** @description Additional context about the action */
-            metadata: {
+            metadata?: {
                 [key: string]: Record<string, never> | null;
             } | null;
             /**
@@ -2547,30 +2597,42 @@ export interface components {
             plan: components["schemas"]["PlanInfo"];
             rateLimits: components["schemas"]["RateLimitInfo"];
         };
-        BasicAuthConfig: {
-            type: "BasicAuthConfig";
-        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+        BasicAuthConfig: Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
             /**
              * Format: uuid
              * @description Vault secret ID holding Basic auth username and password
              */
             vaultSecretId?: string | null;
-        });
-        BearerAuthConfig: {
-            type: "BearerAuthConfig";
-        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "basic";
+        };
+        BearerAuthConfig: Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
             /**
              * Format: uuid
              * @description Vault secret ID holding the bearer token value
              */
             vaultSecretId?: string | null;
-        });
-        BodyContainsAssertion: {
-            type: "BodyContainsAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "bearer";
+        };
+        BodyContainsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description Substring that must appear in the response body */
             substring: string;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "body_contains";
+        };
         /** @description Request body for performing a bulk action on multiple monitors */
         BulkMonitorActionRequest: {
             /** @description IDs of monitors to act on (max 200) */
@@ -2581,7 +2643,7 @@ export interface components {
              */
             action: "PAUSE" | "RESUME" | "DELETE" | "ADD_TAG" | "REMOVE_TAG";
             /** @description Tag IDs to attach or detach (required for ADD_TAG and REMOVE_TAG) */
-            tagIds?: (string | null)[] | null;
+            tagIds?: string[] | null;
             /** @description New tags to create and attach (only for ADD_TAG) */
             newTags?: components["schemas"]["NewTagRequest"][] | null;
         };
@@ -2635,25 +2697,25 @@ export interface components {
              * @description Uptime percentage for this bucket; null when no data
              * @example 100
              */
-            uptimePercent: number | null;
+            uptimePercent?: number | null;
             /**
              * Format: double
              * @description Weighted average latency in milliseconds for this bucket
              * @example 120.3
              */
-            avgLatencyMs: number | null;
+            avgLatencyMs?: number | null;
             /**
              * Format: double
              * @description 95th percentile latency in milliseconds (max across regions)
              * @example 250
              */
-            p95LatencyMs: number | null;
+            p95LatencyMs?: number | null;
             /**
              * Format: double
              * @description 99th percentile latency in milliseconds (max across regions)
              * @example 480
              */
-            p99LatencyMs: number | null;
+            p99LatencyMs?: number | null;
         };
         /** @description Type-specific details captured during a check execution */
         CheckResultDetailsDto: {
@@ -2662,31 +2724,31 @@ export interface components {
              * @description HTTP status code of the response
              * @example 200
              */
-            statusCode: number | null;
+            statusCode?: number | null;
             /** @description HTTP response headers */
-            responseHeaders: {
+            responseHeaders?: {
                 [key: string]: (string | null)[] | null;
             } | null;
             /** @description Raw response body snapshot (may be HTML, XML, JSON, or plain text) */
-            responseBodySnapshot: string | null;
+            responseBodySnapshot?: string | null;
             /** @description Individual assertion evaluation results */
-            assertionResults: components["schemas"]["AssertionResultDto"][] | null;
-            tlsInfo: components["schemas"]["TlsInfoDto"];
+            assertionResults?: components["schemas"]["AssertionResultDto"][] | null;
+            tlsInfo?: components["schemas"]["TlsInfoDto"] | null;
             /**
              * Format: int32
              * @description Number of HTTP redirects followed
              * @example 2
              */
-            redirectCount: number | null;
+            redirectCount?: number | null;
             /** @description Final URL after redirects */
-            redirectTarget: string | null;
+            redirectTarget?: string | null;
             /**
              * Format: int32
              * @description Response body size in bytes
              * @example 4096
              */
-            responseSizeBytes: number | null;
-            checkDetails?: components["schemas"]["Dns"] | components["schemas"]["Http"] | components["schemas"]["Icmp"] | components["schemas"]["McpServer"] | components["schemas"]["Tcp"];
+            responseSizeBytes?: number | null;
+            checkDetails?: Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> | null;
         };
         /** @description A single check result from a monitor run */
         CheckResultDto: {
@@ -2710,22 +2772,22 @@ export interface components {
              * @description Response time in milliseconds
              * @example 123
              */
-            responseTimeMs: number | null;
+            responseTimeMs?: number | null;
             /**
              * @description Whether the check passed
              * @example true
              */
             passed: boolean;
             /** @description Reason for failure when passed=false */
-            failureReason: string | null;
+            failureReason?: string | null;
             /** @description Severity hint: 'down' for hard failures, 'degraded' for warn-only failures, null when passing */
-            severityHint: string | null;
-            details: components["schemas"]["CheckResultDetailsDto"];
+            severityHint?: string | null;
+            details?: components["schemas"]["CheckResultDetailsDto"] | null;
             /**
              * Format: uuid
              * @description Unique execution trace ID for cross-service correlation
              */
-            checkId: string | null;
+            checkId?: string | null;
         };
         /** @description Check-type-specific details — polymorphic by check_type discriminator */
         CheckTypeDetailsDto: {
@@ -2781,7 +2843,7 @@ export interface components {
              */
             uptimePercentage: number;
             /** @description Incidents that overlapped this day */
-            incidents: components["schemas"]["IncidentRef"][] | null;
+            incidents?: components["schemas"]["IncidentRef"][] | null;
         };
         /** @description Inline uptime percentages for 24h, 7d, 30d */
         ComponentUptimeSummaryDto: {
@@ -2790,19 +2852,19 @@ export interface components {
              * @description Uptime percentage over the last 24 hours
              * @example 99.95
              */
-            day: number | null;
+            day?: number | null;
             /**
              * Format: double
              * @description Uptime percentage over the last 7 days
              * @example 99.98
              */
-            week: number | null;
+            week?: number | null;
             /**
              * Format: double
              * @description Uptime percentage over the last 30 days
              * @example 99.92
              */
-            month: number | null;
+            month?: number | null;
             /**
              * @description Data source: vendor_reported or incident_derived
              * @example vendor_reported
@@ -2931,7 +2993,7 @@ export interface components {
             /** @description Whether the monitor is active (default: true) */
             enabled?: boolean | null;
             /** @description Probe regions to run checks from, e.g. us-east, eu-west */
-            regions?: (string | null)[] | null;
+            regions?: string[] | null;
             /**
              * @description Who manages this monitor: DASHBOARD or CLI
              * @enum {string}
@@ -2944,11 +3006,11 @@ export interface components {
             environmentId?: string | null;
             /** @description Assertions to evaluate against each check result */
             assertions?: components["schemas"]["CreateAssertionRequest"][] | null;
-            auth?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
-            incidentPolicy?: components["schemas"]["UpdateIncidentPolicyRequest"];
+            auth?: Omit<components["schemas"]["MonitorAuthConfig"], "type"> | null;
+            incidentPolicy?: components["schemas"]["UpdateIncidentPolicyRequest"] | null;
             /** @description Alert channels to notify when this monitor triggers */
-            alertChannelIds?: (string | null)[] | null;
-            tags?: components["schemas"]["AddMonitorTagsRequest"];
+            alertChannelIds?: string[] | null;
+            tags?: components["schemas"]["AddMonitorTagsRequest"] | null;
         };
         /** @description Request body for creating a notification policy */
         CreateNotificationPolicyRequest: {
@@ -2986,10 +3048,10 @@ export interface components {
              */
             defaultFrequency?: number | null;
             /** @description Default regions applied to member monitors */
-            defaultRegions?: (string | null)[] | null;
-            defaultRetryStrategy?: components["schemas"]["RetryStrategy"];
+            defaultRegions?: string[] | null;
+            defaultRetryStrategy?: components["schemas"]["RetryStrategy"] | null;
             /** @description Default alert channel IDs applied to member monitors */
-            defaultAlertChannels?: (string | null)[] | null;
+            defaultAlertChannels?: string[] | null;
             /**
              * Format: uuid
              * @description Default environment ID applied to member monitors
@@ -3128,7 +3190,7 @@ export interface components {
             slug: string;
             /** @description Optional description shown below the page header */
             description?: string | null;
-            branding?: components["schemas"]["StatusPageBranding"];
+            branding?: components["schemas"]["StatusPageBranding"] | null;
             /**
              * @description Page visibility: PUBLIC, PASSWORD, or IP_RESTRICTED (default: PUBLIC)
              * @enum {string|null}
@@ -3167,7 +3229,7 @@ export interface components {
             /** @description Items on this page */
             data: Record<string, never>[];
             /** @description Opaque cursor for the next page; null when there are no more results */
-            nextCursor: string | null;
+            nextCursor?: string | null;
             /** @description Whether more results exist beyond this page */
             hasMore: boolean;
         };
@@ -3176,7 +3238,7 @@ export interface components {
             /** @description Items on this page */
             data: components["schemas"]["CheckResultDto"][];
             /** @description Opaque cursor for the next page; null when there are no more results */
-            nextCursor: string | null;
+            nextCursor?: string | null;
             /** @description Whether more results exist beyond this page */
             hasMore: boolean;
         };
@@ -3185,7 +3247,16 @@ export interface components {
             /** @description Items on this page */
             data: components["schemas"]["ServiceCatalogDto"][];
             /** @description Opaque cursor for the next page; null when there are no more results */
-            nextCursor: string | null;
+            nextCursor?: string | null;
+            /** @description Whether more results exist beyond this page */
+            hasMore: boolean;
+        };
+        /** @description Cursor-paginated response for time-series and append-only data */
+        CursorPageServicePollResultDto: {
+            /** @description Items on this page */
+            data: components["schemas"]["ServicePollResultDto"][];
+            /** @description Opaque cursor for the next page; null when there are no more results */
+            nextCursor?: string | null;
             /** @description Whether more results exist beyond this page */
             hasMore: boolean;
         };
@@ -3252,22 +3323,22 @@ export interface components {
              * Format: int32
              * @description HTTP response status code from the external service
              */
-            responseStatusCode: number | null;
+            responseStatusCode?: number | null;
             /** @description JSON payload sent to the external service */
-            requestPayload: string | null;
+            requestPayload?: string | null;
             /** @description Response body from the external service (truncated) */
-            responseBody: string | null;
+            responseBody?: string | null;
             /** @description Error message if the attempt failed */
-            errorMessage: string | null;
+            errorMessage?: string | null;
             /**
              * Format: int32
              * @description Round-trip time in milliseconds
              */
-            responseTimeMs: number | null;
+            responseTimeMs?: number | null;
             /** @description External identifier (e.g. PagerDuty dedup_key, SES MessageId, webhook delivery UUID) */
-            externalId: string | null;
+            externalId?: string | null;
             /** @description HTTP request headers sent to the external service */
-            requestHeaders: {
+            requestHeaders?: {
                 [key: string]: string | null;
             } | null;
             /** Format: date-time */
@@ -3293,52 +3364,39 @@ export interface components {
              */
             expiresAt: string;
         };
-        DiscordChannelConfig: {
-            channelType: "DiscordChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        DiscordChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
             /** @description Discord webhook URL */
             webhookUrl: string;
             /** @description Optional Discord role ID to mention in notifications */
             mentionRoleId?: string | null;
-        });
-        /** @description DNS check-type-specific details */
-        Dns: {
-            check_type: "Dns";
-        } & (Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
-            /** @description Target hostname */
-            hostname?: string | null;
-            /** @description Requested DNS record types */
-            requestedTypes?: (string | null)[] | null;
-            /** @description Resolver used for lookup */
-            usedResolver?: string | null;
-            /** @description Resolved DNS records keyed by record type */
-            records?: {
-                [key: string]: ({
-                    [key: string]: Record<string, never> | null;
-                } | null)[] | null;
-            } | null;
-            /** @description DNS resolution attempts */
-            attempts?: ({
-                [key: string]: Record<string, never> | null;
-            } | null)[] | null;
-            /** @description Kind of DNS failure, if any */
-            failureKind?: string | null;
-        });
-        DnsExpectedCnameAssertion: {
-            type: "DnsExpectedCnameAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            channelType: "discord";
+        };
+        DnsExpectedCnameAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description Expected CNAME target the resolution must include */
             value: string;
-        });
-        DnsExpectedIpsAssertion: {
-            type: "DnsExpectedIpsAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_expected_cname";
+        };
+        DnsExpectedIpsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description Allowed IP addresses; at least one resolved address must match */
             ips: string[];
-        });
-        DnsMaxAnswersAssertion: {
-            type: "DnsMaxAnswersAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_expected_ips";
+        };
+        DnsMaxAnswersAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description DNS record type whose answer count is checked */
             recordType: string;
             /**
@@ -3346,10 +3404,14 @@ export interface components {
              * @description Maximum number of answers allowed for that record type
              */
             max?: number;
-        });
-        DnsMinAnswersAssertion: {
-            type: "DnsMinAnswersAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_max_answers";
+        };
+        DnsMinAnswersAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description DNS record type whose answer count is checked */
             recordType: string;
             /**
@@ -3357,7 +3419,13 @@ export interface components {
              * @description Minimum number of answers required for that record type
              */
             min?: number;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_min_answers";
+        };
         DnsMonitorConfig: components["schemas"]["MonitorConfig"] & {
             /** @description Domain name to resolve */
             hostname: string;
@@ -3376,73 +3444,109 @@ export interface components {
              */
             totalTimeoutMs?: number | null;
         };
-        DnsRecordContainsAssertion: {
-            type: "DnsRecordContainsAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsRecordContainsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description DNS record type to assert on (A, AAAA, CNAME, MX, TXT) */
             recordType: string;
             /** @description Substring that must appear in a matching record value */
             substring: string;
-        });
-        DnsRecordEqualsAssertion: {
-            type: "DnsRecordEqualsAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_record_contains";
+        };
+        DnsRecordEqualsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description DNS record type to assert on (A, AAAA, CNAME, MX, TXT) */
             recordType: string;
             /** @description Expected DNS record value for an exact match */
             value: string;
-        });
-        DnsResolvesAssertion: {
-            type: "DnsResolvesAssertion";
-        } & Omit<components["schemas"]["AssertionConfig"], "type">;
-        DnsResponseTimeAssertion: {
-            type: "DnsResponseTimeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_record_equals";
+        };
+        DnsResolvesAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_resolves";
+        };
+        DnsResponseTimeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Maximum allowed DNS resolution time in milliseconds
              */
             maxMs?: number;
-        });
-        DnsResponseTimeWarnAssertion: {
-            type: "DnsResponseTimeWarnAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_response_time";
+        };
+        DnsResponseTimeWarnAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description DNS resolution time in milliseconds that triggers a warning only
              */
             warnMs?: number;
-        });
-        DnsTtlHighAssertion: {
-            type: "DnsTtlHighAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_response_time_warn";
+        };
+        DnsTtlHighAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Maximum TTL in seconds before a high-TTL warning is raised
              */
             maxTtl?: number;
-        });
-        DnsTtlLowAssertion: {
-            type: "DnsTtlLowAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_ttl_high";
+        };
+        DnsTtlLowAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Minimum acceptable TTL in seconds before a warning is raised
              */
             minTtl?: number;
-        });
-        DnsTxtContainsAssertion: {
-            type: "DnsTxtContainsAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_ttl_low";
+        };
+        DnsTxtContainsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description Substring that must appear in at least one TXT record */
             substring: string;
-        });
-        EmailChannelConfig: {
-            channelType: "EmailChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dns_txt_contains";
+        };
+        EmailChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
             /** @description Email addresses to send notifications to */
             recipients: string[];
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            channelType: "email";
+        };
         /** @description A single resolved entitlement for the organization */
         EntitlementDto: {
             /** @description Entitlement key */
@@ -3589,9 +3693,7 @@ export interface components {
             /** @description Ordered component IDs with their within-group display order */
             positions: components["schemas"]["ComponentPosition"][];
         };
-        HeaderAuthConfig: {
-            type: "HeaderAuthConfig";
-        } & (Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+        HeaderAuthConfig: Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
             /** @description Custom HTTP header name for the secret value */
             headerName: string;
             /**
@@ -3599,10 +3701,14 @@ export interface components {
              * @description Vault secret ID for the header value
              */
             vaultSecretId?: string | null;
-        });
-        HeaderValueAssertion: {
-            type: "HeaderValueAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "header";
+        };
+        HeaderValueAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description HTTP header name to assert on */
             headerName: string;
             /** @description Expected value to compare against */
@@ -3612,25 +3718,39 @@ export interface components {
              * @enum {string}
              */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        });
-        HeartbeatIntervalDriftAssertion: {
-            type: "HeartbeatIntervalDriftAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "header_value";
+        };
+        HeartbeatIntervalDriftAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Max percent drift from expected ping interval before warning (non-fatal)
              */
             maxDeviationPercent: number;
-        });
-        HeartbeatMaxIntervalAssertion: {
-            type: "HeartbeatMaxIntervalAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "heartbeat_interval_drift";
+        };
+        HeartbeatMaxIntervalAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Maximum allowed gap in seconds between consecutive heartbeat pings
              */
             maxSeconds: number;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "heartbeat_max_interval";
+        };
         HeartbeatMonitorConfig: components["schemas"]["MonitorConfig"] & {
             /**
              * Format: int32
@@ -3643,28 +3763,25 @@ export interface components {
              */
             gracePeriod: number;
         };
-        HeartbeatPayloadContainsAssertion: {
-            type: "HeartbeatPayloadContainsAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        HeartbeatPayloadContainsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description JSONPath expression into the heartbeat ping JSON payload */
             path: string;
             /** @description Expected value to compare against at that path */
             value: string;
-        });
-        HeartbeatReceivedAssertion: {
-            type: "HeartbeatReceivedAssertion";
-        } & Omit<components["schemas"]["AssertionConfig"], "type">;
-        /** @description HTTP check-type-specific details */
-        Http: {
-            check_type: "Http";
-        } & (Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
-            /** @description Request phase timing breakdown */
-            timing?: {
-                [key: string]: Record<string, never> | null;
-            } | null;
-            /** @description Whether the response body was truncated before storage */
-            bodyTruncated?: boolean | null;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "heartbeat_payload_contains";
+        };
+        HeartbeatReceivedAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "heartbeat_received";
+        };
         HttpMonitorConfig: components["schemas"]["MonitorConfig"] & {
             /** @description Target URL to send requests to */
             url: string;
@@ -3684,52 +3801,6 @@ export interface components {
             /** @description Whether to verify TLS certificates (default: true) */
             verifyTls?: boolean | null;
         };
-        /** @description ICMP (ping) check-type-specific details */
-        Icmp: {
-            check_type: "Icmp";
-        } & (Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
-            /**
-             * @description Target host
-             * @example 1.1.1.1
-             */
-            host?: string;
-            /**
-             * Format: int32
-             * @description Number of ICMP packets sent
-             */
-            packetsSent?: number | null;
-            /**
-             * Format: int32
-             * @description Number of ICMP packets received
-             */
-            packetsReceived?: number | null;
-            /**
-             * Format: double
-             * @description Packet loss percentage
-             * @example 0
-             */
-            packetLoss?: number | null;
-            /**
-             * Format: double
-             * @description Average round-trip time in ms
-             */
-            avgRttMs?: number | null;
-            /**
-             * Format: double
-             * @description Minimum round-trip time in ms
-             */
-            minRttMs?: number | null;
-            /**
-             * Format: double
-             * @description Maximum round-trip time in ms
-             */
-            maxRttMs?: number | null;
-            /**
-             * Format: double
-             * @description Jitter in ms
-             */
-            jitterMs?: number | null;
-        });
         IcmpMonitorConfig: components["schemas"]["MonitorConfig"] & {
             /** @description Target hostname or IP address to ping */
             host: string;
@@ -3744,40 +3815,56 @@ export interface components {
              */
             timeoutMs?: number | null;
         };
-        IcmpPacketLossAssertion: {
-            type: "IcmpPacketLossAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        IcmpPacketLossAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: double
              * @description Maximum allowed packet loss percentage before the check fails (0–100)
              */
             maxPercent?: number;
-        });
-        IcmpReachableAssertion: {
-            type: "IcmpReachableAssertion";
-        } & Omit<components["schemas"]["AssertionConfig"], "type">;
-        IcmpResponseTimeAssertion: {
-            type: "IcmpResponseTimeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "icmp_packet_loss";
+        };
+        IcmpReachableAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "icmp_reachable";
+        };
+        IcmpResponseTimeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Maximum average ICMP round-trip time in milliseconds
              */
             maxMs?: number;
-        });
-        IcmpResponseTimeWarnAssertion: {
-            type: "IcmpResponseTimeWarnAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "icmp_response_time";
+        };
+        IcmpResponseTimeWarnAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description ICMP round-trip time in milliseconds that triggers a warning only
              */
             warnMs?: number;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "icmp_response_time_warn";
+        };
         IncidentDetailDto: {
             incident: components["schemas"]["IncidentDto"];
             updates: components["schemas"]["IncidentUpdateDto"][];
-            statusPageIncidents: components["schemas"]["LinkedStatusPageIncidentDto"][] | null;
+            statusPageIncidents?: components["schemas"]["LinkedStatusPageIncidentDto"][] | null;
         };
         /** @description Incident triggered by a monitor check failure or manual creation */
         IncidentDto: {
@@ -3790,7 +3877,7 @@ export interface components {
              * Format: uuid
              * @description Monitor that triggered the incident; null for service or manual incidents
              */
-            monitorId: string | null;
+            monitorId?: string | null;
             /**
              * Format: int32
              * @description Organization this incident belongs to
@@ -3812,9 +3899,9 @@ export interface components {
              */
             severity: "DOWN" | "DEGRADED" | "MAINTENANCE";
             /** @description Short summary of the incident; null for auto-generated incidents */
-            title: string | null;
+            title?: string | null;
             /** @description Human-readable description of the trigger rule that fired */
-            triggeredByRule: string | null;
+            triggeredByRule?: string | null;
             /** @description Probe regions that observed the failure */
             affectedRegions: string[];
             /**
@@ -3826,50 +3913,50 @@ export interface components {
              * Format: int32
              * @description User who created the incident (manual incidents only)
              */
-            createdByUserId: number | null;
+            createdByUserId?: number | null;
             /** @description Whether this incident is visible on the status page */
             statusPageVisible: boolean;
             /**
              * Format: uuid
              * @description Linked vendor service incident ID; null for monitor incidents
              */
-            serviceIncidentId: string | null;
+            serviceIncidentId?: string | null;
             /**
              * Format: uuid
              * @description Linked service catalog ID; null for monitor incidents
              */
-            serviceId: string | null;
+            serviceId?: string | null;
             /** @description External reference ID (e.g. PagerDuty incident ID) */
-            externalRef: string | null;
+            externalRef?: string | null;
             /** @description Service components affected by this incident */
-            affectedComponents: (string | null)[] | null;
+            affectedComponents?: string[] | null;
             /** @description Short URL linking to the incident details */
-            shortlink: string | null;
+            shortlink?: string | null;
             /**
              * @description How the incident was resolved (AUTO_RECOVERED, MANUAL, etc.)
              * @enum {string|null}
              */
-            resolutionReason: "MANUAL" | "AUTO_RECOVERED" | "AUTO_RESOLVED" | null;
+            resolutionReason?: "MANUAL" | "AUTO_RECOVERED" | "AUTO_RESOLVED" | null;
             /**
              * Format: date-time
              * @description Timestamp when the incident was detected or created
              */
-            startedAt: string | null;
+            startedAt?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the incident was confirmed (multi-region confirmation)
              */
-            confirmedAt: string | null;
+            confirmedAt?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the incident was resolved
              */
-            resolvedAt: string | null;
+            resolvedAt?: string | null;
             /**
              * Format: date-time
              * @description Cooldown window end; new incidents suppressed until this time
              */
-            cooldownUntil: string | null;
+            cooldownUntil?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the incident record was created
@@ -3881,20 +3968,20 @@ export interface components {
              */
             updatedAt: string;
             /** @description Name of the associated monitor; populated on list responses */
-            monitorName: string | null;
+            monitorName?: string | null;
             /** @description Name of the associated service; populated on list responses */
-            serviceName: string | null;
+            serviceName?: string | null;
             /** @description Slug of the associated service; populated on list responses */
-            serviceSlug: string | null;
+            serviceSlug?: string | null;
             /** @description Type of the associated monitor; populated on list responses */
-            monitorType: string | null;
+            monitorType?: string | null;
             /**
              * Format: uuid
              * @description Resource group that owns this incident; null when not group-managed
              */
-            resourceGroupId: string | null;
+            resourceGroupId?: string | null;
             /** @description Name of the resource group; populated on list responses */
-            resourceGroupName: string | null;
+            resourceGroupName?: string | null;
         };
         IncidentFilterParams: {
             /** @enum {string} */
@@ -3910,13 +3997,13 @@ export interface components {
             /** Format: uuid */
             resourceGroupId: string;
             /** Format: uuid */
-            tagId: string | null;
+            tagId?: string | null;
             /** Format: uuid */
-            environmentId: string | null;
+            environmentId?: string | null;
             /** Format: date-time */
-            startedFrom: string | null;
+            startedFrom?: string | null;
             /** Format: date-time */
-            startedTo: string | null;
+            startedTo?: string | null;
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -3952,12 +4039,12 @@ export interface components {
              * Format: int32
              * @description Number of regions configured on the monitor (only set in internal API responses)
              */
-            monitorRegionCount: number | null;
+            monitorRegionCount?: number | null;
             /**
              * Format: int32
              * @description Monitor check frequency in seconds (only set in internal API responses)
              */
-            checkFrequencySeconds: number | null;
+            checkFrequencySeconds?: number | null;
         };
         /** @description Lightweight reference to an incident overlapping this day */
         IncidentRef: {
@@ -3978,7 +4065,7 @@ export interface components {
             /** Format: int64 */
             resolvedToday: number;
             /** Format: double */
-            mttr30d: number | null;
+            mttr30d?: number | null;
         };
         IncidentUpdateDto: {
             /** Format: uuid */
@@ -3986,10 +4073,10 @@ export interface components {
             /** Format: uuid */
             incidentId: string;
             /** @enum {string|null} */
-            oldStatus: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED" | null;
+            oldStatus?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED" | null;
             /** @enum {string|null} */
-            newStatus: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED" | null;
-            body: string | null;
+            newStatus?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED" | null;
+            body?: string | null;
             /** @enum {string} */
             createdBy: "SYSTEM" | "USER";
             notifySubscribers: boolean;
@@ -4020,7 +4107,7 @@ export interface components {
             sensitive: boolean;
             placeholder?: string | null;
             helpText?: string | null;
-            options?: (string | null)[] | null;
+            options?: string[] | null;
             default?: string | null;
         };
         /** @description Organization invite sent to an email address */
@@ -4046,16 +4133,14 @@ export interface components {
              * Format: date-time
              * @description Timestamp when the invite was accepted; null if not yet used
              */
-            consumedAt: string | null;
+            consumedAt?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the invite was revoked; null if active
              */
-            revokedAt: string | null;
+            revokedAt?: string | null;
         };
-        JsonPathAssertion: {
-            type: "JsonPathAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        JsonPathAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description JSONPath expression to extract a value from the response body */
             path: string;
             /** @description Expected value to compare against */
@@ -4065,7 +4150,13 @@ export interface components {
              * @enum {string}
              */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "json_path";
+        };
         /** @description API key metadata */
         KeyInfo: {
             /**
@@ -4084,12 +4175,12 @@ export interface components {
              * Format: date-time
              * @description When the key expires (null = never)
              */
-            expiresAt: string | null;
+            expiresAt?: string | null;
             /**
              * Format: date-time
              * @description Last time the key was used
              */
-            lastUsedAt: string | null;
+            lastUsedAt?: string | null;
         };
         LinkedStatusPageIncidentDto: {
             /** Format: uuid */
@@ -4105,7 +4196,7 @@ export interface components {
             impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL";
             scheduled: boolean;
             /** Format: date-time */
-            publishedAt: string | null;
+            publishedAt?: string | null;
         };
         /** @description A component affected by a scheduled maintenance window */
         MaintenanceComponentRef: {
@@ -4129,12 +4220,12 @@ export interface components {
             /** @description Status at the time of this update */
             status: string;
             /** @description Update message from the vendor */
-            body: string | null;
+            body?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when this update was posted
              */
-            displayAt: string | null;
+            displayAt?: string | null;
         };
         /** @description Scheduled maintenance window for a monitor */
         MaintenanceWindowDto: {
@@ -4147,7 +4238,7 @@ export interface components {
              * Format: uuid
              * @description Monitor this window applies to; null for org-wide windows
              */
-            monitorId: string | null;
+            monitorId?: string | null;
             /**
              * Format: int32
              * @description Organization this maintenance window belongs to
@@ -4164,9 +4255,9 @@ export interface components {
              */
             endsAt: string;
             /** @description iCal RRULE for recurring windows; null for one-time */
-            repeatRule: string | null;
+            repeatRule?: string | null;
             /** @description Human-readable reason for the maintenance */
-            reason: string | null;
+            reason?: string | null;
             /** @description Whether alerts are suppressed during this window */
             suppressAlerts: boolean;
             /**
@@ -4182,82 +4273,78 @@ export interface components {
             /** @description Comparison value for single-value rules like severity_gte */
             value?: string | null;
             /** @description Monitor UUIDs to match for monitor_id_in rules */
-            monitorIds?: (string | null)[] | null;
+            monitorIds?: string[] | null;
             /** @description Region codes to match for region_in rules */
-            regions?: (string | null)[] | null;
+            regions?: string[] | null;
             /** @description Values list for multi-value rules like monitor_type_in */
-            values?: (string | null)[] | null;
+            values?: string[] | null;
         };
-        McpConnectsAssertion: {
-            type: "McpConnectsAssertion";
-        } & Omit<components["schemas"]["AssertionConfig"], "type">;
-        McpHasCapabilityAssertion: {
-            type: "McpHasCapabilityAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        McpConnectsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "mcp_connects";
+        };
+        McpHasCapabilityAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description Capability name the server must advertise, e.g. tools or resources */
             capability: string;
-        });
-        McpMinToolsAssertion: {
-            type: "McpMinToolsAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "mcp_has_capability";
+        };
+        McpMinToolsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Minimum number of tools the server must expose
              */
             min?: number;
-        });
-        McpProtocolVersionAssertion: {
-            type: "McpProtocolVersionAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "mcp_min_tools";
+        };
+        McpProtocolVersionAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description Expected MCP protocol version string from the server handshake */
             version: string;
-        });
-        McpResponseTimeAssertion: {
-            type: "McpResponseTimeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "mcp_protocol_version";
+        };
+        McpResponseTimeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Maximum allowed MCP check duration in milliseconds
              */
             maxMs?: number;
-        });
-        McpResponseTimeWarnAssertion: {
-            type: "McpResponseTimeWarnAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "mcp_response_time";
+        };
+        McpResponseTimeWarnAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description MCP check duration in milliseconds that triggers a warning only
              */
             warnMs?: number;
-        });
-        /** @description MCP server check-type-specific details */
-        McpServer: {
-            check_type: "McpServer";
-        } & (Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
-            /** @description MCP server URL */
-            url?: string | null;
-            /** @description MCP protocol version */
-            protocolVersion?: string | null;
-            /** @description MCP server info (name, version, etc.) */
-            serverInfo?: {
-                [key: string]: Record<string, never> | null;
-            } | null;
+        } & {
             /**
-             * Format: int32
-             * @description Number of tools exposed
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
              */
-            toolCount?: number | null;
-            /**
-             * Format: int32
-             * @description Number of resources exposed
-             */
-            resourceCount?: number | null;
-            /**
-             * Format: int32
-             * @description Number of prompts exposed
-             */
-            promptCount?: number | null;
-        });
+            type: "mcp_response_time_warn";
+        };
         McpServerMonitorConfig: components["schemas"]["MonitorConfig"] & {
             /** @description Command to execute to start the MCP server */
             command: string;
@@ -4268,21 +4355,29 @@ export interface components {
                 [key: string]: string | null;
             } | null;
         };
-        McpToolAvailableAssertion: {
-            type: "McpToolAvailableAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        McpToolAvailableAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description MCP tool name that must appear in the server's tool list */
             toolName: string;
-        });
-        McpToolCountChangedAssertion: {
-            type: "McpToolCountChangedAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "mcp_tool_available";
+        };
+        McpToolCountChangedAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Expected tool count; warns when the live count differs
              */
             expectedCount?: number;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "mcp_tool_count_changed";
+        };
         /** @description Organization member with role and status */
         MemberDto: {
             /**
@@ -4293,7 +4388,7 @@ export interface components {
             /** @description Member email address */
             email: string;
             /** @description Member display name; null if not set */
-            name: string | null;
+            name?: string | null;
             /**
              * @description Member role within this organization (OWNER, ADMIN, MEMBER)
              * @enum {string}
@@ -4316,8 +4411,8 @@ export interface components {
             /** Format: uuid */
             monitorId: string;
             /** @enum {string} */
-            assertionType: "status_code" | "response_time" | "body_contains" | "json_path" | "header" | "regex" | "dns_resolves" | "dns_response_time" | "dns_expected_ips" | "dns_expected_cname" | "dns_record_contains" | "dns_record_equals" | "dns_txt_contains" | "dns_min_answers" | "dns_max_answers" | "dns_response_time_warn" | "dns_ttl_low" | "dns_ttl_high" | "mcp_connects" | "mcp_response_time" | "mcp_has_capability" | "mcp_tool_available" | "mcp_min_tools" | "mcp_protocol_version" | "mcp_response_time_warn" | "mcp_tool_count_changed" | "ssl_expiry" | "response_size" | "redirect_count" | "redirect_target" | "response_time_warn" | "tcp_connects" | "tcp_response_time" | "tcp_response_time_warn" | "icmp_reachable" | "icmp_response_time" | "icmp_response_time_warn" | "icmp_packet_loss" | "heartbeat_received" | "heartbeat_max_interval" | "heartbeat_interval_drift" | "heartbeat_payload_contains";
-            config?: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
+            assertionType: "status_code" | "response_time" | "body_contains" | "json_path" | "header_value" | "regex_body" | "dns_resolves" | "dns_response_time" | "dns_expected_ips" | "dns_expected_cname" | "dns_record_contains" | "dns_record_equals" | "dns_txt_contains" | "dns_min_answers" | "dns_max_answers" | "dns_response_time_warn" | "dns_ttl_low" | "dns_ttl_high" | "mcp_connects" | "mcp_response_time" | "mcp_has_capability" | "mcp_tool_available" | "mcp_min_tools" | "mcp_protocol_version" | "mcp_response_time_warn" | "mcp_tool_count_changed" | "ssl_expiry" | "response_size" | "redirect_count" | "redirect_target" | "response_time_warn" | "tcp_connects" | "tcp_response_time" | "tcp_response_time_warn" | "icmp_reachable" | "icmp_response_time" | "icmp_response_time_warn" | "icmp_packet_loss" | "heartbeat_received" | "heartbeat_max_interval" | "heartbeat_interval_drift" | "heartbeat_payload_contains";
+            config: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
             /** @enum {string} */
             severity: "fail" | "warn";
         };
@@ -4332,9 +4427,9 @@ export interface components {
             monitorId: string;
             /** @enum {string} */
             authType: "bearer" | "basic" | "header" | "api_key";
-            config?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
+            config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
         };
-        /** @description Updated protocol-specific configuration; null preserves current */
+        /** @description Protocol-specific monitor configuration */
         MonitorConfig: Record<string, never>;
         /** @description Full monitor representation */
         MonitorDto: {
@@ -4352,7 +4447,7 @@ export interface components {
             name: string;
             /** @enum {string} */
             type: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
-            config?: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
+            config: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
             /**
              * Format: int32
              * @description Check frequency in seconds (30–86400)
@@ -4378,16 +4473,16 @@ export interface components {
              */
             updatedAt: string;
             /** @description Assertions evaluated against each check result; null on list responses */
-            assertions: components["schemas"]["MonitorAssertionDto"][] | null;
+            assertions?: components["schemas"]["MonitorAssertionDto"][] | null;
             /** @description Tags applied to this monitor */
-            tags: components["schemas"]["TagDto"][] | null;
+            tags?: components["schemas"]["TagDto"][] | null;
             /** @description Heartbeat ping URL; populated for HEARTBEAT monitors only */
-            pingUrl: string | null;
-            environment: components["schemas"]["Summary"];
-            auth?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
-            incidentPolicy: components["schemas"]["IncidentPolicyDto"];
+            pingUrl?: string | null;
+            environment?: components["schemas"]["Summary"] | null;
+            auth?: Omit<components["schemas"]["MonitorAuthConfig"], "type"> | null;
+            incidentPolicy?: components["schemas"]["IncidentPolicyDto"] | null;
             /** @description Alert channel IDs linked to this monitor; populated on single-monitor responses */
-            alertChannelIds: (string | null)[] | null;
+            alertChannelIds?: string[] | null;
         };
         /** @description Monitors that reference this secret; null on create/update responses */
         MonitorReference: {
@@ -4430,12 +4525,12 @@ export interface components {
              * Format: double
              * @description Average uptime percentage across all monitors over last 24h
              */
-            avgUptime24h: number | null;
+            avgUptime24h?: number | null;
             /**
              * Format: double
              * @description Average uptime percentage across all monitors over last 30 days
              */
-            avgUptime30d: number | null;
+            avgUptime30d?: number | null;
         };
         MonitorTestRequest: {
             /**
@@ -4449,22 +4544,22 @@ export interface components {
         };
         MonitorTestResultDto: {
             passed: boolean;
-            error: string | null;
+            error?: string | null;
             /** Format: int32 */
-            statusCode: number | null;
+            statusCode?: number | null;
             /** Format: int64 */
-            responseTimeMs: number | null;
-            responseHeaders: {
+            responseTimeMs?: number | null;
+            responseHeaders?: {
                 [key: string]: (string | null)[] | null;
             } | null;
-            bodyPreview: string | null;
+            bodyPreview?: string | null;
             /** Format: int64 */
-            responseSizeBytes: number | null;
+            responseSizeBytes?: number | null;
             /** Format: int32 */
-            redirectCount: number | null;
-            finalUrl: string | null;
+            redirectCount?: number | null;
+            finalUrl?: string | null;
             assertionResults: components["schemas"]["AssertionTestResultDto"][];
-            warnings: (string | null)[] | null;
+            warnings?: string[] | null;
         };
         /** @description A point-in-time version snapshot of a monitor configuration */
         MonitorVersionDto: {
@@ -4488,14 +4583,14 @@ export interface components {
              * Format: int32
              * @description User ID who made the change; null for automated changes
              */
-            changedById: number | null;
+            changedById?: number | null;
             /**
              * @description Change source (DASHBOARD, CLI, API)
              * @enum {string}
              */
             changedVia: "API" | "DASHBOARD" | "CLI" | "TERRAFORM";
             /** @description Human-readable description of what changed */
-            changeSummary: string | null;
+            changeSummary?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when this version was recorded
@@ -4527,7 +4622,7 @@ export interface components {
              */
             policyId: string;
             /** @description Human-readable name of the matched policy (null if policy has been deleted) */
-            policyName: string | null;
+            policyName?: string | null;
             /**
              * @description Current dispatch state
              * @enum {string}
@@ -4537,7 +4632,7 @@ export interface components {
              * @description Why the dispatch reached COMPLETED: EXHAUSTED (all steps ran, no ack), RESOLVED (incident resolved), NO_STEPS (policy had no steps). Null for non-terminal states.
              * @enum {string|null}
              */
-            completionReason: "EXHAUSTED" | "RESOLVED" | "NO_STEPS" | null;
+            completionReason?: "EXHAUSTED" | "RESOLVED" | "NO_STEPS" | null;
             /**
              * Format: int32
              * @description 1-based index of the currently active escalation step
@@ -4547,22 +4642,22 @@ export interface components {
              * Format: int32
              * @description Total number of escalation steps in the policy (null if policy has been deleted)
              */
-            totalSteps: number | null;
+            totalSteps?: number | null;
             /**
              * Format: date-time
              * @description Timestamp when this dispatch was acknowledged (null if not acknowledged)
              */
-            acknowledgedAt: string | null;
+            acknowledgedAt?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the next escalation step will fire (null if not scheduled)
              */
-            nextEscalationAt: string | null;
+            nextEscalationAt?: string | null;
             /**
              * Format: date-time
              * @description Timestamp of the most recent notification delivery
              */
-            lastNotifiedAt: string | null;
+            lastNotifiedAt?: string | null;
             /** @description Delivery records for all channels associated with this dispatch */
             deliveries: components["schemas"]["AlertDeliveryDto"][];
             /**
@@ -4588,11 +4683,11 @@ export interface components {
             /** @description Short notification title */
             title: string;
             /** @description Full notification body; null for title-only notifications */
-            body: string | null;
+            body?: string | null;
             /** @description Type of the resource this notification is about */
-            resourceType: string | null;
+            resourceType?: string | null;
             /** @description ID of the resource this notification is about */
-            resourceId: string | null;
+            resourceId?: string | null;
             /** @description Whether the notification has been read */
             read: boolean;
             /**
@@ -4636,14 +4731,18 @@ export interface components {
              */
             updatedAt: string;
         };
-        OpsGenieChannelConfig: {
-            channelType: "OpsGenieChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        OpsGenieChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
             /** @description OpsGenie API key for alert creation */
             apiKey: string;
             /** @description OpsGenie API region: us or eu */
             region?: string | null;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            channelType: "opsgenie";
+        };
         /** @description Organization account details */
         OrganizationDto: {
             /**
@@ -4654,13 +4753,13 @@ export interface components {
             /** @description Organization name */
             name: string;
             /** @description Billing and contact email */
-            email: string | null;
+            email?: string | null;
             /** @description Team size range (e.g. 1-10, 11-50) */
-            size: string | null;
+            size?: string | null;
             /** @description Industry vertical (e.g. SaaS, Fintech) */
-            industry: string | null;
+            industry?: string | null;
             /** @description Organization website URL */
-            websiteUrl: string | null;
+            websiteUrl?: string | null;
         };
         /** @description Organization the key belongs to */
         OrgInfo: {
@@ -4679,26 +4778,30 @@ export interface components {
             size: number;
             sort: string[];
         };
-        PagerDutyChannelConfig: {
-            channelType: "PagerDutyChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        PagerDutyChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
             /** @description PagerDuty Events API v2 routing (integration) key */
             routingKey: string;
             /** @description Override PagerDuty severity mapping */
             severityOverride?: string | null;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            channelType: "pagerduty";
+        };
         /** @description A top-level page section (either a group or an ungrouped component) */
         PageSection: {
             /**
              * Format: uuid
              * @description Group ID when this section is a group
              */
-            groupId: string | null;
+            groupId?: string | null;
             /**
              * Format: uuid
              * @description Component ID when this section is an ungrouped component
              */
-            componentId: string | null;
+            componentId?: string | null;
             /**
              * Format: int32
              * @description Position on the page (0-based)
@@ -4713,14 +4816,14 @@ export interface components {
              */
             tier: "FREE" | "STARTER" | "PRO" | "TEAM" | "BUSINESS" | "ENTERPRISE";
             /** @description Subscription status (null if no subscription) */
-            subscriptionStatus: string | null;
+            subscriptionStatus?: string | null;
             /** @description Whether the org is on a trial */
             trialActive: boolean;
             /**
              * Format: date-time
              * @description Trial expiry (null if not trialing)
              */
-            trialExpiresAt: string | null;
+            trialExpiresAt?: string | null;
             /** @description Entitlement limits keyed by entitlement name */
             entitlements: {
                 [key: string]: components["schemas"]["EntitlementDto"];
@@ -4730,25 +4833,51 @@ export interface components {
                 [key: string]: number;
             };
         };
+        /** @description Aggregated poll metrics for a time bucket */
+        PollChartBucketDto: {
+            /**
+             * Format: date-time
+             * @description Start of the time bucket (ISO 8601)
+             */
+            bucket: string;
+            /**
+             * Format: double
+             * @description Uptime percentage for this bucket; null when no data
+             * @example 100
+             */
+            uptimePercent?: number | null;
+            /**
+             * Format: double
+             * @description Average response time in milliseconds for this bucket
+             * @example 245.3
+             */
+            avgResponseTimeMs?: number | null;
+            /**
+             * Format: int64
+             * @description Total polls in this bucket
+             * @example 60
+             */
+            totalPolls: number;
+        };
         PublishStatusPageIncidentRequest: {
             /** @description Customer-facing title; null keeps draft value */
-            title: string | null;
+            title?: string | null;
             /**
              * @description Impact level; null keeps draft value
              * @enum {string|null}
              */
-            impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL" | null;
+            impact?: "NONE" | "MINOR" | "MAJOR" | "CRITICAL" | null;
             /**
              * @description Incident status; null keeps draft value (must be an active status)
              * @enum {string|null}
              */
-            status: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED" | null;
+            status?: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED" | null;
             /** @description Initial update body; null keeps draft value */
-            body: string | null;
+            body?: string | null;
             /** @description Affected components; null keeps draft value */
-            affectedComponents: components["schemas"]["AffectedComponent"][] | null;
+            affectedComponents?: components["schemas"]["AffectedComponent"][] | null;
             /** @description Whether to notify subscribers (default: true) */
-            notifySubscribers: boolean | null;
+            notifySubscribers?: boolean | null;
         };
         /** @description Rate-limit quota for the current sliding window */
         RateLimitInfo: {
@@ -4786,18 +4915,20 @@ export interface components {
              */
             cooldownMinutes: number;
         };
-        RedirectCountAssertion: {
-            type: "RedirectCountAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        RedirectCountAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Maximum number of HTTP redirects allowed before the check fails
              */
             maxCount?: number;
-        });
-        RedirectTargetAssertion: {
-            type: "RedirectTargetAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "redirect_count";
+        };
+        RedirectTargetAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description Expected final URL after following redirects */
             expected: string;
             /**
@@ -4805,13 +4936,23 @@ export interface components {
              * @enum {string}
              */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        });
-        RegexBodyAssertion: {
-            type: "RegexBodyAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "redirect_target";
+        };
+        RegexBodyAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description Regular expression the response body must match */
             pattern: string;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "regex_body";
+        };
         /** @description Latest check result for a single region */
         RegionStatusDto: {
             /**
@@ -4829,14 +4970,14 @@ export interface components {
              * @description Response time in milliseconds for the last check
              * @example 95
              */
-            responseTimeMs: number | null;
+            responseTimeMs?: number | null;
             /**
              * Format: date-time
              * @description Timestamp of the last check in this region (ISO 8601)
              */
             timestamp: string;
             /** @description Severity hint: 'down' for hard failures, 'degraded' for warn-only failures, null when passing */
-            severityHint: string | null;
+            severityHint?: string | null;
         };
         /** @description Request body for removing tags from a monitor */
         RemoveMonitorTagsRequest: {
@@ -4876,49 +5017,49 @@ export interface components {
             /** @description URL-safe group identifier */
             slug: string;
             /** @description Optional group description */
-            description: string | null;
+            description?: string | null;
             /**
              * Format: uuid
              * @description Notification policy applied to this group
              */
-            alertPolicyId: string | null;
+            alertPolicyId?: string | null;
             /**
              * Format: int32
              * @description Default check frequency in seconds for member monitors
              */
-            defaultFrequency: number | null;
+            defaultFrequency?: number | null;
             /** @description Default regions for member monitors */
-            defaultRegions: (string | null)[] | null;
-            defaultRetryStrategy: components["schemas"]["RetryStrategy"];
+            defaultRegions?: string[] | null;
+            defaultRetryStrategy?: components["schemas"]["RetryStrategy"] | null;
             /** @description Default alert channel IDs for member monitors */
-            defaultAlertChannels: (string | null)[] | null;
+            defaultAlertChannels?: string[] | null;
             /**
              * Format: uuid
              * @description Default environment ID for member monitors
              */
-            defaultEnvironmentId: string | null;
+            defaultEnvironmentId?: string | null;
             /**
              * @description Health threshold type: COUNT or PERCENTAGE
              * @enum {string|null}
              */
-            healthThresholdType: "COUNT" | "PERCENTAGE" | null;
+            healthThresholdType?: "COUNT" | "PERCENTAGE" | null;
             /** @description Health threshold value */
-            healthThresholdValue: number | null;
+            healthThresholdValue?: number | null;
             /** @description When true, member-level incidents skip notification dispatch; only group alerts fire */
             suppressMemberAlerts: boolean;
             /**
              * Format: int32
              * @description Seconds to wait after health threshold breach before creating group incident
              */
-            confirmationDelaySeconds: number | null;
+            confirmationDelaySeconds?: number | null;
             /**
              * Format: int32
              * @description Cooldown minutes after group incident resolves before a new one can open
              */
-            recoveryCooldownMinutes: number | null;
+            recoveryCooldownMinutes?: number | null;
             health: components["schemas"]["ResourceGroupHealthDto"];
             /** @description Member list with individual statuses; populated on detail GET only */
-            members: components["schemas"]["ResourceGroupMemberDto"][] | null;
+            members?: components["schemas"]["ResourceGroupMemberDto"][] | null;
             /**
              * Format: date-time
              * @description Timestamp when the group was created
@@ -4956,12 +5097,12 @@ export interface components {
              * @description Computed group health status based on threshold: 'healthy', 'degraded', or 'down'. Null when no health threshold is configured.
              * @enum {string|null}
              */
-            thresholdStatus: "healthy" | "degraded" | "down" | null;
+            thresholdStatus?: "healthy" | "degraded" | "down" | null;
             /**
              * Format: int32
              * @description Number of failing members at time of last evaluation
              */
-            failingCount: number | null;
+            failingCount?: number | null;
         };
         /** @description A single member of a resource group with its computed health status */
         ResourceGroupMemberDto: {
@@ -4981,28 +5122,28 @@ export interface components {
              * Format: uuid
              * @description Monitor ID; set when memberType is 'monitor'
              */
-            monitorId: string | null;
+            monitorId?: string | null;
             /**
              * Format: uuid
              * @description Service ID; set when memberType is 'service'
              */
-            serviceId: string | null;
+            serviceId?: string | null;
             /** @description Display name of the referenced monitor or service */
-            name: string | null;
+            name?: string | null;
             /** @description Slug identifier for the service (services only); used for icons and uptime API calls */
-            slug: string | null;
+            slug?: string | null;
             /**
              * Format: uuid
              * @description Subscription ID for the service (services only); used to link to the dependency detail page
              */
-            subscriptionId: string | null;
+            subscriptionId?: string | null;
             /**
              * @description Computed health status for this member
              * @enum {string}
              */
             status: "operational" | "maintenance" | "degraded" | "down";
             /** @description Effective check frequency label showing the group default when the monitor inherits it; null for services or when no group default is configured */
-            effectiveFrequency: string | null;
+            effectiveFrequency?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the member was added to the group
@@ -5012,56 +5153,68 @@ export interface components {
              * Format: double
              * @description 24h uptime percentage; populated when includeMetrics=true
              */
-            uptime24h: number | null;
+            uptime24h?: number | null;
             /** @description Uptime tick values (0-100) for last-24h mini chart; populated when includeMetrics=true */
-            chartData: (number | null)[] | null;
+            chartData?: number[] | null;
             /**
              * Format: double
              * @description Average latency in ms (monitors only); populated when includeMetrics=true
              */
-            avgLatencyMs: number | null;
+            avgLatencyMs?: number | null;
             /**
              * Format: double
              * @description P95 latency in ms (monitors only); populated when includeMetrics=true
              */
-            p95LatencyMs: number | null;
+            p95LatencyMs?: number | null;
             /**
              * Format: date-time
              * @description Timestamp of the most recent health check; populated when includeMetrics=true
              */
-            lastCheckedAt: string | null;
+            lastCheckedAt?: string | null;
             /** @description Monitor type (HTTP, DNS, TCP, ICMP, HEARTBEAT, MCP); monitors only */
-            monitorType: string | null;
+            monitorType?: string | null;
             /** @description Environment name; monitors only */
-            environmentName: string | null;
+            environmentName?: string | null;
         };
-        ResponseSizeAssertion: {
-            type: "ResponseSizeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        ResponseSizeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Maximum response body size in bytes before the check fails
              */
             maxBytes?: number;
-        });
-        ResponseTimeAssertion: {
-            type: "ResponseTimeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "response_size";
+        };
+        ResponseTimeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Maximum allowed response time in milliseconds before the check fails
              */
             thresholdMs?: number;
-        });
-        ResponseTimeWarnAssertion: {
-            type: "ResponseTimeWarnAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "response_time";
+        };
+        ResponseTimeWarnAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description HTTP response time in milliseconds that triggers a warning only
              */
             warnMs?: number;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "response_time_warn";
+        };
         /** @description Dashboard summary: current status, per-region latest results, and chart data */
         ResultSummaryDto: {
             /**
@@ -5078,13 +5231,13 @@ export interface components {
              * @description Uptime percentage over the last 24 hours; null when no data
              * @example 99.95
              */
-            uptime24h: number | null;
+            uptime24h?: number | null;
             /**
              * Format: double
              * @description Uptime percentage for the selected chart window; null when no data
              * @example 99.8
              */
-            uptimeWindow: number | null;
+            uptimeWindow?: number | null;
         };
         /** @description Default retry strategy for member monitors; null clears */
         RetryStrategy: {
@@ -5115,29 +5268,29 @@ export interface components {
             /** @description Current maintenance status (scheduled, in_progress, completed) */
             status: string;
             /** @description Reported impact level */
-            impact: string | null;
+            impact?: string | null;
             /** @description Vendor-provided short URL to the maintenance page */
-            shortlink: string | null;
+            shortlink?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the maintenance is scheduled to begin
              */
-            scheduledFor: string | null;
+            scheduledFor?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the maintenance is scheduled to end
              */
-            scheduledUntil: string | null;
+            scheduledUntil?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the maintenance actually started
              */
-            startedAt: string | null;
+            startedAt?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the maintenance was completed
              */
-            completedAt: string | null;
+            completedAt?: string | null;
             /** @description Components affected by this maintenance */
             affectedComponents: components["schemas"]["MaintenanceComponentRef"][];
             /** @description Status updates posted during the maintenance lifecycle */
@@ -5170,16 +5323,16 @@ export interface components {
              */
             updatedAt: string;
             /** @description Monitors that reference this secret; null on create/update responses */
-            usedByMonitors: components["schemas"]["MonitorReference"][] | null;
+            usedByMonitors?: components["schemas"]["MonitorReference"][] | null;
         };
         /** @description Admin-editable SEO metadata for pSEO pages */
         SeoMetadataDto: {
             /** @description Short description for meta tags (max 160 chars) */
-            shortDescription: string | null;
+            shortDescription?: string | null;
             /** @description Full description for the service page */
-            description: string | null;
+            description?: string | null;
             /** @description Long-form about text for the About section on pSEO pages */
-            about: string | null;
+            about?: string | null;
         };
         /** @description Related services */
         ServiceCatalogDto: {
@@ -5187,16 +5340,16 @@ export interface components {
             id: string;
             slug: string;
             name: string;
-            category: string | null;
-            officialStatusUrl: string | null;
-            developerContext: string | null;
-            logoUrl: string | null;
+            category?: string | null;
+            officialStatusUrl?: string | null;
+            developerContext?: string | null;
+            logoUrl?: string | null;
             adapterType: string;
             /** Format: int32 */
             pollingIntervalSeconds: number;
             enabled: boolean;
             published: boolean;
-            overallStatus: string | null;
+            overallStatus?: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -5210,7 +5363,7 @@ export interface components {
              * Format: double
              * @description Aggregated 30-day uptime percentage across all components
              */
-            uptime30d: number | null;
+            uptime30d?: number | null;
         };
         /** @description A first-class service component with lifecycle and uptime data */
         ServiceComponentDto: {
@@ -5219,17 +5372,17 @@ export interface components {
             externalId: string;
             name: string;
             status: string;
-            description: string | null;
+            description?: string | null;
             /** Format: uuid */
-            groupId: string | null;
+            groupId?: string | null;
             /** Format: int32 */
-            position: number | null;
+            position?: number | null;
             showcase: boolean;
             onlyShowIfDegraded: boolean;
             /** Format: date-time */
-            startDate: string | null;
+            startDate?: string | null;
             /** Format: date-time */
-            vendorCreatedAt: string | null;
+            vendorCreatedAt?: string | null;
             lifecycleStatus: string;
             /**
              * @description Data classification: full, status_only, or metric_only
@@ -5239,12 +5392,12 @@ export interface components {
             /** @description Whether uptime data is available for this component */
             hasUptime: boolean;
             /** @description Geographic region for regional components (AWS, GCP, Azure) */
-            region: string | null;
+            region?: string | null;
             /** @description Display name of the parent group */
-            groupName: string | null;
-            uptime: components["schemas"]["ComponentUptimeSummaryDto"];
+            groupName?: string | null;
+            uptime?: components["schemas"]["ComponentUptimeSummaryDto"] | null;
             /** Format: date-time */
-            statusChangedAt: string | null;
+            statusChangedAt?: string | null;
             /** Format: date-time */
             firstSeenAt: string;
             /** Format: date-time */
@@ -5256,10 +5409,10 @@ export interface components {
             id: string;
             slug: string;
             name: string;
-            category: string | null;
-            officialStatusUrl: string | null;
-            developerContext: string | null;
-            logoUrl: string | null;
+            category?: string | null;
+            officialStatusUrl?: string | null;
+            developerContext?: string | null;
+            logoUrl?: string | null;
             adapterType: string;
             /** Format: int32 */
             pollingIntervalSeconds: number;
@@ -5268,29 +5421,29 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
-            currentStatus: components["schemas"]["ServiceStatusDto"];
+            currentStatus?: components["schemas"]["ServiceStatusDto"] | null;
             recentIncidents: components["schemas"]["ServiceIncidentDto"][];
             components: components["schemas"]["ServiceComponentDto"][];
-            uptime: components["schemas"]["ComponentUptimeSummaryDto"];
+            uptime?: components["schemas"]["ComponentUptimeSummaryDto"] | null;
             activeMaintenances: components["schemas"]["ScheduledMaintenanceDto"][];
             dataCompleteness: string;
-            seoMetadata: components["schemas"]["SeoMetadataDto"];
-            relatedServices: components["schemas"]["ServiceCatalogDto"][] | null;
+            seoMetadata?: components["schemas"]["SeoMetadataDto"] | null;
+            relatedServices?: components["schemas"]["ServiceCatalogDto"][] | null;
         };
         ServiceIncidentDetailDto: {
             /** Format: uuid */
             id: string;
             title: string;
             status: string;
-            impact: string | null;
+            impact?: string | null;
             /** Format: date-time */
-            startedAt: string | null;
+            startedAt?: string | null;
             /** Format: date-time */
-            resolvedAt: string | null;
+            resolvedAt?: string | null;
             /** Format: date-time */
-            detectedAt: string | null;
-            shortlink: string | null;
-            affectedComponents: (string | null)[] | null;
+            detectedAt?: string | null;
+            shortlink?: string | null;
+            affectedComponents?: string[] | null;
             updates: components["schemas"]["ServiceIncidentUpdateDto"][];
         };
         ServiceIncidentDto: {
@@ -5298,33 +5451,33 @@ export interface components {
             id: string;
             /** Format: uuid */
             serviceId: string;
-            serviceSlug: string | null;
-            serviceName: string | null;
-            externalId: string | null;
+            serviceSlug?: string | null;
+            serviceName?: string | null;
+            externalId?: string | null;
             title: string;
             status: string;
-            impact: string | null;
+            impact?: string | null;
             /** Format: date-time */
-            startedAt: string | null;
+            startedAt?: string | null;
             /** Format: date-time */
-            resolvedAt: string | null;
+            resolvedAt?: string | null;
             /** Format: date-time */
-            updatedAt: string | null;
-            shortlink: string | null;
+            updatedAt?: string | null;
+            shortlink?: string | null;
             /** Format: date-time */
-            detectedAt: string | null;
+            detectedAt?: string | null;
             /** Format: date-time */
-            vendorCreatedAt: string | null;
+            vendorCreatedAt?: string | null;
         };
         ServiceIncidentUpdateDto: {
             status: string;
-            body: string | null;
+            body?: string | null;
             /** Format: date-time */
-            displayAt: string | null;
+            displayAt?: string | null;
         };
         ServiceLiveStatusDto: {
             /** @description Current overall status of the service, e.g. operational, degraded_performance */
-            overallStatus: string | null;
+            overallStatus?: string | null;
             /** @description Current status of each active component */
             componentStatuses: components["schemas"]["ComponentStatusDto"][];
             /**
@@ -5333,12 +5486,101 @@ export interface components {
              */
             activeIncidentCount: number;
             /** @description ISO 8601 timestamp of the last status poll */
-            lastPolledAt: string | null;
+            lastPolledAt?: string | null;
+        };
+        /** @description A single poll result from the status poller */
+        ServicePollResultDto: {
+            /**
+             * Format: uuid
+             * @description Service ID
+             */
+            serviceId: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the poll was executed (ISO 8601)
+             */
+            timestamp: string;
+            /**
+             * @description Overall status of the service at time of poll
+             * @example operational
+             */
+            overallStatus?: string | null;
+            /**
+             * Format: int32
+             * @description Response time of the poll in milliseconds
+             * @example 245
+             */
+            responseTimeMs?: number | null;
+            /**
+             * Format: int32
+             * @description HTTP status code from the upstream status page
+             * @example 200
+             */
+            httpStatusCode?: number | null;
+            /**
+             * @description Whether the poll succeeded
+             * @example true
+             */
+            passed: boolean;
+            /** @description Reason for failure when passed=false */
+            failureReason?: string | null;
+            /**
+             * Format: int32
+             * @description Number of components reported by the service
+             * @example 12
+             */
+            componentCount: number;
+            /**
+             * Format: int32
+             * @description Number of degraded or non-operational components
+             * @example 1
+             */
+            degradedCount: number;
+        };
+        /** @description Aggregated poll metrics and chart data for a service */
+        ServicePollSummaryDto: {
+            /**
+             * Format: double
+             * @description Uptime percentage over the requested window; null when no data
+             * @example 99.95
+             */
+            uptimePercentage?: number | null;
+            /**
+             * Format: int64
+             * @description Total number of polls executed
+             * @example 4320
+             */
+            totalPolls: number;
+            /**
+             * Format: int64
+             * @description Number of polls that succeeded
+             * @example 4318
+             */
+            passedPolls: number;
+            /**
+             * Format: double
+             * @description Average response time in milliseconds; null when no data
+             * @example 312.5
+             */
+            avgResponseTimeMs?: number | null;
+            /**
+             * Format: double
+             * @description 95th-percentile response time in milliseconds; null when no data
+             * @example 580
+             */
+            p95ResponseTimeMs?: number | null;
+            /**
+             * @description Time window used for the summary
+             * @example 30d
+             */
+            window: string;
+            /** @description Time-bucketed chart data for response time and uptime */
+            chartData: components["schemas"]["PollChartBucketDto"][];
         };
         ServiceStatusDto: {
             overallStatus: string;
             /** Format: date-time */
-            lastPolledAt: string | null;
+            lastPolledAt?: string | null;
         };
         /** @description Optional body for subscribing to a specific component of a service */
         ServiceSubscribeRequest: {
@@ -5346,9 +5588,9 @@ export interface components {
              * Format: uuid
              * @description ID of the component to subscribe to. Omit or null for whole-service subscription.
              */
-            componentId: string | null;
+            componentId?: string | null;
             /** @description Alert sensitivity level. Defaults to INCIDENTS_ONLY when not provided. */
-            alertSensitivity: string | null;
+            alertSensitivity?: string | null;
         };
         /** @description An org-level service subscription with current status information */
         ServiceSubscriptionDto: {
@@ -5364,22 +5606,22 @@ export interface components {
             serviceId: string;
             slug: string;
             name: string;
-            category: string | null;
-            officialStatusUrl: string | null;
+            category?: string | null;
+            officialStatusUrl?: string | null;
             adapterType: string;
             /** Format: int32 */
             pollingIntervalSeconds: number;
             enabled: boolean;
             /** @description Logo URL from the service catalog */
-            logoUrl: string | null;
+            logoUrl?: string | null;
             /** @description Current overall status; null when the service has never been polled */
-            overallStatus: string | null;
+            overallStatus?: string | null;
             /**
              * Format: uuid
              * @description Subscribed component id; null for whole-service subscription
              */
-            componentId: string | null;
-            component: components["schemas"]["ServiceComponentDto"];
+            componentId?: string | null;
+            component?: components["schemas"]["ServiceComponentDto"] | null;
             /**
              * @description Alert sensitivity: ALL (synthetic + real incidents), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (real + DOWN severity)
              * @enum {string}
@@ -5398,7 +5640,7 @@ export interface components {
              * @description Overall uptime percentage across the entire period; null when no polling data exists
              * @example 99.95
              */
-            overallUptimePct: number | null;
+            overallUptimePct?: number | null;
             /**
              * @description Requested period
              * @example 7d
@@ -5415,7 +5657,7 @@ export interface components {
              * @description Data source: vendor_reported, incident_derived, or poll_derived
              * @example vendor_reported
              */
-            source: string | null;
+            source?: string | null;
         };
         /** @description Replace the alert channels linked to a monitor */
         SetAlertChannelsRequest: {
@@ -5468,19 +5710,19 @@ export interface components {
             data: components["schemas"]["InviteDto"];
         };
         SingleValueResponseListUUID: {
-            data: (string | null)[] | null;
+            data: string[];
         };
         SingleValueResponseLong: {
             /** Format: int64 */
-            data: number | null;
+            data: number;
         };
         SingleValueResponseMaintenanceWindowDto: {
             data: components["schemas"]["MaintenanceWindowDto"];
         };
         SingleValueResponseMapStringListComponentUptimeDayDto: {
             data: {
-                [key: string]: components["schemas"]["ComponentUptimeDayDto"][] | null;
-            } | null;
+                [key: string]: components["schemas"]["ComponentUptimeDayDto"][];
+            };
         };
         SingleValueResponseMonitorAssertionDto: {
             data: components["schemas"]["MonitorAssertionDto"];
@@ -5530,6 +5772,9 @@ export interface components {
         SingleValueResponseServiceLiveStatusDto: {
             data: components["schemas"]["ServiceLiveStatusDto"];
         };
+        SingleValueResponseServicePollSummaryDto: {
+            data: components["schemas"]["ServicePollSummaryDto"];
+        };
         SingleValueResponseServiceSubscriptionDto: {
             data: components["schemas"]["ServiceSubscriptionDto"];
         };
@@ -5555,7 +5800,7 @@ export interface components {
             data: components["schemas"]["StatusPageSubscriberDto"];
         };
         SingleValueResponseString: {
-            data: string | null;
+            data: string;
         };
         SingleValueResponseTagDto: {
             data: components["schemas"]["TagDto"];
@@ -5581,26 +5826,32 @@ export interface components {
         SingleValueResponseWorkspaceDto: {
             data: components["schemas"]["WorkspaceDto"];
         };
-        SlackChannelConfig: {
-            channelType: "SlackChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        SlackChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
             /** @description Slack incoming webhook URL */
             webhookUrl: string;
             /** @description Optional mention text included in notifications, e.g. @channel */
             mentionText?: string | null;
-        });
-        SslExpiryAssertion: {
-            type: "SslExpiryAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            channelType: "slack";
+        };
+        SslExpiryAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Minimum days before TLS certificate expiry; fails or warns below this threshold
              */
             minDaysRemaining?: number;
-        });
-        StatusCodeAssertion: {
-            type: "StatusCodeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "ssl_expiry";
+        };
+        StatusCodeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /** @description Expected status code, range pattern, or wildcard such as 2xx */
             expected: string;
             /**
@@ -5608,35 +5859,41 @@ export interface components {
              * @enum {string}
              */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "status_code";
+        };
         /** @description Updated branding configuration; null preserves current */
         StatusPageBranding: {
             /** @description URL for the logo image displayed in the header */
-            logoUrl: string | null;
+            logoUrl?: string | null;
             /** @description URL for the browser tab favicon */
-            faviconUrl: string | null;
+            faviconUrl?: string | null;
             /** @description Primary brand color as hex, e.g. #4F46E5; drives accent/links/buttons */
-            brandColor: string | null;
+            brandColor?: string | null;
             /** @description Page body background color as hex, e.g. #FAFAFA */
-            pageBackground: string | null;
+            pageBackground?: string | null;
             /** @description Card/surface background color as hex, e.g. #FFFFFF */
-            cardBackground: string | null;
+            cardBackground?: string | null;
             /** @description Primary text color as hex, e.g. #09090B */
-            textColor: string | null;
+            textColor?: string | null;
             /** @description Card border color as hex, e.g. #E4E4E7 */
-            borderColor: string | null;
+            borderColor?: string | null;
             /** @description Header layout style (reserved for future use) */
-            headerStyle: string | null;
+            headerStyle?: string | null;
             /** @description Color theme: light or dark (default: light) */
-            theme: string | null;
+            theme?: string | null;
             /** @description URL where visitors can report a problem */
-            reportUrl: string | null;
+            reportUrl?: string | null;
             /** @description Whether to hide the 'Powered by DevHelm' footer badge */
             hidePoweredBy: boolean;
             /** @description Custom CSS injected via <style> on the public page — grants full style control */
-            customCss: string | null;
+            customCss?: string | null;
             /** @description Custom HTML injected into <head> on the public page — grants full script control (analytics, pixels) */
-            customHeadHtml: string | null;
+            customHeadHtml?: string | null;
         };
         StatusPageComponentDto: {
             /** Format: uuid */
@@ -5644,15 +5901,15 @@ export interface components {
             /** Format: uuid */
             statusPageId: string;
             /** Format: uuid */
-            groupId: string | null;
+            groupId?: string | null;
             name: string;
-            description: string | null;
+            description?: string | null;
             /** @enum {string} */
             type: "MONITOR" | "GROUP" | "STATIC";
             /** Format: uuid */
-            monitorId: string | null;
+            monitorId?: string | null;
             /** Format: uuid */
-            resourceGroupId: string | null;
+            resourceGroupId?: string | null;
             /** @enum {string} */
             currentStatus: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE";
             showUptime: boolean;
@@ -5662,7 +5919,7 @@ export interface components {
             pageOrder: number;
             excludeFromOverall: boolean;
             /** Format: date-time */
-            startDate: string | null;
+            startDate?: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -5674,13 +5931,13 @@ export interface components {
             /** Format: uuid */
             statusPageId: string;
             name: string;
-            description: string | null;
+            description?: string | null;
             /** Format: int32 */
             displayOrder: number;
             /** Format: int32 */
             pageOrder: number;
             collapsed: boolean;
-            components: components["schemas"]["StatusPageComponentDto"][] | null;
+            components?: components["schemas"]["StatusPageComponentDto"][] | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -5697,8 +5954,8 @@ export interface components {
             verificationToken: string;
             verificationCnameTarget: string;
             /** Format: date-time */
-            verifiedAt: string | null;
-            verificationError: string | null;
+            verifiedAt?: string | null;
+            verificationError?: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -5714,7 +5971,7 @@ export interface components {
             workspaceId: number;
             name: string;
             slug: string;
-            description: string | null;
+            description?: string | null;
             branding: components["schemas"]["StatusPageBranding"];
             /** @enum {string} */
             visibility: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED";
@@ -5722,11 +5979,11 @@ export interface components {
             /** @enum {string} */
             incidentMode: "MANUAL" | "REVIEW" | "AUTOMATIC";
             /** Format: int32 */
-            componentCount: number | null;
+            componentCount?: number | null;
             /** Format: int64 */
-            subscriberCount: number | null;
+            subscriberCount?: number | null;
             /** @enum {string|null} */
-            overallStatus: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE" | null;
+            overallStatus?: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE" | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -5751,24 +6008,24 @@ export interface components {
             impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL";
             scheduled: boolean;
             /** Format: date-time */
-            scheduledFor: string | null;
+            scheduledFor?: string | null;
             /** Format: date-time */
-            scheduledUntil: string | null;
+            scheduledUntil?: string | null;
             autoResolve: boolean;
             /** Format: uuid */
-            incidentId: string | null;
+            incidentId?: string | null;
             /** Format: date-time */
             startedAt: string;
             /** Format: date-time */
-            publishedAt: string | null;
+            publishedAt?: string | null;
             /** Format: date-time */
-            resolvedAt: string | null;
+            resolvedAt?: string | null;
             /** Format: int32 */
-            createdByUserId: number | null;
-            postmortemBody: string | null;
-            postmortemUrl: string | null;
-            affectedComponents: components["schemas"]["StatusPageIncidentComponentDto"][] | null;
-            updates: components["schemas"]["StatusPageIncidentUpdateDto"][] | null;
+            createdByUserId?: number | null;
+            postmortemBody?: string | null;
+            postmortemUrl?: string | null;
+            affectedComponents?: components["schemas"]["StatusPageIncidentComponentDto"][] | null;
+            updates?: components["schemas"]["StatusPageIncidentUpdateDto"][] | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -5783,7 +6040,7 @@ export interface components {
             /** @enum {string} */
             createdBy: "USER" | "SYSTEM";
             /** Format: int32 */
-            createdByUserId: number | null;
+            createdByUserId?: number | null;
             notifySubscribers: boolean;
             /** Format: date-time */
             createdAt: string;
@@ -5808,306 +6065,306 @@ export interface components {
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultAlertDeliveryDto: {
             data: components["schemas"]["AlertDeliveryDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultApiKeyDto: {
             data: components["schemas"]["ApiKeyDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultAuditEventDto: {
             data: components["schemas"]["AuditEventDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultCategoryDto: {
             data: components["schemas"]["CategoryDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultComponentUptimeDayDto: {
             data: components["schemas"]["ComponentUptimeDayDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultDeliveryAttemptDto: {
             data: components["schemas"]["DeliveryAttemptDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultEnvironmentDto: {
             data: components["schemas"]["EnvironmentDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultIncidentDto: {
             data: components["schemas"]["IncidentDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultIntegrationDto: {
             data: components["schemas"]["IntegrationDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultInviteDto: {
             data: components["schemas"]["InviteDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultMaintenanceWindowDto: {
             data: components["schemas"]["MaintenanceWindowDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultMemberDto: {
             data: components["schemas"]["MemberDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultMonitorDto: {
             data: components["schemas"]["MonitorDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultMonitorVersionDto: {
             data: components["schemas"]["MonitorVersionDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultNotificationDispatchDto: {
             data: components["schemas"]["NotificationDispatchDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultNotificationDto: {
             data: components["schemas"]["NotificationDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultNotificationPolicyDto: {
             data: components["schemas"]["NotificationPolicyDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultResourceGroupDto: {
             data: components["schemas"]["ResourceGroupDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultScheduledMaintenanceDto: {
             data: components["schemas"]["ScheduledMaintenanceDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultSecretDto: {
             data: components["schemas"]["SecretDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultServiceComponentDto: {
             data: components["schemas"]["ServiceComponentDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultServiceIncidentDto: {
             data: components["schemas"]["ServiceIncidentDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultServiceSubscriptionDto: {
             data: components["schemas"]["ServiceSubscriptionDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultStatusPageComponentDto: {
             data: components["schemas"]["StatusPageComponentDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultStatusPageComponentGroupDto: {
             data: components["schemas"]["StatusPageComponentGroupDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultStatusPageCustomDomainDto: {
             data: components["schemas"]["StatusPageCustomDomainDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultStatusPageDto: {
             data: components["schemas"]["StatusPageDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultStatusPageIncidentDto: {
             data: components["schemas"]["StatusPageIncidentDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultStatusPageSubscriberDto: {
             data: components["schemas"]["StatusPageSubscriberDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultTagDto: {
             data: components["schemas"]["TagDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultWebhookDeliveryDto: {
             data: components["schemas"]["WebhookDeliveryDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultWebhookEndpointDto: {
             data: components["schemas"]["WebhookEndpointDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         TableValueResultWorkspaceDto: {
             data: components["schemas"]["WorkspaceDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
-            totalElements: number | null;
+            totalElements?: number | null;
             /** Format: int32 */
-            totalPages: number | null;
+            totalPages?: number | null;
         };
         /** @description Tag for organizing and filtering monitors */
         TagDto: {
@@ -6136,27 +6393,13 @@ export interface components {
              */
             updatedAt: string;
         };
-        /** @description TCP check-type-specific details */
-        Tcp: {
-            check_type: "Tcp";
-        } & (Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
+        TcpConnectsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
-             * @description Target host
-             * @example db.example.com
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
              */
-            host?: string;
-            /**
-             * Format: int32
-             * @description Target port
-             * @example 5432
-             */
-            port?: number;
-            /** @description Whether a TCP connection was established */
-            connected?: boolean;
-        });
-        TcpConnectsAssertion: {
-            type: "TcpConnectsAssertion";
-        } & Omit<components["schemas"]["AssertionConfig"], "type">;
+            type: "tcp_connects";
+        };
         TcpMonitorConfig: components["schemas"]["MonitorConfig"] & {
             /** @description Target hostname or IP address */
             host: string;
@@ -6171,30 +6414,42 @@ export interface components {
              */
             timeoutMs?: number | null;
         };
-        TcpResponseTimeAssertion: {
-            type: "TcpResponseTimeAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        TcpResponseTimeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description Maximum TCP connect time in milliseconds before the check fails
              */
             maxMs?: number;
-        });
-        TcpResponseTimeWarnAssertion: {
-            type: "TcpResponseTimeWarnAssertion";
-        } & (Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "tcp_response_time";
+        };
+        TcpResponseTimeWarnAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
             /**
              * Format: int32
              * @description TCP connect time in milliseconds that triggers a warning only
              */
             warnMs?: number;
-        });
-        TeamsChannelConfig: {
-            channelType: "TeamsChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "tcp_response_time_warn";
+        };
+        TeamsChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
             /** @description Microsoft Teams incoming webhook URL */
             webhookUrl: string;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            channelType: "teams";
+        };
         /** @description Alert channel configuration to test without saving */
         TestAlertChannelRequest: {
             config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
@@ -6215,32 +6470,32 @@ export interface components {
         /** @description Event context for a dry-run match evaluation against a notification policy */
         TestNotificationPolicyRequest: {
             /** @description Incident severity to test against (e.g. DOWN, DEGRADED, MAINTENANCE) */
-            severity: string | null;
+            severity?: string | null;
             /**
              * Format: uuid
              * @description Monitor UUID to test against (monitoring events)
              */
-            monitorId: string | null;
+            monitorId?: string | null;
             /** @description Affected region identifiers to test against (monitoring events) */
-            regions: (string | null)[] | null;
+            regions?: string[] | null;
             /** @description Incident event type to test against — short form (e.g. created, resolved, reopened) or full form (e.g. incident.created) */
-            eventType: string | null;
+            eventType?: string | null;
             /** @description Monitor check type to test against (e.g. HTTP, DNS, MCP_SERVER) */
-            monitorType: string | null;
+            monitorType?: string | null;
             /**
              * Format: uuid
              * @description Service catalog UUID to test against (status data events)
              */
-            serviceId: string | null;
+            serviceId?: string | null;
             /** @description Component name to test against (status data events, e.g. "Actions") */
-            componentName: string | null;
+            componentName?: string | null;
             /** @description Resource group UUIDs the entity belongs to, for resource_group_id_in rules */
-            resourceGroupIds: (string | null)[] | null;
+            resourceGroupIds?: string[] | null;
         };
         /** @description Event type to use for a test webhook delivery */
         TestWebhookEndpointRequest: {
             /** @description Event type to simulate (e.g. monitor.created); null uses a default */
-            eventType: string | null;
+            eventType?: string | null;
         };
         /** @description TLS/SSL certificate details for HTTPS targets */
         TlsInfoDto: {
@@ -6248,34 +6503,34 @@ export interface components {
              * @description Certificate subject common name
              * @example *.example.com
              */
-            subjectCn: string | null;
+            subjectCn?: string | null;
             /** @description Subject Alternative Names */
-            subjectSan: (string | null)[] | null;
+            subjectSan?: string[] | null;
             /**
              * @description Issuer common name
              * @example R3
              */
-            issuerCn: string | null;
+            issuerCn?: string | null;
             /**
              * @description Issuer organisation
              * @example Let's Encrypt
              */
-            issuerOrg: string | null;
+            issuerOrg?: string | null;
             /** @description Certificate validity start (ISO 8601 UTC) */
-            notBefore: string | null;
+            notBefore?: string | null;
             /** @description Certificate validity end (ISO 8601 UTC) */
-            notAfter: string | null;
+            notAfter?: string | null;
             /** @description Certificate serial number */
-            serialNumber: string | null;
+            serialNumber?: string | null;
             /**
              * @description TLS protocol version
              * @example TLSv1.3
              */
-            tlsVersion: string | null;
+            tlsVersion?: string | null;
             /** @description Negotiated cipher suite */
-            cipherSuite: string | null;
+            cipherSuite?: string | null;
             /** @description Whether the chain validated against the OS trust store */
-            chainValid: boolean | null;
+            chainValid?: boolean | null;
         };
         /** @description Array of trigger rules defining when an incident should be raised */
         TriggerRule: {
@@ -6339,13 +6594,13 @@ export interface components {
         };
         UpdateEnvironmentRequest: {
             /** @description New environment name; null preserves current */
-            name: string | null;
+            name?: string | null;
             /** @description Replace all variables; null preserves current */
-            variables: {
+            variables?: {
                 [key: string]: string | null;
             } | null;
             /** @description Whether this is the default environment; null preserves current */
-            isDefault: boolean | null;
+            isDefault?: boolean | null;
         };
         /** @description Request body for updating an incident policy */
         UpdateIncidentPolicyRequest: {
@@ -6382,38 +6637,38 @@ export interface components {
         };
         UpdateMonitorRequest: {
             /** @description New monitor name; null preserves current */
-            name: string | null;
-            config?: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
+            name?: string | null;
+            config?: components["schemas"]["MonitorConfig"] | null;
             /**
              * Format: int32
              * @description New check frequency in seconds (30–86400); null preserves current
              */
-            frequencySeconds: number | null;
+            frequencySeconds?: number | null;
             /** @description Enable or disable the monitor; null preserves current */
-            enabled: boolean | null;
+            enabled?: boolean | null;
             /** @description New probe regions; null preserves current */
-            regions: (string | null)[] | null;
+            regions?: string[] | null;
             /**
              * @description New management source; null preserves current
              * @enum {string|null}
              */
-            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | null;
             /**
              * Format: uuid
              * @description New environment ID; null preserves current (use clearEnvironmentId to unset)
              */
-            environmentId: string | null;
+            environmentId?: string | null;
             /** @description Set to true to remove the environment association */
-            clearEnvironmentId: boolean | null;
+            clearEnvironmentId?: boolean | null;
             /** @description Replace all assertions; null preserves current */
-            assertions: components["schemas"]["CreateAssertionRequest"][] | null;
-            auth?: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
+            assertions?: components["schemas"]["CreateAssertionRequest"][] | null;
+            auth?: Omit<components["schemas"]["MonitorAuthConfig"], "type"> | null;
             /** @description Set to true to remove authentication */
-            clearAuth: boolean | null;
-            incidentPolicy: components["schemas"]["UpdateIncidentPolicyRequest"];
+            clearAuth?: boolean | null;
+            incidentPolicy?: components["schemas"]["UpdateIncidentPolicyRequest"] | null;
             /** @description Replace alert channel list; null preserves current */
-            alertChannelIds: (string | null)[] | null;
-            tags: components["schemas"]["AddMonitorTagsRequest"];
+            alertChannelIds?: string[] | null;
+            tags?: components["schemas"]["AddMonitorTagsRequest"] | null;
         };
         /** @description Request body for updating a notification policy (null fields are preserved) */
         UpdateNotificationPolicyRequest: {
@@ -6462,10 +6717,10 @@ export interface components {
              */
             defaultFrequency?: number | null;
             /** @description Default regions for member monitors; null clears */
-            defaultRegions?: (string | null)[] | null;
-            defaultRetryStrategy?: components["schemas"]["RetryStrategy"];
+            defaultRegions?: string[] | null;
+            defaultRetryStrategy?: components["schemas"]["RetryStrategy"] | null;
             /** @description Default alert channel IDs for member monitors; null clears */
-            defaultAlertChannels?: (string | null)[] | null;
+            defaultAlertChannels?: string[] | null;
             /**
              * Format: uuid
              * @description Default environment ID for member monitors; null clears
@@ -6497,99 +6752,99 @@ export interface components {
         };
         UpdateStatusPageComponentGroupRequest: {
             /** @description New group name; null preserves current */
-            name: string | null;
+            name?: string | null;
             /** @description New description; null preserves current, empty string clears */
-            description: string | null;
+            description?: string | null;
             /**
              * Format: int32
              * @description New position in the group list; null preserves current
              */
-            displayOrder: number | null;
+            displayOrder?: number | null;
             /** @description Whether the group is collapsed by default; null preserves current */
-            collapsed: boolean | null;
+            collapsed?: boolean | null;
         };
         UpdateStatusPageComponentRequest: {
             /** @description New component name; null preserves current */
-            name: string | null;
+            name?: string | null;
             /** @description New description; null preserves current, empty string clears */
-            description: string | null;
+            description?: string | null;
             /**
              * Format: uuid
              * @description Move to a different group; null preserves current
              */
-            groupId: string | null;
+            groupId?: string | null;
             /** @description Remove the component from its group (default: false) */
-            removeFromGroup: boolean | null;
+            removeFromGroup?: boolean | null;
             /** @description Whether to show the uptime bar; null preserves current */
-            showUptime: boolean | null;
+            showUptime?: boolean | null;
             /**
              * Format: int32
              * @description New position in the component list; null preserves current
              */
-            displayOrder: number | null;
+            displayOrder?: number | null;
             /** @description Exclude from overall status calculation; null preserves current */
-            excludeFromOverall: boolean | null;
+            excludeFromOverall?: boolean | null;
             /**
              * Format: date
              * @description Date from which to start showing uptime data; null preserves current
              */
-            startDate: string | null;
+            startDate?: string | null;
         };
         UpdateStatusPageIncidentRequest: {
             /** @description New title; null preserves current */
-            title: string | null;
+            title?: string | null;
             /**
              * @description New status; null preserves current
              * @enum {string|null}
              */
-            status: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED" | null;
+            status?: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED" | null;
             /**
              * @description New impact level; null preserves current
              * @enum {string|null}
              */
-            impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL" | null;
+            impact?: "NONE" | "MINOR" | "MAJOR" | "CRITICAL" | null;
             /** @description Updated affected components; null preserves current */
-            affectedComponents: components["schemas"]["AffectedComponent"][] | null;
+            affectedComponents?: components["schemas"]["AffectedComponent"][] | null;
             /** @description Postmortem body in markdown; empty string clears */
-            postmortemBody: string | null;
+            postmortemBody?: string | null;
             /** @description URL to an external postmortem document; empty string clears */
-            postmortemUrl: string | null;
+            postmortemUrl?: string | null;
         };
         UpdateStatusPageRequest: {
             /** @description New name; null preserves current */
-            name: string | null;
+            name?: string | null;
             /** @description New description; null preserves current, empty string clears */
-            description: string | null;
-            branding: components["schemas"]["StatusPageBranding"];
+            description?: string | null;
+            branding?: components["schemas"]["StatusPageBranding"] | null;
             /**
              * @description Page visibility; null preserves current
              * @enum {string|null}
              */
-            visibility: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED" | null;
+            visibility?: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED" | null;
             /** @description Whether the page is enabled; null preserves current */
-            enabled: boolean | null;
+            enabled?: boolean | null;
             /**
              * @description Incident mode: MANUAL, REVIEW, or AUTOMATIC; null preserves current
              * @enum {string|null}
              */
-            incidentMode: "MANUAL" | "REVIEW" | "AUTOMATIC" | null;
+            incidentMode?: "MANUAL" | "REVIEW" | "AUTOMATIC" | null;
         };
         /** @description Request body for updating a tag; null fields are left unchanged */
         UpdateTagRequest: {
             /** @description New tag name */
-            name: string | null;
+            name?: string | null;
             /** @description New hex color code */
-            color: string | null;
+            color?: string | null;
         };
         UpdateWebhookEndpointRequest: {
             /** @description New webhook URL; null preserves current */
-            url: string | null;
+            url?: string | null;
             /** @description New description; null preserves current */
-            description: string | null;
+            description?: string | null;
             /** @description Replace subscribed events; null preserves current */
-            subscribedEvents: (string | null)[] | null;
+            subscribedEvents?: string[] | null;
             /** @description Enable or disable delivery; null preserves current */
-            enabled: boolean | null;
+            enabled?: boolean | null;
         };
         /** @description Update workspace details */
         UpdateWorkspaceRequest: {
@@ -6609,7 +6864,7 @@ export interface components {
              * @description Uptime percentage for this bucket; null when no polls occurred
              * @example 100
              */
-            uptimePct: number | null;
+            uptimePct?: number | null;
             /**
              * Format: int64
              * @description Total number of polls recorded in this bucket
@@ -6624,7 +6879,7 @@ export interface components {
              * @description Uptime percentage over the requested window; null when no data
              * @example 99.95
              */
-            uptimePercentage: number | null;
+            uptimePercentage?: number | null;
             /**
              * Format: int64
              * @description Total number of checks executed
@@ -6642,17 +6897,15 @@ export interface components {
              * @description Weighted average latency in milliseconds; null when no data
              * @example 142.5
              */
-            avgLatencyMs: number | null;
+            avgLatencyMs?: number | null;
             /**
              * Format: double
              * @description 95th-percentile latency in milliseconds (upper bound across regions); null when no data
              * @example 312
              */
-            p95LatencyMs: number | null;
+            p95LatencyMs?: number | null;
         };
-        WebhookChannelConfig: {
-            channelType: "WebhookChannelConfig";
-        } & (Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        WebhookChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
             /** @description Webhook endpoint URL that receives alert payloads */
             url: string;
             /** @description Optional HMAC signing secret for payload verification */
@@ -6661,7 +6914,13 @@ export interface components {
             customHeaders?: {
                 [key: string]: string | null;
             } | null;
-        });
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            channelType: "webhook";
+        };
         WebhookDeliveryDto: {
             /** Format: uuid */
             id: string;
@@ -6675,16 +6934,16 @@ export interface components {
             /** Format: int32 */
             maxAttempts: number;
             /** Format: int32 */
-            responseStatus: number | null;
+            responseStatus?: number | null;
             /** Format: int32 */
-            responseLatencyMs: number | null;
-            errorMessage: string | null;
+            responseLatencyMs?: number | null;
+            errorMessage?: string | null;
             /** Format: date-time */
-            deliveredAt: string | null;
+            deliveredAt?: string | null;
             /** Format: date-time */
-            failedAt: string | null;
+            failedAt?: string | null;
             /** Format: date-time */
-            nextRetryAt: string | null;
+            nextRetryAt?: string | null;
             /** Format: date-time */
             createdAt: string;
         };
@@ -6698,7 +6957,7 @@ export interface components {
             /** @description HTTPS endpoint URL that receives event payloads */
             url: string;
             /** @description Human-readable description of this endpoint */
-            description: string | null;
+            description?: string | null;
             /** @description Event types this endpoint is subscribed to */
             subscribedEvents: string[];
             /** @description Whether delivery is enabled for this endpoint */
@@ -6709,12 +6968,12 @@ export interface components {
              */
             consecutiveFailures: number;
             /** @description Reason the endpoint was auto-disabled */
-            disabledReason: string | null;
+            disabledReason?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the endpoint was auto-disabled
              */
-            disabledAt: string | null;
+            disabledAt?: string | null;
             /**
              * Format: date-time
              * @description Timestamp when the endpoint was created
@@ -6741,15 +7000,15 @@ export interface components {
         };
         WebhookSigningSecretDto: {
             configured: boolean;
-            maskedSecret: string | null;
+            maskedSecret?: string | null;
         };
         WebhookTestResult: {
             success: boolean;
             /** Format: int32 */
-            statusCode: number | null;
+            statusCode?: number | null;
             message: string;
             /** Format: int64 */
-            durationMs: number | null;
+            durationMs?: number | null;
         };
         /** @description Workspace within an organization */
         WorkspaceDto: {
@@ -9655,6 +9914,58 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["TableValueResultScheduledMaintenanceDto"];
+                };
+            };
+        };
+    };
+    listPollResults: {
+        parameters: {
+            query?: {
+                /** @description ISO 8601 timestamp cursor from a previous response */
+                cursor?: string;
+                /** @description Page size (1–100, default 50) */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                slugOrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CursorPageServicePollResultDto"];
+                };
+            };
+        };
+    };
+    getPollSummary: {
+        parameters: {
+            query?: {
+                /** @description Time window */
+                window?: "24h" | "7d" | "30d";
+            };
+            header?: never;
+            path: {
+                slugOrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseServicePollSummaryDto"];
                 };
             };
         };

@@ -105,7 +105,7 @@ describe('applier', () => {
       expect(result.succeeded[0].id).toBe('mon-new')
       expect(result.stateEntries).toHaveLength(1)
       expect(result.stateEntries[0].resourceType).toBe('monitor')
-      expect(result.stateEntries[0].id).toBe('mon-new')
+      expect(result.stateEntries[0].apiId).toBe('mon-new')
     })
 
     it('injects ref after create for downstream resolution', async () => {
@@ -224,7 +224,7 @@ describe('applier', () => {
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
       expect(result.stateEntries).toHaveLength(1)
-      expect(result.stateEntries[0].id).toBe('mon-1')
+      expect(result.stateEntries[0].apiId).toBe('mon-1')
     })
 
     it('updates a dependency via PATCH', async () => {
@@ -526,6 +526,39 @@ describe('applier', () => {
         params: {path: {id: 'rg-1'}},
         body: {memberType: 'service', memberId: 'dep-1'},
       })
+    })
+
+    it('deletes group membership (action=delete)', async () => {
+      mockDelete.mockResolvedValueOnce(undefined)
+      const refs = new ResolvedRefs()
+      const changeset: Changeset = {
+        ...emptyChangeset(),
+        memberships: [{
+          action: 'delete', resourceType: 'groupMembership', refKey: 'G → M',
+          desired: {groupId: 'rg-1', memberId: 'mon-1'},
+        }],
+      }
+      const result = await apply(changeset, refs, fakeClient)
+      expect(result.succeeded).toHaveLength(1)
+      // The success record uses action='remove' (the UI-facing verb).
+      expect(result.succeeded[0].action).toBe('remove')
+      expect(mockDelete).toHaveBeenCalledWith('/api/v1/resource-groups/rg-1/members/mon-1', expect.anything())
+    })
+
+    it('reports membership delete failure with action=delete', async () => {
+      mockDelete.mockRejectedValueOnce(new Error('member not found'))
+      const refs = new ResolvedRefs()
+      const changeset: Changeset = {
+        ...emptyChangeset(),
+        memberships: [{
+          action: 'delete', resourceType: 'groupMembership', refKey: 'G → gone',
+          desired: {groupId: 'rg-1', memberId: 'missing'},
+        }],
+      }
+      const result = await apply(changeset, refs, fakeClient)
+      expect(result.failed).toHaveLength(1)
+      expect(result.failed[0].action).toBe('delete')
+      expect(result.failed[0].error).toContain('member not found')
     })
   })
 

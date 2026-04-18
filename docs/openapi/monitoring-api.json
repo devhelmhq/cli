@@ -4392,6 +4392,102 @@
         }
       }
     },
+    "/api/v1/services/{slugOrId}/poll-results": {
+      "get": {
+        "tags": [
+          "Status Data"
+        ],
+        "summary": "List poll results for a service (cursor-paginated)",
+        "operationId": "listPollResults",
+        "parameters": [
+          {
+            "name": "slugOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "ISO 8601 timestamp cursor from a previous response",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page size (1–100, default 50)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CursorPageServicePollResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/services/{slugOrId}/poll-summary": {
+      "get": {
+        "tags": [
+          "Status Data"
+        ],
+        "summary": "Get aggregated poll metrics and chart data for a service",
+        "operationId": "getPollSummary",
+        "parameters": [
+          {
+            "name": "slugOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "description": "Time window",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "24h",
+                "7d",
+                "30d"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseServicePollSummaryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/services/{slugOrId}/uptime": {
       "get": {
         "tags": [
@@ -6449,8 +6545,7 @@
             "items": {
               "type": "string",
               "description": "IDs of existing org tags to attach",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           },
           "newTags": {
@@ -6462,11 +6557,7 @@
             }
           }
         },
-        "description": "Request body for adding tags to a monitor. Provide existing tag IDs, inline new tags, or both.",
-        "required": [
-          "tagIds",
-          "newTags"
-        ]
+        "description": "Request body for adding tags to a monitor. Provide existing tag IDs, inline new tags, or both."
       },
       "AddResourceGroupMemberRequest": {
         "required": [
@@ -6529,6 +6620,46 @@
         },
         "description": "Updated affected components; null preserves current"
       },
+      "AlertChannelDisplayConfig": {
+        "type": "object",
+        "properties": {
+          "recipients": {
+            "type": "array",
+            "description": "Email recipients list (email channels)",
+            "nullable": true,
+            "items": {
+              "type": "string",
+              "description": "Email recipients list (email channels)"
+            }
+          },
+          "region": {
+            "type": "string",
+            "description": "OpsGenie API region: us or eu",
+            "nullable": true
+          },
+          "severityOverride": {
+            "type": "string",
+            "description": "PagerDuty severity override (critical, error, warning, info)",
+            "nullable": true
+          },
+          "mentionRoleId": {
+            "type": "string",
+            "description": "Discord role ID to mention in notifications",
+            "nullable": true
+          },
+          "customHeaders": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Custom HTTP headers for webhook requests",
+              "nullable": true
+            },
+            "description": "Custom HTTP headers for webhook requests",
+            "nullable": true
+          }
+        },
+        "description": "Non-sensitive alert channel configuration metadata"
+      },
       "AlertChannelDto": {
         "required": [
           "channelType",
@@ -6562,14 +6693,12 @@
             ]
           },
           "displayConfig": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "description": "Non-sensitive display metadata; null for older channels",
-              "nullable": true
-            },
-            "description": "Non-sensitive display metadata; null for older channels",
-            "nullable": true
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AlertChannelDisplayConfig"
+              }
+            ]
           },
           "createdAt": {
             "type": "string",
@@ -6698,7 +6827,6 @@
         "required": [
           "id",
           "incidentId",
-          "dispatchId",
           "channelId",
           "channel",
           "channelType",
@@ -6707,10 +6835,6 @@
           "stepNumber",
           "fireCount",
           "attemptCount",
-          "lastAttemptAt",
-          "nextRetryAt",
-          "deliveredAt",
-          "errorMessage",
           "createdAt"
         ]
       },
@@ -6738,7 +6862,10 @@
                 "format": "uuid",
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "headerName"
+            ]
           }
         ]
       },
@@ -6775,8 +6902,7 @@
           "id",
           "name",
           "key",
-          "createdAt",
-          "expiresAt"
+          "createdAt"
         ]
       },
       "ApiKeyDto": {
@@ -6830,10 +6956,7 @@
           "name",
           "key",
           "createdAt",
-          "updatedAt",
-          "lastUsedAt",
-          "revokedAt",
-          "expiresAt"
+          "updatedAt"
         ]
       },
       "AssertionConfig": {
@@ -6848,7 +6971,51 @@
         },
         "description": "New assertion configuration (full replacement)",
         "discriminator": {
-          "propertyName": "type"
+          "propertyName": "type",
+          "mapping": {
+            "status_code": "#/components/schemas/StatusCodeAssertion",
+            "response_time": "#/components/schemas/ResponseTimeAssertion",
+            "body_contains": "#/components/schemas/BodyContainsAssertion",
+            "json_path": "#/components/schemas/JsonPathAssertion",
+            "header_value": "#/components/schemas/HeaderValueAssertion",
+            "regex_body": "#/components/schemas/RegexBodyAssertion",
+            "dns_resolves": "#/components/schemas/DnsResolvesAssertion",
+            "dns_response_time": "#/components/schemas/DnsResponseTimeAssertion",
+            "dns_expected_ips": "#/components/schemas/DnsExpectedIpsAssertion",
+            "dns_expected_cname": "#/components/schemas/DnsExpectedCnameAssertion",
+            "dns_record_contains": "#/components/schemas/DnsRecordContainsAssertion",
+            "dns_record_equals": "#/components/schemas/DnsRecordEqualsAssertion",
+            "dns_txt_contains": "#/components/schemas/DnsTxtContainsAssertion",
+            "dns_min_answers": "#/components/schemas/DnsMinAnswersAssertion",
+            "dns_max_answers": "#/components/schemas/DnsMaxAnswersAssertion",
+            "dns_response_time_warn": "#/components/schemas/DnsResponseTimeWarnAssertion",
+            "dns_ttl_low": "#/components/schemas/DnsTtlLowAssertion",
+            "dns_ttl_high": "#/components/schemas/DnsTtlHighAssertion",
+            "mcp_connects": "#/components/schemas/McpConnectsAssertion",
+            "mcp_response_time": "#/components/schemas/McpResponseTimeAssertion",
+            "mcp_has_capability": "#/components/schemas/McpHasCapabilityAssertion",
+            "mcp_tool_available": "#/components/schemas/McpToolAvailableAssertion",
+            "mcp_min_tools": "#/components/schemas/McpMinToolsAssertion",
+            "mcp_protocol_version": "#/components/schemas/McpProtocolVersionAssertion",
+            "mcp_response_time_warn": "#/components/schemas/McpResponseTimeWarnAssertion",
+            "mcp_tool_count_changed": "#/components/schemas/McpToolCountChangedAssertion",
+            "ssl_expiry": "#/components/schemas/SslExpiryAssertion",
+            "response_size": "#/components/schemas/ResponseSizeAssertion",
+            "redirect_count": "#/components/schemas/RedirectCountAssertion",
+            "redirect_target": "#/components/schemas/RedirectTargetAssertion",
+            "response_time_warn": "#/components/schemas/ResponseTimeWarnAssertion",
+            "tcp_connects": "#/components/schemas/TcpConnectsAssertion",
+            "tcp_response_time": "#/components/schemas/TcpResponseTimeAssertion",
+            "tcp_response_time_warn": "#/components/schemas/TcpResponseTimeWarnAssertion",
+            "icmp_reachable": "#/components/schemas/IcmpReachableAssertion",
+            "icmp_response_time": "#/components/schemas/IcmpResponseTimeAssertion",
+            "icmp_response_time_warn": "#/components/schemas/IcmpResponseTimeWarnAssertion",
+            "icmp_packet_loss": "#/components/schemas/IcmpPacketLossAssertion",
+            "heartbeat_received": "#/components/schemas/HeartbeatReceivedAssertion",
+            "heartbeat_max_interval": "#/components/schemas/HeartbeatMaxIntervalAssertion",
+            "heartbeat_interval_drift": "#/components/schemas/HeartbeatIntervalDriftAssertion",
+            "heartbeat_payload_contains": "#/components/schemas/HeartbeatPayloadContainsAssertion"
+          }
         }
       },
       "AssertionResultDto": {
@@ -6893,10 +7060,7 @@
         "required": [
           "type",
           "passed",
-          "severity",
-          "message",
-          "expected",
-          "actual"
+          "severity"
         ]
       },
       "AssertionTestResultDto": {
@@ -6910,8 +7074,8 @@
               "response_time",
               "body_contains",
               "json_path",
-              "header",
-              "regex",
+              "header_value",
+              "regex_body",
               "dns_resolves",
               "dns_response_time",
               "dns_expected_ips",
@@ -6981,9 +7145,7 @@
           "assertionType",
           "passed",
           "severity",
-          "message",
-          "expected",
-          "actual"
+          "message"
         ]
       },
       "AuditEventDto": {
@@ -7042,13 +7204,7 @@
         },
         "required": [
           "id",
-          "actorId",
-          "actorEmail",
           "action",
-          "resourceType",
-          "resourceId",
-          "resourceName",
-          "metadata",
           "createdAt"
         ]
       },
@@ -7131,7 +7287,10 @@
                 "type": "string",
                 "description": "Substring that must appear in the response body"
               }
-            }
+            },
+            "required": [
+              "substring"
+            ]
           }
         ]
       },
@@ -7171,8 +7330,7 @@
             "items": {
               "type": "string",
               "description": "Tag IDs to attach or detach (required for ADD_TAG and REMOVE_TAG)",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           },
           "newTags": {
@@ -7282,7 +7440,16 @@
         },
         "description": "New channel configuration (full replacement, not partial update)",
         "discriminator": {
-          "propertyName": "channelType"
+          "propertyName": "channelType",
+          "mapping": {
+            "email": "#/components/schemas/EmailChannelConfig",
+            "slack": "#/components/schemas/SlackChannelConfig",
+            "webhook": "#/components/schemas/WebhookChannelConfig",
+            "pagerduty": "#/components/schemas/PagerDutyChannelConfig",
+            "opsgenie": "#/components/schemas/OpsGenieChannelConfig",
+            "teams": "#/components/schemas/TeamsChannelConfig",
+            "discord": "#/components/schemas/DiscordChannelConfig"
+          }
         }
       },
       "ChartBucketDto": {
@@ -7325,11 +7492,7 @@
         },
         "description": "Aggregated metrics for a time bucket",
         "required": [
-          "bucket",
-          "uptimePercent",
-          "avgLatencyMs",
-          "p95LatencyMs",
-          "p99LatencyMs"
+          "bucket"
         ]
       },
       "CheckResultDetailsDto": {
@@ -7371,7 +7534,12 @@
             }
           },
           "tlsInfo": {
-            "$ref": "#/components/schemas/TlsInfoDto"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TlsInfoDto"
+              }
+            ]
           },
           "redirectCount": {
             "type": "integer",
@@ -7393,36 +7561,15 @@
             "example": 4096
           },
           "checkDetails": {
-            "oneOf": [
+            "nullable": true,
+            "allOf": [
               {
-                "$ref": "#/components/schemas/Dns"
-              },
-              {
-                "$ref": "#/components/schemas/Http"
-              },
-              {
-                "$ref": "#/components/schemas/Icmp"
-              },
-              {
-                "$ref": "#/components/schemas/McpServer"
-              },
-              {
-                "$ref": "#/components/schemas/Tcp"
+                "$ref": "#/components/schemas/CheckTypeDetailsDto"
               }
             ]
           }
         },
-        "description": "Type-specific details captured during a check execution",
-        "required": [
-          "statusCode",
-          "responseHeaders",
-          "responseBodySnapshot",
-          "assertionResults",
-          "tlsInfo",
-          "redirectCount",
-          "redirectTarget",
-          "responseSizeBytes"
-        ]
+        "description": "Type-specific details captured during a check execution"
       },
       "CheckResultDto": {
         "type": "object",
@@ -7465,7 +7612,12 @@
             "nullable": true
           },
           "details": {
-            "$ref": "#/components/schemas/CheckResultDetailsDto"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CheckResultDetailsDto"
+              }
+            ]
           },
           "checkId": {
             "type": "string",
@@ -7479,12 +7631,7 @@
           "id",
           "timestamp",
           "region",
-          "responseTimeMs",
-          "passed",
-          "failureReason",
-          "severityHint",
-          "details",
-          "checkId"
+          "passed"
         ]
       },
       "CheckTypeDetailsDto": {
@@ -7586,8 +7733,7 @@
           "date",
           "partialOutageSeconds",
           "majorOutageSeconds",
-          "uptimePercentage",
-          "incidents"
+          "uptimePercentage"
         ]
       },
       "ComponentUptimeSummaryDto": {
@@ -7622,9 +7768,6 @@
         },
         "description": "Inline uptime percentages for 24h, 7d, 30d",
         "required": [
-          "day",
-          "week",
-          "month",
           "source"
         ]
       },
@@ -8059,8 +8202,7 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "Probe regions to run checks from, e.g. us-east, eu-west",
-              "nullable": true
+              "description": "Probe regions to run checks from, e.g. us-east, eu-west"
             }
           },
           "managedBy": {
@@ -8087,23 +8229,20 @@
             }
           },
           "auth": {
-            "oneOf": [
+            "nullable": true,
+            "allOf": [
               {
-                "$ref": "#/components/schemas/ApiKeyAuthConfig"
-              },
-              {
-                "$ref": "#/components/schemas/BasicAuthConfig"
-              },
-              {
-                "$ref": "#/components/schemas/BearerAuthConfig"
-              },
-              {
-                "$ref": "#/components/schemas/HeaderAuthConfig"
+                "$ref": "#/components/schemas/MonitorAuthConfig"
               }
             ]
           },
           "incidentPolicy": {
-            "$ref": "#/components/schemas/UpdateIncidentPolicyRequest"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateIncidentPolicyRequest"
+              }
+            ]
           },
           "alertChannelIds": {
             "type": "array",
@@ -8112,12 +8251,16 @@
             "items": {
               "type": "string",
               "description": "Alert channels to notify when this monitor triggers",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           },
           "tags": {
-            "$ref": "#/components/schemas/AddMonitorTagsRequest"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AddMonitorTagsRequest"
+              }
+            ]
           }
         }
       },
@@ -8195,12 +8338,16 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "Default regions applied to member monitors",
-              "nullable": true
+              "description": "Default regions applied to member monitors"
             }
           },
           "defaultRetryStrategy": {
-            "$ref": "#/components/schemas/RetryStrategy"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RetryStrategy"
+              }
+            ]
           },
           "defaultAlertChannels": {
             "type": "array",
@@ -8209,8 +8356,7 @@
             "items": {
               "type": "string",
               "description": "Default alert channel IDs applied to member monitors",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           },
           "defaultEnvironmentId": {
@@ -8527,7 +8673,12 @@
             "nullable": true
           },
           "branding": {
-            "$ref": "#/components/schemas/StatusPageBranding"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusPageBranding"
+              }
+            ]
           },
           "visibility": {
             "type": "string",
@@ -8646,7 +8797,6 @@
         "description": "Cursor-paginated response for time-series and append-only data",
         "required": [
           "data",
-          "nextCursor",
           "hasMore"
         ]
       },
@@ -8673,7 +8823,6 @@
         "description": "Cursor-paginated response for time-series and append-only data",
         "required": [
           "data",
-          "nextCursor",
           "hasMore"
         ]
       },
@@ -8700,7 +8849,32 @@
         "description": "Cursor-paginated response for time-series and append-only data",
         "required": [
           "data",
-          "nextCursor",
+          "hasMore"
+        ]
+      },
+      "CursorPageServicePollResultDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "Items on this page",
+            "items": {
+              "$ref": "#/components/schemas/ServicePollResultDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "Opaque cursor for the next page; null when there are no more results",
+            "nullable": true
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether more results exist beyond this page"
+          }
+        },
+        "description": "Cursor-paginated response for time-series and append-only data",
+        "required": [
+          "data",
           "hasMore"
         ]
       },
@@ -8851,13 +9025,6 @@
           "deliveryId",
           "attemptNumber",
           "status",
-          "responseStatusCode",
-          "requestPayload",
-          "responseBody",
-          "errorMessage",
-          "responseTimeMs",
-          "externalId",
-          "requestHeaders",
           "attemptedAt"
         ]
       },
@@ -8914,81 +9081,10 @@
                 "description": "Optional Discord role ID to mention in notifications",
                 "nullable": true
               }
-            }
-          }
-        ]
-      },
-      "Dns": {
-        "type": "object",
-        "description": "DNS check-type-specific details",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/CheckTypeDetailsDto"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "hostname": {
-                "type": "string",
-                "description": "Target hostname",
-                "nullable": true
-              },
-              "requestedTypes": {
-                "type": "array",
-                "description": "Requested DNS record types",
-                "nullable": true,
-                "items": {
-                  "type": "string",
-                  "description": "Requested DNS record types",
-                  "nullable": true
-                }
-              },
-              "usedResolver": {
-                "type": "string",
-                "description": "Resolver used for lookup",
-                "nullable": true
-              },
-              "records": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "array",
-                  "description": "Resolved DNS records keyed by record type",
-                  "nullable": true,
-                  "items": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "object",
-                      "description": "Resolved DNS records keyed by record type",
-                      "nullable": true
-                    },
-                    "description": "Resolved DNS records keyed by record type",
-                    "nullable": true
-                  }
-                },
-                "description": "Resolved DNS records keyed by record type",
-                "nullable": true
-              },
-              "attempts": {
-                "type": "array",
-                "description": "DNS resolution attempts",
-                "nullable": true,
-                "items": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object",
-                    "description": "DNS resolution attempts",
-                    "nullable": true
-                  },
-                  "description": "DNS resolution attempts",
-                  "nullable": true
-                }
-              },
-              "failureKind": {
-                "type": "string",
-                "description": "Kind of DNS failure, if any",
-                "nullable": true
-              }
-            }
+            },
+            "required": [
+              "webhookUrl"
+            ]
           }
         ]
       },
@@ -9009,7 +9105,10 @@
                 "type": "string",
                 "description": "Expected CNAME target the resolution must include"
               }
-            }
+            },
+            "required": [
+              "value"
+            ]
           }
         ]
       },
@@ -9034,7 +9133,10 @@
                   "description": "Allowed IP addresses; at least one resolved address must match"
                 }
               }
-            }
+            },
+            "required": [
+              "ips"
+            ]
           }
         ]
       },
@@ -9060,7 +9162,10 @@
                 "description": "Maximum number of answers allowed for that record type",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "recordType"
+            ]
           }
         ]
       },
@@ -9086,7 +9191,10 @@
                 "description": "Minimum number of answers required for that record type",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "recordType"
+            ]
           }
         ]
       },
@@ -9151,7 +9259,10 @@
                 "format": "int32",
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "hostname"
+            ]
           }
         ]
       },
@@ -9178,7 +9289,11 @@
                 "type": "string",
                 "description": "Substring that must appear in a matching record value"
               }
-            }
+            },
+            "required": [
+              "recordType",
+              "substring"
+            ]
           }
         ]
       },
@@ -9205,7 +9320,11 @@
                 "type": "string",
                 "description": "Expected DNS record value for an exact match"
               }
-            }
+            },
+            "required": [
+              "recordType",
+              "value"
+            ]
           }
         ]
       },
@@ -9306,7 +9425,10 @@
                 "type": "string",
                 "description": "Substring that must appear in at least one TXT record"
               }
-            }
+            },
+            "required": [
+              "substring"
+            ]
           }
         ]
       },
@@ -9332,7 +9454,10 @@
                   "format": "email"
                 }
               }
-            }
+            },
+            "required": [
+              "recipients"
+            ]
           }
         ]
       },
@@ -9621,7 +9746,10 @@
                 "format": "uuid",
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "headerName"
+            ]
           }
         ]
       },
@@ -9661,7 +9789,12 @@
                   "range"
                 ]
               }
-            }
+            },
+            "required": [
+              "expected",
+              "headerName",
+              "operator"
+            ]
           }
         ]
       },
@@ -9684,7 +9817,10 @@
                 "description": "Max percent drift from expected ping interval before warning (non-fatal)",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "maxDeviationPercent"
+            ]
           }
         ]
       },
@@ -9706,7 +9842,10 @@
                 "description": "Maximum allowed gap in seconds between consecutive heartbeat pings",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "maxSeconds"
+            ]
           }
         ]
       },
@@ -9736,7 +9875,11 @@
                 "description": "Grace period in seconds before marking as down",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "expectedInterval",
+              "gracePeriod"
+            ]
           }
         ]
       },
@@ -9762,7 +9905,11 @@
                 "type": "string",
                 "description": "Expected value to compare against at that path"
               }
-            }
+            },
+            "required": [
+              "path",
+              "value"
+            ]
           }
         ]
       },
@@ -9771,35 +9918,6 @@
         "allOf": [
           {
             "$ref": "#/components/schemas/AssertionConfig"
-          }
-        ]
-      },
-      "Http": {
-        "type": "object",
-        "description": "HTTP check-type-specific details",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/CheckTypeDetailsDto"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "timing": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object",
-                  "description": "Request phase timing breakdown",
-                  "nullable": true
-                },
-                "description": "Request phase timing breakdown",
-                "nullable": true
-              },
-              "bodyTruncated": {
-                "type": "boolean",
-                "description": "Whether the response body was truncated before storage",
-                "nullable": true
-              }
-            }
           }
         ]
       },
@@ -9858,69 +9976,11 @@
                 "description": "Whether to verify TLS certificates (default: true)",
                 "nullable": true
               }
-            }
-          }
-        ]
-      },
-      "Icmp": {
-        "type": "object",
-        "description": "ICMP (ping) check-type-specific details",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/CheckTypeDetailsDto"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "host": {
-                "type": "string",
-                "description": "Target host",
-                "example": "1.1.1.1"
-              },
-              "packetsSent": {
-                "type": "integer",
-                "description": "Number of ICMP packets sent",
-                "format": "int32",
-                "nullable": true
-              },
-              "packetsReceived": {
-                "type": "integer",
-                "description": "Number of ICMP packets received",
-                "format": "int32",
-                "nullable": true
-              },
-              "packetLoss": {
-                "type": "number",
-                "description": "Packet loss percentage",
-                "format": "double",
-                "nullable": true,
-                "example": 0
-              },
-              "avgRttMs": {
-                "type": "number",
-                "description": "Average round-trip time in ms",
-                "format": "double",
-                "nullable": true
-              },
-              "minRttMs": {
-                "type": "number",
-                "description": "Minimum round-trip time in ms",
-                "format": "double",
-                "nullable": true
-              },
-              "maxRttMs": {
-                "type": "number",
-                "description": "Maximum round-trip time in ms",
-                "format": "double",
-                "nullable": true
-              },
-              "jitterMs": {
-                "type": "number",
-                "description": "Jitter in ms",
-                "format": "double",
-                "nullable": true
-              }
-            }
+            },
+            "required": [
+              "method",
+              "url"
+            ]
           }
         ]
       },
@@ -9955,7 +10015,10 @@
                 "format": "int32",
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "host"
+            ]
           }
         ]
       },
@@ -10047,8 +10110,7 @@
         },
         "required": [
           "incident",
-          "updates",
-          "statusPageIncidents"
+          "updates"
         ]
       },
       "IncidentDto": {
@@ -10156,8 +10218,7 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "Service components affected by this incident",
-              "nullable": true
+              "description": "Service components affected by this incident"
             }
           },
           "shortlink": {
@@ -10244,35 +10305,15 @@
         "description": "Incident triggered by a monitor check failure or manual creation",
         "required": [
           "id",
-          "monitorId",
           "organizationId",
           "source",
           "status",
           "severity",
-          "title",
-          "triggeredByRule",
           "affectedRegions",
           "reopenCount",
-          "createdByUserId",
           "statusPageVisible",
-          "serviceIncidentId",
-          "serviceId",
-          "externalRef",
-          "affectedComponents",
-          "shortlink",
-          "resolutionReason",
-          "startedAt",
-          "confirmedAt",
-          "resolvedAt",
-          "cooldownUntil",
           "createdAt",
-          "updatedAt",
-          "monitorName",
-          "serviceName",
-          "serviceSlug",
-          "monitorType",
-          "resourceGroupId",
-          "resourceGroupName"
+          "updatedAt"
         ]
       },
       "IncidentFilterParams": {
@@ -10356,10 +10397,6 @@
           "monitorId",
           "serviceId",
           "resourceGroupId",
-          "tagId",
-          "environmentId",
-          "startedFrom",
-          "startedTo",
           "page",
           "size"
         ]
@@ -10421,9 +10458,7 @@
           "confirmation",
           "recovery",
           "createdAt",
-          "updatedAt",
-          "monitorRegionCount",
-          "checkFrequencySeconds"
+          "updatedAt"
         ]
       },
       "IncidentRef": {
@@ -10470,8 +10505,7 @@
         "description": "Incident summary counters",
         "required": [
           "active",
-          "resolvedToday",
-          "mttr30d"
+          "resolvedToday"
         ]
       },
       "IncidentUpdateDto": {
@@ -10527,9 +10561,6 @@
         "required": [
           "id",
           "incidentId",
-          "oldStatus",
-          "newStatus",
-          "body",
           "createdBy",
           "notifySubscribers",
           "createdAt"
@@ -10644,8 +10675,7 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           "default": {
@@ -10698,9 +10728,7 @@
           "inviteId",
           "email",
           "roleOffered",
-          "expiresAt",
-          "consumedAt",
-          "revokedAt"
+          "expiresAt"
         ]
       },
       "JsonPathAssertion": {
@@ -10739,7 +10767,12 @@
                   "range"
                 ]
               }
-            }
+            },
+            "required": [
+              "expected",
+              "operator",
+              "path"
+            ]
           }
         ]
       },
@@ -10777,9 +10810,7 @@
         "required": [
           "id",
           "name",
-          "createdAt",
-          "expiresAt",
-          "lastUsedAt"
+          "createdAt"
         ]
       },
       "LinkedStatusPageIncidentDto": {
@@ -10837,8 +10868,7 @@
           "title",
           "status",
           "impact",
-          "scheduled",
-          "publishedAt"
+          "scheduled"
         ]
       },
       "MaintenanceComponentRef": {
@@ -10892,9 +10922,7 @@
         "description": "A status update within a scheduled maintenance lifecycle",
         "required": [
           "id",
-          "status",
-          "body",
-          "displayAt"
+          "status"
         ]
       },
       "MaintenanceWindowDto": {
@@ -10949,12 +10977,9 @@
         "description": "Scheduled maintenance window for a monitor",
         "required": [
           "id",
-          "monitorId",
           "organizationId",
           "startsAt",
           "endsAt",
-          "repeatRule",
-          "reason",
           "suppressAlerts",
           "createdAt"
         ]
@@ -10981,8 +11006,7 @@
             "items": {
               "type": "string",
               "description": "Monitor UUIDs to match for monitor_id_in rules",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           },
           "regions": {
@@ -10991,8 +11015,7 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "Region codes to match for region_in rules",
-              "nullable": true
+              "description": "Region codes to match for region_in rules"
             }
           },
           "values": {
@@ -11001,8 +11024,7 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "Values list for multi-value rules like monitor_type_in",
-              "nullable": true
+              "description": "Values list for multi-value rules like monitor_type_in"
             }
           }
         },
@@ -11033,7 +11055,10 @@
                 "type": "string",
                 "description": "Capability name the server must advertise, e.g. tools or resources"
               }
-            }
+            },
+            "required": [
+              "capability"
+            ]
           }
         ]
       },
@@ -11072,7 +11097,10 @@
                 "type": "string",
                 "description": "Expected MCP protocol version string from the server handshake"
               }
-            }
+            },
+            "required": [
+              "version"
+            ]
           }
         ]
       },
@@ -11107,58 +11135,6 @@
                 "type": "integer",
                 "description": "MCP check duration in milliseconds that triggers a warning only",
                 "format": "int32"
-              }
-            }
-          }
-        ]
-      },
-      "McpServer": {
-        "type": "object",
-        "description": "MCP server check-type-specific details",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/CheckTypeDetailsDto"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "url": {
-                "type": "string",
-                "description": "MCP server URL",
-                "nullable": true
-              },
-              "protocolVersion": {
-                "type": "string",
-                "description": "MCP protocol version",
-                "nullable": true
-              },
-              "serverInfo": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object",
-                  "description": "MCP server info (name, version, etc.)",
-                  "nullable": true
-                },
-                "description": "MCP server info (name, version, etc.)",
-                "nullable": true
-              },
-              "toolCount": {
-                "type": "integer",
-                "description": "Number of tools exposed",
-                "format": "int32",
-                "nullable": true
-              },
-              "resourceCount": {
-                "type": "integer",
-                "description": "Number of resources exposed",
-                "format": "int32",
-                "nullable": true
-              },
-              "promptCount": {
-                "type": "integer",
-                "description": "Number of prompts exposed",
-                "format": "int32",
-                "nullable": true
               }
             }
           }
@@ -11201,7 +11177,10 @@
                 "description": "Environment variables to pass to the MCP server process",
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "command"
+            ]
           }
         ]
       },
@@ -11222,7 +11201,10 @@
                 "type": "string",
                 "description": "MCP tool name that must appear in the server's tool list"
               }
-            }
+            },
+            "required": [
+              "toolName"
+            ]
           }
         ]
       },
@@ -11292,7 +11274,6 @@
         "required": [
           "userId",
           "email",
-          "name",
           "orgRole",
           "status",
           "createdAt"
@@ -11316,8 +11297,8 @@
               "response_time",
               "body_contains",
               "json_path",
-              "header",
-              "regex",
+              "header_value",
+              "regex_body",
               "dns_resolves",
               "dns_response_time",
               "dns_expected_ips",
@@ -11498,6 +11479,7 @@
           "id",
           "monitorId",
           "assertionType",
+          "config",
           "severity"
         ]
       },
@@ -11513,7 +11495,13 @@
         },
         "description": "New authentication configuration (full replacement)",
         "discriminator": {
-          "propertyName": "type"
+          "propertyName": "type",
+          "mapping": {
+            "bearer": "#/components/schemas/BearerAuthConfig",
+            "basic": "#/components/schemas/BasicAuthConfig",
+            "header": "#/components/schemas/HeaderAuthConfig",
+            "api_key": "#/components/schemas/ApiKeyAuthConfig"
+          }
         }
       },
       "MonitorAuthDto": {
@@ -11556,12 +11544,13 @@
         "required": [
           "id",
           "monitorId",
-          "authType"
+          "authType",
+          "config"
         ]
       },
       "MonitorConfig": {
         "type": "object",
-        "description": "Updated protocol-specific configuration; null preserves current"
+        "description": "Protocol-specific monitor configuration"
       },
       "MonitorDto": {
         "type": "object",
@@ -11671,26 +11660,28 @@
             "nullable": true
           },
           "environment": {
-            "$ref": "#/components/schemas/Summary"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Summary"
+              }
+            ]
           },
           "auth": {
-            "oneOf": [
+            "nullable": true,
+            "allOf": [
               {
-                "$ref": "#/components/schemas/ApiKeyAuthConfig"
-              },
-              {
-                "$ref": "#/components/schemas/BasicAuthConfig"
-              },
-              {
-                "$ref": "#/components/schemas/BearerAuthConfig"
-              },
-              {
-                "$ref": "#/components/schemas/HeaderAuthConfig"
+                "$ref": "#/components/schemas/MonitorAuthConfig"
               }
             ]
           },
           "incidentPolicy": {
-            "$ref": "#/components/schemas/IncidentPolicyDto"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IncidentPolicyDto"
+              }
+            ]
           },
           "alertChannelIds": {
             "type": "array",
@@ -11699,8 +11690,7 @@
             "items": {
               "type": "string",
               "description": "Alert channel IDs linked to this monitor; populated on single-monitor responses",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           }
         },
@@ -11710,18 +11700,13 @@
           "organizationId",
           "name",
           "type",
+          "config",
           "frequencySeconds",
           "enabled",
           "regions",
           "managedBy",
           "createdAt",
-          "updatedAt",
-          "assertions",
-          "tags",
-          "pingUrl",
-          "environment",
-          "incidentPolicy",
-          "alertChannelIds"
+          "updatedAt"
         ]
       },
       "MonitorReference": {
@@ -11790,9 +11775,7 @@
           "up",
           "down",
           "degraded",
-          "paused",
-          "avgUptime24h",
-          "avgUptime30d"
+          "paused"
         ]
       },
       "MonitorTestRequest": {
@@ -11906,23 +11889,13 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         },
         "required": [
           "passed",
-          "error",
-          "statusCode",
-          "responseTimeMs",
-          "responseHeaders",
-          "bodyPreview",
-          "responseSizeBytes",
-          "redirectCount",
-          "finalUrl",
-          "assertionResults",
-          "warnings"
+          "assertionResults"
         ]
       },
       "MonitorVersionDto": {
@@ -11979,9 +11952,7 @@
           "monitorId",
           "version",
           "snapshot",
-          "changedById",
           "changedVia",
-          "changeSummary",
           "createdAt"
         ]
       },
@@ -12103,14 +12074,8 @@
           "id",
           "incidentId",
           "policyId",
-          "policyName",
           "status",
-          "completionReason",
           "currentStep",
-          "totalSteps",
-          "acknowledgedAt",
-          "nextEscalationAt",
-          "lastNotifiedAt",
           "deliveries",
           "createdAt",
           "updatedAt"
@@ -12162,9 +12127,6 @@
           "id",
           "type",
           "title",
-          "body",
-          "resourceType",
-          "resourceId",
           "read",
           "createdAt"
         ]
@@ -12251,7 +12213,10 @@
                 "description": "OpsGenie API region: us or eu",
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "apiKey"
+            ]
           }
         ]
       },
@@ -12291,11 +12256,7 @@
         "description": "Organization account details",
         "required": [
           "id",
-          "name",
-          "email",
-          "size",
-          "industry",
-          "websiteUrl"
+          "name"
         ]
       },
       "OrgInfo": {
@@ -12365,7 +12326,10 @@
                 "description": "Override PagerDuty severity mapping",
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "routingKey"
+            ]
           }
         ]
       },
@@ -12392,8 +12356,6 @@
         },
         "description": "A top-level page section (either a group or an ungrouped component)",
         "required": [
-          "groupId",
-          "componentId",
           "pageOrder"
         ]
       },
@@ -12447,11 +12409,44 @@
         "description": "Billing plan and entitlement state",
         "required": [
           "tier",
-          "subscriptionStatus",
           "trialActive",
-          "trialExpiresAt",
           "entitlements",
           "usage"
+        ]
+      },
+      "PollChartBucketDto": {
+        "type": "object",
+        "properties": {
+          "bucket": {
+            "type": "string",
+            "description": "Start of the time bucket (ISO 8601)",
+            "format": "date-time"
+          },
+          "uptimePercent": {
+            "type": "number",
+            "description": "Uptime percentage for this bucket; null when no data",
+            "format": "double",
+            "nullable": true,
+            "example": 100
+          },
+          "avgResponseTimeMs": {
+            "type": "number",
+            "description": "Average response time in milliseconds for this bucket",
+            "format": "double",
+            "nullable": true,
+            "example": 245.3
+          },
+          "totalPolls": {
+            "type": "integer",
+            "description": "Total polls in this bucket",
+            "format": "int64",
+            "example": 60
+          }
+        },
+        "description": "Aggregated poll metrics for a time bucket",
+        "required": [
+          "bucket",
+          "totalPolls"
         ]
       },
       "PublishStatusPageIncidentRequest": {
@@ -12504,15 +12499,7 @@
             "description": "Whether to notify subscribers (default: true)",
             "nullable": true
           }
-        },
-        "required": [
-          "title",
-          "impact",
-          "status",
-          "body",
-          "affectedComponents",
-          "notifySubscribers"
-        ]
+        }
       },
       "RateLimitInfo": {
         "type": "object",
@@ -12614,7 +12601,11 @@
                   "range"
                 ]
               }
-            }
+            },
+            "required": [
+              "expected",
+              "operator"
+            ]
           }
         ]
       },
@@ -12635,7 +12626,10 @@
                 "type": "string",
                 "description": "Regular expression the response body must match"
               }
-            }
+            },
+            "required": [
+              "pattern"
+            ]
           }
         ]
       },
@@ -12674,9 +12668,7 @@
         "required": [
           "region",
           "passed",
-          "responseTimeMs",
-          "timestamp",
-          "severityHint"
+          "timestamp"
         ]
       },
       "RemoveMonitorTagsRequest": {
@@ -12796,12 +12788,16 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "Default regions for member monitors",
-              "nullable": true
+              "description": "Default regions for member monitors"
             }
           },
           "defaultRetryStrategy": {
-            "$ref": "#/components/schemas/RetryStrategy"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RetryStrategy"
+              }
+            ]
           },
           "defaultAlertChannels": {
             "type": "array",
@@ -12810,8 +12806,7 @@
             "items": {
               "type": "string",
               "description": "Default alert channel IDs for member monitors",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           },
           "defaultEnvironmentId": {
@@ -12878,20 +12873,8 @@
           "organizationId",
           "name",
           "slug",
-          "description",
-          "alertPolicyId",
-          "defaultFrequency",
-          "defaultRegions",
-          "defaultRetryStrategy",
-          "defaultAlertChannels",
-          "defaultEnvironmentId",
-          "healthThresholdType",
-          "healthThresholdValue",
           "suppressMemberAlerts",
-          "confirmationDelaySeconds",
-          "recoveryCooldownMinutes",
           "health",
-          "members",
           "createdAt",
           "updatedAt"
         ]
@@ -12946,9 +12929,7 @@
           "status",
           "totalMembers",
           "operationalCount",
-          "activeIncidents",
-          "thresholdStatus",
-          "failingCount"
+          "activeIncidents"
         ]
       },
       "ResourceGroupMemberDto": {
@@ -13029,8 +13010,7 @@
             "items": {
               "type": "number",
               "description": "Uptime tick values (0-100) for last-24h mini chart; populated when includeMetrics=true",
-              "format": "double",
-              "nullable": true
+              "format": "double"
             }
           },
           "avgLatencyMs": {
@@ -13067,21 +13047,8 @@
           "id",
           "groupId",
           "memberType",
-          "monitorId",
-          "serviceId",
-          "name",
-          "slug",
-          "subscriptionId",
           "status",
-          "effectiveFrequency",
-          "createdAt",
-          "uptime24h",
-          "chartData",
-          "avgLatencyMs",
-          "p95LatencyMs",
-          "lastCheckedAt",
-          "monitorType",
-          "environmentName"
+          "createdAt"
         ]
       },
       "ResponseSizeAssertion": {
@@ -13184,9 +13151,7 @@
         "required": [
           "currentStatus",
           "latestPerRegion",
-          "chartData",
-          "uptime24h",
-          "uptimeWindow"
+          "chartData"
         ]
       },
       "RetryStrategy": {
@@ -13287,12 +13252,6 @@
           "externalId",
           "title",
           "status",
-          "impact",
-          "shortlink",
-          "scheduledFor",
-          "scheduledUntil",
-          "startedAt",
-          "completedAt",
           "affectedComponents",
           "updates"
         ]
@@ -13344,8 +13303,7 @@
           "dekVersion",
           "valueHash",
           "createdAt",
-          "updatedAt",
-          "usedByMonitors"
+          "updatedAt"
         ]
       },
       "SeoMetadataDto": {
@@ -13367,12 +13325,7 @@
             "nullable": true
           }
         },
-        "description": "Admin-editable SEO metadata for pSEO pages",
-        "required": [
-          "shortDescription",
-          "description",
-          "about"
-        ]
+        "description": "Admin-editable SEO metadata for pSEO pages"
       },
       "ServiceCatalogDto": {
         "type": "object",
@@ -13451,21 +13404,15 @@
           "id",
           "slug",
           "name",
-          "category",
-          "officialStatusUrl",
-          "developerContext",
-          "logoUrl",
           "adapterType",
           "pollingIntervalSeconds",
           "enabled",
           "published",
-          "overallStatus",
           "createdAt",
           "updatedAt",
           "componentCount",
           "activeIncidentCount",
-          "dataCompleteness",
-          "uptime30d"
+          "dataCompleteness"
         ]
       },
       "ServiceComponentDto": {
@@ -13537,7 +13484,12 @@
             "nullable": true
           },
           "uptime": {
-            "$ref": "#/components/schemas/ComponentUptimeSummaryDto"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ComponentUptimeSummaryDto"
+              }
+            ]
           },
           "statusChangedAt": {
             "type": "string",
@@ -13562,20 +13514,11 @@
           "externalId",
           "name",
           "status",
-          "description",
-          "groupId",
-          "position",
           "showcase",
           "onlyShowIfDegraded",
-          "startDate",
-          "vendorCreatedAt",
           "lifecycleStatus",
           "dataType",
           "hasUptime",
-          "region",
-          "groupName",
-          "uptime",
-          "statusChangedAt",
           "firstSeenAt",
           "lastSeenAt",
           "group"
@@ -13629,7 +13572,12 @@
             "format": "date-time"
           },
           "currentStatus": {
-            "$ref": "#/components/schemas/ServiceStatusDto"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ServiceStatusDto"
+              }
+            ]
           },
           "recentIncidents": {
             "type": "array",
@@ -13644,7 +13592,12 @@
             }
           },
           "uptime": {
-            "$ref": "#/components/schemas/ComponentUptimeSummaryDto"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ComponentUptimeSummaryDto"
+              }
+            ]
           },
           "activeMaintenances": {
             "type": "array",
@@ -13656,7 +13609,12 @@
             "type": "string"
           },
           "seoMetadata": {
-            "$ref": "#/components/schemas/SeoMetadataDto"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SeoMetadataDto"
+              }
+            ]
           },
           "relatedServices": {
             "type": "array",
@@ -13670,23 +13628,15 @@
           "id",
           "slug",
           "name",
-          "category",
-          "officialStatusUrl",
-          "developerContext",
-          "logoUrl",
           "adapterType",
           "pollingIntervalSeconds",
           "enabled",
           "createdAt",
           "updatedAt",
-          "currentStatus",
           "recentIncidents",
           "components",
-          "uptime",
           "activeMaintenances",
-          "dataCompleteness",
-          "seoMetadata",
-          "relatedServices"
+          "dataCompleteness"
         ]
       },
       "ServiceIncidentDetailDto": {
@@ -13729,8 +13679,7 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           "updates": {
@@ -13744,12 +13693,6 @@
           "id",
           "title",
           "status",
-          "impact",
-          "startedAt",
-          "resolvedAt",
-          "detectedAt",
-          "shortlink",
-          "affectedComponents",
           "updates"
         ]
       },
@@ -13819,18 +13762,8 @@
         "required": [
           "id",
           "serviceId",
-          "serviceSlug",
-          "serviceName",
-          "externalId",
           "title",
-          "status",
-          "impact",
-          "startedAt",
-          "resolvedAt",
-          "updatedAt",
-          "shortlink",
-          "detectedAt",
-          "vendorCreatedAt"
+          "status"
         ]
       },
       "ServiceIncidentUpdateDto": {
@@ -13850,9 +13783,7 @@
           }
         },
         "required": [
-          "status",
-          "body",
-          "displayAt"
+          "status"
         ]
       },
       "ServiceLiveStatusDto": {
@@ -13882,10 +13813,130 @@
           }
         },
         "required": [
-          "overallStatus",
           "componentStatuses",
-          "activeIncidentCount",
-          "lastPolledAt"
+          "activeIncidentCount"
+        ]
+      },
+      "ServicePollResultDto": {
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "type": "string",
+            "description": "Service ID",
+            "format": "uuid"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp when the poll was executed (ISO 8601)",
+            "format": "date-time"
+          },
+          "overallStatus": {
+            "type": "string",
+            "description": "Overall status of the service at time of poll",
+            "nullable": true,
+            "example": "operational"
+          },
+          "responseTimeMs": {
+            "type": "integer",
+            "description": "Response time of the poll in milliseconds",
+            "format": "int32",
+            "nullable": true,
+            "example": 245
+          },
+          "httpStatusCode": {
+            "type": "integer",
+            "description": "HTTP status code from the upstream status page",
+            "format": "int32",
+            "nullable": true,
+            "example": 200
+          },
+          "passed": {
+            "type": "boolean",
+            "description": "Whether the poll succeeded",
+            "example": true
+          },
+          "failureReason": {
+            "type": "string",
+            "description": "Reason for failure when passed=false",
+            "nullable": true
+          },
+          "componentCount": {
+            "type": "integer",
+            "description": "Number of components reported by the service",
+            "format": "int32",
+            "example": 12
+          },
+          "degradedCount": {
+            "type": "integer",
+            "description": "Number of degraded or non-operational components",
+            "format": "int32",
+            "example": 1
+          }
+        },
+        "description": "A single poll result from the status poller",
+        "required": [
+          "serviceId",
+          "timestamp",
+          "passed",
+          "componentCount",
+          "degradedCount"
+        ]
+      },
+      "ServicePollSummaryDto": {
+        "type": "object",
+        "properties": {
+          "uptimePercentage": {
+            "type": "number",
+            "description": "Uptime percentage over the requested window; null when no data",
+            "format": "double",
+            "nullable": true,
+            "example": 99.95
+          },
+          "totalPolls": {
+            "type": "integer",
+            "description": "Total number of polls executed",
+            "format": "int64",
+            "example": 4320
+          },
+          "passedPolls": {
+            "type": "integer",
+            "description": "Number of polls that succeeded",
+            "format": "int64",
+            "example": 4318
+          },
+          "avgResponseTimeMs": {
+            "type": "number",
+            "description": "Average response time in milliseconds; null when no data",
+            "format": "double",
+            "nullable": true,
+            "example": 312.5
+          },
+          "p95ResponseTimeMs": {
+            "type": "number",
+            "description": "95th-percentile response time in milliseconds; null when no data",
+            "format": "double",
+            "nullable": true,
+            "example": 580
+          },
+          "window": {
+            "type": "string",
+            "description": "Time window used for the summary",
+            "example": "30d"
+          },
+          "chartData": {
+            "type": "array",
+            "description": "Time-bucketed chart data for response time and uptime",
+            "items": {
+              "$ref": "#/components/schemas/PollChartBucketDto"
+            }
+          }
+        },
+        "description": "Aggregated poll metrics and chart data for a service",
+        "required": [
+          "totalPolls",
+          "passedPolls",
+          "window",
+          "chartData"
         ]
       },
       "ServiceStatusDto": {
@@ -13901,8 +13952,7 @@
           }
         },
         "required": [
-          "overallStatus",
-          "lastPolledAt"
+          "overallStatus"
         ]
       },
       "ServiceSubscribeRequest": {
@@ -13920,11 +13970,7 @@
             "nullable": true
           }
         },
-        "description": "Optional body for subscribing to a specific component of a service",
-        "required": [
-          "componentId",
-          "alertSensitivity"
-        ]
+        "description": "Optional body for subscribing to a specific component of a service"
       },
       "ServiceSubscriptionDto": {
         "type": "object",
@@ -13980,7 +14026,12 @@
             "nullable": true
           },
           "component": {
-            "$ref": "#/components/schemas/ServiceComponentDto"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ServiceComponentDto"
+              }
+            ]
           },
           "alertSensitivity": {
             "type": "string",
@@ -14003,15 +14054,9 @@
           "serviceId",
           "slug",
           "name",
-          "category",
-          "officialStatusUrl",
           "adapterType",
           "pollingIntervalSeconds",
           "enabled",
-          "logoUrl",
-          "overallStatus",
-          "componentId",
-          "component",
           "alertSensitivity",
           "subscribedAt"
         ]
@@ -14052,11 +14097,9 @@
         },
         "description": "Uptime response with per-bucket breakdown and overall percentage for the period",
         "required": [
-          "overallUptimePct",
           "period",
           "granularity",
-          "buckets",
-          "source"
+          "buckets"
         ]
       },
       "SetAlertChannelsRequest": {
@@ -14260,11 +14303,9 @@
         "properties": {
           "data": {
             "type": "array",
-            "nullable": true,
             "items": {
               "type": "string",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           }
         },
@@ -14277,8 +14318,7 @@
         "properties": {
           "data": {
             "type": "integer",
-            "format": "int64",
-            "nullable": true
+            "format": "int64"
           }
         },
         "required": [
@@ -14303,12 +14343,10 @@
             "type": "object",
             "additionalProperties": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "$ref": "#/components/schemas/ComponentUptimeDayDto"
               }
-            },
-            "nullable": true
+            }
           }
         },
         "required": [
@@ -14491,6 +14529,17 @@
           "data"
         ]
       },
+      "SingleValueResponseServicePollSummaryDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ServicePollSummaryDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
       "SingleValueResponseServiceSubscriptionDto": {
         "type": "object",
         "properties": {
@@ -14583,8 +14632,7 @@
         "type": "object",
         "properties": {
           "data": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "required": [
@@ -14701,7 +14749,10 @@
                 "description": "Optional mention text included in notifications, e.g. @channel",
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "webhookUrl"
+            ]
           }
         ]
       },
@@ -14753,7 +14804,11 @@
                   "range"
                 ]
               }
-            }
+            },
+            "required": [
+              "expected",
+              "operator"
+            ]
           }
         ]
       },
@@ -14859,19 +14914,7 @@
         },
         "description": "Updated branding configuration; null preserves current",
         "required": [
-          "logoUrl",
-          "faviconUrl",
-          "brandColor",
-          "pageBackground",
-          "cardBackground",
-          "textColor",
-          "borderColor",
-          "headerStyle",
-          "theme",
-          "reportUrl",
-          "hidePoweredBy",
-          "customCss",
-          "customHeadHtml"
+          "hidePoweredBy"
         ]
       },
       "StatusPageComponentDto": {
@@ -14956,18 +14999,13 @@
         "required": [
           "id",
           "statusPageId",
-          "groupId",
           "name",
-          "description",
           "type",
-          "monitorId",
-          "resourceGroupId",
           "currentStatus",
           "showUptime",
           "displayOrder",
           "pageOrder",
           "excludeFromOverall",
-          "startDate",
           "createdAt",
           "updatedAt"
         ]
@@ -15021,11 +15059,9 @@
           "id",
           "statusPageId",
           "name",
-          "description",
           "displayOrder",
           "pageOrder",
           "collapsed",
-          "components",
           "createdAt",
           "updatedAt"
         ]
@@ -15093,8 +15129,6 @@
           "verificationMethod",
           "verificationToken",
           "verificationCnameTarget",
-          "verifiedAt",
-          "verificationError",
           "createdAt",
           "updatedAt",
           "primary"
@@ -15183,14 +15217,10 @@
           "workspaceId",
           "name",
           "slug",
-          "description",
           "branding",
           "visibility",
           "enabled",
           "incidentMode",
-          "componentCount",
-          "subscriberCount",
-          "overallStatus",
           "createdAt",
           "updatedAt"
         ]
@@ -15332,18 +15362,8 @@
           "status",
           "impact",
           "scheduled",
-          "scheduledFor",
-          "scheduledUntil",
           "autoResolve",
-          "incidentId",
           "startedAt",
-          "publishedAt",
-          "resolvedAt",
-          "createdByUserId",
-          "postmortemBody",
-          "postmortemUrl",
-          "affectedComponents",
-          "updates",
           "createdAt",
           "updatedAt"
         ]
@@ -15392,7 +15412,6 @@
           "status",
           "body",
           "createdBy",
-          "createdByUserId",
           "notifySubscribers",
           "createdAt"
         ]
@@ -15472,9 +15491,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultAlertDeliveryDto": {
@@ -15506,9 +15523,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultApiKeyDto": {
@@ -15540,9 +15555,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultAuditEventDto": {
@@ -15574,9 +15587,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultCategoryDto": {
@@ -15608,9 +15619,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultComponentUptimeDayDto": {
@@ -15642,9 +15651,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultDeliveryAttemptDto": {
@@ -15676,9 +15683,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultEnvironmentDto": {
@@ -15710,9 +15715,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultIncidentDto": {
@@ -15744,9 +15747,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultIntegrationDto": {
@@ -15778,9 +15779,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultInviteDto": {
@@ -15812,9 +15811,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultMaintenanceWindowDto": {
@@ -15846,9 +15843,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultMemberDto": {
@@ -15880,9 +15875,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultMonitorDto": {
@@ -15914,9 +15907,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultMonitorVersionDto": {
@@ -15948,9 +15939,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultNotificationDispatchDto": {
@@ -15982,9 +15971,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultNotificationDto": {
@@ -16016,9 +16003,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultNotificationPolicyDto": {
@@ -16050,9 +16035,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultResourceGroupDto": {
@@ -16084,9 +16067,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultScheduledMaintenanceDto": {
@@ -16118,9 +16099,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultSecretDto": {
@@ -16152,9 +16131,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultServiceComponentDto": {
@@ -16186,9 +16163,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultServiceIncidentDto": {
@@ -16220,9 +16195,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultServiceSubscriptionDto": {
@@ -16254,9 +16227,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultStatusPageComponentDto": {
@@ -16288,9 +16259,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultStatusPageComponentGroupDto": {
@@ -16322,9 +16291,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultStatusPageCustomDomainDto": {
@@ -16356,9 +16323,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultStatusPageDto": {
@@ -16390,9 +16355,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultStatusPageIncidentDto": {
@@ -16424,9 +16387,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultStatusPageSubscriberDto": {
@@ -16458,9 +16419,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultTagDto": {
@@ -16492,9 +16451,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultWebhookDeliveryDto": {
@@ -16526,9 +16483,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultWebhookEndpointDto": {
@@ -16560,9 +16515,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TableValueResultWorkspaceDto": {
@@ -16594,9 +16547,7 @@
         "required": [
           "data",
           "hasNext",
-          "hasPrev",
-          "totalElements",
-          "totalPages"
+          "hasPrev"
         ]
       },
       "TagDto": {
@@ -16641,35 +16592,6 @@
           "updatedAt"
         ]
       },
-      "Tcp": {
-        "type": "object",
-        "description": "TCP check-type-specific details",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/CheckTypeDetailsDto"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "host": {
-                "type": "string",
-                "description": "Target host",
-                "example": "db.example.com"
-              },
-              "port": {
-                "type": "integer",
-                "description": "Target port",
-                "format": "int32",
-                "example": 5432
-              },
-              "connected": {
-                "type": "boolean",
-                "description": "Whether a TCP connection was established"
-              }
-            }
-          }
-        ]
-      },
       "TcpConnectsAssertion": {
         "type": "object",
         "allOf": [
@@ -16708,7 +16630,10 @@
                 "format": "int32",
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "host"
+            ]
           }
         ]
       },
@@ -16765,7 +16690,10 @@
                 "type": "string",
                 "description": "Microsoft Teams incoming webhook URL"
               }
-            }
+            },
+            "required": [
+              "webhookUrl"
+            ]
           }
         ]
       },
@@ -16869,8 +16797,7 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "Affected region identifiers to test against (monitoring events)",
-              "nullable": true
+              "description": "Affected region identifiers to test against (monitoring events)"
             }
           },
           "eventType": {
@@ -16901,22 +16828,11 @@
             "items": {
               "type": "string",
               "description": "Resource group UUIDs the entity belongs to, for resource_group_id_in rules",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           }
         },
-        "description": "Event context for a dry-run match evaluation against a notification policy",
-        "required": [
-          "severity",
-          "monitorId",
-          "regions",
-          "eventType",
-          "monitorType",
-          "serviceId",
-          "componentName",
-          "resourceGroupIds"
-        ]
+        "description": "Event context for a dry-run match evaluation against a notification policy"
       },
       "TestWebhookEndpointRequest": {
         "type": "object",
@@ -16927,10 +16843,7 @@
             "nullable": true
           }
         },
-        "description": "Event type to use for a test webhook delivery",
-        "required": [
-          "eventType"
-        ]
+        "description": "Event type to use for a test webhook delivery"
       },
       "TlsInfoDto": {
         "type": "object",
@@ -16947,8 +16860,7 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "Subject Alternative Names",
-              "nullable": true
+              "description": "Subject Alternative Names"
             }
           },
           "issuerCn": {
@@ -16995,19 +16907,7 @@
             "nullable": true
           }
         },
-        "description": "TLS/SSL certificate details for HTTPS targets",
-        "required": [
-          "subjectCn",
-          "subjectSan",
-          "issuerCn",
-          "issuerOrg",
-          "notBefore",
-          "notAfter",
-          "serialNumber",
-          "tlsVersion",
-          "cipherSuite",
-          "chainValid"
-        ]
+        "description": "TLS/SSL certificate details for HTTPS targets"
       },
       "TriggerRule": {
         "required": [
@@ -17315,12 +17215,7 @@
             "description": "Whether this is the default environment; null preserves current",
             "nullable": true
           }
-        },
-        "required": [
-          "name",
-          "variables",
-          "isDefault"
-        ]
+        }
       },
       "UpdateIncidentPolicyRequest": {
         "required": [
@@ -17420,24 +17315,10 @@
             "nullable": true
           },
           "config": {
-            "oneOf": [
+            "nullable": true,
+            "allOf": [
               {
-                "$ref": "#/components/schemas/DnsMonitorConfig"
-              },
-              {
-                "$ref": "#/components/schemas/HeartbeatMonitorConfig"
-              },
-              {
-                "$ref": "#/components/schemas/HttpMonitorConfig"
-              },
-              {
-                "$ref": "#/components/schemas/IcmpMonitorConfig"
-              },
-              {
-                "$ref": "#/components/schemas/McpServerMonitorConfig"
-              },
-              {
-                "$ref": "#/components/schemas/TcpMonitorConfig"
+                "$ref": "#/components/schemas/MonitorConfig"
               }
             ]
           },
@@ -17458,8 +17339,7 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "New probe regions; null preserves current",
-              "nullable": true
+              "description": "New probe regions; null preserves current"
             }
           },
           "managedBy": {
@@ -17492,18 +17372,10 @@
             }
           },
           "auth": {
-            "oneOf": [
+            "nullable": true,
+            "allOf": [
               {
-                "$ref": "#/components/schemas/ApiKeyAuthConfig"
-              },
-              {
-                "$ref": "#/components/schemas/BasicAuthConfig"
-              },
-              {
-                "$ref": "#/components/schemas/BearerAuthConfig"
-              },
-              {
-                "$ref": "#/components/schemas/HeaderAuthConfig"
+                "$ref": "#/components/schemas/MonitorAuthConfig"
               }
             ]
           },
@@ -17513,7 +17385,12 @@
             "nullable": true
           },
           "incidentPolicy": {
-            "$ref": "#/components/schemas/UpdateIncidentPolicyRequest"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateIncidentPolicyRequest"
+              }
+            ]
           },
           "alertChannelIds": {
             "type": "array",
@@ -17522,28 +17399,18 @@
             "items": {
               "type": "string",
               "description": "Replace alert channel list; null preserves current",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           },
           "tags": {
-            "$ref": "#/components/schemas/AddMonitorTagsRequest"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AddMonitorTagsRequest"
+              }
+            ]
           }
-        },
-        "required": [
-          "name",
-          "frequencySeconds",
-          "enabled",
-          "regions",
-          "managedBy",
-          "environmentId",
-          "clearEnvironmentId",
-          "assertions",
-          "clearAuth",
-          "incidentPolicy",
-          "alertChannelIds",
-          "tags"
-        ]
+        }
       },
       "UpdateNotificationPolicyRequest": {
         "type": "object",
@@ -17659,12 +17526,16 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "Default regions for member monitors; null clears",
-              "nullable": true
+              "description": "Default regions for member monitors; null clears"
             }
           },
           "defaultRetryStrategy": {
-            "$ref": "#/components/schemas/RetryStrategy"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RetryStrategy"
+              }
+            ]
           },
           "defaultAlertChannels": {
             "type": "array",
@@ -17673,8 +17544,7 @@
             "items": {
               "type": "string",
               "description": "Default alert channel IDs for member monitors; null clears",
-              "format": "uuid",
-              "nullable": true
+              "format": "uuid"
             }
           },
           "defaultEnvironmentId": {
@@ -17767,13 +17637,7 @@
             "description": "Whether the group is collapsed by default; null preserves current",
             "nullable": true
           }
-        },
-        "required": [
-          "name",
-          "description",
-          "displayOrder",
-          "collapsed"
-        ]
+        }
       },
       "UpdateStatusPageComponentRequest": {
         "type": "object",
@@ -17825,17 +17689,7 @@
             "format": "date",
             "nullable": true
           }
-        },
-        "required": [
-          "name",
-          "description",
-          "groupId",
-          "removeFromGroup",
-          "showUptime",
-          "displayOrder",
-          "excludeFromOverall",
-          "startDate"
-        ]
+        }
       },
       "UpdateStatusPageIncidentRequest": {
         "type": "object",
@@ -17890,15 +17744,7 @@
             "description": "URL to an external postmortem document; empty string clears",
             "nullable": true
           }
-        },
-        "required": [
-          "title",
-          "status",
-          "impact",
-          "affectedComponents",
-          "postmortemBody",
-          "postmortemUrl"
-        ]
+        }
       },
       "UpdateStatusPageRequest": {
         "type": "object",
@@ -17918,7 +17764,12 @@
             "nullable": true
           },
           "branding": {
-            "$ref": "#/components/schemas/StatusPageBranding"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusPageBranding"
+              }
+            ]
           },
           "visibility": {
             "type": "string",
@@ -17945,15 +17796,7 @@
               "AUTOMATIC"
             ]
           }
-        },
-        "required": [
-          "name",
-          "description",
-          "branding",
-          "visibility",
-          "enabled",
-          "incidentMode"
-        ]
+        }
       },
       "UpdateTagRequest": {
         "type": "object",
@@ -17972,11 +17815,7 @@
             "nullable": true
           }
         },
-        "description": "Request body for updating a tag; null fields are left unchanged",
-        "required": [
-          "name",
-          "color"
-        ]
+        "description": "Request body for updating a tag; null fields are left unchanged"
       },
       "UpdateWebhookEndpointRequest": {
         "type": "object",
@@ -18001,8 +17840,7 @@
             "nullable": true,
             "items": {
               "type": "string",
-              "description": "Replace subscribed events; null preserves current",
-              "nullable": true
+              "description": "Replace subscribed events; null preserves current"
             }
           },
           "enabled": {
@@ -18010,13 +17848,7 @@
             "description": "Enable or disable delivery; null preserves current",
             "nullable": true
           }
-        },
-        "required": [
-          "url",
-          "description",
-          "subscribedEvents",
-          "enabled"
-        ]
+        }
       },
       "UpdateWorkspaceRequest": {
         "required": [
@@ -18059,7 +17891,6 @@
         "description": "Uptime statistics for a single time bucket",
         "required": [
           "timestamp",
-          "uptimePct",
           "totalPolls"
         ]
       },
@@ -18102,11 +17933,8 @@
         },
         "description": "Uptime statistics aggregated from continuous aggregates",
         "required": [
-          "uptimePercentage",
           "totalChecks",
-          "passedChecks",
-          "avgLatencyMs",
-          "p95LatencyMs"
+          "passedChecks"
         ]
       },
       "WebhookChannelConfig": {
@@ -18141,7 +17969,10 @@
                 "description": "Additional HTTP headers to include in webhook requests",
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "url"
+            ]
           }
         ]
       },
@@ -18215,12 +18046,6 @@
           "status",
           "attemptCount",
           "maxAttempts",
-          "responseStatus",
-          "responseLatencyMs",
-          "errorMessage",
-          "deliveredAt",
-          "failedAt",
-          "nextRetryAt",
           "createdAt"
         ]
       },
@@ -18284,12 +18109,9 @@
         "required": [
           "id",
           "url",
-          "description",
           "subscribedEvents",
           "enabled",
           "consecutiveFailures",
-          "disabledReason",
-          "disabledAt",
           "createdAt",
           "updatedAt"
         ]
@@ -18344,8 +18166,7 @@
           }
         },
         "required": [
-          "configured",
-          "maskedSecret"
+          "configured"
         ]
       },
       "WebhookTestResult": {
@@ -18370,9 +18191,7 @@
         },
         "required": [
           "success",
-          "statusCode",
-          "message",
-          "durationMs"
+          "message"
         ]
       },
       "WorkspaceDto": {

@@ -13,12 +13,14 @@ import type {
 } from './schema.js'
 import {
   MONITOR_TYPES, HTTP_METHODS, DNS_RECORD_TYPES,
-  ASSERTION_TYPES, ASSERTION_SEVERITIES, COMPARISON_OPERATORS,
+  ASSERTION_SEVERITIES, COMPARISON_OPERATORS,
   CHANNEL_TYPES, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
   TRIGGER_RULE_TYPES, TRIGGER_SCOPES, TRIGGER_SEVERITIES, TRIGGER_AGGREGATIONS,
   MIN_FREQUENCY, MAX_FREQUENCY,
   STATUS_PAGE_VISIBILITIES, STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
 } from './schema.js'
+import {ASSERTION_WIRE_TYPES} from './zod-schemas.js'
+import type {ResolvedRefs} from './resolver.js'
 
 export interface ValidationError {
   path: string
@@ -33,6 +35,35 @@ export interface ValidationResult {
 export function validate(config: DevhelmConfig): ValidationResult {
   const ctx = new ValidationContext()
   validateConfig(config, ctx)
+  return {errors: ctx.errors, warnings: ctx.warnings}
+}
+
+/**
+ * Cross-references YAML config against resolved API state to catch issues
+ * that pure offline validation cannot detect — e.g. an environment slug
+ * rename via a `moved` block when the API does not support slug changes.
+ *
+ * Run after `fetchAllRefs(client, state)` and before `diff()`.
+ */
+export function validatePlanRefs(config: DevhelmConfig, refs: ResolvedRefs): ValidationResult {
+  const ctx = new ValidationContext()
+
+  for (let i = 0; i < (config.environments?.length ?? 0); i++) {
+    const env = config.environments![i]
+    if (!env.slug) continue
+    const match = refs.get('environments', env.slug)
+    if (!match || match.matchSource !== 'state') continue
+    const apiSlug = (match.raw as {slug?: string} | undefined)?.slug
+    if (apiSlug && apiSlug !== env.slug) {
+      ctx.error(
+        `environments[${i}].slug`,
+        `Environment slug rename ("${apiSlug}" → "${env.slug}") is not supported by the API. ` +
+        `The API identifies environments by slug and provides no rename endpoint. ` +
+        `Either revert the slug to "${apiSlug}", or delete the environment and recreate it with the new slug.`,
+      )
+    }
+  }
+
   return {errors: ctx.errors, warnings: ctx.warnings}
 }
 
@@ -387,7 +418,7 @@ function validateMonitorConfig(type: string, config: YamlMonitorConfig, path: st
 function validateAssertionDef(assertion: YamlAssertion, path: string, ctx: ValidationContext): void {
   if (!assertion.type) {
     ctx.error(`${path}.type`, 'Assertion requires "type"')
-  } else if (!ASSERTION_TYPES.includes(assertion.type as typeof ASSERTION_TYPES[number])) {
+  } else if (!ASSERTION_WIRE_TYPES.includes(assertion.type)) {
     ctx.error(`${path}.type`, `Unknown assertion type "${assertion.type}". See docs for valid assertion types.`)
   }
 
@@ -401,7 +432,7 @@ function validateAssertionDef(assertion: YamlAssertion, path: string, ctx: Valid
 }
 
 function validateAssertionConfig(type: string, config: Record<string, unknown>, path: string, ctx: ValidationContext): void {
-  const needsOperator = ['StatusCodeAssertion', 'HeaderValueAssertion', 'JsonPathAssertion', 'RedirectTargetAssertion']
+  const needsOperator = ['status_code', 'header_value', 'json_path', 'redirect_target']
   if (needsOperator.includes(type)) {
     if (config.operator && !COMPARISON_OPERATORS.includes(config.operator as string)) {
       ctx.error(`${path}.config.operator`, `Invalid operator. Must be one of: ${COMPARISON_OPERATORS.join(', ')}`)
@@ -410,7 +441,7 @@ function validateAssertionConfig(type: string, config: Record<string, unknown>, 
 }
 
 function validateAuth(auth: YamlAuth, path: string, ctx: ValidationContext): void {
-  const validTypes = ['BearerAuthConfig', 'BasicAuthConfig', 'ApiKeyAuthConfig', 'HeaderAuthConfig']
+  const validTypes = ['bearer', 'basic', 'api_key', 'header']
   if (!auth.type || !validTypes.includes(auth.type)) {
     ctx.error(`${path}.type`, `Auth type must be one of: ${validTypes.join(', ')}`)
   }
@@ -419,7 +450,7 @@ function validateAuth(auth: YamlAuth, path: string, ctx: ValidationContext): voi
   } else {
     ctx.checkRef('secrets', auth.secret, `${path}.secret`)
   }
-  if ((auth.type === 'ApiKeyAuthConfig' || auth.type === 'HeaderAuthConfig') && !('headerName' in auth && auth.headerName)) {
+  if ((auth.type === 'api_key' || auth.type === 'header') && !('headerName' in auth && auth.headerName)) {
     ctx.error(`${path}.headerName`, `${auth.type} requires "headerName"`)
   }
 }

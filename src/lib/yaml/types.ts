@@ -38,6 +38,12 @@ export interface RefTypeDtoMap {
   statusPages: Schemas['StatusPageDto']
 }
 
+export interface AttributeDiff {
+  field: string
+  old: unknown
+  new: unknown
+}
+
 export interface Change {
   action: ChangeAction
   resourceType: ResourceType
@@ -45,6 +51,8 @@ export interface Change {
   existingId?: string
   desired?: unknown
   current?: unknown
+  /** Attribute-level diffs for update changes */
+  attributeDiffs?: AttributeDiff[]
 }
 
 export interface DiffOptions {
@@ -60,9 +68,16 @@ export interface Changeset {
 }
 
 /** Dependency order for topological sort (creates ascending, deletes descending). */
+// Resource ordering for create/update phase. Dependencies flow downward:
+// each item may reference items above it but not below.
+//
+// `notificationPolicy` is placed *after* `monitor` because policy matchRules
+// can reference monitor IDs (selecting which monitors a policy applies to).
+// `monitor.incidentPolicy` does NOT reference a NotificationPolicy entity —
+// it's an inline trigger/confirmation/recovery config — so there's no cycle.
 export const RESOURCE_ORDER: ResourceType[] = [
   'tag', 'environment', 'secret', 'alertChannel',
-  'notificationPolicy', 'webhook', 'resourceGroup',
-  'monitor', 'dependency', 'groupMembership',
+  'webhook', 'resourceGroup',
+  'monitor', 'notificationPolicy', 'dependency', 'groupMembership',
   'statusPage',
 ]
