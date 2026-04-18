@@ -1,6 +1,9 @@
 import {Command, Args} from '@oclif/core'
+import type {components} from '../../../lib/api.generated.js'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {fetchPaginated} from '../../../lib/typed-api.js'
+
+type StatusPageCustomDomain = components['schemas']['StatusPageCustomDomainDto']
 
 export default class StatusPagesDomainsList extends Command {
   static description = 'List custom domains on a status page'
@@ -11,12 +14,12 @@ export default class StatusPagesDomainsList extends Command {
   async run() {
     const {args, flags} = await this.parse(StatusPagesDomainsList)
     const client = buildClient(flags)
-    const items = await fetchPaginated(client, `/api/v1/status-pages/${args.id}/domains`)
+    const items = await fetchPaginated<StatusPageCustomDomain>(client, `/api/v1/status-pages/${args.id}/domains`)
     display(this, items, flags.output, [
-      {header: 'ID', get: (r: any) => r.id ?? ''},
-      {header: 'HOSTNAME', get: (r: any) => r.hostname ?? ''},
-      {header: 'VERIFIED', get: (r: any) => String(r.verified ?? '')},
-      {header: 'STATUS', get: (r: any) => r.verificationStatus ?? ''},
+      {header: 'ID', get: (r: StatusPageCustomDomain) => r.id ?? ''},
+      {header: 'HOSTNAME', get: (r: StatusPageCustomDomain) => r.hostname ?? ''},
+      {header: 'VERIFIED', get: (r: StatusPageCustomDomain) => r.verifiedAt ?? ''},
+      {header: 'STATUS', get: (r: StatusPageCustomDomain) => r.status ?? ''},
     ])
   }
 }

@@ -2,7 +2,7 @@ import {Command, Flags} from '@oclif/core'
 import {createApiClient} from '../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../lib/auth.js'
 import {EXIT_CODES} from '../lib/errors.js'
-import {loadConfig, validate, fetchAllRefs, diff, formatPlan, changesetToJson, readState, emptyState, processMovedBlocks, writeState, StateFileCorruptError} from '../lib/yaml/index.js'
+import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, formatPlan, changesetToJson, readState, emptyState, previewMovedBlocks, StateFileCorruptError} from '../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../lib/yaml/entitlements.js'
 
 export default class Plan extends Command {
@@ -87,16 +87,22 @@ export default class Plan extends Command {
       throw err
     }
 
+    // Preview moved-block effects (warnings only) without persisting state.
+    // `devhelm plan` is read-only; the actual rewrite happens during `deploy`.
     if (config.moved && config.moved.length > 0) {
-      const moveWarnings = processMovedBlocks(currentState, config.moved)
-      for (const w of moveWarnings) {
+      const {state: previewState, warnings} = previewMovedBlocks(currentState, config.moved)
+      currentState = previewState
+      for (const w of warnings) {
         if (flags.output !== 'json') this.warn(w)
       }
-      writeState(currentState)
     }
 
     if (flags.output !== 'json') this.log('Fetching current state from API...')
     const refs = await fetchAllRefs(client, currentState)
+    // Pre-register YAML-only resources with placeholder IDs so existing
+    // resources can resolve references to brand-new peers during snapshot
+    // computation (e.g. notification policy escalating into a new channel).
+    registerYamlPendingRefs(refs, config)
 
     if (refs.collisions.length > 0 && flags.output !== 'json') {
       for (const c of refs.collisions) {
@@ -107,7 +113,20 @@ export default class Plan extends Command {
       }
     }
 
-    const changeset = diff(config, refs, {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']})
+    const planResult = validatePlanRefs(config, refs)
+    if (planResult.errors.length > 0) {
+      this.log(`\nValidation failed: ${planResult.errors.length} error(s)\n`)
+      for (const e of planResult.errors) {
+        this.log(`  ✗ ${e.path}: ${e.message}`)
+      }
+      this.error('Fix validation errors first', {exit: 4})
+    }
+
+    const changeset = diff(
+      config, refs,
+      {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']},
+      currentState,
+    )
 
     const entitlementCheck = await checkEntitlements(client, changeset)
 

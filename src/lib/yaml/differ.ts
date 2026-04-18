@@ -11,6 +11,9 @@ import type {ResolvedRefs} from './resolver.js'
 import {allHandlers, type ResourceHandler} from './handlers.js'
 import type {Change, Changeset, DiffOptions} from './types.js'
 import {RESOURCE_ORDER} from './types.js'
+import type {DeployState, ChildStateEntry} from './state.js'
+import {resourceAddress} from './state.js'
+import type {ResourceType} from './types.js'
 
 type ResourceGroupDto = components['schemas']['ResourceGroupDto']
 type ResourceGroupMemberDto = components['schemas']['ResourceGroupMemberDto']
@@ -20,14 +23,29 @@ export type {ChangeAction, ResourceType, Change, DiffOptions, Changeset, Attribu
 
 // ── Main diff function ─────────────────────────────────────────────────
 
-export function diff(config: DevhelmConfig, refs: ResolvedRefs, options: DiffOptions = {}): Changeset {
+export function diff(
+  config: DevhelmConfig,
+  refs: ResolvedRefs,
+  options: DiffOptions = {},
+  priorState?: DeployState,
+): Changeset {
   const creates: Change[] = []
   const updates: Change[] = []
   const deletes: Change[] = []
   const memberships: Change[] = []
 
+  // Closure so diffSection can resolve child snapshots without threading
+  // priorState through every helper. Returns {} for handlers / refs with
+  // no prior tracked state — child-aware handlers treat that as "no children
+  // tracked" and rely solely on parent-field hasChanged.
+  function lookupPriorChildren(resourceType: ResourceType, refKey: string): Record<string, ChildStateEntry> {
+    if (!priorState) return {}
+    const addr = resourceAddress(resourceType, refKey)
+    return priorState.resources[addr]?.children ?? {}
+  }
+
   for (const handler of allHandlers()) {
-    diffSection(handler, config[handler.configKey], refs, creates, updates, deletes, options)
+    diffSection(handler, config[handler.configKey], refs, creates, updates, deletes, options, lookupPriorChildren)
   }
 
   diffMemberships(config, refs, memberships, options)
@@ -67,6 +85,7 @@ function diffSection(
   updates: Change[],
   deletes: Change[],
   options: DiffOptions,
+  lookupPriorChildren: (resourceType: ResourceType, refKey: string) => Record<string, ChildStateEntry>,
 ): void {
   const desired = new Set<string>()
 
@@ -75,8 +94,19 @@ function diffSection(
     desired.add(refKey)
     const existing = refs.get(handler.refType, refKey)
 
-    if (existing) {
-      if (handler.hasChanged(item, existing.raw, refs)) {
+    // Pending entries are YAML-only placeholders injected by
+    // registerYamlPendingRefs so dependent snapshots can resolve references.
+    // They are NOT real API resources and must not divert the differ from
+    // the create path.
+    if (existing && !existing.isPending) {
+      const parentChanged = handler.hasChanged(item, existing.raw, refs)
+      // hasChildChanges complements parent comparison so the differ can
+      // detect "user added a component to an existing status page" even when
+      // the page itself is byte-identical. Always queried (cheap, sync) and
+      // OR'd into the change decision.
+      const priorChildren = lookupPriorChildren(handler.resourceType as ResourceType, refKey)
+      const childrenChanged = handler.hasChildChanges?.(item, priorChildren) ?? false
+      if (parentChanged || childrenChanged) {
         const attributeDiffs = handler.computeAttributeDiffs?.(item, existing.raw, refs)
         updates.push({
           action: 'update',
@@ -100,6 +130,7 @@ function diffSection(
 
   if ((options.prune || options.pruneAll) && items !== undefined) {
     for (const entry of refs.allEntries(handler.refType)) {
+      if (entry.isPending) continue
       if (!desired.has(entry.refKey)) {
         if (handler.resourceType === 'monitor' && !options.pruneAll && entry.managedBy !== 'CLI') continue
         deletes.push({
@@ -115,6 +146,26 @@ function diffSection(
 }
 
 // ── Membership diff ────────────────────────────────────────────────────
+//
+// Why memberships do **not** use the generic `ChildCollectionDef` machinery
+// in `child-reconciler.ts`:
+//
+//   1. **Heterogeneous children.** A resource group has *two* concurrent
+//      child types (monitor, service) that share an addressing space and a
+//      single membership endpoint. ChildCollectionDef is parameterised over
+//      one child type per parent.
+//   2. **Additive-by-default semantics.** Memberships are intentionally
+//      additive without an explicit `--prune` / `--prune-all` flag — we
+//      never silently remove members someone added via the dashboard. The
+//      generic reconciler always performs a full create/update/delete cycle
+//      and would change this UX.
+//   3. **No update phase.** Memberships only have create/delete; there is
+//      no per-member attribute update to diff (membership is a join row).
+//
+// If/when these constraints change (e.g. a future API exposes membership
+// attributes worth diffing), revisit migrating this onto the generic
+// reconciler. Until then, the duplication is intentional and worth its
+// weight in tailored UX.
 
 function memberKey(memberType: string, nameOrSlug: string): string {
   return `${memberType}:${nameOrSlug}`
@@ -204,6 +255,7 @@ function diffMemberships(
   // their memberships under `pruneAll` — see docstring.
   if (options.pruneAll) {
     for (const groupEntry of refs.allEntries('resourceGroups')) {
+      if (groupEntry.isPending) continue
       if (yamlGroupNames.has(groupEntry.refKey)) continue
       const dto = groupEntry.raw as ResourceGroupDto
       for (const m of dto.members ?? []) {

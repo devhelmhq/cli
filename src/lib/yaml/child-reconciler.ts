@@ -55,6 +55,13 @@ export interface ChildDiffResult {
   updates: Array<{key: string; childId: string; index: number}>
   deletes: Array<{key: string; childId: string}>
   reorder: boolean
+  /**
+   * YAML identity key → existing API ID for every current child that survived
+   * matching (state-aware or name-based). Apply uses this to resolve the
+   * apiId of unchanged-and-renamed children that have no match in `currentApi`
+   * keyed by their *new* YAML name.
+   */
+  existingByKey: Record<string, string>
 }
 
 export interface ChildApplyResult {
@@ -135,7 +142,16 @@ export function diffChildren<TYaml, TApi>(
     .filter((key) => matched.has(key))
   const reorder = creates.length > 0 || deletes.length > 0 || !isEqual(desiredOrder.filter((k) => matched.has(k)), currentOrder)
 
-  return {creates, updates, deletes, reorder}
+  // Expose the YAML-key → apiId map for matched survivors so the apply phase
+  // can rebuild state correctly even when a child was renamed (its YAML
+  // identity key differs from the current API name).
+  const existingByKey: Record<string, string> = {}
+  for (const key of matched) {
+    const current = currentMap.get(key)
+    if (current) existingByKey[key] = current.apiId
+  }
+
+  return {creates, updates, deletes, reorder, existingByKey}
 }
 
 /**
@@ -155,17 +171,17 @@ export async function applyChildDiff<TYaml, TApi>(
   parentId: string,
   desiredYaml: TYaml[],
   diffResult: ChildDiffResult,
-  currentApi: TApi[],
+  _currentApi: TApi[],
   _stateChildren: Record<string, ChildStateEntry> = {},
 ): Promise<ChildApplyResult> {
   const changes: ChildChange[] = []
   const childState: Record<string, ChildStateEntry> = {}
 
-  // Carry forward state for unchanged children
-  const currentMap = new Map<string, string>()
-  for (const api of currentApi) {
-    currentMap.set(def.apiIdentityKey(api), def.apiId(api))
-  }
+  // `existingByKey` (built by diffChildren) is keyed by the YAML identity key
+  // and reflects state-aware matching, so renames resolve correctly. We must
+  // not rebuild this map from `currentApi` alone — that would key by the
+  // *old* API name and miss any child whose YAML name has changed.
+  const existingByKey = diffResult.existingByKey
 
   // Delete first (avoids name conflicts during create)
   for (const del of diffResult.deletes) {
@@ -194,7 +210,7 @@ export async function applyChildDiff<TYaml, TApi>(
     const orderedIds: string[] = []
     for (const yaml of desiredYaml) {
       const key = def.identityKey(yaml)
-      const id = newIds.get(key) ?? currentMap.get(key)
+      const id = newIds.get(key) ?? existingByKey[key]
       if (id) orderedIds.push(id)
     }
     if (orderedIds.length > 0) {
@@ -202,10 +218,11 @@ export async function applyChildDiff<TYaml, TApi>(
     }
   }
 
-  // Build child state for all desired children
+  // Build child state for all desired children. Renamed children survive here
+  // because `existingByKey` was populated by state-aware matching in diff.
   for (const yaml of desiredYaml) {
     const key = def.identityKey(yaml)
-    const apiId = newIds.get(key) ?? currentMap.get(key)
+    const apiId = newIds.get(key) ?? existingByKey[key]
     if (apiId) {
       childState[`${def.name}.${key}`] = {
         apiId,

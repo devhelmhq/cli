@@ -2,12 +2,20 @@
  * Environment variable interpolation for YAML config values.
  *
  * Supports:
- *   ${VAR}           — required, fails if unset
- *   ${VAR:-default}  — with fallback value
+ *   ${VAR}           — required, fails if unset *or* set to the empty string
+ *   ${VAR:-default}  — with fallback (used when VAR is unset *or* empty)
  *   $$               — literal '$' (escape sequence)
  *
- * Interpolation runs on the raw YAML string before parsing,
- * so it works in any value position (strings, URLs, etc.).
+ * **Empty-string semantics.** This module treats `VAR=""` identically to
+ * `VAR` being unset, matching POSIX shell `${VAR:-default}` semantics
+ * (Bash's `:-` operator). Most CI systems export "missing" secrets as the
+ * empty string rather than leaving them unset; treating those as missing
+ * surfaces the misconfiguration immediately instead of silently producing
+ * empty URLs/tokens. To allow an explicit empty value, use the form
+ * `${VAR:-}` (i.e. an empty default).
+ *
+ * Interpolation runs on the raw YAML string before parsing, so it works
+ * in any value position (strings, URLs, etc.).
  */
 
 // Matches either a literal-$ escape ($$) or a ${…} expression. The
@@ -46,8 +54,10 @@ export function interpolate(input: string, env: Record<string, string | undefine
     if (value === undefined || value === '') {
       throw new InterpolationError(
         varName,
-        `Environment variable \${${varName}} is required but not set. ` +
-        `Set it in your environment or use \${${varName}:-default} for a fallback.`,
+        `Environment variable \${${varName}} is required but not set ` +
+        `(or set to an empty string). Set a non-empty value, use ` +
+        `\${${varName}:-default} for a fallback, or \${${varName}:-} to ` +
+        `allow an empty value.`,
       )
     }
     return value

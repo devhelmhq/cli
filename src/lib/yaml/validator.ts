@@ -20,6 +20,7 @@ import {
   STATUS_PAGE_VISIBILITIES, STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
 } from './schema.js'
 import {ASSERTION_WIRE_TYPES} from './zod-schemas.js'
+import type {ResolvedRefs} from './resolver.js'
 
 export interface ValidationError {
   path: string
@@ -34,6 +35,35 @@ export interface ValidationResult {
 export function validate(config: DevhelmConfig): ValidationResult {
   const ctx = new ValidationContext()
   validateConfig(config, ctx)
+  return {errors: ctx.errors, warnings: ctx.warnings}
+}
+
+/**
+ * Cross-references YAML config against resolved API state to catch issues
+ * that pure offline validation cannot detect — e.g. an environment slug
+ * rename via a `moved` block when the API does not support slug changes.
+ *
+ * Run after `fetchAllRefs(client, state)` and before `diff()`.
+ */
+export function validatePlanRefs(config: DevhelmConfig, refs: ResolvedRefs): ValidationResult {
+  const ctx = new ValidationContext()
+
+  for (let i = 0; i < (config.environments?.length ?? 0); i++) {
+    const env = config.environments![i]
+    if (!env.slug) continue
+    const match = refs.get('environments', env.slug)
+    if (!match || match.matchSource !== 'state') continue
+    const apiSlug = (match.raw as {slug?: string} | undefined)?.slug
+    if (apiSlug && apiSlug !== env.slug) {
+      ctx.error(
+        `environments[${i}].slug`,
+        `Environment slug rename ("${apiSlug}" → "${env.slug}") is not supported by the API. ` +
+        `The API identifies environments by slug and provides no rename endpoint. ` +
+        `Either revert the slug to "${apiSlug}", or delete the environment and recreate it with the new slug.`,
+      )
+    }
+  }
+
   return {errors: ctx.errors, warnings: ctx.warnings}
 }
 

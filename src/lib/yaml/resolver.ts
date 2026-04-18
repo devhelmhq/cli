@@ -11,6 +11,24 @@ import type {ApiClient} from '../api-client.js'
 import type {RefType, RefTypeDtoMap, ResourceType} from './types.js'
 import {allHandlers} from './handlers.js'
 import type {DeployState} from './state.js'
+import type {DevhelmConfig} from './schema.js'
+
+/**
+ * Sentinel ID prefix for resources that exist only in YAML and haven't been
+ * created in the API yet. Used during diff-time snapshot computation so that
+ * existing resources referencing a yet-to-be-created peer (e.g. a notification
+ * policy escalation step pointing at a brand-new alert channel) can resolve
+ * the reference and produce a stable snapshot.
+ *
+ * Pending IDs are deterministic (`__pending__:<refType>:<refKey>`), so two
+ * runs with the same YAML produce identical snapshots — the existing-resource
+ * snapshot will differ from the API current snapshot (which holds the OLD
+ * channel ID), correctly triggering an update once the new channel is created.
+ *
+ * At apply time, creates execute first and overwrite the placeholder with the
+ * real API ID before the dependent update runs.
+ */
+export const PENDING_REF_ID_PREFIX = '__pending__:'
 
 export type {RefType}
 
@@ -21,6 +39,13 @@ export interface RefEntry<K extends RefType = RefType> {
   raw: K extends keyof RefTypeDtoMap ? RefTypeDtoMap[K] : unknown
   /** State address this resource was matched from (set when state-based matching succeeded). */
   matchSource?: 'state' | 'name'
+  /**
+   * True when this entry represents a YAML resource that does not yet exist
+   * in the API. Pending entries carry a placeholder `id` so dependent snapshot
+   * computation can resolve refs, but they MUST NOT be treated as "existing"
+   * by the differ — pending resources need a CREATE, not an UPDATE.
+   */
+  isPending?: boolean
 }
 
 /** A refKey collision — two API resources map to the same reference key. */
@@ -66,6 +91,17 @@ export class ResolvedRefs {
     const map = this.maps.get(type)!
     const existing = map.get(refKey)
     if (existing && existing.id !== entry.id) {
+      // A non-pending entry always replaces a pending placeholder. This is
+      // how the applier swaps in a real API ID after a create, overwriting
+      // the placeholder injected by registerYamlPendingRefs.
+      if (existing.isPending && !entry.isPending) {
+        map.set(refKey, entry as RefEntry)
+        return
+      }
+      // Conversely, never let a pending placeholder overwrite a real entry.
+      if (!existing.isPending && entry.isPending) {
+        return
+      }
       const existingIsState = existing.matchSource === 'state'
       const incomingIsState = entry.matchSource === 'state'
       if (incomingIsState && !existingIsState) {
@@ -101,6 +137,19 @@ export class ResolvedRefs {
 
   allEntries<K extends RefType>(type: K): RefEntry<K>[] {
     return [...this.all(type).values()]
+  }
+
+  /**
+   * Find a ref entry by API ID across the given refType. Used by handlers
+   * that need access to the current API DTO at apply-time (e.g. monitor
+   * handler emitting `clearAuth`/`clearEnvironmentId` based on whether the
+   * existing resource has those fields populated).
+   */
+  findById<K extends RefType>(type: K, apiId: string): RefEntry<K> | undefined {
+    for (const entry of this.allEntries(type)) {
+      if (entry.id === apiId) return entry
+    }
+    return undefined
   }
 }
 
@@ -158,6 +207,37 @@ export async function fetchAllRefs(client: ApiClient, state?: DeployState): Prom
   }
 
   return refs
+}
+
+/**
+ * Pre-register YAML resources that don't yet exist in the API with deterministic
+ * placeholder IDs. This lets `toDesiredSnapshot` for an *existing* resource
+ * resolve references to *new* peers without throwing — the snapshot diff will
+ * still see a difference (placeholder ID vs old API ID) and queue an update.
+ *
+ * Without this step, scenarios like "wire an existing notification policy to a
+ * brand-new alert channel" would crash in `hasChanged` before the create even
+ * runs.
+ *
+ * Safe to call after `fetchAllRefs`: for refKeys already populated by the API,
+ * we don't overwrite. Only YAML-only refs receive placeholders.
+ */
+export function registerYamlPendingRefs(refs: ResolvedRefs, config: DevhelmConfig): void {
+  for (const handler of allHandlers()) {
+    const items = config[handler.configKey] as unknown[] | undefined
+    if (!items) continue
+    for (const item of items) {
+      const refKey = handler.getRefKey(item)
+      if (refs.get(handler.refType, refKey)) continue
+      refs.set(handler.refType, refKey, {
+        id: `${PENDING_REF_ID_PREFIX}${handler.refType}:${refKey}`,
+        refKey,
+        raw: item as RefEntry['raw'],
+        matchSource: 'name',
+        isPending: true,
+      })
+    }
+  }
 }
 
 /**

@@ -3,7 +3,7 @@ import {Command, Flags} from '@oclif/core'
 import {createApiClient, apiPost, apiDelete} from '../../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
 import {EXIT_CODES} from '../../lib/errors.js'
-import {loadConfig, validate, fetchAllRefs, diff, formatPlan, changesetToJson, apply, writeState, buildStateV2, readState, emptyState, processMovedBlocks, resourceAddress, StateFileCorruptError} from '../../lib/yaml/index.js'
+import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, formatPlan, changesetToJson, apply, writeState, buildStateV2, readState, emptyState, processMovedBlocks, resourceAddress, StateFileCorruptError} from '../../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../../lib/yaml/entitlements.js'
 
 const DEFAULT_LOCK_TTL = 30
@@ -124,6 +124,11 @@ export default class Deploy extends Command {
 
     if (!isJson) this.log('Fetching current state from API...')
     const refs = await fetchAllRefs(client, currentState)
+    // Pre-register YAML-only resources with placeholder IDs so existing
+    // resources can resolve references to brand-new peers during snapshot
+    // computation. The applier overwrites placeholders with real IDs as
+    // creates execute, so dependent updates pick up the right ID.
+    registerYamlPendingRefs(refs, config)
 
     if (refs.collisions.length > 0 && !isJson) {
       for (const c of refs.collisions) {
@@ -134,7 +139,20 @@ export default class Deploy extends Command {
       }
     }
 
-    const changeset = diff(config, refs, {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']})
+    const planResult = validatePlanRefs(config, refs)
+    if (planResult.errors.length > 0) {
+      this.log(`\nValidation failed: ${planResult.errors.length} error(s)\n`)
+      for (const e of planResult.errors) {
+        this.log(`  ✗ ${e.path}: ${e.message}`)
+      }
+      this.error('Fix validation errors before deploying', {exit: 4})
+    }
+
+    const changeset = diff(
+      config, refs,
+      {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']},
+      currentState,
+    )
 
     const entitlementCheck = await checkEntitlements(client, changeset)
 

@@ -46,7 +46,7 @@ import {
   toCreateWebhookRequest, toCreateResourceGroupRequest,
   toCreateMonitorRequest, toUpdateMonitorRequest, toAuthConfig,
   toCreateAssertionRequest, toIncidentPolicy,
-  toCreateStatusPageRequest, toUpdateStatusPageRequest,
+  toCreateStatusPageRequest, toUpdateStatusPageRequest, toBrandingRequest,
 } from './transform.js'
 import {fetchPaginated} from '../typed-api.js'
 import {checkedFetch, apiPatch} from '../api-client.js'
@@ -92,6 +92,22 @@ export interface ResourceHandler<TYaml = unknown, TApiDto = unknown> {
 
   hasChanged(yaml: TYaml, api: TApiDto, refs: ResolvedRefs): boolean
 
+  /**
+   * Detect changes inside child collections (e.g. status-page components,
+   * groups). Implementing this is what lets the differ queue an update when
+   * only the children differ — without it, statusPageHandler.hasChanged
+   * would compare parent fields only and miss "user added a new component".
+   *
+   * Compares YAML's children against the prior-state child snapshots that
+   * `applyChildDiff` wrote on the previous deploy. This is sync — no API
+   * fetch needed — because state already carries the last-deployed snapshot.
+   *
+   * Returns false (no children changed) when the handler doesn't manage
+   * children, or when `priorChildren` is empty AND the YAML has no children
+   * declared (first-time deploy path is fully handled by applyCreate).
+   */
+  hasChildChanges?(yaml: TYaml, priorChildren: Record<string, ChildStateEntry>): boolean
+
   fetchAll(client: ApiClient): Promise<TApiDto[]>
   applyCreate(
     yaml: TYaml, refs: ResolvedRefs, client: ApiClient, priorChildren?: Record<string, ChildStateEntry>,
@@ -125,6 +141,9 @@ interface HandlerDef<TYaml, TApiDto, TSnapshot> {
 
   toDesiredSnapshot(yaml: TYaml, api: TApiDto, refs: ResolvedRefs): TSnapshot
   toCurrentSnapshot(api: TApiDto): TSnapshot
+
+  /** Optional: report drift inside child collections using prior state. */
+  hasChildChanges?(yaml: TYaml, priorChildren: Record<string, ChildStateEntry>): boolean
 
   fetchAll(client: ApiClient): Promise<TApiDto[]>
   applyCreate(
@@ -175,6 +194,8 @@ function defineHandler<TYaml, TApiDto, TSnapshot>(
       return !isEqual(h.toDesiredSnapshot(yaml, api, refs), h.toCurrentSnapshot(api))
     },
 
+    hasChildChanges: h.hasChildChanges,
+
     computeAttributeDiffs(yaml: TYaml, api: TApiDto, refs: ResolvedRefs) {
       const desired = h.toDesiredSnapshot(yaml, api, refs) as Record<string, unknown>
       const current = h.toCurrentSnapshot(api) as Record<string, unknown>
@@ -204,6 +225,39 @@ function nonNullStrings(arr: (string | null)[] | null | undefined): string[] {
 
 function sortedIds(ids: string[]): string[] {
   return [...ids].sort()
+}
+
+/**
+ * Recursively strip `null` and `undefined` properties from an object/array
+ * tree so two snapshots that only differ in "field absent" vs "field
+ * explicitly null" compare equal under `lodash.isEqual`.
+ *
+ * Why this exists: Java DTOs serialize all fields, including unset ones, as
+ * `null`. The user's YAML rarely sets every optional field. So a freshly-
+ * created HTTP monitor reads back from the API with `customHeaders: null,
+ * requestBody: null, contentType: null, verifyTls: null` while the desired
+ * snapshot built straight from YAML only has `{url, method}`. Without this
+ * normalization, `plan` reports phantom drift on every run for monitors,
+ * notification policies, etc.
+ *
+ * Important: snapshot comparison is the *only* place this is appropriate.
+ * Do NOT use this on outbound API request bodies — there `null` carries
+ * "explicitly clear this field" semantics that we must preserve.
+ */
+function stripNullish<T>(value: T): T {
+  if (value === null || value === undefined) return value
+  if (Array.isArray(value)) {
+    return value.map((v) => stripNullish(v)) as unknown as T
+  }
+  if (typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (v === null || v === undefined) continue
+      out[k] = stripNullish(v)
+    }
+    return out as T
+  }
+  return value
 }
 
 export function sha256Hex(input: string): string {
@@ -291,12 +345,34 @@ const environmentHandler = defineHandler<YamlEnvironment, Schemas['EnvironmentDt
     const resp = await checkedFetch(client.POST('/api/v1/environments', {body: toCreateEnvironmentRequest(yaml)}))
     return resp.data?.id ?? undefined
   },
-  async applyUpdate(yaml, _id, _refs, client) {
-    await checkedFetch(client.PUT('/api/v1/environments/{slug}', {params: {path: {slug: yaml.slug}}, body: {
-      name: yaml.name, variables: yaml.variables ?? null, isDefault: yaml.isDefault ?? null,
-    }}))
+  async applyUpdate(yaml, id, refs, client) {
+    // The environment API uses slug as the path key and does not support
+    // renaming a slug via UpdateEnvironmentRequest (no `slug` field).
+    // If the YAML slug diverges from the slug currently stored in the API
+    // (e.g. user renamed via a `moved` block), the update would 404.
+    // Surface a clear, actionable error instead of letting it fail at the
+    // network layer.
+    const current = refs.findById('environments', id)?.raw
+    const currentSlug = current?.slug ?? yaml.slug
+    if (currentSlug !== yaml.slug) {
+      throw new Error(
+        `Cannot rename environment slug from "${currentSlug}" to "${yaml.slug}": ` +
+        `the API does not support slug changes. Delete the environment and ` +
+        `re-create it with the new slug, or revert the slug in YAML.`,
+      )
+    }
+    await checkedFetch(client.PUT('/api/v1/environments/{slug}', {
+      params: {path: {slug: currentSlug}},
+      body: {
+        name: yaml.name, variables: yaml.variables ?? null, isDefault: yaml.isDefault ?? null,
+      },
+    }))
   },
-  deletePath: (_id, refKey) => `/api/v1/environments/${refKey}`,
+  // Deletes use the YAML refKey (= slug pre-rename). After a `moved` block
+  // the YAML slug may differ from the API slug; the planner-level check in
+  // `validatePlanRefs` rejects that combination before reaching apply, so
+  // refKey here is always the real API slug.
+  deletePath: (_id, refKey) => `/api/v1/environments/${encodeURIComponent(refKey)}`,
 })
 
 // ── Secret ──────────────────────────────────────────────────────────────
@@ -354,10 +430,14 @@ const alertChannelHandler = defineHandler<YamlAlertChannel, Schemas['AlertChanne
 
   toDesiredSnapshot: (yaml) => {
     const req = toCreateAlertChannelRequest(yaml)
+    // Strip nullish before hashing so we match the API's canonicalConfigHash,
+    // which also strips nulls before computing the hash. Without this, any
+    // YAML that explicitly sets an optional field to `null` (rare but
+    // possible) would produce a different hash than the API.
     return {
       name: req.name,
       channelType: yaml.type,
-      configHash: sha256Hex(stableStringify(req.config)),
+      configHash: sha256Hex(stableStringify(stripNullish(req.config))),
     }
   },
   toCurrentSnapshot: (api) => ({
@@ -398,16 +478,21 @@ const notificationPolicyHandler = defineHandler<YamlNotificationPolicy, Schemas[
       name: req.name,
       enabled: req.enabled ?? api.enabled ?? true,
       priority: req.priority ?? api.priority ?? 0,
-      matchRules: req.matchRules ?? api.matchRules ?? [],
-      escalation: req.escalation,
+      // matchRules from the request shape carry deeply-nested null fields
+      // (monitorIds, regions, values, etc.) while the API echoes the same
+      // shape with the same nulls — but if the user omits matchRules we
+      // get [] vs null asymmetry. stripNullish flattens both to a stable
+      // shape for comparison.
+      matchRules: stripNullish(req.matchRules ?? api.matchRules ?? []),
+      escalation: stripNullish(req.escalation),
     }
   },
   toCurrentSnapshot: (api) => ({
     name: api.name ?? '',
     enabled: api.enabled ?? true,
     priority: api.priority ?? 0,
-    matchRules: api.matchRules ?? [],
-    escalation: api.escalation ?? {steps: [], onResolve: null, onReopen: null},
+    matchRules: stripNullish(api.matchRules ?? []),
+    escalation: stripNullish(api.escalation ?? {steps: [], onResolve: null, onReopen: null}),
   }),
 
   fetchAll: (client) => fetchPaginated<Schemas['NotificationPolicyDto']>(client, '/api/v1/notification-policies'),
@@ -560,21 +645,28 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
 
   toDesiredSnapshot: (yaml, api, refs) => ({
     name: yaml.name,
-    config: yaml.config as unknown as MonitorSnapshot['config'],
+    // The API echoes back JSONB configs with every optional field expanded
+    // to null; the user's YAML almost never spells those out. Normalize both
+    // sides by stripping null/undefined so we don't loop on phantom drift.
+    config: stripNullish(yaml.config) as unknown as MonitorSnapshot['config'],
     frequencySeconds: yaml.frequency ?? api.frequencySeconds ?? null,
     enabled: yaml.enabled ?? api.enabled ?? null,
     regions: yaml.regions !== undefined
       ? sortedIds(yaml.regions)
       : (api.regions ? sortedIds(api.regions) : null),
-    environmentId: yaml.environment !== undefined
-      ? (refs.resolve('environments', yaml.environment) ?? null)
-      : (api.environment?.id ?? null),
+    environmentId: yaml.environment === null
+      ? null
+      : yaml.environment !== undefined
+        ? (refs.resolve('environments', yaml.environment) ?? null)
+        : (api.environment?.id ?? null),
     assertions: yaml.assertions !== undefined
       ? sortAssertions(yaml.assertions.map(toCreateAssertionRequest))
       : apiAssertionsToSnapshot(api.assertions),
-    auth: yaml.auth !== undefined
-      ? (toAuthConfig(yaml.auth, refs) ?? null)
-      : (api.auth ?? null),
+    auth: yaml.auth === null
+      ? null
+      : yaml.auth !== undefined
+        ? (toAuthConfig(yaml.auth, refs) ?? null)
+        : (api.auth ?? null),
     incidentPolicy: yaml.incidentPolicy !== undefined
       ? toIncidentPolicy(yaml.incidentPolicy)
       : apiIncidentPolicyToSnapshot(api.incidentPolicy),
@@ -590,7 +682,7 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
   }),
   toCurrentSnapshot: (api) => ({
     name: api.name ?? null,
-    config: api.config as MonitorSnapshot['config'],
+    config: stripNullish(api.config) as MonitorSnapshot['config'],
     frequencySeconds: api.frequencySeconds ?? null,
     enabled: api.enabled ?? null,
     regions: api.regions ? sortedIds(api.regions) : null,
@@ -609,7 +701,14 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, refs, client) {
-    await checkedFetch(client.PUT('/api/v1/monitors/{id}', {params: {path: {id}}, body: toUpdateMonitorRequest(yaml, refs)}))
+    // YAML `auth: null` / `environment: null` signals an explicit clear,
+    // which `toUpdateMonitorRequest` translates into the API's
+    // `clearAuth` / `clearEnvironmentId` flags. Omitting the field
+    // entirely preserves the current API value.
+    await checkedFetch(client.PUT('/api/v1/monitors/{id}', {
+      params: {path: {id}},
+      body: toUpdateMonitorRequest(yaml, refs),
+    }))
   },
   deletePath: (id) => `/api/v1/monitors/${id}`,
 })
@@ -648,7 +747,11 @@ function apiIncidentPolicyToSnapshot(
 }
 
 function apiTagsToSnapshot(api: Schemas['MonitorDto']): Schemas['AddMonitorTagsRequest'] {
-  if (!api.tags) return {tagIds: null, newTags: []}
+  // Always return {tagIds: [], newTags: []} for "no tags" so it compares
+  // structurally identical to a desired snapshot built from `tags: []` in
+  // YAML. Returning {tagIds: null, ...} produced spurious diffs because
+  // toDesiredSnapshot uses sortedIds([]) === [] for the empty case.
+  if (!api.tags || api.tags.length === 0) return {tagIds: [], newTags: []}
   return {
     tagIds: sortedIds(api.tags.map((t) => String(t.id ?? '')).filter(Boolean)),
     newTags: [],
@@ -715,9 +818,76 @@ type StatusPageSnapshot = {
   visibility: string
   enabled: boolean
   incidentMode: string
+  branding: Schemas['StatusPageBranding'] | null
+}
+
+/**
+ * Produce a drift-friendly snapshot of branding.
+ *
+ *   desired (YAML present)    → normalized StatusPageBranding record
+ *   desired (YAML absent)     → null (means "preserve current" on the wire;
+ *                                the snapshot borrows the current API value
+ *                                so diff stays quiet)
+ *   current                   → normalized API value, or null if empty
+ *
+ * Normalization fills every field (missing → null, hidePoweredBy → false)
+ * so that the structural equality check in `defineHandler` doesn't flap on
+ * key-presence differences between YAML and API JSON.
+ */
+function normalizeBrandingForSnapshot(
+  b: Schemas['StatusPageBranding'] | null | undefined,
+): Schemas['StatusPageBranding'] | null {
+  if (!b) return null
+  return {
+    logoUrl: b.logoUrl ?? null,
+    faviconUrl: b.faviconUrl ?? null,
+    brandColor: b.brandColor ?? null,
+    pageBackground: b.pageBackground ?? null,
+    cardBackground: b.cardBackground ?? null,
+    textColor: b.textColor ?? null,
+    borderColor: b.borderColor ?? null,
+    headerStyle: b.headerStyle ?? null,
+    theme: b.theme ?? null,
+    reportUrl: b.reportUrl ?? null,
+    hidePoweredBy: b.hidePoweredBy ?? false,
+    customCss: b.customCss ?? null,
+    customHeadHtml: b.customHeadHtml ?? null,
+  }
 }
 
 // ── Status page child collection definitions ────────────────────────────
+
+/**
+ * Standalone snapshot for a YAML group/component, factored out of the
+ * collection defs above so `hasChildChanges` can compare against prior-state
+ * attributes without needing an `ApiClient`. The collection defs delegate to
+ * these so the comparison shape stays in lockstep.
+ */
+export function statusPageGroupDesiredSnapshot(
+  yaml: YamlStatusPageComponentGroup,
+): Record<string, unknown> {
+  return {
+    name: yaml.name,
+    description: yaml.description ?? null,
+    collapsed: yaml.collapsed ?? true,
+  }
+}
+
+export function statusPageComponentDesiredSnapshot(
+  yaml: YamlStatusPageComponent,
+): Record<string, unknown> {
+  return {
+    name: yaml.name,
+    description: yaml.description ?? null,
+    type: yaml.type,
+    showUptime: yaml.showUptime ?? true,
+    excludeFromOverall: yaml.excludeFromOverall ?? false,
+    startDate: yaml.startDate ?? null,
+    group: yaml.group ?? null,
+    monitor: yaml.monitor ?? null,
+    resourceGroup: yaml.resourceGroup ?? null,
+  }
+}
 
 function makeGroupCollectionDef(
   client: ApiClient,
@@ -727,11 +897,7 @@ function makeGroupCollectionDef(
     identityKey: (yaml) => yaml.name,
     apiIdentityKey: (api) => api.name ?? '',
     apiId: (api) => String(api.id),
-    toDesiredSnapshot: (yaml) => ({
-      name: yaml.name,
-      description: yaml.description ?? null,
-      collapsed: yaml.collapsed ?? true,
-    }),
+    toDesiredSnapshot: statusPageGroupDesiredSnapshot,
     toCurrentSnapshot: (api) => ({
       name: api.name ?? '',
       description: api.description ?? null,
@@ -765,15 +931,7 @@ function makeComponentCollectionDef(
     identityKey: (yaml) => yaml.name,
     apiIdentityKey: (api) => api.name ?? '',
     apiId: (api) => String(api.id),
-    toDesiredSnapshot: (yaml) => ({
-      name: yaml.name,
-      description: yaml.description ?? null,
-      type: yaml.type,
-      showUptime: yaml.showUptime ?? true,
-      group: yaml.group ?? null,
-      monitor: yaml.monitor ?? null,
-      resourceGroup: yaml.resourceGroup ?? null,
-    }),
+    toDesiredSnapshot: statusPageComponentDesiredSnapshot,
     toCurrentSnapshot: (api) => {
       // Reverse-resolve groupId/monitorId/resourceGroupId to names for comparison
       let groupName: string | null = null
@@ -799,6 +957,10 @@ function makeComponentCollectionDef(
         description: api.description ?? null,
         type: api.type ?? 'STATIC',
         showUptime: api.showUptime ?? true,
+        excludeFromOverall: api.excludeFromOverall ?? false,
+        // API returns an OffsetDateTime (startOfDay UTC); slice back to YYYY-MM-DD
+        // so desired/current snapshots compare as strings.
+        startDate: api.startDate ? api.startDate.slice(0, 10) : null,
         group: groupName,
         monitor: monitorName,
         resourceGroup: resourceGroupName,
@@ -810,6 +972,8 @@ function makeComponentCollectionDef(
         description: yaml.description ?? null,
         displayOrder: index, showUptime: yaml.showUptime ?? true,
       }
+      if (yaml.excludeFromOverall !== undefined) body.excludeFromOverall = yaml.excludeFromOverall
+      if (yaml.startDate !== undefined) body.startDate = yaml.startDate
       if (yaml.group && groupNameToId.has(yaml.group)) body.groupId = groupNameToId.get(yaml.group)
       if (yaml.type === 'MONITOR' && yaml.monitor) {
         body.monitorId = refs.resolve('monitors', yaml.monitor) ?? yaml.monitor
@@ -828,6 +992,8 @@ function makeComponentCollectionDef(
         description: yaml.description ?? null,
         displayOrder: index, showUptime: yaml.showUptime ?? true,
       }
+      if (yaml.excludeFromOverall !== undefined) body.excludeFromOverall = yaml.excludeFromOverall
+      if (yaml.startDate !== undefined) body.startDate = yaml.startDate
       if (yaml.group && groupNameToId.has(yaml.group)) {
         body.groupId = groupNameToId.get(yaml.group)
       } else if (!yaml.group) {
@@ -843,6 +1009,69 @@ function makeComponentCollectionDef(
       await apiPut(client, `/api/v1/status-pages/${parentId}/components/reorder`, {positions})
     },
   }
+}
+
+/**
+ * Sync drift detection for status-page child collections.
+ *
+ * Compares the YAML's components/groups against the snapshots stored in the
+ * prior `state.json` (written by `applyChildDiff` on the previous deploy).
+ * Returns true if any child was added, removed, renamed, or had any of its
+ * tracked attributes change.
+ *
+ * Why prior state, not the API:
+ *   - hasChanged is sync; fetching live API children would require turning
+ *     the entire diff phase async or pre-fetching every status page's
+ *     children up-front (slow).
+ *   - The prior state IS what we last applied, so a diff of (yaml vs prior
+ *     state) is a complete representation of "user-driven change". External
+ *     drift introduced directly via the API on a child is the concern of
+ *     Tier D (drift recovery) — covered separately and would require an API
+ *     fetch by design.
+ *
+ * Special cases:
+ *   - Empty prior state + no YAML children → no change (handler will still
+ *     get applyCreate which seeds children).
+ *   - YAML omits `components` / `componentGroups` → that collection is left
+ *     alone by `reconcileStatusPageChildren`, so it never reports drift here.
+ */
+function hasStatusPageChildChanges(
+  yaml: YamlStatusPage,
+  priorChildren: Record<string, ChildStateEntry>,
+): boolean {
+  if (yaml.componentGroups !== undefined) {
+    if (childCollectionDiffers(yaml.componentGroups, priorChildren, 'groups.', statusPageGroupDesiredSnapshot)) {
+      return true
+    }
+  }
+  if (yaml.components !== undefined) {
+    if (childCollectionDiffers(yaml.components, priorChildren, 'components.', statusPageComponentDesiredSnapshot)) {
+      return true
+    }
+  }
+  return false
+}
+
+function childCollectionDiffers<T extends {name: string}>(
+  desired: T[],
+  priorChildren: Record<string, ChildStateEntry>,
+  prefix: string,
+  toSnapshot: (yaml: T) => Record<string, unknown>,
+): boolean {
+  const priorKeys = new Set(
+    Object.keys(priorChildren).filter((k) => k.startsWith(prefix)).map((k) => k.slice(prefix.length)),
+  )
+  const desiredKeys = new Set(desired.map((c) => c.name))
+
+  for (const k of desiredKeys) if (!priorKeys.has(k)) return true
+  for (const k of priorKeys) if (!desiredKeys.has(k)) return true
+
+  for (const item of desired) {
+    const prior = priorChildren[`${prefix}${item.name}`]
+    if (!prior) return true
+    if (!isEqual(toSnapshot(item), prior.attributes)) return true
+  }
+  return false
 }
 
 /**
@@ -956,6 +1185,11 @@ const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto']
     visibility: yaml.visibility ?? api.visibility ?? 'PUBLIC',
     enabled: yaml.enabled ?? api.enabled ?? true,
     incidentMode: yaml.incidentMode ?? api.incidentMode ?? 'AUTOMATIC',
+    // When YAML omits `branding`, adopt the current API value so diff stays
+    // silent. When YAML provides it, that becomes the authoritative shape.
+    branding: yaml.branding
+      ? normalizeBrandingForSnapshot(toBrandingRequest(yaml.branding))
+      : normalizeBrandingForSnapshot(api.branding),
   }),
   toCurrentSnapshot: (api) => ({
     name: api.name ?? '',
@@ -964,7 +1198,17 @@ const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto']
     visibility: api.visibility ?? 'PUBLIC',
     enabled: api.enabled ?? true,
     incidentMode: api.incidentMode ?? 'AUTOMATIC',
+    branding: normalizeBrandingForSnapshot(api.branding),
   }),
+
+  // Bubble child-collection drift up so the differ queues an update on this
+  // status page even when only its components/groups changed. Without this,
+  // hasChanged compares parent fields only, returns false, applyUpdate never
+  // runs, and reconcileStatusPageChildren never gets a chance to create the
+  // newly-added component (root cause of BDD scenario C2 failing pre-fix).
+  hasChildChanges(yaml, priorChildren) {
+    return hasStatusPageChildChanges(yaml, priorChildren)
+  },
 
   fetchAll: (client) => fetchPaginated<Schemas['StatusPageDto']>(client, '/api/v1/status-pages'),
 

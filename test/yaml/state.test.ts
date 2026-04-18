@@ -258,7 +258,7 @@ describe('state v2', () => {
     expect(v2.serial).toBe(1)
     expect(v2.resources['monitors.API']).toBeDefined()
     expect(v2.resources['monitors.API'].apiId).toBe('mon-1')
-    expect(v2.resources['monitors.API'].attributes).toEqual({name: 'API'})
+    expect(v2.resources['monitors.API'].attributes).toEqual({name: 'API', _migrated: true})
     expect(v2.resources['tags.prod']).toBeDefined()
     expect(v2.resources['tags.prod'].apiId).toBe('tag-1')
   })

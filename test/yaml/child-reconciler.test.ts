@@ -134,6 +134,7 @@ describe('child-reconciler', () => {
         updates: [],
         deletes: [],
         reorder: false,
+        existingByKey: {},
       }
       const result = await applyChildDiff(def, 'parent-1', desired, diffResult, [])
       expect(result.changes).toHaveLength(2)
@@ -153,6 +154,7 @@ describe('child-reconciler', () => {
         updates: [],
         deletes: [{key: 'Old', childId: 'old-id'}],
         reorder: false,
+        existingByKey: {},
       }
       await applyChildDiff(def, 'p-1', [{name: 'New'}], diffResult, [])
       expect(callOrder).toEqual(['delete', 'create'])
@@ -167,6 +169,7 @@ describe('child-reconciler', () => {
         updates: [{key: 'A', childId: 'id-1', index: 0}],
         deletes: [],
         reorder: false,
+        existingByKey: {A: 'id-1'},
       }
       const result = await applyChildDiff(def, 'p-1', [{name: 'A', color: 'red'}], diffResult, current)
       expect(updateFn).toHaveBeenCalledOnce()
@@ -186,6 +189,7 @@ describe('child-reconciler', () => {
         updates: [],
         deletes: [],
         reorder: true,
+        existingByKey: {A: 'id-1', B: 'id-2'},
       }
       await applyChildDiff(def, 'p-1', [{name: 'B'}, {name: 'A'}], diffResult, current)
       expect(reorderFn).toHaveBeenCalledWith('p-1', ['id-2', 'id-1'])
@@ -201,6 +205,7 @@ describe('child-reconciler', () => {
         updates: [],
         deletes: [],
         reorder: true,
+        existingByKey: {Existing: 'id-1'},
       }
       const result = await applyChildDiff(def, 'p-1', [{name: 'Existing'}, {name: 'New'}], diffResult, current)
       expect(result.childState['items.Existing']).toBeDefined()
@@ -208,20 +213,61 @@ describe('child-reconciler', () => {
       expect(result.childState['items.New']).toBeDefined()
       expect(result.childState['items.New'].apiId).toBe('new-c')
     })
+
+    it('preserves apiId for renamed children (regression: state-aware apply)', async () => {
+      // Setup: state has child "OldName" with id-1; YAML now uses "NewName".
+      // diffChildren produces updates=[{key:'NewName',childId:'id-1'}] and
+      // existingByKey={NewName:'id-1'}. The bug we are guarding against is
+      // applyChildDiff rebuilding currentMap from `currentApi` keyed by
+      // `apiIdentityKey` (which is still 'OldName') and dropping the renamed
+      // child from the resulting state map.
+      const def = makeDef()
+      const current: TestApi[] = [
+        {id: 'id-1', name: 'OldName', color: 'red', displayOrder: 0},
+      ]
+      const diffResult = {
+        creates: [],
+        updates: [{key: 'NewName', childId: 'id-1', index: 0}],
+        deletes: [],
+        reorder: false,
+        existingByKey: {NewName: 'id-1'},
+      }
+      const result = await applyChildDiff(
+        def, 'p-1', [{name: 'NewName', color: 'red'}], diffResult, current,
+      )
+      expect(result.childState['items.NewName']).toBeDefined()
+      expect(result.childState['items.NewName'].apiId).toBe('id-1')
+      expect(result.childState['items.OldName']).toBeUndefined()
+    })
+
+    it('end-to-end rename: diff → apply preserves apiId', async () => {
+      const def = makeDef()
+      const current: TestApi[] = [
+        {id: 'id-1', name: 'OldName', color: 'red', displayOrder: 0},
+      ]
+      const stateChildren = {
+        'items.NewName': {apiId: 'id-1', attributes: {name: 'NewName'}},
+      }
+      const desired: TestYaml[] = [{name: 'NewName', color: 'red'}]
+      const diffResult = diffChildren(def, desired, current, stateChildren)
+      expect(diffResult.existingByKey).toEqual({NewName: 'id-1'})
+      const result = await applyChildDiff(def, 'p-1', desired, diffResult, current)
+      expect(result.childState['items.NewName']?.apiId).toBe('id-1')
+    })
   })
 
   describe('hasChildChanges', () => {
     it('returns true for creates', () => {
-      expect(hasChildChanges({creates: [{key: 'a', index: 0}], updates: [], deletes: [], reorder: false})).toBe(true)
+      expect(hasChildChanges({creates: [{key: 'a', index: 0}], updates: [], deletes: [], reorder: false, existingByKey: {}})).toBe(true)
     })
     it('returns true for updates', () => {
-      expect(hasChildChanges({creates: [], updates: [{key: 'a', childId: '1', index: 0}], deletes: [], reorder: false})).toBe(true)
+      expect(hasChildChanges({creates: [], updates: [{key: 'a', childId: '1', index: 0}], deletes: [], reorder: false, existingByKey: {a: '1'}})).toBe(true)
     })
     it('returns true for deletes', () => {
-      expect(hasChildChanges({creates: [], updates: [], deletes: [{key: 'a', childId: '1'}], reorder: false})).toBe(true)
+      expect(hasChildChanges({creates: [], updates: [], deletes: [{key: 'a', childId: '1'}], reorder: false, existingByKey: {}})).toBe(true)
     })
     it('returns false when empty', () => {
-      expect(hasChildChanges({creates: [], updates: [], deletes: [], reorder: true})).toBe(false)
+      expect(hasChildChanges({creates: [], updates: [], deletes: [], reorder: true, existingByKey: {}})).toBe(false)
     })
   })
 })

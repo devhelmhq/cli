@@ -32,6 +32,25 @@ describe('interpolation', () => {
       expect(() => interpolate('${MISSING}', {})).toThrow(InterpolationError)
     })
 
+    it('treats empty-string env value as missing for required vars (POSIX :- semantics)', () => {
+      // CI systems often export missing secrets as empty strings; we surface
+      // that as a hard error so a misconfigured deploy fails loudly rather
+      // than silently producing empty URLs/tokens.
+      expect(() => interpolate('${API_TOKEN}', {API_TOKEN: ''})).toThrow(InterpolationError)
+      try {
+        interpolate('${API_TOKEN}', {API_TOKEN: ''})
+      } catch (err) {
+        expect((err as InterpolationError).message).toMatch(/empty string/)
+        expect((err as InterpolationError).message).toMatch(/\$\{API_TOKEN:-\}/)
+      }
+    })
+
+    it('${VAR:-} explicitly allows an empty value', () => {
+      expect(interpolate('${MAYBE_EMPTY:-}', {})).toBe('')
+      expect(interpolate('${MAYBE_EMPTY:-}', {MAYBE_EMPTY: ''})).toBe('')
+      expect(interpolate('${MAYBE_EMPTY:-}', {MAYBE_EMPTY: 'set'})).toBe('set')
+    })
+
     it('throws with helpful message', () => {
       try {
         interpolate('${SECRET_KEY}', {})

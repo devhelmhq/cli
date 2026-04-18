@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs'
 import {Flags} from '@oclif/core'
 import {ResourceConfig} from './crud-commands.js'
 import type {components} from './api.generated.js'
@@ -423,15 +424,19 @@ export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
     name: Flags.string({description: desc('CreateStatusPageRequest', 'name'), required: true}),
     slug: Flags.string({description: desc('CreateStatusPageRequest', 'slug'), required: true}),
     description: Flags.string({description: desc('CreateStatusPageRequest', 'description')}),
-    visibility: Flags.string({description: desc('CreateStatusPageRequest', 'visibility'), options: ['PUBLIC']}),
+    // Only PUBLIC is enforced today — PASSWORD / IP_RESTRICTED exist in the
+    // API enum but are not implemented. Expose a narrower, honest option set.
+    visibility: Flags.string({description: 'Page visibility (PUBLIC only today)', options: ['PUBLIC']}),
     'incident-mode': Flags.string({description: desc('CreateStatusPageRequest', 'incidentMode'), options: ['MANUAL', 'REVIEW', 'AUTOMATIC']}),
+    'branding-file': Flags.string({description: 'Path to a JSON file with branding fields (logoUrl, brandColor, theme, customCss, …)'}),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateStatusPageRequest', 'name')}),
     description: Flags.string({description: desc('UpdateStatusPageRequest', 'description')}),
-    visibility: Flags.string({description: desc('UpdateStatusPageRequest', 'visibility'), options: ['PUBLIC']}),
+    visibility: Flags.string({description: 'Page visibility (PUBLIC only today)', options: ['PUBLIC']}),
     enabled: Flags.boolean({description: 'Whether the page is enabled', allowNo: true}),
     'incident-mode': Flags.string({description: desc('UpdateStatusPageRequest', 'incidentMode'), options: ['MANUAL', 'REVIEW', 'AUTOMATIC']}),
+    'branding-file': Flags.string({description: 'Path to a JSON file with branding fields; omit to preserve existing branding'}),
   },
   bodyBuilder: (raw) => {
     const body: Record<string, unknown> = {}
@@ -441,6 +446,26 @@ export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
     if (raw.visibility !== undefined) body.visibility = raw.visibility
     if (raw.enabled !== undefined) body.enabled = raw.enabled
     if (raw['incident-mode'] !== undefined) body.incidentMode = raw['incident-mode']
+    if (raw['branding-file'] !== undefined) {
+      body.branding = loadBrandingFile(String(raw['branding-file']))
+    }
     return body
   },
+}
+
+// Sync read is fine — CLI is short-lived and this flag path runs once per
+// command invocation. Kept outside bodyBuilder for reuse + unit-testability.
+//
+// We use a top-level ESM `import` (not a lazy `require`) because the package
+// is `"type": "module"` and CommonJS `require` is undefined in that context.
+// `readFileSync` is in the always-resolved Node core, so the import cost is
+// effectively zero — it's already loaded before the CLI's top-level code runs.
+function loadBrandingFile(path: string): unknown {
+  const raw = readFileSync(path, 'utf8')
+  try {
+    return JSON.parse(raw)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    throw new Error(`Failed to parse branding file "${path}" as JSON: ${msg}`)
+  }
 }

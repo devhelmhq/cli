@@ -1,13 +1,18 @@
 /**
  * Zod schemas for devhelm.yml configuration.
  *
- * Single source of truth for YAML validation. Constants (MONITOR_TYPES,
- * ASSERTION_TYPES, etc.) are imported from schema.ts. Zod schemas validate
- * and narrow the raw YAML parse output into typed structures.
+ * Single source of truth for YAML *validation*. Enum constants are
+ * intentionally re-declared here as `as const` tuples because Zod's
+ * `z.enum` requires a literal tuple type, while `schema.ts` exports them
+ * as `readonly Foo[]` for the type-system layer. The contract test in
+ * `test/yaml/parser.test.ts` (and the `enum-parity` block in
+ * `zod-schemas.test.ts`) asserts the two lists stay in sync — if you add
+ * an enum value, add it in both places.
  *
- * Assertion and auth types use snake_case wire-format names as the user-facing
- * vocabulary. The bidirectional mapping functions in transform.ts convert
- * between these and the PascalCase OpenAPI schema names.
+ * Assertion and auth types use snake_case wire-format names as the
+ * user-facing vocabulary. The bidirectional mapping functions in
+ * `transform.ts` convert between these and the PascalCase OpenAPI schema
+ * names.
  */
 import {z} from 'zod'
 
@@ -43,7 +48,7 @@ export const ASSERTION_WIRE_TYPES = ASSERTION_SCHEMA_NAMES.map(
   (n) => pascalToSnake(n.replace(/Assertion$/, '')),
 ) as unknown as readonly string[]
 
-// ── Constants ────────────────────────────────────────────────────────
+// ── Constants (kept in sync with schema.ts via parity test) ──────────
 
 const MONITOR_TYPES = ['HTTP', 'DNS', 'TCP', 'ICMP', 'HEARTBEAT', 'MCP_SERVER'] as const
 const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'] as const
@@ -56,12 +61,25 @@ const TRIGGER_SEVERITIES = ['down', 'degraded'] as const
 const TRIGGER_AGGREGATIONS = ['all_exceed', 'average', 'p95', 'max'] as const
 const ALERT_SENSITIVITIES = ['ALL', 'INCIDENTS_ONLY', 'MAJOR_ONLY'] as const
 const HEALTH_THRESHOLD_TYPES = ['COUNT', 'PERCENTAGE'] as const
-const STATUS_PAGE_VISIBILITIES = ['PUBLIC', 'PASSWORD', 'IP_RESTRICTED'] as const
+// Only PUBLIC is accepted today. The API enum defines PASSWORD / IP_RESTRICTED
+// but neither mode is implemented server-side yet, so exposing them in YAML
+// would silently do nothing. See schema.ts for the matching narrowing.
+const STATUS_PAGE_VISIBILITIES = ['PUBLIC'] as const
 const STATUS_PAGE_INCIDENT_MODES = ['MANUAL', 'REVIEW', 'AUTOMATIC'] as const
 const STATUS_PAGE_COMPONENT_TYPES = ['MONITOR', 'GROUP', 'STATIC'] as const
 
 const MIN_FREQUENCY = 30
 const MAX_FREQUENCY = 86400
+
+// Internal-only re-export so the parity test can import the Zod-side
+// tuples without going through individual named exports.
+export const _ZOD_ENUMS = {
+  MONITOR_TYPES, HTTP_METHODS, DNS_RECORD_TYPES, ASSERTION_SEVERITIES,
+  CHANNEL_TYPES, TRIGGER_RULE_TYPES, TRIGGER_SCOPES, TRIGGER_SEVERITIES,
+  TRIGGER_AGGREGATIONS, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
+  STATUS_PAGE_VISIBILITIES, STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
+  MIN_FREQUENCY, MAX_FREQUENCY,
+} as const
 
 // ── Monitor config schemas ───────────────────────────────────────────
 
@@ -356,11 +374,14 @@ const MonitorSchema = z.object({
   frequency: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
   enabled: z.boolean().optional(),
   regions: z.array(z.string()).optional(),
-  environment: z.string().optional(),
+  // null = explicitly clear an existing environment association on update
+  // (omitted = preserve current API value)
+  environment: z.string().nullable().optional(),
   tags: z.array(z.string()).optional(),
   alertChannels: z.array(z.string()).optional(),
   assertions: z.array(AssertionSchema).optional(),
-  auth: AuthSchema.optional(),
+  // null = explicitly clear existing auth on update (omitted = preserve)
+  auth: AuthSchema.nullable().optional(),
   incidentPolicy: IncidentPolicySchema.optional(),
 }).strict()
 
@@ -371,6 +392,29 @@ const DependencySchema = z.object({
 }).strict()
 
 // ── Status page schemas ──────────────────────────────────────────────
+
+// Matches the Jakarta pattern on StatusPageBranding fields server-side:
+// 3-, 6-, or 8-digit hex (leading `#`). Validated early so users get a
+// clear client-side error before the API 400s.
+const HEX_COLOR = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/
+const HTTP_URL = /^https?:\/\/.+/
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+
+const StatusPageBrandingSchema = z.object({
+  logoUrl: z.string().regex(HTTP_URL, 'must be an http(s) URL').max(2048).optional(),
+  faviconUrl: z.string().regex(HTTP_URL, 'must be an http(s) URL').max(2048).optional(),
+  brandColor: z.string().regex(HEX_COLOR, 'must be a hex color, e.g. #4F46E5').optional(),
+  pageBackground: z.string().regex(HEX_COLOR, 'must be a hex color').optional(),
+  cardBackground: z.string().regex(HEX_COLOR, 'must be a hex color').optional(),
+  textColor: z.string().regex(HEX_COLOR, 'must be a hex color').optional(),
+  borderColor: z.string().regex(HEX_COLOR, 'must be a hex color').optional(),
+  headerStyle: z.string().max(50).optional(),
+  theme: z.string().max(50).optional(),
+  reportUrl: z.string().regex(HTTP_URL, 'must be an http(s) URL').max(2048).optional(),
+  hidePoweredBy: z.boolean().optional(),
+  customCss: z.string().max(50_000).optional(),
+  customHeadHtml: z.string().max(50_000).optional(),
+}).strict()
 
 const StatusPageComponentGroupSchema = z.object({
   name: z.string(),
@@ -386,6 +430,8 @@ const StatusPageComponentSchema = z.object({
   resourceGroup: z.string().optional(),
   group: z.string().optional(),
   showUptime: z.boolean().optional(),
+  excludeFromOverall: z.boolean().optional(),
+  startDate: z.string().regex(ISO_DATE, 'must be an ISO date (YYYY-MM-DD)').optional(),
 }).strict()
 
 const StatusPageSchema = z.object({
@@ -395,6 +441,7 @@ const StatusPageSchema = z.object({
   visibility: z.enum(STATUS_PAGE_VISIBILITIES).optional(),
   enabled: z.boolean().optional(),
   incidentMode: z.enum(STATUS_PAGE_INCIDENT_MODES).optional(),
+  branding: StatusPageBrandingSchema.optional(),
   componentGroups: z.array(StatusPageComponentGroupSchema).optional(),
   components: z.array(StatusPageComponentSchema).optional(),
 }).strict()

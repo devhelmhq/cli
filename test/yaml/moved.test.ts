@@ -1,6 +1,6 @@
 import {describe, it, expect} from 'vitest'
 import {
-  emptyState, upsertStateEntry, processMovedBlocks,
+  emptyState, upsertStateEntry, processMovedBlocks, previewMovedBlocks,
   lookupByAddress, lookupByApiId, resourceAddress,
 } from '../../src/lib/yaml/state.js'
 
@@ -128,6 +128,57 @@ describe('moved blocks', () => {
       expect(resourceAddress('monitor', 'API')).toBe('monitors.API')
       expect(resourceAddress('statusPage', 'main')).toBe('statusPages.main')
       expect(resourceAddress('alertChannel', 'Slack')).toBe('alertChannels.Slack')
+    })
+  })
+
+  describe('previewMovedBlocks', () => {
+    it('returns a renamed clone without mutating the original state', () => {
+      const original = emptyState()
+      upsertStateEntry(original, 'monitor', 'Old API', 'uuid-1', {name: 'Old API', type: 'HTTP'})
+      const originalSerial = original.serial
+      const originalLastDeployed = original.lastDeployedAt
+
+      const {state: preview, warnings} = previewMovedBlocks(original, [
+        {from: 'monitors.Old API', to: 'monitors.Core API'},
+      ])
+
+      expect(warnings).toHaveLength(0)
+      // Preview reflects the move
+      expect(lookupByAddress(preview, 'monitors.Old API')).toBeUndefined()
+      expect(lookupByAddress(preview, 'monitors.Core API')?.apiId).toBe('uuid-1')
+      // Original is untouched
+      expect(lookupByAddress(original, 'monitors.Old API')?.apiId).toBe('uuid-1')
+      expect(lookupByAddress(original, 'monitors.Core API')).toBeUndefined()
+      expect(original.serial).toBe(originalSerial)
+      expect(original.lastDeployedAt).toBe(originalLastDeployed)
+    })
+
+    it('deep-copies children and attributes so mutations do not leak', () => {
+      const original = emptyState()
+      upsertStateEntry(original, 'statusPage', 'old-slug', 'sp-1', {name: 'Old Page'}, {
+        'components.API': {apiId: 'c-1', attributes: {name: 'API'}},
+      })
+
+      const {state: preview} = previewMovedBlocks(original, [
+        {from: 'statusPages.old-slug', to: 'statusPages.new-slug'},
+      ])
+
+      const moved = lookupByAddress(preview, 'statusPages.new-slug')!
+      // Mutate the preview's child attributes
+      moved.children['components.API'].attributes!.name = 'mutated'
+
+      // Original is unaffected
+      const originalEntry = lookupByAddress(original, 'statusPages.old-slug')!
+      expect(originalEntry.children['components.API'].attributes!.name).toBe('API')
+    })
+
+    it('surfaces the same warnings as processMovedBlocks for invalid moves', () => {
+      const original = emptyState()
+      const {warnings} = previewMovedBlocks(original, [
+        {from: 'monitors.NonExistent', to: 'monitors.New'},
+      ])
+      expect(warnings).toHaveLength(1)
+      expect(warnings[0]).toContain('not found in state')
     })
   })
 })

@@ -17,6 +17,7 @@ export default class StatusPagesComponentsCreate extends Command {
     'display-order': Flags.integer({description: 'Position in the component list'}),
     'exclude-from-overall': Flags.boolean({description: 'Exclude from overall status calculation'}),
     'show-uptime': Flags.boolean({description: 'Whether to show the uptime bar', allowNo: true}),
+    'start-date': Flags.string({description: 'Date (YYYY-MM-DD) from which to start showing uptime data'}),
   }
 
   async run() {
@@ -30,6 +31,7 @@ export default class StatusPagesComponentsCreate extends Command {
     if (flags['display-order'] !== undefined) body.displayOrder = flags['display-order']
     if (flags['exclude-from-overall'] !== undefined) body.excludeFromOverall = flags['exclude-from-overall']
     if (flags['show-uptime'] !== undefined) body.showUptime = flags['show-uptime']
+    if (flags['start-date'] !== undefined) body.startDate = flags['start-date']
     const resp = await apiPost<{data?: unknown}>(client, `/api/v1/status-pages/${args.id}/components`, body)
     display(this, resp.data ?? resp, flags.output)
   }

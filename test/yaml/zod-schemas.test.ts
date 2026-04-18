@@ -1,5 +1,6 @@
 import {describe, it, expect} from 'vitest'
-import {DevhelmConfigSchema, formatZodErrors} from '../../src/lib/yaml/zod-schemas.js'
+import {DevhelmConfigSchema, formatZodErrors, _ZOD_ENUMS} from '../../src/lib/yaml/zod-schemas.js'
+import * as schema from '../../src/lib/yaml/schema.js'
 
 describe('DevhelmConfigSchema', () => {
   describe('top-level', () => {
@@ -258,6 +259,85 @@ describe('DevhelmConfigSchema', () => {
       expect(result.success).toBe(false)
     })
 
+    it('rejects PASSWORD / IP_RESTRICTED (not yet supported server-side)', () => {
+      for (const v of ['PASSWORD', 'IP_RESTRICTED']) {
+        const result = DevhelmConfigSchema.safeParse({
+          statusPages: [{name: 'P', slug: 'p', visibility: v}],
+        })
+        expect(result.success).toBe(false)
+      }
+    })
+
+    it('accepts branding with hex colors and http(s) URLs', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        statusPages: [{
+          name: 'P', slug: 'p',
+          branding: {
+            logoUrl: 'https://cdn.example.com/logo.png',
+            brandColor: '#4F46E5',
+            theme: 'dark',
+            hidePoweredBy: true,
+            customCss: '.accent { color: red; }',
+          },
+        }],
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects invalid branding hex color', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        statusPages: [{
+          name: 'P', slug: 'p',
+          branding: {brandColor: 'not-a-color'},
+        }],
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects non-http(s) logoUrl', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        statusPages: [{
+          name: 'P', slug: 'p',
+          branding: {logoUrl: 'javascript:alert(1)'},
+        }],
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects unknown branding field (strict)', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        statusPages: [{
+          name: 'P', slug: 'p',
+          branding: {bogus: 'field'},
+        }],
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('accepts component excludeFromOverall and startDate', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        statusPages: [{
+          name: 'P', slug: 'p',
+          components: [{
+            name: 'Third-party API', type: 'STATIC',
+            excludeFromOverall: true,
+            startDate: '2024-01-15',
+          }],
+        }],
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects malformed component startDate', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        statusPages: [{
+          name: 'P', slug: 'p',
+          components: [{name: 'X', type: 'STATIC', startDate: '01/15/2024'}],
+        }],
+      })
+      expect(result.success).toBe(false)
+    })
+
     it('rejects unknown incidentMode', () => {
       const result = DevhelmConfigSchema.safeParse({
         statusPages: [{name: 'P', slug: 'p', incidentMode: 'MAGIC'}],
@@ -340,6 +420,36 @@ describe('DevhelmConfigSchema', () => {
       expect(result.success).toBe(false)
     })
   })
+})
+
+describe('enum-parity (zod-schemas vs schema.ts)', () => {
+  // The Zod layer keeps its own `as const` tuples because z.enum requires
+  // literal tuples. This test guarantees those tuples never drift from the
+  // canonical lists in schema.ts.
+  const cases: Array<[keyof typeof _ZOD_ENUMS, readonly string[] | number]> = [
+    ['MONITOR_TYPES', schema.MONITOR_TYPES],
+    ['HTTP_METHODS', schema.HTTP_METHODS],
+    ['DNS_RECORD_TYPES', schema.DNS_RECORD_TYPES],
+    ['ASSERTION_SEVERITIES', schema.ASSERTION_SEVERITIES],
+    ['CHANNEL_TYPES', schema.CHANNEL_TYPES],
+    ['TRIGGER_RULE_TYPES', schema.TRIGGER_RULE_TYPES],
+    ['TRIGGER_SCOPES', schema.TRIGGER_SCOPES],
+    ['TRIGGER_SEVERITIES', schema.TRIGGER_SEVERITIES],
+    ['TRIGGER_AGGREGATIONS', schema.TRIGGER_AGGREGATIONS],
+    ['ALERT_SENSITIVITIES', schema.ALERT_SENSITIVITIES],
+    ['HEALTH_THRESHOLD_TYPES', schema.HEALTH_THRESHOLD_TYPES],
+    ['STATUS_PAGE_VISIBILITIES', schema.STATUS_PAGE_VISIBILITIES],
+    ['STATUS_PAGE_INCIDENT_MODES', schema.STATUS_PAGE_INCIDENT_MODES],
+    ['STATUS_PAGE_COMPONENT_TYPES', schema.STATUS_PAGE_COMPONENT_TYPES],
+    ['MIN_FREQUENCY', schema.MIN_FREQUENCY],
+    ['MAX_FREQUENCY', schema.MAX_FREQUENCY],
+  ]
+
+  for (const [name, expected] of cases) {
+    it(`zod ${name} matches schema.ts (order + values)`, () => {
+      expect(_ZOD_ENUMS[name]).toEqual(expected)
+    })
+  }
 })
 
 describe('formatZodErrors', () => {

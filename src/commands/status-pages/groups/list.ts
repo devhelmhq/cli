@@ -1,6 +1,9 @@
 import {Command, Args} from '@oclif/core'
+import type {components} from '../../../lib/api.generated.js'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {fetchPaginated} from '../../../lib/typed-api.js'
+
+type StatusPageComponentGroup = components['schemas']['StatusPageComponentGroupDto']
 
 export default class StatusPagesGroupsList extends Command {
   static description = 'List component groups on a status page'
@@ -11,11 +14,11 @@ export default class StatusPagesGroupsList extends Command {
   async run() {
     const {args, flags} = await this.parse(StatusPagesGroupsList)
     const client = buildClient(flags)
-    const items = await fetchPaginated(client, `/api/v1/status-pages/${args.id}/groups`)
+    const items = await fetchPaginated<StatusPageComponentGroup>(client, `/api/v1/status-pages/${args.id}/groups`)
     display(this, items, flags.output, [
-      {header: 'ID', get: (r: any) => r.id ?? ''},
-      {header: 'NAME', get: (r: any) => r.name ?? ''},
-      {header: 'ORDER', get: (r: any) => String(r.displayOrder ?? '')},
+      {header: 'ID', get: (r: StatusPageComponentGroup) => r.id ?? ''},
+      {header: 'NAME', get: (r: StatusPageComponentGroup) => r.name ?? ''},
+      {header: 'ORDER', get: (r: StatusPageComponentGroup) => String(r.displayOrder ?? '')},
     ])
   }
 }

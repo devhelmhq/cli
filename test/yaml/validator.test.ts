@@ -2,7 +2,8 @@ import {describe, it, expect} from 'vitest'
 import {join, dirname} from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {parseConfigFile, ParseError} from '../../src/lib/yaml/parser.js'
-import {validate} from '../../src/lib/yaml/validator.js'
+import {validate, validatePlanRefs} from '../../src/lib/yaml/validator.js'
+import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
 import type {DevhelmConfig} from '../../src/lib/yaml/schema.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -975,5 +976,57 @@ describe('validator', () => {
       )
       expect(groupWarnings).toHaveLength(0)
     })
+  })
+})
+
+describe('validatePlanRefs', () => {
+  function refsWithEnvironment(opts: {refKey: string; apiSlug: string; matchSource?: 'state' | 'name'}) {
+    const refs = new ResolvedRefs()
+    refs.set('environments', opts.refKey, {
+      id: 'env-1',
+      refKey: opts.refKey,
+      raw: {id: 'env-1', name: 'X', slug: opts.apiSlug, isDefault: false, variables: null},
+      matchSource: opts.matchSource ?? 'state',
+    })
+    return refs
+  }
+
+  it('errors when state-matched environment slug differs from YAML slug', () => {
+    const config: DevhelmConfig = {
+      environments: [{name: 'Production', slug: 'production'}],
+    }
+    const refs = refsWithEnvironment({refKey: 'production', apiSlug: 'prod'})
+    const result = validatePlanRefs(config, refs)
+    expect(result.errors).toHaveLength(1)
+    expect(result.errors[0].path).toBe('environments[0].slug')
+    expect(result.errors[0].message).toMatch(/slug rename.*not supported/)
+  })
+
+  it('passes when YAML slug matches API slug', () => {
+    const config: DevhelmConfig = {
+      environments: [{name: 'Production', slug: 'production'}],
+    }
+    const refs = refsWithEnvironment({refKey: 'production', apiSlug: 'production'})
+    const result = validatePlanRefs(config, refs)
+    expect(result.errors).toHaveLength(0)
+  })
+
+  it('does not flag name-matched (non-state) environments', () => {
+    // Without state-based matching the resolver wouldn't have placed a
+    // mismatched-slug entry under this refKey at all, but we double-check
+    // we don't false-positive when matchSource is 'name'.
+    const config: DevhelmConfig = {
+      environments: [{name: 'Production', slug: 'production'}],
+    }
+    const refs = refsWithEnvironment({refKey: 'production', apiSlug: 'prod', matchSource: 'name'})
+    const result = validatePlanRefs(config, refs)
+    expect(result.errors).toHaveLength(0)
+  })
+
+  it('passes when no environments are defined', () => {
+    const config: DevhelmConfig = {monitors: []}
+    const refs = new ResolvedRefs()
+    const result = validatePlanRefs(config, refs)
+    expect(result.errors).toHaveLength(0)
   })
 })

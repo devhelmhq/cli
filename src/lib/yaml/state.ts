@@ -326,8 +326,65 @@ export function processMovedBlocks(
   return warnings
 }
 
+/**
+ * Read-only preview of `processMovedBlocks` for use by `devhelm plan`.
+ *
+ * Returns a deep clone of `state` with the renames applied (so that the
+ * subsequent diff sees the post-move addresses, matching what `deploy`
+ * would compute), plus the same warnings as `processMovedBlocks`. The
+ * original state argument is left untouched, and nothing is persisted.
+ *
+ * Why this is its own function: `processMovedBlocks` mutates and bumps
+ * `serial`/`lastDeployedAt`, which is correct during `deploy` but wrong
+ * during `plan`. Forking the helper keeps both call sites honest and
+ * documents the read-only contract in the type signature.
+ */
+export function previewMovedBlocks(
+  state: DeployState,
+  moved: Array<{from: string; to: string}>,
+): {state: DeployState; warnings: string[]} {
+  const cloned: DeployState = {
+    ...state,
+    resources: Object.fromEntries(
+      Object.entries(state.resources).map(([addr, entry]) => [
+        addr,
+        {
+          ...entry,
+          attributes: {...entry.attributes},
+          children: Object.fromEntries(
+            Object.entries(entry.children ?? {}).map(([k, v]) => [
+              k,
+              {...v, attributes: {...v.attributes}},
+            ]),
+          ),
+        },
+      ]),
+    ),
+  }
+  const warnings = processMovedBlocks(cloned, moved)
+  return {state: cloned, warnings}
+}
+
 // ── V1 → V2 migration ───────────────────────────────────────────────────
 
+/**
+ * Migrate a v1 state file (flat array, no attributes/children) to v2.
+ *
+ * **Synthetic attributes.** v1 stored only the API id and refKey, so we
+ * cannot reconstruct real attributes here. We seed a placeholder
+ * `attributes: {name: refKey, _migrated: true}` for two reasons:
+ *
+ *   1. Some resource types (webhooks, secrets, environments) don't even
+ *      have a `name` field — their refKey is `url`/`key`/`slug`. The
+ *      placeholder is *not* used by the diffing engine (snapshots are
+ *      always rebuilt from the YAML + API DTO via the handler), only as
+ *      filler until the next deploy overwrites it via `buildStateV2`.
+ *   2. The `_migrated: true` marker makes it trivial to spot a state file
+ *      that has not yet been re-written post-upgrade, both in tooling and
+ *      by humans inspecting `.devhelm/state.json`.
+ *
+ * The serial is reset to 1 because v1 didn't track serials.
+ */
 export function migrateV1(v1: DeployStateV1): DeployState {
   const resources: Record<string, StateEntry> = {}
   for (const entry of v1.resources ?? []) {
@@ -335,7 +392,7 @@ export function migrateV1(v1: DeployStateV1): DeployState {
     resources[addr] = {
       apiId: entry.id,
       resourceType: entry.resourceType as ResourceType,
-      attributes: {name: entry.refKey},
+      attributes: {name: entry.refKey, _migrated: true},
       children: {},
     }
   }

@@ -314,7 +314,7 @@ describe('differ', () => {
           name: 'Public Status',
           slug: 'public',
           branding: {},
-          components: [{name: 'API', status: 'OPERATIONAL'}],
+          components: [{name: 'API', type: 'STATIC'}],
         }],
       }
       const changeset = diff(config, emptyRefs())
@@ -342,6 +342,216 @@ describe('differ', () => {
       const changeset = diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
       expect(changeset.updates[0].refKey).toBe('public')
+    })
+
+    // ── Status page branding + new component fields ────────────────────
+    // These guard the snapshot logic added with branding & component
+    // (excludeFromOverall, startDate) extensions. The diff engine drives
+    // handler.toDesiredSnapshot / toCurrentSnapshot under the hood, so a
+    // diff() round-trip is the cheapest way to assert end-to-end behavior.
+
+    it('detects update when status page branding fields change', () => {
+      const refs = new ResolvedRefs()
+      refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
+        id: 'sp-1', name: 'P', slug: 'sp',
+        branding: {brandColor: '#000000', theme: 'dark'},
+        componentGroups: [], components: [],
+      }})
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'sp',
+          branding: {brandColor: '#FF0000', theme: 'dark'},
+        }],
+      }
+      const changeset = diff(config, refs)
+      expect(changeset.updates).toHaveLength(1)
+      expect(changeset.updates[0].refKey).toBe('sp')
+    })
+
+    it('does NOT update status page when YAML omits branding (preserve current)', () => {
+      const refs = new ResolvedRefs()
+      refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
+        id: 'sp-1', name: 'P', slug: 'sp',
+        // API has branding values; YAML omits the section entirely.
+        branding: {brandColor: '#FF0000', theme: 'light', hidePoweredBy: true},
+        componentGroups: [], components: [],
+      }})
+      const config: DevhelmConfig = {
+        statusPages: [{name: 'P', slug: 'sp'}],
+      }
+      const changeset = diff(config, refs)
+      expect(changeset.updates).toHaveLength(0)
+    })
+
+    it('detects update when YAML branding shrinks vs API (hidePoweredBy default)', () => {
+      // YAML has only brandColor; toBrandingRequest fills the rest with
+      // null/false defaults, so diff against an API with theme=dark must fire.
+      const refs = new ResolvedRefs()
+      refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
+        id: 'sp-1', name: 'P', slug: 'sp',
+        branding: {brandColor: '#FF0000', theme: 'dark'},
+        componentGroups: [], components: [],
+      }})
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'sp',
+          branding: {brandColor: '#FF0000'},
+        }],
+      }
+      const changeset = diff(config, refs)
+      expect(changeset.updates).toHaveLength(1)
+    })
+
+    // ── Child-collection drift detection (was: known LIMITATION; now FIXED) ──
+    //
+    // statusPageHandler.hasChildChanges compares yaml.components /
+    // componentGroups against priorState child snapshots so a YAML edit that
+    // only touches a child attribute (or adds/removes a child) surfaces as a
+    // page-level update in `devhelm plan` — even if the page's own fields
+    // are byte-identical.
+    //
+    // The conservative no-prior-state path: when the page exists in API but
+    // priorChildren is empty (fresh state, post-import, etc.) the differ
+    // queues an update so reconcileStatusPageChildren runs and inspects the
+    // live children for itself. Prevents silent under-reporting on imports.
+
+    it('FIXED: component added in YAML is detected as page-level update', () => {
+      const refs = new ResolvedRefs()
+      refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
+        id: 'sp-1', name: 'P', slug: 'sp',
+        branding: {},
+        componentGroups: [],
+        components: [{id: 'c-1', name: 'API', type: 'STATIC', showUptime: true}],
+      }})
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'sp',
+          components: [
+            {name: 'API', type: 'STATIC'},
+            {name: 'Database', type: 'STATIC'},
+          ],
+        }],
+      }
+      const priorState = {
+        version: '2' as const, serial: 1, lastDeployedAt: '2024-01-01T00:00:00Z',
+        resources: {
+          'statusPages.sp': {
+            apiId: 'sp-1', resourceType: 'statusPage' as const,
+            attributes: {name: 'P'},
+            children: {
+              'components.API': {apiId: 'c-1', attributes: {
+                name: 'API', description: null, type: 'STATIC', showUptime: true,
+                excludeFromOverall: false, startDate: null, group: null,
+                monitor: null, resourceGroup: null,
+              }},
+            },
+          },
+        },
+      }
+      const changeset = diff(config, refs, {}, priorState)
+      expect(changeset.updates).toHaveLength(1)
+    })
+
+    it('FIXED: component excludeFromOverall change is detected via prior state', () => {
+      const refs = new ResolvedRefs()
+      refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
+        id: 'sp-1', name: 'P', slug: 'sp',
+        branding: {},
+        componentGroups: [],
+        components: [{id: 'c-1', name: 'API', type: 'STATIC', excludeFromOverall: false, showUptime: true}],
+      }})
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'sp',
+          components: [{name: 'API', type: 'STATIC', excludeFromOverall: true}],
+        }],
+      }
+      const priorState = {
+        version: '2' as const, serial: 1, lastDeployedAt: '2024-01-01T00:00:00Z',
+        resources: {
+          'statusPages.sp': {
+            apiId: 'sp-1', resourceType: 'statusPage' as const,
+            attributes: {name: 'P'},
+            children: {
+              'components.API': {apiId: 'c-1', attributes: {
+                name: 'API', description: null, type: 'STATIC', showUptime: true,
+                excludeFromOverall: false, startDate: null, group: null,
+                monitor: null, resourceGroup: null,
+              }},
+            },
+          },
+        },
+      }
+      const changeset = diff(config, refs, {}, priorState)
+      expect(changeset.updates).toHaveLength(1)
+    })
+
+    it('FIXED: component startDate change is detected via prior state', () => {
+      const refs = new ResolvedRefs()
+      refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
+        id: 'sp-1', name: 'P', slug: 'sp',
+        branding: {},
+        componentGroups: [],
+        components: [{id: 'c-1', name: 'API', type: 'STATIC', startDate: '2024-01-01T00:00:00Z', showUptime: true}],
+      }})
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'sp',
+          components: [{name: 'API', type: 'STATIC', startDate: '2024-06-01'}],
+        }],
+      }
+      const priorState = {
+        version: '2' as const, serial: 1, lastDeployedAt: '2024-01-01T00:00:00Z',
+        resources: {
+          'statusPages.sp': {
+            apiId: 'sp-1', resourceType: 'statusPage' as const,
+            attributes: {name: 'P'},
+            children: {
+              'components.API': {apiId: 'c-1', attributes: {
+                name: 'API', description: null, type: 'STATIC', showUptime: true,
+                excludeFromOverall: false, startDate: '2024-01-01', group: null,
+                monitor: null, resourceGroup: null,
+              }},
+            },
+          },
+        },
+      }
+      const changeset = diff(config, refs, {}, priorState)
+      expect(changeset.updates).toHaveLength(1)
+    })
+
+    it('child-collection diff: clean prior state → no spurious update', () => {
+      const refs = new ResolvedRefs()
+      refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
+        id: 'sp-1', name: 'P', slug: 'sp',
+        branding: {},
+        componentGroups: [],
+        components: [{id: 'c-1', name: 'API', type: 'STATIC', showUptime: true}],
+      }})
+      const config: DevhelmConfig = {
+        statusPages: [{
+          name: 'P', slug: 'sp',
+          components: [{name: 'API', type: 'STATIC'}],
+        }],
+      }
+      const priorState = {
+        version: '2' as const, serial: 1, lastDeployedAt: '2024-01-01T00:00:00Z',
+        resources: {
+          'statusPages.sp': {
+            apiId: 'sp-1', resourceType: 'statusPage' as const,
+            attributes: {name: 'P'},
+            children: {
+              'components.API': {apiId: 'c-1', attributes: {
+                name: 'API', description: null, type: 'STATIC', showUptime: true,
+                excludeFromOverall: false, startDate: null, group: null,
+                monitor: null, resourceGroup: null,
+              }},
+            },
+          },
+        },
+      }
+      const changeset = diff(config, refs, {}, priorState)
+      expect(changeset.updates).toHaveLength(0)
     })
 
     it('status page appears in handles all resource types in create ordering', () => {

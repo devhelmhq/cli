@@ -8,7 +8,7 @@ import type {
   YamlResourceGroup, YamlWebhook, YamlTag, YamlEnvironment,
   YamlSecret, YamlAssertion, YamlAuth,
   YamlIncidentPolicy, YamlEscalationStep, YamlMatchRule,
-  YamlStatusPage,
+  YamlStatusPage, YamlStatusPageBranding,
 } from './schema.js'
 import type {ResolvedRefs} from './resolver.js'
 
@@ -99,7 +99,10 @@ function toEscalationStep(step: YamlEscalationStep, refs: ResolvedRefs): Schemas
   return {
     channelIds: step.channels.map((name) => refs.require('alertChannels', name)),
     delayMinutes: step.delayMinutes ?? 0,
-    requireAck: step.requireAck ?? null,
+    // API stores Nullable Boolean but echoes back `false` for unset values
+    // (Jackson serializes Boolean.FALSE for null on the response side). We
+    // send `false` explicitly so subsequent plans don't see phantom drift.
+    requireAck: step.requireAck ?? false,
     repeatIntervalSeconds: step.repeatIntervalSeconds ?? null,
   }
 }
@@ -204,17 +207,29 @@ export function toUpdateMonitorRequest(
   monitor: YamlMonitor,
   refs: ResolvedRefs,
 ): Schemas['UpdateMonitorRequest'] {
-  return {
+  // YAML null means "explicitly clear" (parallels Terraform's clear_* flags
+  // and the API's clearAuth/clearEnvironmentId fields). Omitting the key
+  // entirely means "preserve current API value". The snapshot in
+  // handlers.ts mirrors this distinction so the diff phase emits an update
+  // only when the user actually changed something.
+  const clearAuth = monitor.auth === null
+  const clearEnvironmentId = monitor.environment === null
+
+  const body: Schemas['UpdateMonitorRequest'] = {
     name: monitor.name,
     config: toMonitorConfig(monitor) as Schemas['UpdateMonitorRequest']['config'],
     managedBy: 'CLI',
     frequencySeconds: monitor.frequency ?? null,
     enabled: monitor.enabled ?? null,
     regions: monitor.regions ?? null,
-    environmentId: monitor.environment ? refs.resolve('environments', monitor.environment) ?? null : null,
+    environmentId: monitor.environment
+      ? refs.resolve('environments', monitor.environment) ?? null
+      : null,
     assertions: monitor.assertions?.map(toCreateAssertionRequest) ?? null,
     auth: monitor.auth ? toAuthConfig(monitor.auth, refs) : undefined,
-    incidentPolicy: monitor.incidentPolicy ? toIncidentPolicy(monitor.incidentPolicy) : undefined,
+    incidentPolicy: monitor.incidentPolicy
+      ? toIncidentPolicy(monitor.incidentPolicy)
+      : undefined,
     alertChannelIds: monitor.alertChannels?.map((n) => refs.require('alertChannels', n)) ?? null,
     tags: monitor.tags ? {
       tagIds: monitor.tags.map((n) => refs.resolve('tags', n)).filter((id): id is string => id !== undefined),
@@ -222,12 +237,21 @@ export function toUpdateMonitorRequest(
         .filter((n) => !refs.resolve('tags', n))
         .map((n) => ({name: n})),
     } : {tagIds: null, newTags: null},
-  } as Schemas['UpdateMonitorRequest']
+  }
+
+  if (clearAuth) body.clearAuth = true
+  if (clearEnvironmentId) body.clearEnvironmentId = true
+
+  return body
 }
 
 export function toCreateAssertionRequest(a: YamlAssertion): Schemas['CreateAssertionRequest'] {
   const config = {type: a.type, ...(a.config ?? {})} as Schemas['CreateAssertionRequest']['config']
-  return {config, severity: a.severity}
+  // Default to "fail" to match the API persistence default (the API stores
+  // `AssertionSeverity.FAIL` when severity is unset). Without this, snapshot
+  // diff sees `undefined` (YAML) vs `"fail"` (API) and reports phantom drift
+  // on every plan after deploy. Same trick we use for `requireAck`.
+  return {config, severity: a.severity ?? 'fail'}
 }
 
 export function toAuthConfig(auth: YamlAuth, refs: ResolvedRefs): Schemas['CreateMonitorRequest']['auth'] {
@@ -270,11 +294,39 @@ export function toIncidentPolicy(policy: YamlIncidentPolicy): Schemas['UpdateInc
 
 // ── Status Page ────────────────────────────────────────────────────────
 
+/**
+ * Normalize YAML branding to the API's StatusPageBranding shape.
+ *
+ * Fields the user didn't set are serialized as `null`, which the server
+ * treats as "unset — fall back to design-system default". `hidePoweredBy`
+ * is a required boolean on the API side, so it defaults to `false`.
+ */
+export function toBrandingRequest(
+  branding: YamlStatusPageBranding,
+): Schemas['StatusPageBranding'] {
+  return {
+    logoUrl: branding.logoUrl ?? null,
+    faviconUrl: branding.faviconUrl ?? null,
+    brandColor: branding.brandColor ?? null,
+    pageBackground: branding.pageBackground ?? null,
+    cardBackground: branding.cardBackground ?? null,
+    textColor: branding.textColor ?? null,
+    borderColor: branding.borderColor ?? null,
+    headerStyle: branding.headerStyle ?? null,
+    theme: branding.theme ?? null,
+    reportUrl: branding.reportUrl ?? null,
+    hidePoweredBy: branding.hidePoweredBy ?? false,
+    customCss: branding.customCss ?? null,
+    customHeadHtml: branding.customHeadHtml ?? null,
+  }
+}
+
 export function toCreateStatusPageRequest(page: YamlStatusPage): Schemas['CreateStatusPageRequest'] {
   return {
     name: page.name,
     slug: page.slug,
     description: page.description ?? null,
+    branding: page.branding ? toBrandingRequest(page.branding) : null,
     visibility: page.visibility ?? null,
     enabled: page.enabled ?? null,
     incidentMode: page.incidentMode ?? null,
@@ -282,13 +334,13 @@ export function toCreateStatusPageRequest(page: YamlStatusPage): Schemas['Create
 }
 
 export function toUpdateStatusPageRequest(page: YamlStatusPage): Schemas['UpdateStatusPageRequest'] {
-  // Branding is intentionally omitted — YAML does not currently model branding,
-  // and sending a body with null branding fields would reset user-configured
-  // branding on every deploy. The API's "null preserves current" semantic applies
-  // at the top level; omitting `branding` leaves it untouched.
+  // The API treats the entire `branding` field as atomic (null preserves
+  // current, non-null replaces). Omitting `branding` from YAML preserves
+  // whatever the dashboard last saved; providing it makes YAML authoritative.
   return {
     name: page.name,
     description: page.description ?? null,
+    branding: page.branding ? toBrandingRequest(page.branding) : null,
     visibility: page.visibility ?? null,
     enabled: page.enabled ?? null,
     incidentMode: page.incidentMode ?? null,
