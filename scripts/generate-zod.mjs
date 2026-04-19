@@ -2,90 +2,23 @@
 /**
  * Generate Zod schemas from the OpenAPI spec for CLI validation.
  *
- * Applies the same Springdoc preprocessing as the dashboard's sync-schema,
+ * Uses @devhelm/openapi-tools for preprocessing (shared with all surfaces),
  * then runs openapi-zod-client to produce typed Zod schemas that the YAML
  * validation layer imports.
  *
  * Usage: node scripts/generate-zod.mjs
- *
- * Preprocessing logic is kept in sync with packages/openapi-tools in the
- * monorepo. If you change preprocessing there, update it here too.
  */
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { preprocessSpec } from '@devhelm/openapi-tools/preprocess';
 import { generateZodClientFromOpenAPI } from 'openapi-zod-client';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const SPEC_PATH = join(ROOT, 'docs/openapi/monitoring-api.json');
 const OUTPUT_PATH = join(ROOT, 'src/lib/api-zod.generated.ts');
-
-// ── Springdoc preprocessing (synced from packages/openapi-tools) ──────
-
-function setRequiredFields(spec) {
-  const schemas = spec.components?.schemas ?? {};
-  for (const schema of Object.values(schemas)) {
-    if (schema.type !== 'object' || !schema.properties) continue;
-    if (Array.isArray(schema.required)) {
-      for (const [prop, propSchema] of Object.entries(schema.properties)) {
-        if (propSchema.nullable) continue;
-        if (propSchema.oneOf && !schema.required.includes(prop)) {
-          schema.required.push(prop);
-        }
-      }
-      continue;
-    }
-    const required = [];
-    for (const [prop, propSchema] of Object.entries(schema.properties)) {
-      if (propSchema.nullable) continue;
-      if (propSchema.allOf) continue;
-      required.push(prop);
-    }
-    if (required.length > 0) schema.required = required;
-  }
-}
-
-function setRequiredOnAllOfMembers(spec) {
-  const schemas = spec.components?.schemas ?? {};
-  for (const schema of Object.values(schemas)) {
-    if (!Array.isArray(schema.allOf)) continue;
-    for (const member of schema.allOf) {
-      if (!member.properties) continue;
-      if (Array.isArray(member.required)) continue;
-      const required = [];
-      for (const [prop, propSchema] of Object.entries(member.properties)) {
-        if (propSchema.nullable) continue;
-        if (propSchema.allOf) continue;
-        required.push(prop);
-      }
-      if (required.length > 0) member.required = required;
-    }
-  }
-}
-
-function pushRequiredIntoAllOf(spec) {
-  const schemas = spec.components?.schemas ?? {};
-  for (const schema of Object.values(schemas)) {
-    if (!Array.isArray(schema.required) || !Array.isArray(schema.allOf)) continue;
-    for (const member of schema.allOf) {
-      if (!member.properties) continue;
-      const memberRequired = [];
-      for (const field of schema.required) {
-        if (field in member.properties) memberRequired.push(field);
-      }
-      if (memberRequired.length > 0) {
-        member.required = member.required
-          ? [...new Set([...member.required, ...memberRequired])]
-          : memberRequired;
-      }
-    }
-  }
-}
-
-// ── Post-processing (strip Zodios client, keep only Zod schemas) ─────
-// Same approach as sdk-js/scripts/generate-schemas.js
 
 function extractSchemas(raw) {
   const lines = raw.split('\n');
@@ -99,16 +32,15 @@ function extractSchemas(raw) {
     kept.join('\n') + '\n';
 }
 
-// ── Main ──────────────────────────────────────────────────────────────
-
 async function main() {
   console.log('Reading spec from', SPEC_PATH);
   const spec = JSON.parse(readFileSync(SPEC_PATH, 'utf8'));
 
-  setRequiredFields(spec);
-  setRequiredOnAllOfMembers(spec);
-  pushRequiredIntoAllOf(spec);
+  const { flattened } = preprocessSpec(spec);
   console.log(`Preprocessed spec (${Object.keys(spec.components?.schemas ?? {}).length} schemas)`);
+  if (flattened.length > 0) {
+    console.log(`  Flattened circular oneOf: ${flattened.join(', ')}`);
+  }
 
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
 

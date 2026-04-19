@@ -890,55 +890,56 @@ const StatusPageBranding = z
       .min(0)
       .max(2048)
       .regex(/^https?:\/\/.*/)
-      .nullish(),
+      .nullable(),
     faviconUrl: z
       .string()
       .min(0)
       .max(2048)
       .regex(/^https?:\/\/.*/)
-      .nullish(),
+      .nullable(),
     brandColor: z
       .string()
       .min(0)
       .max(30)
       .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
-      .nullish(),
+      .nullable(),
     pageBackground: z
       .string()
       .min(0)
       .max(30)
       .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
-      .nullish(),
+      .nullable(),
     cardBackground: z
       .string()
       .min(0)
       .max(30)
       .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
-      .nullish(),
+      .nullable(),
     textColor: z
       .string()
       .min(0)
       .max(30)
       .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
-      .nullish(),
+      .nullable(),
     borderColor: z
       .string()
       .min(0)
       .max(30)
       .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
-      .nullish(),
-    headerStyle: z.string().min(0).max(50).nullish(),
-    theme: z.string().min(0).max(50).nullish(),
+      .nullable(),
+    headerStyle: z.string().min(0).max(50).nullable(),
+    theme: z.string().min(0).max(50).nullable(),
     reportUrl: z
       .string()
       .min(0)
       .max(2048)
       .regex(/^https?:\/\/.*/)
-      .nullish(),
+      .nullable(),
     hidePoweredBy: z.boolean().default(false),
-    customCss: z.string().min(0).max(50000).nullish(),
-    customHeadHtml: z.string().min(0).max(50000).nullish(),
+    customCss: z.string().min(0).max(50000).nullable(),
+    customHeadHtml: z.string().min(0).max(50000).nullable(),
   })
+  .partial()
   .passthrough();
 const CreateStatusPageRequest = z
   .object({
