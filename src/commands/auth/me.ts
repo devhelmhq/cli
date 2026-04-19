@@ -2,6 +2,7 @@ import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
 import {checkedFetch} from '../../lib/api-client.js'
 import {formatOutput, OutputFormat} from '../../lib/output.js'
+import {AuthMeResponseSchema} from '../../lib/response-schemas.js'
 
 export default class AuthMe extends Command {
   static description = 'Show current API key identity, organization, plan, and rate limits'
@@ -12,6 +13,15 @@ export default class AuthMe extends Command {
     const {flags} = await this.parse(AuthMe)
     const client = buildClient(flags)
     const resp = await checkedFetch(client.GET('/api/v1/auth/me'))
+    if (!resp.data) {
+      this.error('API returned an empty response for /api/v1/auth/me')
+    }
+
+    const parsed = AuthMeResponseSchema.safeParse(resp.data)
+    if (!parsed.success) {
+      this.error(`Unexpected auth/me response shape: ${parsed.error.issues.map((i) => i.message).join(', ')}`)
+    }
+
     const me = resp.data
 
     const format = flags.output as OutputFormat
@@ -20,10 +30,10 @@ export default class AuthMe extends Command {
       return
     }
 
-    const k = me?.key ?? {}
-    const o = me?.organization ?? {}
-    const p = me?.plan ?? {}
-    const r = me?.rateLimits ?? {}
+    const k = me.key
+    const o = me.organization
+    const p = me.plan
+    const r = me.rateLimits
 
     this.log('')
     this.log('  API Key')

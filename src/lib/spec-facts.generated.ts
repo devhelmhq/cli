@@ -10,6 +10,9 @@ export type HttpMethods = (typeof HTTP_METHODS)[number]
 export const DNS_RECORD_TYPES = ['A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SRV', 'SOA', 'CAA', 'PTR'] as const
 export type DnsRecordTypes = (typeof DNS_RECORD_TYPES)[number]
 
+export const INCIDENT_SEVERITIES = ['DOWN', 'DEGRADED', 'MAINTENANCE'] as const
+export type IncidentSeverities = (typeof INCIDENT_SEVERITIES)[number]
+
 export const ASSERTION_SEVERITIES = ['fail', 'warn'] as const
 export type AssertionSeverities = (typeof ASSERTION_SEVERITIES)[number]
 
@@ -42,6 +45,12 @@ export type StatusPageIncidentModes = (typeof STATUS_PAGE_INCIDENT_MODES)[number
 
 export const STATUS_PAGE_COMPONENT_TYPES = ['MONITOR', 'GROUP', 'STATIC'] as const
 export type StatusPageComponentTypes = (typeof STATUS_PAGE_COMPONENT_TYPES)[number]
+
+export const SP_INCIDENT_IMPACTS = ['NONE', 'MINOR', 'MAJOR', 'CRITICAL'] as const
+export type SpIncidentImpacts = (typeof SP_INCIDENT_IMPACTS)[number]
+
+export const SP_INCIDENT_STATUSES = ['INVESTIGATING', 'IDENTIFIED', 'MONITORING', 'RESOLVED'] as const
+export type SpIncidentStatuses = (typeof SP_INCIDENT_STATUSES)[number]
 
 export const AUTH_TYPES = ['bearer', 'basic', 'header', 'api_key'] as const
 export type AuthTypes = (typeof AUTH_TYPES)[number]

@@ -1,12 +1,8 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Command, Args, Flags, type Interfaces} from '@oclif/core'
 import {globalFlags, buildClient, display} from './base-command.js'
 import {fetchPaginated} from './typed-api.js'
 import {apiGet, apiPost, apiPut, apiDelete} from './api-client.js'
 import type {ColumnDef} from './output.js'
-
-// oclif flag types are structurally complex; this alias keeps ResourceConfig readable.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type OclifFlag = any
 
 export interface ResourceConfig<T = unknown> {
   name: string
@@ -14,8 +10,8 @@ export interface ResourceConfig<T = unknown> {
   apiPath: string
   idField?: string
   columns: ColumnDef<T>[]
-  createFlags?: Record<string, OclifFlag>
-  updateFlags?: Record<string, OclifFlag>
+  createFlags?: Interfaces.FlagInput
+  updateFlags?: Interfaces.FlagInput
   bodyBuilder?: (flags: Record<string, unknown>) => object
   updateBodyBuilder?: (flags: Record<string, unknown>) => object
 }

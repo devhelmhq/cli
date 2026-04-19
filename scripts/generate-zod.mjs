@@ -60,6 +60,7 @@ function generateSpecFacts(spec) {
     MONITOR_TYPES: enumsFrom('CreateMonitorRequest', 'type'),
     HTTP_METHODS: enumsFrom('HttpMonitorConfig', 'method'),
     DNS_RECORD_TYPES: enumsFrom('DnsMonitorConfig', 'recordTypes'),
+    INCIDENT_SEVERITIES: enumsFrom('CreateManualIncidentRequest', 'severity'),
     ASSERTION_SEVERITIES: enumsFrom('CreateAssertionRequest', 'severity'),
     CHANNEL_TYPES: enumsFrom('AlertChannelDto', 'channelType'),
     TRIGGER_RULE_TYPES: enumsFrom('TriggerRule', 'type'),
@@ -71,6 +72,8 @@ function generateSpecFacts(spec) {
     STATUS_PAGE_VISIBILITIES: enumsFrom('CreateStatusPageRequest', 'visibility'),
     STATUS_PAGE_INCIDENT_MODES: enumsFrom('CreateStatusPageRequest', 'incidentMode'),
     STATUS_PAGE_COMPONENT_TYPES: enumsFrom('CreateStatusPageComponentRequest', 'type'),
+    SP_INCIDENT_IMPACTS: enumsFrom('CreateStatusPageIncidentRequest', 'impact'),
+    SP_INCIDENT_STATUSES: enumsFrom('CreateStatusPageIncidentRequest', 'status'),
     AUTH_TYPES: enumsFrom('MonitorAuthDto', 'authType'),
     MANAGED_BY: enumsFrom('CreateMonitorRequest', 'managedBy'),
   };

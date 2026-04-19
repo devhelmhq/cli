@@ -1,6 +1,7 @@
 import {Command, Args, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {apiPost} from '../../../lib/api-client.js'
+import {STATUS_PAGE_COMPONENT_TYPES} from '../../../lib/spec-facts.generated.js'
 
 export default class StatusPagesComponentsCreate extends Command {
   static description = 'Add a component to a status page'
@@ -9,7 +10,7 @@ export default class StatusPagesComponentsCreate extends Command {
   static flags = {
     ...globalFlags,
     name: Flags.string({description: 'Component name', required: true}),
-    type: Flags.string({description: 'Component type', required: true, options: ['STATIC', 'MONITOR', 'GROUP']}),
+    type: Flags.string({description: 'Component type', required: true, options: [...STATUS_PAGE_COMPONENT_TYPES]}),
     'monitor-id': Flags.string({description: 'Monitor ID (required when type=MONITOR)'}),
     'resource-group-id': Flags.string({description: 'Resource group ID (required when type=GROUP)'}),
     'group-id': Flags.string({description: 'Component group ID for visual grouping'}),

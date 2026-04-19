@@ -26,14 +26,17 @@ export default class AuthLogin extends Command {
 
     try {
       const resp = await checkedFetch(client.GET('/api/v1/auth/me'))
-      const me = resp.data
+      if (!resp.data) {
+        throw new Error('Empty response')
+      }
 
+      const me = resp.data
       saveContext({name: flags.name, apiUrl, token}, true)
       this.log('')
       this.log(`  Authenticated successfully.`)
-      this.log(`  Organization: ${me?.organization?.name ?? 'unknown'} (ID: ${me?.organization?.id ?? '?'})`)
-      this.log(`  Key:          ${me?.key?.name ?? 'unknown'}`)
-      this.log(`  Plan:         ${me?.plan?.tier ?? 'unknown'}`)
+      this.log(`  Organization: ${me.organization?.name ?? 'unknown'} (ID: ${me.organization?.id ?? '?'})`)
+      this.log(`  Key:          ${me.key?.name ?? 'unknown'}`)
+      this.log(`  Plan:         ${me.plan?.tier ?? 'unknown'}`)
       this.log('')
       this.log(`  Context '${flags.name}' saved to ~/.devhelm/contexts.json`)
       return

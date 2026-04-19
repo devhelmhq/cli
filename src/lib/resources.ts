@@ -3,6 +3,13 @@ import {Flags} from '@oclif/core'
 import {ResourceConfig} from './crud-commands.js'
 import type {components} from './api.generated.js'
 import {fieldDescriptions} from './descriptions.generated.js'
+import {
+  MONITOR_TYPES,
+  HTTP_METHODS,
+  INCIDENT_SEVERITIES,
+  CHANNEL_TYPES,
+  STATUS_PAGE_INCIDENT_MODES,
+} from './spec-facts.generated.js'
 
 // ── Description lookup from OpenAPI spec ───────────────────────────────
 function desc(schema: string, field: string, fallback?: string): string {
@@ -35,21 +42,6 @@ type CreateNotificationPolicyRequest = Schemas['CreateNotificationPolicyRequest'
 type UpdateNotificationPolicyRequest = Schemas['UpdateNotificationPolicyRequest']
 type CreateApiKeyRequest = Schemas['CreateApiKeyRequest']
 
-const MONITOR_TYPES: MonitorType[] = ['HTTP', 'DNS', 'TCP', 'ICMP', 'HEARTBEAT', 'MCP_SERVER']
-const HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD']
-const INCIDENT_SEVERITIES: IncidentSeverity[] = ['DOWN', 'DEGRADED', 'MAINTENANCE']
-const CHANNEL_TYPES = ['SLACK', 'EMAIL', 'PAGERDUTY', 'OPSGENIE', 'DISCORD', 'TEAMS', 'WEBHOOK'] as const
-
-const CHANNEL_TYPE_MAP: Record<string, string> = {
-  SLACK: 'slack',
-  EMAIL: 'email',
-  PAGERDUTY: 'pagerduty',
-  OPSGENIE: 'opsgenie',
-  DISCORD: 'discord',
-  TEAMS: 'teams',
-  WEBHOOK: 'webhook',
-}
-
 // ── Resource definitions ───────────────────────────────────────────────
 
 export const MONITORS: ResourceConfig<MonitorDto> = {
@@ -70,13 +62,13 @@ export const MONITORS: ResourceConfig<MonitorDto> = {
     type: Flags.string({
       description: desc('CreateMonitorRequest', 'type'),
       required: true,
-      options: MONITOR_TYPES,
+      options: [...MONITOR_TYPES],
     }),
     url: Flags.string({description: desc('HttpMonitorConfig', 'url', 'Target URL or host')}),
     frequency: Flags.string({description: desc('CreateMonitorRequest', 'frequencySeconds'), default: '60'}),
     method: Flags.string({
       description: desc('HttpMonitorConfig', 'method'),
-      options: HTTP_METHODS,
+      options: [...HTTP_METHODS],
     }),
     port: Flags.string({description: desc('TcpMonitorConfig', 'port', 'TCP port to connect to')}),
     regions: Flags.string({description: desc('CreateMonitorRequest', 'regions')}),
@@ -85,7 +77,7 @@ export const MONITORS: ResourceConfig<MonitorDto> = {
     name: Flags.string({description: desc('UpdateMonitorRequest', 'name')}),
     url: Flags.string({description: desc('HttpMonitorConfig', 'url', 'Target URL or host')}),
     frequency: Flags.string({description: desc('UpdateMonitorRequest', 'frequencySeconds')}),
-    method: Flags.string({description: desc('HttpMonitorConfig', 'method'), options: HTTP_METHODS}),
+    method: Flags.string({description: desc('HttpMonitorConfig', 'method'), options: [...HTTP_METHODS]}),
     port: Flags.string({description: desc('TcpMonitorConfig', 'port', 'TCP port to connect to')}),
   },
   bodyBuilder: (raw) => {
@@ -155,7 +147,7 @@ export const INCIDENTS: ResourceConfig<IncidentDto> = {
     severity: Flags.string({
       description: desc('CreateManualIncidentRequest', 'severity'),
       required: true,
-      options: INCIDENT_SEVERITIES,
+      options: [...INCIDENT_SEVERITIES],
     }),
     'monitor-id': Flags.string({description: desc('CreateManualIncidentRequest', 'monitorId')}),
     body: Flags.string({description: desc('CreateManualIncidentRequest', 'body')}),
@@ -203,8 +195,7 @@ export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
     if (raw.config) {
       config = JSON.parse(String(raw.config)) as CreateAlertChannelRequest['config']
     } else {
-      const typeKey = String(raw.type || 'SLACK').toUpperCase()
-      const channelType = CHANNEL_TYPE_MAP[typeKey] ?? 'slack'
+      const channelType = String(raw.type || 'slack').toLowerCase()
       if (raw['webhook-url'] !== undefined) {
         config = {channelType, webhookUrl: String(raw['webhook-url'])} as CreateAlertChannelRequest['config']
       } else {
@@ -428,7 +419,7 @@ export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
     // Only PUBLIC is enforced today — PASSWORD / IP_RESTRICTED exist in the
     // API enum but are not implemented. Expose a narrower, honest option set.
     visibility: Flags.string({description: 'Page visibility (PUBLIC only today)', options: ['PUBLIC']}),
-    'incident-mode': Flags.string({description: desc('CreateStatusPageRequest', 'incidentMode'), options: ['MANUAL', 'REVIEW', 'AUTOMATIC']}),
+    'incident-mode': Flags.string({description: desc('CreateStatusPageRequest', 'incidentMode'), options: [...STATUS_PAGE_INCIDENT_MODES]}),
     'branding-file': Flags.string({description: 'Path to a JSON file with branding fields (logoUrl, brandColor, theme, customCss, …)'}),
   },
   updateFlags: {
@@ -436,7 +427,7 @@ export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
     description: Flags.string({description: desc('UpdateStatusPageRequest', 'description')}),
     visibility: Flags.string({description: 'Page visibility (PUBLIC only today)', options: ['PUBLIC']}),
     enabled: Flags.boolean({description: 'Whether the page is enabled', allowNo: true}),
-    'incident-mode': Flags.string({description: desc('UpdateStatusPageRequest', 'incidentMode'), options: ['MANUAL', 'REVIEW', 'AUTOMATIC']}),
+    'incident-mode': Flags.string({description: desc('UpdateStatusPageRequest', 'incidentMode'), options: [...STATUS_PAGE_INCIDENT_MODES]}),
     'branding-file': Flags.string({description: 'Path to a JSON file with branding fields; omit to preserve existing branding'}),
   },
   bodyBuilder: (raw) => {

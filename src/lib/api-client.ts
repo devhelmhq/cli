@@ -1,4 +1,5 @@
 import createClient, {type Middleware} from 'openapi-fetch'
+import type {PathsWithMethod} from 'openapi-typescript-helpers'
 import type {paths, components} from './api.generated.js'
 import {AuthError, DevhelmError, EXIT_CODES} from './errors.js'
 
@@ -90,6 +91,15 @@ export type ApiClient = ReturnType<typeof createApiClient>
  * Unwrap an openapi-fetch response: returns `data` on success, throws a typed
  * DevhelmError on failure (AuthError for 401/403, NOT_FOUND for 404, API for others).
  * Every client.GET / POST / PUT / DELETE call should be wrapped with this.
+ *
+ * Trade-off: the returned `data` is cast as `T` with no runtime validation.
+ * This avoids the cost of parsing every response through Zod, which matters
+ * for high-frequency paths (list/get). The type safety relies on the OpenAPI
+ * spec staying in sync with the server — compile-time only.
+ *
+ * For critical paths where a shape mismatch could cause silent misbehavior
+ * (e.g. entitlement checks gating deploy), callers should add explicit Zod
+ * validation after this call. See `response-schemas.ts` for those schemas.
  */
 export async function checkedFetch<T>(promise: Promise<{data?: T; error?: unknown; response: Response}>): Promise<T> {
   const {data, error, response} = await promise
@@ -103,31 +113,36 @@ export async function checkedFetch<T>(promise: Promise<{data?: T; error?: unknow
 
 // ── Dynamic-path helpers ────────────────────────────────────────────────
 //
-// openapi-fetch requires literal path strings for type inference.  When
-// paths are constructed at runtime (CRUD factory, YAML applier), this
-// breaks.  These helpers centralize the single `as any` cast — every
-// call site uses a clean, typed API.
+// openapi-fetch requires literal path strings for compile-time type
+// inference.  When paths are built at runtime (CRUD factory, YAML
+// applier), the literal inference breaks.  These helpers centralize
+// the assertion: the path is cast to the correct per-method path union
+// (e.g. GETPath), and the options object is cast to `never` — the
+// bottom type that satisfies any parameter shape without opening the
+// door to unrelated type leaks the way `as any` would.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+type GETPath = PathsWithMethod<paths, 'get'>
+type POSTPath = PathsWithMethod<paths, 'post'>
+type PUTPath = PathsWithMethod<paths, 'put'>
+type PATCHPath = PathsWithMethod<paths, 'patch'>
+type DELETEPath = PathsWithMethod<paths, 'delete'>
 
 export function apiGet<T>(client: ApiClient, path: string, params?: object): Promise<T> {
-  return checkedFetch<T>(client.GET(path as any, (params ? {params} : {}) as any))
+  return checkedFetch<T>(client.GET(path as GETPath, (params ? {params} : {}) as never))
 }
 
 export function apiPost<T>(client: ApiClient, path: string, body: object): Promise<T> {
-  return checkedFetch<T>(client.POST(path as any, {body} as any))
+  return checkedFetch<T>(client.POST(path as POSTPath, {body} as never))
 }
 
 export function apiPut<T>(client: ApiClient, path: string, body: object): Promise<T> {
-  return checkedFetch<T>(client.PUT(path as any, {body} as any))
+  return checkedFetch<T>(client.PUT(path as PUTPath, {body} as never))
 }
 
 export function apiPatch<T>(client: ApiClient, path: string, body: object): Promise<T> {
-  return checkedFetch<T>(client.PATCH(path as any, {body} as any))
+  return checkedFetch<T>(client.PATCH(path as PATCHPath, {body} as never))
 }
 
 export function apiDelete(client: ApiClient, path: string): Promise<unknown> {
-  return checkedFetch(client.DELETE(path as any, {params: {path: {}}} as any))
+  return checkedFetch(client.DELETE(path as DELETEPath, {params: {path: {}}} as never))
 }
-
-/* eslint-enable @typescript-eslint/no-explicit-any */

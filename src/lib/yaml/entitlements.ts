@@ -5,6 +5,7 @@
 import type {ApiClient} from '../api-client.js'
 import {checkedFetch} from '../api-client.js'
 import type {components} from '../api.generated.js'
+import {AuthMeResponseSchema} from '../response-schemas.js'
 import type {Changeset} from './types.js'
 
 type AuthMeResponse = components['schemas']['AuthMeResponse']
@@ -46,7 +47,19 @@ export async function checkEntitlements(
   let data: AuthMeResponse
   try {
     const resp = await checkedFetch<{data?: AuthMeResponse}>(client.GET('/api/v1/auth/me'))
-    data = resp.data ?? ({} as AuthMeResponse)
+    if (!resp.data) {
+      process.stderr.write('Entitlement check skipped: API returned empty response for /api/v1/auth/me\n')
+      return null
+    }
+
+    const parsed = AuthMeResponseSchema.safeParse(resp.data)
+    if (!parsed.success) {
+      const issues = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')
+      process.stderr.write(`Entitlement check skipped: unexpected auth/me shape — ${issues}\n`)
+      return null
+    }
+
+    data = resp.data
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     process.stderr.write(`Entitlement check skipped: ${msg}\n`)
