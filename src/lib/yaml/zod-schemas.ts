@@ -1,52 +1,100 @@
 /**
  * Zod schemas for devhelm.yml configuration.
  *
- * Single source of truth for YAML *validation*. Enum constants are
- * intentionally re-declared here as `as const` tuples because Zod's
- * `z.enum` requires a literal tuple type, while `schema.ts` exports them
- * as `readonly Foo[]` for the type-system layer. The contract test in
- * `test/yaml/parser.test.ts` (and the `enum-parity` block in
- * `zod-schemas.test.ts`) asserts the two lists stay in sync — if you add
- * an enum value, add it in both places.
+ * Single source of truth for YAML *validation*. Schemas for assertions,
+ * alert channel configs, and monitor configs are imported from the
+ * generated file (api-zod.generated.ts) — derived from the OpenAPI spec
+ * via `npm run zodgen`. This file defines ZERO per-type schemas manually;
+ * it only composes generated schemas into dispatch maps and top-level
+ * structural schemas.
  *
- * Assertion and auth types use snake_case wire-format names as the
- * user-facing vocabulary. The bidirectional mapping functions in
- * `transform.ts` convert between these and the PascalCase OpenAPI schema
- * names.
+ * Enum constants are re-declared as `as const` tuples because Zod's
+ * `z.enum` requires a literal tuple type. The parity test in
+ * `zod-schemas.test.ts` asserts they stay in sync with schema.ts.
+ *
+ * Auth schemas remain hand-written because the YAML format uses a
+ * `secret` field that doesn't exist in the API (the CLI resolves it
+ * to a vault secret ID).
  */
 import {z} from 'zod'
 
-// ── Discriminator wire-format derivation ─────────────────────────────
+import {schemas as apiSchemas} from '../api-zod.generated.js'
 
-function pascalToSnake(s: string): string {
-  return s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/([A-Z])([A-Z][a-z])/g, '$1_$2').toLowerCase()
+// ── Assertion config schemas (imported from generated OpenAPI Zod) ────
+// Maps wire-format type strings (from AssertionConfig discriminator)
+// to the corresponding generated Zod schema.
+
+const ASSERTION_CONFIG_SCHEMAS: Record<string, z.ZodType> = {
+  body_contains: apiSchemas.BodyContainsAssertion,
+  dns_expected_cname: apiSchemas.DnsExpectedCnameAssertion,
+  dns_expected_ips: apiSchemas.DnsExpectedIpsAssertion,
+  dns_max_answers: apiSchemas.DnsMaxAnswersAssertion,
+  dns_min_answers: apiSchemas.DnsMinAnswersAssertion,
+  dns_record_contains: apiSchemas.DnsRecordContainsAssertion,
+  dns_record_equals: apiSchemas.DnsRecordEqualsAssertion,
+  dns_resolves: apiSchemas.DnsResolvesAssertion,
+  dns_response_time: apiSchemas.DnsResponseTimeAssertion,
+  dns_response_time_warn: apiSchemas.DnsResponseTimeWarnAssertion,
+  dns_ttl_high: apiSchemas.DnsTtlHighAssertion,
+  dns_ttl_low: apiSchemas.DnsTtlLowAssertion,
+  dns_txt_contains: apiSchemas.DnsTxtContainsAssertion,
+  header_value: apiSchemas.HeaderValueAssertion,
+  heartbeat_interval_drift: apiSchemas.HeartbeatIntervalDriftAssertion,
+  heartbeat_max_interval: apiSchemas.HeartbeatMaxIntervalAssertion,
+  heartbeat_payload_contains: apiSchemas.HeartbeatPayloadContainsAssertion,
+  heartbeat_received: apiSchemas.HeartbeatReceivedAssertion,
+  icmp_packet_loss: apiSchemas.IcmpPacketLossAssertion,
+  icmp_reachable: apiSchemas.IcmpReachableAssertion,
+  icmp_response_time: apiSchemas.IcmpResponseTimeAssertion,
+  icmp_response_time_warn: apiSchemas.IcmpResponseTimeWarnAssertion,
+  json_path: apiSchemas.JsonPathAssertion,
+  mcp_connects: apiSchemas.McpConnectsAssertion,
+  mcp_has_capability: apiSchemas.McpHasCapabilityAssertion,
+  mcp_min_tools: apiSchemas.McpMinToolsAssertion,
+  mcp_protocol_version: apiSchemas.McpProtocolVersionAssertion,
+  mcp_response_time: apiSchemas.McpResponseTimeAssertion,
+  mcp_response_time_warn: apiSchemas.McpResponseTimeWarnAssertion,
+  mcp_tool_available: apiSchemas.McpToolAvailableAssertion,
+  mcp_tool_count_changed: apiSchemas.McpToolCountChangedAssertion,
+  redirect_count: apiSchemas.RedirectCountAssertion,
+  redirect_target: apiSchemas.RedirectTargetAssertion,
+  regex_body: apiSchemas.RegexBodyAssertion,
+  response_size: apiSchemas.ResponseSizeAssertion,
+  response_time: apiSchemas.ResponseTimeAssertion,
+  response_time_warn: apiSchemas.ResponseTimeWarnAssertion,
+  ssl_expiry: apiSchemas.SslExpiryAssertion,
+  status_code: apiSchemas.StatusCodeAssertion,
+  tcp_connects: apiSchemas.TcpConnectsAssertion,
+  tcp_response_time: apiSchemas.TcpResponseTimeAssertion,
+  tcp_response_time_warn: apiSchemas.TcpResponseTimeWarnAssertion,
 }
 
-// ── Assertion types (snake_case) ─────────────────────────────────────
+export const ASSERTION_WIRE_TYPES = Object.keys(ASSERTION_CONFIG_SCHEMAS)
 
-export const ASSERTION_SCHEMA_NAMES = [
-  'StatusCodeAssertion', 'ResponseTimeAssertion', 'ResponseTimeWarnAssertion',
-  'BodyContainsAssertion', 'RegexBodyAssertion', 'HeaderValueAssertion',
-  'JsonPathAssertion', 'SslExpiryAssertion', 'ResponseSizeAssertion',
-  'RedirectCountAssertion', 'RedirectTargetAssertion',
-  'DnsResolvesAssertion', 'DnsResponseTimeAssertion', 'DnsResponseTimeWarnAssertion',
-  'DnsExpectedIpsAssertion', 'DnsExpectedCnameAssertion',
-  'DnsRecordContainsAssertion', 'DnsRecordEqualsAssertion',
-  'DnsTxtContainsAssertion', 'DnsMinAnswersAssertion', 'DnsMaxAnswersAssertion',
-  'DnsTtlLowAssertion', 'DnsTtlHighAssertion',
-  'TcpConnectsAssertion', 'TcpResponseTimeAssertion', 'TcpResponseTimeWarnAssertion',
-  'IcmpReachableAssertion', 'IcmpResponseTimeAssertion', 'IcmpResponseTimeWarnAssertion',
-  'IcmpPacketLossAssertion',
-  'HeartbeatReceivedAssertion', 'HeartbeatMaxIntervalAssertion',
-  'HeartbeatIntervalDriftAssertion', 'HeartbeatPayloadContainsAssertion',
-  'McpConnectsAssertion', 'McpResponseTimeAssertion', 'McpResponseTimeWarnAssertion',
-  'McpHasCapabilityAssertion', 'McpToolAvailableAssertion',
-  'McpMinToolsAssertion', 'McpProtocolVersionAssertion', 'McpToolCountChangedAssertion',
-] as const
+export {ASSERTION_CONFIG_SCHEMAS}
 
-export const ASSERTION_WIRE_TYPES = ASSERTION_SCHEMA_NAMES.map(
-  (n) => pascalToSnake(n.replace(/Assertion$/, '')),
-) as unknown as readonly string[]
+// ── Channel config schemas (imported from generated OpenAPI Zod) ─────
+
+const CHANNEL_CONFIG_SCHEMAS: Record<string, z.ZodType> = {
+  discord: apiSchemas.DiscordChannelConfig,
+  email: apiSchemas.EmailChannelConfig,
+  opsgenie: apiSchemas.OpsGenieChannelConfig,
+  pagerduty: apiSchemas.PagerDutyChannelConfig,
+  slack: apiSchemas.SlackChannelConfig,
+  teams: apiSchemas.TeamsChannelConfig,
+  webhook: apiSchemas.WebhookChannelConfig,
+}
+
+// ── Monitor config schemas (imported from generated OpenAPI Zod) ─────
+
+const MONITOR_TYPE_CONFIG_SCHEMAS: Record<string, z.ZodType> = {
+  HTTP: apiSchemas.HttpMonitorConfig,
+  DNS: apiSchemas.DnsMonitorConfig,
+  TCP: apiSchemas.TcpMonitorConfig,
+  ICMP: apiSchemas.IcmpMonitorConfig,
+  HEARTBEAT: apiSchemas.HeartbeatMonitorConfig,
+  MCP_SERVER: apiSchemas.McpServerMonitorConfig,
+}
 
 // ── Constants (kept in sync with schema.ts via parity test) ──────────
 
@@ -61,9 +109,6 @@ const TRIGGER_SEVERITIES = ['down', 'degraded'] as const
 const TRIGGER_AGGREGATIONS = ['all_exceed', 'average', 'p95', 'max'] as const
 const ALERT_SENSITIVITIES = ['ALL', 'INCIDENTS_ONLY', 'MAJOR_ONLY'] as const
 const HEALTH_THRESHOLD_TYPES = ['COUNT', 'PERCENTAGE'] as const
-// Only PUBLIC is accepted today. The API enum defines PASSWORD / IP_RESTRICTED
-// but neither mode is implemented server-side yet, so exposing them in YAML
-// would silently do nothing. See schema.ts for the matching narrowing.
 const STATUS_PAGE_VISIBILITIES = ['PUBLIC'] as const
 const STATUS_PAGE_INCIDENT_MODES = ['MANUAL', 'REVIEW', 'AUTOMATIC'] as const
 const STATUS_PAGE_COMPONENT_TYPES = ['MONITOR', 'GROUP', 'STATIC'] as const
@@ -71,8 +116,6 @@ const STATUS_PAGE_COMPONENT_TYPES = ['MONITOR', 'GROUP', 'STATIC'] as const
 const MIN_FREQUENCY = 30
 const MAX_FREQUENCY = 86400
 
-// Internal-only re-export so the parity test can import the Zod-side
-// tuples without going through individual named exports.
 export const _ZOD_ENUMS = {
   MONITOR_TYPES, HTTP_METHODS, DNS_RECORD_TYPES, ASSERTION_SEVERITIES,
   CHANNEL_TYPES, TRIGGER_RULE_TYPES, TRIGGER_SCOPES, TRIGGER_SEVERITIES,
@@ -81,112 +124,32 @@ export const _ZOD_ENUMS = {
   MIN_FREQUENCY, MAX_FREQUENCY,
 } as const
 
-// ── Monitor config schemas ───────────────────────────────────────────
-
-const HttpConfigSchema = z.object({
-  url: z.string(),
-  method: z.enum(HTTP_METHODS),
-  customHeaders: z.record(z.string()).optional(),
-  requestBody: z.string().optional(),
-  contentType: z.string().optional(),
-  verifyTls: z.boolean().optional(),
-}).strict()
-
-const DnsConfigSchema = z.object({
-  hostname: z.string(),
-  recordTypes: z.array(z.enum(DNS_RECORD_TYPES)).optional(),
-  nameservers: z.array(z.string()).optional(),
-  timeoutMs: z.number().int().positive().optional(),
-  totalTimeoutMs: z.number().int().positive().optional(),
-}).strict()
-
-const TcpConfigSchema = z.object({
-  host: z.string(),
-  port: z.number().int().positive().optional(),
-  timeoutMs: z.number().int().positive().optional(),
-}).strict()
-
-const IcmpConfigSchema = z.object({
-  host: z.string(),
-  packetCount: z.number().int().positive().optional(),
-  timeoutMs: z.number().int().positive().optional(),
-}).strict()
-
-const HeartbeatConfigSchema = z.object({
-  expectedInterval: z.number().positive(),
-  gracePeriod: z.number().positive(),
-}).strict()
-
-const McpServerConfigSchema = z.object({
-  command: z.string(),
-  args: z.array(z.string()).optional(),
-  env: z.record(z.string()).optional(),
-}).strict()
-
-const MonitorConfigSchema = z.union([
-  HttpConfigSchema,
-  DnsConfigSchema,
-  TcpConfigSchema,
-  IcmpConfigSchema,
-  HeartbeatConfigSchema,
-  McpServerConfigSchema,
-])
-
-// ── Assertion schema ─────────────────────────────────────────────────
-
-/**
- * Assertion types that require a non-empty `config` block. The API rejects
- * empty configs for these at request time; we short-circuit with a clearer
- * error message at YAML parse time.
- *
- * Threshold-bearing assertions (response_time, dns_response_time, etc.) all
- * require at least one numeric threshold field; "expected value" assertions
- * (dns_expected_ips, mcp_tool_available, etc.) require the expected value.
- *
- * The fine-grained per-type shape validation is left to the API — duplicating
- * ~40 discriminated unions client-side would drift from the server and
- * provide little additional safety.
- */
-const ASSERTIONS_REQUIRING_CONFIG: readonly string[] = [
-  'status_code',
-  'response_time', 'response_time_warn',
-  'body_contains', 'regex_body', 'header_value', 'json_path',
-  'ssl_expiry', 'response_size',
-  'redirect_count', 'redirect_target',
-  'dns_response_time', 'dns_response_time_warn',
-  'dns_expected_ips', 'dns_expected_cname',
-  'dns_record_contains', 'dns_record_equals',
-  'dns_txt_contains', 'dns_min_answers', 'dns_max_answers',
-  'dns_ttl_low', 'dns_ttl_high',
-  'tcp_response_time', 'tcp_response_time_warn',
-  'icmp_response_time', 'icmp_response_time_warn',
-  'icmp_packet_loss',
-  'heartbeat_max_interval', 'heartbeat_interval_drift', 'heartbeat_payload_contains',
-  'mcp_response_time', 'mcp_response_time_warn',
-  'mcp_has_capability', 'mcp_tool_available',
-  'mcp_min_tools', 'mcp_protocol_version',
-]
+// ── Assertion schema (dispatches by config.type to generated schemas) ─
 
 const AssertionSchema = z.object({
-  type: z.string().refine(
-    (v) => ASSERTION_WIRE_TYPES.includes(v),
-    (v) => ({message: `Unknown assertion type "${v}". Valid types: ${ASSERTION_WIRE_TYPES.join(', ')}`}),
-  ),
-  config: z.record(z.unknown()).optional(),
+  config: z.object({type: z.string()}).passthrough(),
   severity: z.enum(ASSERTION_SEVERITIES).optional(),
 }).superRefine((data, ctx) => {
-  if (ASSERTIONS_REQUIRING_CONFIG.includes(data.type)) {
-    if (!data.config || Object.keys(data.config).length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['config'],
-        message: `Assertion type "${data.type}" requires a non-empty "config" block (e.g. thresholdMs, expected, etc.)`,
-      })
+  const assertionType = data.config.type
+  const configSchema = ASSERTION_CONFIG_SCHEMAS[assertionType]
+  if (!configSchema) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['config', 'type'],
+      message: `Unknown assertion type "${assertionType}". Valid types: ${ASSERTION_WIRE_TYPES.join(', ')}`,
+    })
+    return
+  }
+
+  const result = configSchema.safeParse(data.config)
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      ctx.addIssue({...issue, path: ['config', ...issue.path]})
     }
   }
 })
 
-// ── Auth schemas ─────────────────────────────────────────────────────
+// ── Auth schemas (hand-written — YAML uses `secret`, API uses vaultSecretId) ─
 
 const BearerAuthSchema = z.object({type: z.literal('bearer'), secret: z.string()}).strict()
 const BasicAuthSchema = z.object({type: z.literal('basic'), secret: z.string()}).strict()
@@ -202,15 +165,43 @@ const AuthSchema = z.discriminatedUnion('type', [
 
 // ── Incident policy schemas ──────────────────────────────────────────
 
-const TriggerRuleSchema = z.object({
-  type: z.enum(TRIGGER_RULE_TYPES),
-  count: z.number().int().positive().optional(),
-  windowMinutes: z.number().int().positive().optional(),
+const MAX_TRIGGER_COUNT = 10
+
+const ConsecutiveFailuresRuleSchema = z.object({
+  type: z.literal('consecutive_failures'),
+  count: z.number().int().min(1).max(MAX_TRIGGER_COUNT),
   scope: z.enum(TRIGGER_SCOPES),
-  thresholdMs: z.number().int().positive().optional(),
   severity: z.enum(TRIGGER_SEVERITIES),
+  windowMinutes: z.number().int().positive().optional(),
+  thresholdMs: z.number().int().positive().optional(),
   aggregationType: z.enum(TRIGGER_AGGREGATIONS).optional(),
 }).strict()
+
+const FailuresInWindowRuleSchema = z.object({
+  type: z.literal('failures_in_window'),
+  count: z.number().int().min(1).max(MAX_TRIGGER_COUNT),
+  windowMinutes: z.number().int().positive(),
+  scope: z.enum(TRIGGER_SCOPES),
+  severity: z.enum(TRIGGER_SEVERITIES),
+  thresholdMs: z.number().int().positive().optional(),
+  aggregationType: z.enum(TRIGGER_AGGREGATIONS).optional(),
+}).strict()
+
+const ResponseTimeRuleSchema = z.object({
+  type: z.literal('response_time'),
+  count: z.number().int().min(1).max(MAX_TRIGGER_COUNT),
+  thresholdMs: z.number().int().positive(),
+  scope: z.enum(TRIGGER_SCOPES),
+  severity: z.enum(TRIGGER_SEVERITIES),
+  aggregationType: z.enum(TRIGGER_AGGREGATIONS).optional(),
+  windowMinutes: z.number().int().positive().optional(),
+}).strict()
+
+const TriggerRuleSchema = z.discriminatedUnion('type', [
+  ConsecutiveFailuresRuleSchema,
+  FailuresInWindowRuleSchema,
+  ResponseTimeRuleSchema,
+])
 
 const ConfirmationPolicySchema = z.object({
   type: z.literal('multi_region'),
@@ -255,50 +246,16 @@ const MatchRuleSchema = z.object({
   values: z.array(z.string()).optional(),
 }).strict()
 
-// ── Channel config schemas ───────────────────────────────────────────
+// ── Channel config union (from generated schemas) ────────────────────
 
-const SlackConfigSchema = z.object({
-  webhookUrl: z.string(),
-  mentionText: z.string().optional(),
-}).strict()
-
-const DiscordConfigSchema = z.object({
-  webhookUrl: z.string(),
-  mentionRoleId: z.string().optional(),
-}).strict()
-
-const EmailConfigSchema = z.object({
-  recipients: z.array(z.string()).min(1),
-}).strict()
-
-const WebhookConfigSchema = z.object({
-  url: z.string(),
-  signingSecret: z.string().optional(),
-  customHeaders: z.record(z.string()).optional(),
-}).strict()
-
-const PagerDutyConfigSchema = z.object({
-  routingKey: z.string(),
-  severityOverride: z.string().optional(),
-}).strict()
-
-const OpsGenieConfigSchema = z.object({
-  apiKey: z.string(),
-  region: z.string().optional(),
-}).strict()
-
-const TeamsConfigSchema = z.object({
-  webhookUrl: z.string(),
-}).strict()
-
-const ChannelConfigSchema = z.union([
-  SlackConfigSchema,
-  DiscordConfigSchema,
-  EmailConfigSchema,
-  WebhookConfigSchema,
-  PagerDutyConfigSchema,
-  OpsGenieConfigSchema,
-  TeamsConfigSchema,
+export const ChannelConfigSchema = z.union([
+  apiSchemas.SlackChannelConfig,
+  apiSchemas.DiscordChannelConfig,
+  apiSchemas.EmailChannelConfig,
+  apiSchemas.WebhookChannelConfig,
+  apiSchemas.PagerDutyChannelConfig,
+  apiSchemas.OpsGenieChannelConfig,
+  apiSchemas.TeamsChannelConfig,
 ])
 
 // ── Retry strategy schema ────────────────────────────────────────────
@@ -330,9 +287,17 @@ const SecretSchema = z.object({
 
 const AlertChannelSchema = z.object({
   name: z.string(),
-  type: z.enum(CHANNEL_TYPES),
-  config: ChannelConfigSchema,
-}).strict()
+  config: z.object({channelType: z.enum(CHANNEL_TYPES)}).passthrough(),
+}).superRefine((data, ctx) => {
+  const configSchema = CHANNEL_CONFIG_SCHEMAS[data.config.channelType]
+  if (!configSchema) return
+  const result = configSchema.safeParse(data.config)
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      ctx.addIssue({...issue, path: ['config', ...issue.path]})
+    }
+  }
+})
 
 const NotificationPolicySchema = z.object({
   name: z.string(),
@@ -344,7 +309,7 @@ const NotificationPolicySchema = z.object({
 
 const WebhookSchema = z.object({
   url: z.string(),
-  events: z.array(z.string()).min(1),
+  subscribedEvents: z.array(z.string()).min(1),
   description: z.string().optional(),
   enabled: z.boolean().optional(),
 }).strict()
@@ -370,20 +335,26 @@ const ResourceGroupSchema = z.object({
 const MonitorSchema = z.object({
   name: z.string(),
   type: z.enum(MONITOR_TYPES),
-  config: MonitorConfigSchema,
-  frequency: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
+  config: z.object({}).passthrough(),
+  frequencySeconds: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
   enabled: z.boolean().optional(),
   regions: z.array(z.string()).optional(),
-  // null = explicitly clear an existing environment association on update
-  // (omitted = preserve current API value)
   environment: z.string().nullable().optional(),
   tags: z.array(z.string()).optional(),
   alertChannels: z.array(z.string()).optional(),
   assertions: z.array(AssertionSchema).optional(),
-  // null = explicitly clear existing auth on update (omitted = preserve)
   auth: AuthSchema.nullable().optional(),
   incidentPolicy: IncidentPolicySchema.optional(),
-}).strict()
+}).strict().superRefine((data, ctx) => {
+  const configSchema = MONITOR_TYPE_CONFIG_SCHEMAS[data.type]
+  if (!configSchema) return
+  const result = configSchema.safeParse(data.config)
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      ctx.addIssue({...issue, path: ['config', ...issue.path]})
+    }
+  }
+})
 
 const DependencySchema = z.object({
   service: z.string(),
@@ -449,7 +420,7 @@ const StatusPageSchema = z.object({
 // ── Defaults schema ──────────────────────────────────────────────────
 
 const MonitorDefaultsSchema = z.object({
-  frequency: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
+  frequencySeconds: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
   enabled: z.boolean().optional(),
   regions: z.array(z.string()).optional(),
   alertChannels: z.array(z.string()).optional(),

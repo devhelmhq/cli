@@ -188,16 +188,17 @@ function validateSecretDef(secret: YamlSecret, path: string, ctx: ValidationCont
 
 function validateAlertChannel(channel: YamlAlertChannel, path: string, ctx: ValidationContext): void {
   requireString(channel, 'name', path, ctx)
-  if (!channel.type) {
-    ctx.error(`${path}.type`, '"type" is required')
-  } else if (!CHANNEL_TYPES.includes(channel.type)) {
-    ctx.error(`${path}.type`, `Invalid channel type "${channel.type}". Must be one of: ${CHANNEL_TYPES.join(', ')}`)
-  }
   if (!channel.config || typeof channel.config !== 'object') {
     ctx.error(`${path}.config`, '"config" is required and must be an object')
     return
   }
-  validateChannelConfig(channel.type, channel.config, `${path}.config`, ctx)
+  const channelType = channel.config.channelType
+  if (!channelType) {
+    ctx.error(`${path}.config.channelType`, '"channelType" is required inside config')
+  } else if (!CHANNEL_TYPES.includes(channelType)) {
+    ctx.error(`${path}.config.channelType`, `Invalid channel type "${channelType}". Must be one of: ${CHANNEL_TYPES.join(', ')}`)
+  }
+  validateChannelConfig(channelType, channel.config, `${path}.config`, ctx)
 }
 
 function validateChannelConfig(type: string, config: YamlChannelConfig, path: string, ctx: ValidationContext): void {
@@ -284,8 +285,8 @@ function validateMatchRule(rule: YamlMatchRule, path: string, ctx: ValidationCon
 
 function validateWebhookDef(webhook: YamlWebhook, path: string, ctx: ValidationContext): void {
   requireString(webhook, 'url', path, ctx)
-  if (!webhook.events || !Array.isArray(webhook.events) || webhook.events.length === 0) {
-    ctx.error(`${path}.events`, '"events" is required and must be a non-empty array')
+  if (!webhook.subscribedEvents || !Array.isArray(webhook.subscribedEvents) || webhook.subscribedEvents.length === 0) {
+    ctx.error(`${path}.subscribedEvents`, '"subscribedEvents" is required and must be a non-empty array')
   }
 }
 
@@ -338,8 +339,8 @@ function validateMonitor(monitor: YamlMonitor, path: string, ctx: ValidationCont
     validateMonitorConfig(monitor.type, monitor.config, `${path}.config`, ctx)
   }
 
-  if (monitor.frequency !== undefined) {
-    validateFrequency(monitor.frequency, `${path}.frequency`, ctx)
+  if (monitor.frequencySeconds !== undefined) {
+    validateFrequency(monitor.frequencySeconds, `${path}.frequencySeconds`, ctx)
   }
 
   if (monitor.regions && !Array.isArray(monitor.regions)) {
@@ -416,18 +417,23 @@ function validateMonitorConfig(type: string, config: YamlMonitorConfig, path: st
 }
 
 function validateAssertionDef(assertion: YamlAssertion, path: string, ctx: ValidationContext): void {
-  if (!assertion.type) {
-    ctx.error(`${path}.type`, 'Assertion requires "type"')
-  } else if (!ASSERTION_WIRE_TYPES.includes(assertion.type)) {
-    ctx.error(`${path}.type`, `Unknown assertion type "${assertion.type}". See docs for valid assertion types.`)
+  if (!assertion.config || typeof assertion.config !== 'object') {
+    ctx.error(`${path}.config`, 'Assertion requires "config" object')
+    return
+  }
+  const assertionType = assertion.config.type as string
+  if (!assertionType) {
+    ctx.error(`${path}.config.type`, 'Assertion config requires "type"')
+  } else if (!ASSERTION_WIRE_TYPES.includes(assertionType)) {
+    ctx.error(`${path}.config.type`, `Unknown assertion type "${assertionType}". See docs for valid assertion types.`)
   }
 
   if (assertion.severity && !ASSERTION_SEVERITIES.includes(assertion.severity)) {
     ctx.error(`${path}.severity`, `Assertion severity must be one of: ${ASSERTION_SEVERITIES.join(', ')}`)
   }
 
-  if (assertion.config && assertion.type) {
-    validateAssertionConfig(assertion.type, assertion.config, path, ctx)
+  if (assertionType) {
+    validateAssertionConfig(assertionType, assertion.config as Record<string, unknown>, path, ctx)
   }
 }
 

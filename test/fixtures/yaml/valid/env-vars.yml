@@ -7,6 +7,6 @@ monitors:
 
 alertChannels:
   - name: slack-channel
-    type: slack
     config:
+      channelType: slack
       webhookUrl: ${SLACK_WEBHOOK:-https://hooks.slack.com/default}

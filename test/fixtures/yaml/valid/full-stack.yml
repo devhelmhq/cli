@@ -2,7 +2,7 @@ version: "1"
 
 defaults:
   monitors:
-    frequency: 60
+    frequencySeconds: 60
     enabled: true
     regions: [us-east, eu-west]
 
@@ -25,18 +25,18 @@ secrets:
 
 alertChannels:
   - name: ops-slack
-    type: slack
     config:
+      channelType: slack
       webhookUrl: https://hooks.slack.com/services/T000/B000/xxx
   - name: eng-email
-    type: email
     config:
+      channelType: email
       recipients:
         - eng@company.com
         - oncall@company.com
   - name: pagerduty-critical
-    type: pagerduty
     config:
+      channelType: pagerduty
       routingKey: service-key-abc
 
 notificationPolicies:
@@ -53,7 +53,7 @@ notificationPolicies:
 
 webhooks:
   - url: https://hooks.company.com/devhelm
-    events: [monitor.down, monitor.recovered, incident.created]
+    subscribedEvents: [monitor.down, monitor.recovered, incident.created]
     description: Internal webhook for status page
 
 resourceGroups:
@@ -78,17 +78,17 @@ monitors:
     alertChannels: [ops-slack]
     environment: production
     assertions:
-      - type: status_code
-        config:
+      - config:
+          type: status_code
           expected: "200"
           operator: equals
         severity: fail
-      - type: response_time
-        config:
+      - config:
+          type: response_time
           thresholdMs: 2000
         severity: warn
-      - type: ssl_expiry
-        config:
+      - config:
+          type: ssl_expiry
           minDaysRemaining: 30
         severity: warn
 
@@ -97,7 +97,7 @@ monitors:
     config:
       url: https://api.company.com/health
       method: GET
-    frequency: 30
+    frequencySeconds: 30
     tags: [production, api]
     alertChannels: [ops-slack, pagerduty-critical]
     auth:
@@ -110,6 +110,7 @@ monitors:
           scope: per_region
           severity: down
         - type: response_time
+          count: 3
           thresholdMs: 5000
           scope: any_region
           severity: degraded
@@ -128,9 +129,10 @@ monitors:
     config:
       hostname: company.com
       recordTypes: [A, AAAA, MX]
-    frequency: 300
+    frequencySeconds: 300
     assertions:
-      - type: dns_resolves
+      - config:
+          type: dns_resolves
         severity: fail
 
   - name: TCP Database
@@ -138,13 +140,13 @@ monitors:
     config:
       host: db.internal.company.com
       port: 5432
-    frequency: 60
+    frequencySeconds: 60
 
   - name: ICMP Gateway
     type: ICMP
     config:
       host: gateway.company.com
-    frequency: 60
+    frequencySeconds: 60
 
   - name: Worker Heartbeat
     type: HEARTBEAT
@@ -157,7 +159,7 @@ monitors:
     config:
       command: npx
       args: ["-y", "@company/mcp-server"]
-    frequency: 300
+    frequencySeconds: 300
 
 dependencies:
   - service: github

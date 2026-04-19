@@ -2,11 +2,11 @@
  * YAML configuration schema types — derived from OpenAPI-generated API types.
  *
  * These types define what users write in devhelm.yml. They mirror API request
- * types closely, but replace UUIDs with name/slug references and use friendlier
- * field names (e.g. `frequency` instead of `frequencySeconds`).
+ * types 1:1, with UUIDs replaced by name/slug references. Field names match
+ * the API exactly (e.g. `frequencySeconds`, not `frequency`).
  *
- * The transform layer (transform.ts) maps these to API request types with
- * compile-time type checking on both sides.
+ * The transform layer (transform.ts) handles only name→UUID resolution and
+ * anti-drift default injection.
  */
 import type {components} from '../api.generated.js'
 
@@ -126,11 +126,12 @@ export type YamlMonitorConfig =
   | YamlHeartbeatConfig
   | YamlMcpServerConfig
 
-// ── Assertion config (YAML mirrors API discriminated union) ────────────
+// ── Assertion config (YAML matches API's CreateAssertionRequest) ───────
+// The `config` field is a discriminated union keyed by `config.type`,
+// matching the API's AssertionConfig sealed interface exactly.
 
 export interface YamlAssertion {
-  type: string
-  config?: Record<string, unknown>
+  config: {type: string; [key: string]: unknown}
   severity?: AssertionSeverity
 }
 
@@ -215,7 +216,7 @@ export interface YamlMatchRule {
   values?: string[]
 }
 
-// ── Channel configs (YAML uses lowercase type + flat config) ───────────
+// ── Channel configs (YAML matches API's AlertChannelConfig union) ──────
 
 export interface YamlSlackConfig {
   webhookUrl: string
@@ -289,8 +290,7 @@ export interface YamlSecret {
 
 export interface YamlAlertChannel {
   name: string
-  type: ChannelType
-  config: YamlChannelConfig
+  config: {channelType: ChannelType} & YamlChannelConfig
 }
 
 export interface YamlNotificationPolicy {
@@ -303,7 +303,7 @@ export interface YamlNotificationPolicy {
 
 export interface YamlWebhook {
   url: string
-  events: string[]
+  subscribedEvents: string[]
   description?: string
   enabled?: boolean
 }
@@ -330,7 +330,7 @@ export interface YamlMonitor {
   name: string
   type: MonitorType
   config: YamlMonitorConfig
-  frequency?: number
+  frequencySeconds?: number
   enabled?: boolean
   regions?: string[]
   /** null = explicitly clear an existing environment association on update. */
@@ -421,7 +421,7 @@ export interface YamlStatusPage {
 // ── Defaults section ───────────────────────────────────────────────────
 
 export interface YamlMonitorDefaults {
-  frequency?: number
+  frequencySeconds?: number
   enabled?: boolean
   regions?: string[]
   alertChannels?: string[]

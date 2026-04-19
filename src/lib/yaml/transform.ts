@@ -14,35 +14,6 @@ import type {ResolvedRefs} from './resolver.js'
 
 type Schemas = components['schemas']
 
-// ── Discriminator wire-format helpers ─────────────────────────────────
-// YAML now uses snake_case names that match the API wire format directly.
-// These helpers convert between YAML/wire names and PascalCase schema names
-// for any code that needs the reverse mapping (e.g. reading API responses).
-
-export function pascalToSnake(s: string): string {
-  return s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/([A-Z])([A-Z][a-z])/g, '$1_$2').toLowerCase()
-}
-
-export function snakeToPascal(s: string): string {
-  return s.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join('')
-}
-
-export function assertionSchemaToWire(schemaName: string): string {
-  return pascalToSnake(schemaName.replace(/Assertion$/, ''))
-}
-
-export function assertionWireToSchema(wire: string): string {
-  return snakeToPascal(wire) + 'Assertion'
-}
-
-export function authSchemaToWire(schemaName: string): string {
-  return pascalToSnake(schemaName.replace(/AuthConfig$/, ''))
-}
-
-export function authWireToSchema(wire: string): string {
-  return snakeToPascal(wire) + 'AuthConfig'
-}
-
 // ── Tag ────────────────────────────────────────────────────────────────
 
 export function toCreateTagRequest(tag: YamlTag): Schemas['CreateTagRequest'] {
@@ -72,8 +43,7 @@ export function toCreateSecretRequest(secret: YamlSecret): Schemas['CreateSecret
 // ── Alert Channel ──────────────────────────────────────────────────────
 
 export function toCreateAlertChannelRequest(channel: YamlAlertChannel): Schemas['CreateAlertChannelRequest'] {
-  const config = {channelType: channel.type, ...channel.config} as Schemas['CreateAlertChannelRequest']['config']
-  return {name: channel.name, config}
+  return {name: channel.name, config: channel.config as Schemas['CreateAlertChannelRequest']['config']}
 }
 
 // ── Notification Policy ────────────────────────────────────────────────
@@ -86,7 +56,7 @@ export function toCreateNotificationPolicyRequest(
     name: policy.name,
     enabled: policy.enabled ?? true,
     priority: policy.priority ?? 0,
-    matchRules: policy.matchRules?.map((r) => toMatchRule(r, refs)),
+    matchRules: policy.matchRules?.map((r) => toMatchRule(r, refs)) ?? [],
     escalation: {
       steps: policy.escalation.steps.map((s) => toEscalationStep(s, refs)),
       onResolve: policy.escalation.onResolve ?? null,
@@ -122,7 +92,7 @@ function toMatchRule(rule: YamlMatchRule, refs: ResolvedRefs): Schemas['MatchRul
 export function toCreateWebhookRequest(webhook: YamlWebhook): Schemas['CreateWebhookEndpointRequest'] {
   return {
     url: webhook.url,
-    subscribedEvents: webhook.events,
+    subscribedEvents: webhook.subscribedEvents,
     description: webhook.description,
   }
 }
@@ -186,7 +156,7 @@ export function toCreateMonitorRequest(
     type: monitor.type,
     config: toMonitorConfig(monitor),
     managedBy: 'CLI',
-    frequencySeconds: monitor.frequency,
+    frequencySeconds: monitor.frequencySeconds,
     enabled: monitor.enabled,
     regions: monitor.regions ?? null,
     environmentId: monitor.environment ? refs.resolve('environments', monitor.environment) ?? null : null,
@@ -219,7 +189,7 @@ export function toUpdateMonitorRequest(
     name: monitor.name,
     config: toMonitorConfig(monitor) as Schemas['UpdateMonitorRequest']['config'],
     managedBy: 'CLI',
-    frequencySeconds: monitor.frequency ?? null,
+    frequencySeconds: monitor.frequencySeconds ?? null,
     enabled: monitor.enabled ?? null,
     regions: monitor.regions ?? null,
     environmentId: monitor.environment
@@ -246,12 +216,10 @@ export function toUpdateMonitorRequest(
 }
 
 export function toCreateAssertionRequest(a: YamlAssertion): Schemas['CreateAssertionRequest'] {
-  const config = {type: a.type, ...(a.config ?? {})} as Schemas['CreateAssertionRequest']['config']
-  // Default to "fail" to match the API persistence default (the API stores
-  // `AssertionSeverity.FAIL` when severity is unset). Without this, snapshot
-  // diff sees `undefined` (YAML) vs `"fail"` (API) and reports phantom drift
-  // on every plan after deploy. Same trick we use for `requireAck`.
-  return {config, severity: a.severity ?? 'fail'}
+  return {
+    config: a.config as Schemas['CreateAssertionRequest']['config'],
+    severity: a.severity ?? 'fail',
+  }
 }
 
 export function toAuthConfig(auth: YamlAuth, refs: ResolvedRefs): Schemas['CreateMonitorRequest']['auth'] {

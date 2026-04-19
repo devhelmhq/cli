@@ -72,8 +72,7 @@ describe('idempotency', () => {
     const config: DevhelmConfig = {
       alertChannels: [{
         name: 'Slack Alerts',
-        type: 'slack',
-        config: {webhookUrl: 'https://hooks.slack.com/test'},
+        config: {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/test'},
       }],
     }
     const refs = buildRefs([
@@ -93,8 +92,7 @@ describe('idempotency', () => {
     const config: DevhelmConfig = {
       alertChannels: [{
         name: 'Slack Alerts',
-        type: 'slack',
-        config: {webhookUrl: 'https://hooks.slack.com/new'},
+        config: {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/new'},
       }],
     }
     const refs = buildRefs([
@@ -179,7 +177,7 @@ describe('idempotency', () => {
 
   it('same webhooks → zero changes', () => {
     const config: DevhelmConfig = {
-      webhooks: [{url: 'https://example.com/webhook', events: ['monitor.down', 'monitor.up']}],
+      webhooks: [{url: 'https://example.com/webhook', subscribedEvents: ['monitor.down', 'monitor.up']}],
     }
     const refs = buildRefs([
       {type: 'webhooks', key: 'https://example.com/webhook', id: 'w1', raw: {
@@ -234,8 +232,8 @@ describe('idempotency', () => {
       tags: [{name: 'critical', color: '#EF4444'}],
       environments: [{name: 'Production', slug: 'production'}],
       secrets: [{key: 'TOKEN', value: secretValue}],
-      alertChannels: [{name: 'Slack', type: 'slack', config: {webhookUrl: 'https://hooks.slack.com/test'}}],
-      webhooks: [{url: 'https://example.com/hook', events: ['monitor.down']}],
+      alertChannels: [{name: 'Slack', config: {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/test'}}],
+      webhooks: [{url: 'https://example.com/hook', subscribedEvents: ['monitor.down']}],
       monitors: [{
         name: 'API', type: 'HTTP',
         config: {url: 'https://api.example.com', method: 'GET'},
@@ -307,7 +305,7 @@ describe('idempotency', () => {
       }},
     ])
     const config: DevhelmConfig = {
-      alertChannels: [{name: 'Slack', type: 'slack', config: {webhookUrl: 'https://hooks.slack.com/test'}}],
+      alertChannels: [{name: 'Slack', config: {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/test'}}],
       notificationPolicies: [{
         name: 'Default',
         escalation: {steps: [{channels: ['Slack'], delayMinutes: 0}]},

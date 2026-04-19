@@ -8,7 +8,7 @@ version: "1"
 
 # defaults:
 #   monitors:
-#     frequency: 60
+#     frequencySeconds: 60
 #     regions: [us-east, eu-west]
 #     enabled: true
 
@@ -27,8 +27,8 @@ tags:
 
 alertChannels:
   - name: ops-slack
-    type: slack
     config:
+      channelType: slack
       webhookUrl: \${SLACK_WEBHOOK_URL:-https://hooks.slack.com/services/REPLACE_ME}
 
 # notificationPolicies:
@@ -42,7 +42,7 @@ alertChannels:
 
 # webhooks:
 #   - url: https://hooks.example.com/devhelm
-#     events: [monitor.down, monitor.recovered]
+#     subscribedEvents: [monitor.down, monitor.recovered]
 
 # resourceGroups:
 #   - name: API Services
@@ -55,22 +55,22 @@ monitors:
       url: https://example.com
       method: GET
       verifyTls: true
-    frequency: 60
+    frequencySeconds: 60
     regions: [us-east, eu-west]
     tags: [production]
     alertChannels: [ops-slack]
     assertions:
-      - type: StatusCodeAssertion
-        config:
+      - config:
+          type: status_code
           expected: "200"
           operator: equals
         severity: fail
-      - type: ResponseTimeAssertion
-        config:
+      - config:
+          type: response_time
           thresholdMs: 2000
         severity: warn
-      - type: SslExpiryAssertion
-        config:
+      - config:
+          type: ssl_expiry
           minDaysRemaining: 30
         severity: warn
 
@@ -79,16 +79,17 @@ monitors:
   #   config:
   #     url: https://api.example.com/health
   #     method: GET
-  #   frequency: 30
+  #   frequencySeconds: 30
 
   # - name: DNS Check
   #   type: DNS
   #   config:
   #     hostname: example.com
   #     recordTypes: [A, AAAA, MX]
-  #   frequency: 300
+  #   frequencySeconds: 300
   #   assertions:
-  #     - type: DnsResolvesAssertion
+  #     - config:
+  #         type: dns_resolves
   #       severity: fail
 
   # - name: Heartbeat Worker
@@ -102,7 +103,7 @@ monitors:
   #   config:
   #     command: npx
   #     args: ["-y", "@company/mcp-server"]
-  #   frequency: 300
+  #   frequencySeconds: 300
 
 # dependencies:
 #   - service: github
