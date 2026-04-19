@@ -14,6 +14,7 @@ import {
   CHANNEL_TYPES, TRIGGER_RULE_TYPES, TRIGGER_SCOPES, TRIGGER_SEVERITIES,
   TRIGGER_AGGREGATIONS, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
   STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
+  COMPARISON_OPERATORS,
 } from '../spec-facts.generated.js'
 
 type Schemas = components['schemas']
@@ -40,10 +41,9 @@ export {
   MONITOR_TYPES, HTTP_METHODS, DNS_RECORD_TYPES, ASSERTION_SEVERITIES,
   CHANNEL_TYPES, TRIGGER_RULE_TYPES, TRIGGER_SCOPES, TRIGGER_SEVERITIES,
   TRIGGER_AGGREGATIONS, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
+  COMPARISON_OPERATORS,
 }
 export type ChannelType = (typeof CHANNEL_TYPES)[number]
-
-export const COMPARISON_OPERATORS: readonly string[] = ['equals', 'contains', 'less_than', 'greater_than', 'matches', 'range']
 
 export const MIN_FREQUENCY = 30
 export const MAX_FREQUENCY = 86400
@@ -360,11 +360,13 @@ export {STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES}
 // but those modes are not yet wired to storage or enforcement server-side.
 // YAML/CLI deliberately only accepts PUBLIC until the API implements them
 // so users cannot set a value that silently has no effect.
-export type StatusPageVisibility = 'PUBLIC'
+// Tuple is intentionally narrowed (the spec-facts version includes
+// PASSWORD and IP_RESTRICTED). Single source of truth for both the YAML
+// validator and the Zod layer — see zod-schemas.ts which re-imports it.
+export const STATUS_PAGE_VISIBILITIES = ['PUBLIC'] as const
+export type StatusPageVisibility = (typeof STATUS_PAGE_VISIBILITIES)[number]
 export type StatusPageIncidentMode = (typeof STATUS_PAGE_INCIDENT_MODES)[number]
 export type StatusPageComponentType = (typeof STATUS_PAGE_COMPONENT_TYPES)[number]
-
-export const STATUS_PAGE_VISIBILITIES: readonly StatusPageVisibility[] = ['PUBLIC']
 
 /**
  * Visual tokens applied to the public status page. Every field is optional;

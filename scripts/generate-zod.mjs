@@ -76,6 +76,12 @@ function generateSpecFacts(spec) {
     SP_INCIDENT_STATUSES: enumsFrom('CreateStatusPageIncidentRequest', 'status'),
     AUTH_TYPES: enumsFrom('MonitorAuthDto', 'authType'),
     MANAGED_BY: enumsFrom('CreateMonitorRequest', 'managedBy'),
+    // ``operator`` is duplicated across StatusCodeAssertion, HeaderValueAssertion,
+    // JsonPathAssertion, ResponseSizeAssertion, etc. — pull from one
+    // representative schema. The validator and Zod layer share this single
+    // tuple so a spec change to the comparison operators is picked up
+    // automatically by re-running ``zodgen``.
+    COMPARISON_OPERATORS: enumsFrom('StatusCodeAssertion', 'operator'),
   };
 
   const lines = [

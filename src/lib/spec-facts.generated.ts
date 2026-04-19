@@ -58,3 +58,6 @@ export type AuthTypes = (typeof AUTH_TYPES)[number]
 export const MANAGED_BY = ['DASHBOARD', 'CLI', 'TERRAFORM'] as const
 export type ManagedBy = (typeof MANAGED_BY)[number]
 
+export const COMPARISON_OPERATORS = ['equals', 'contains', 'less_than', 'greater_than', 'matches', 'range'] as const
+export type ComparisonOperators = (typeof COMPARISON_OPERATORS)[number]
+

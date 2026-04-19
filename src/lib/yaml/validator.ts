@@ -440,7 +440,7 @@ function validateAssertionDef(assertion: YamlAssertion, path: string, ctx: Valid
 function validateAssertionConfig(type: string, config: Record<string, unknown>, path: string, ctx: ValidationContext): void {
   const needsOperator = ['status_code', 'header_value', 'json_path', 'redirect_target']
   if (needsOperator.includes(type)) {
-    if (config.operator && !COMPARISON_OPERATORS.includes(config.operator as string)) {
+    if (config.operator && !(COMPARISON_OPERATORS as readonly string[]).includes(config.operator as string)) {
       ctx.error(`${path}.config.operator`, `Invalid operator. Must be one of: ${COMPARISON_OPERATORS.join(', ')}`)
     }
   }
