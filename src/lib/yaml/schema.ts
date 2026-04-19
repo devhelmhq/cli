@@ -9,6 +9,12 @@
  * anti-drift default injection.
  */
 import type {components} from '../api.generated.js'
+import {
+  MONITOR_TYPES, HTTP_METHODS, DNS_RECORD_TYPES, ASSERTION_SEVERITIES,
+  CHANNEL_TYPES, TRIGGER_RULE_TYPES, TRIGGER_SCOPES, TRIGGER_SEVERITIES,
+  TRIGGER_AGGREGATIONS, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
+  STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
+} from '../spec-facts.generated.js'
 
 type Schemas = components['schemas']
 
@@ -26,21 +32,18 @@ export type ComparisonOperator = Schemas['StatusCodeAssertion'] extends {type: s
   ? R extends {operator: infer O} ? O : never
   : never
 
-// ── Enum constants for validation ──────────────────────────────────────
+// ── Re-export generated enum constants ────────────────────────────────
+// These are auto-extracted from the OpenAPI spec via spec-facts.generated.ts.
+// Previously maintained by hand — now they update automatically on `npm run zodgen`.
 
-export const MONITOR_TYPES: readonly MonitorType[] = ['HTTP', 'DNS', 'TCP', 'ICMP', 'HEARTBEAT', 'MCP_SERVER']
-export const HTTP_METHODS: readonly HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD']
-export const DNS_RECORD_TYPES: readonly string[] = ['A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SRV', 'SOA', 'CAA', 'PTR']
-export const ASSERTION_SEVERITIES: readonly AssertionSeverity[] = ['fail', 'warn']
-export const COMPARISON_OPERATORS: readonly string[] = ['equals', 'contains', 'less_than', 'greater_than', 'matches', 'range']
-export const TRIGGER_RULE_TYPES: readonly TriggerRuleType[] = ['consecutive_failures', 'failures_in_window', 'response_time']
-export const TRIGGER_SCOPES: readonly string[] = ['per_region', 'any_region']
-export const TRIGGER_SEVERITIES: readonly TriggerRuleSeverity[] = ['down', 'degraded']
-export const TRIGGER_AGGREGATIONS: readonly string[] = ['all_exceed', 'average', 'p95', 'max']
-export const CHANNEL_TYPES = ['slack', 'email', 'pagerduty', 'opsgenie', 'discord', 'teams', 'webhook'] as const
+export {
+  MONITOR_TYPES, HTTP_METHODS, DNS_RECORD_TYPES, ASSERTION_SEVERITIES,
+  CHANNEL_TYPES, TRIGGER_RULE_TYPES, TRIGGER_SCOPES, TRIGGER_SEVERITIES,
+  TRIGGER_AGGREGATIONS, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
+}
 export type ChannelType = (typeof CHANNEL_TYPES)[number]
-export const ALERT_SENSITIVITIES = ['ALL', 'INCIDENTS_ONLY', 'MAJOR_ONLY'] as const
-export const HEALTH_THRESHOLD_TYPES = ['COUNT', 'PERCENTAGE'] as const
+
+export const COMPARISON_OPERATORS: readonly string[] = ['equals', 'contains', 'less_than', 'greater_than', 'matches', 'range']
 
 export const MIN_FREQUENCY = 30
 export const MAX_FREQUENCY = 86400
@@ -351,17 +354,17 @@ export interface YamlDependency {
 
 // ── Status Page types ──────────────────────────────────────────────────
 
+export {STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES}
+
 // Note: the API's SpVisibility enum also declares PASSWORD and IP_RESTRICTED,
 // but those modes are not yet wired to storage or enforcement server-side.
 // YAML/CLI deliberately only accepts PUBLIC until the API implements them
 // so users cannot set a value that silently has no effect.
 export type StatusPageVisibility = 'PUBLIC'
-export type StatusPageIncidentMode = 'MANUAL' | 'REVIEW' | 'AUTOMATIC'
-export type StatusPageComponentType = 'MONITOR' | 'GROUP' | 'STATIC'
+export type StatusPageIncidentMode = (typeof STATUS_PAGE_INCIDENT_MODES)[number]
+export type StatusPageComponentType = (typeof STATUS_PAGE_COMPONENT_TYPES)[number]
 
 export const STATUS_PAGE_VISIBILITIES: readonly StatusPageVisibility[] = ['PUBLIC']
-export const STATUS_PAGE_INCIDENT_MODES: readonly StatusPageIncidentMode[] = ['MANUAL', 'REVIEW', 'AUTOMATIC']
-export const STATUS_PAGE_COMPONENT_TYPES: readonly StatusPageComponentType[] = ['MONITOR', 'GROUP', 'STATIC']
 
 /**
  * Visual tokens applied to the public status page. Every field is optional;

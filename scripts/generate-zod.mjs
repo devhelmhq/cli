@@ -32,6 +32,71 @@ function extractSchemas(raw) {
     kept.join('\n') + '\n';
 }
 
+const FACTS_PATH = join(ROOT, 'src/lib/spec-facts.generated.ts');
+
+/**
+ * Extract enum values and constraints from the OpenAPI spec to produce
+ * a spec-facts file. These constants replace hand-maintained arrays in
+ * zod-schemas.ts and schema.ts — if the API adds a new enum value or
+ * changes a constraint, re-running zodgen picks it up automatically.
+ */
+function generateSpecFacts(spec) {
+  const schemas = spec.components?.schemas ?? {};
+
+  function enumsFrom(schemaName, propName) {
+    const s = schemas[schemaName];
+    if (!s) return null;
+    if (s.properties?.[propName]?.enum) return s.properties[propName].enum;
+    if (s.allOf) {
+      for (const member of s.allOf) {
+        if (member.properties?.[propName]?.enum) return member.properties[propName].enum;
+        if (member.properties?.[propName]?.items?.enum) return member.properties[propName].items.enum;
+      }
+    }
+    return null;
+  }
+
+  const facts = {
+    MONITOR_TYPES: enumsFrom('CreateMonitorRequest', 'type'),
+    HTTP_METHODS: enumsFrom('HttpMonitorConfig', 'method'),
+    DNS_RECORD_TYPES: enumsFrom('DnsMonitorConfig', 'recordTypes'),
+    ASSERTION_SEVERITIES: enumsFrom('CreateAssertionRequest', 'severity'),
+    CHANNEL_TYPES: enumsFrom('AlertChannelDto', 'channelType'),
+    TRIGGER_RULE_TYPES: enumsFrom('TriggerRule', 'type'),
+    TRIGGER_SCOPES: enumsFrom('TriggerRule', 'scope'),
+    TRIGGER_SEVERITIES: enumsFrom('TriggerRule', 'severity'),
+    TRIGGER_AGGREGATIONS: enumsFrom('TriggerRule', 'aggregationType'),
+    ALERT_SENSITIVITIES: enumsFrom('ServiceSubscriptionDto', 'alertSensitivity'),
+    HEALTH_THRESHOLD_TYPES: enumsFrom('CreateResourceGroupRequest', 'healthThresholdType'),
+    STATUS_PAGE_VISIBILITIES: enumsFrom('CreateStatusPageRequest', 'visibility'),
+    STATUS_PAGE_INCIDENT_MODES: enumsFrom('CreateStatusPageRequest', 'incidentMode'),
+    STATUS_PAGE_COMPONENT_TYPES: enumsFrom('CreateStatusPageComponentRequest', 'type'),
+    AUTH_TYPES: enumsFrom('MonitorAuthDto', 'authType'),
+    MANAGED_BY: enumsFrom('CreateMonitorRequest', 'managedBy'),
+  };
+
+  const lines = [
+    '// Auto-generated from OpenAPI spec. DO NOT EDIT.',
+    '// Re-run `npm run zodgen` to regenerate.',
+    '',
+  ];
+
+  for (const [name, values] of Object.entries(facts)) {
+    if (!values) {
+      lines.push(`// WARNING: ${name} — enum not found in spec`);
+      continue;
+    }
+    const items = values.map(v => `'${v}'`).join(', ');
+    lines.push(`export const ${name} = [${items}] as const`);
+    const typeName = name.split('_').map(w => w[0] + w.slice(1).toLowerCase()).join('');
+    lines.push(`export type ${typeName} = (typeof ${name})[number]`);
+    lines.push('');
+  }
+
+  writeFileSync(FACTS_PATH, lines.join('\n') + '\n', 'utf8');
+  console.log(`Generated spec facts (${Object.keys(facts).length} enums) → ${FACTS_PATH}`);
+}
+
 async function main() {
   console.log('Reading spec from', SPEC_PATH);
   const spec = JSON.parse(readFileSync(SPEC_PATH, 'utf8'));
@@ -41,6 +106,8 @@ async function main() {
   if (flattened.length > 0) {
     console.log(`  Flattened circular oneOf: ${flattened.join(', ')}`);
   }
+
+  generateSpecFacts(spec);
 
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
 

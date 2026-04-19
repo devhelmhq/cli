@@ -8,9 +8,10 @@
  * it only composes generated schemas into dispatch maps and top-level
  * structural schemas.
  *
- * Enum constants are re-declared as `as const` tuples because Zod's
- * `z.enum` requires a literal tuple type. The parity test in
- * `zod-schemas.test.ts` asserts they stay in sync with schema.ts.
+ * Enum constants are imported from spec-facts.generated.ts (auto-extracted
+ * from the OpenAPI spec). The parity test in zod-schemas.test.ts asserts
+ * they stay in sync with schema.ts. The spec-field-parity test verifies
+ * every YAML field maps to a real API request field.
  *
  * Auth schemas remain hand-written because the YAML format uses a
  * `secret` field that doesn't exist in the API (the CLI resolves it
@@ -19,6 +20,12 @@
 import {z} from 'zod'
 
 import {schemas as apiSchemas} from '../api-zod.generated.js'
+import {
+  MONITOR_TYPES, HTTP_METHODS, DNS_RECORD_TYPES, ASSERTION_SEVERITIES,
+  CHANNEL_TYPES, TRIGGER_RULE_TYPES, TRIGGER_SCOPES, TRIGGER_SEVERITIES,
+  TRIGGER_AGGREGATIONS, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
+  STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
+} from '../spec-facts.generated.js'
 
 // ── Assertion config schemas (imported from generated OpenAPI Zod) ────
 // Maps wire-format type strings (from AssertionConfig discriminator)
@@ -96,22 +103,13 @@ const MONITOR_TYPE_CONFIG_SCHEMAS: Record<string, z.ZodType> = {
   MCP_SERVER: apiSchemas.McpServerMonitorConfig,
 }
 
-// ── Constants (kept in sync with schema.ts via parity test) ──────────
+// ── Constants ────────────────────────────────────────────────────────
+// Enum tuples are imported from spec-facts.generated.ts (auto-extracted
+// from the OpenAPI spec). Only STATUS_PAGE_VISIBILITIES is intentionally
+// narrowed — the API also accepts PASSWORD and IP_RESTRICTED, but those
+// modes are not yet wired to storage or enforcement server-side.
 
-const MONITOR_TYPES = ['HTTP', 'DNS', 'TCP', 'ICMP', 'HEARTBEAT', 'MCP_SERVER'] as const
-const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'] as const
-const DNS_RECORD_TYPES = ['A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SRV', 'SOA', 'CAA', 'PTR'] as const
-const ASSERTION_SEVERITIES = ['fail', 'warn'] as const
-const CHANNEL_TYPES = ['slack', 'email', 'pagerduty', 'opsgenie', 'discord', 'teams', 'webhook'] as const
-const TRIGGER_RULE_TYPES = ['consecutive_failures', 'failures_in_window', 'response_time'] as const
-const TRIGGER_SCOPES = ['per_region', 'any_region'] as const
-const TRIGGER_SEVERITIES = ['down', 'degraded'] as const
-const TRIGGER_AGGREGATIONS = ['all_exceed', 'average', 'p95', 'max'] as const
-const ALERT_SENSITIVITIES = ['ALL', 'INCIDENTS_ONLY', 'MAJOR_ONLY'] as const
-const HEALTH_THRESHOLD_TYPES = ['COUNT', 'PERCENTAGE'] as const
 const STATUS_PAGE_VISIBILITIES = ['PUBLIC'] as const
-const STATUS_PAGE_INCIDENT_MODES = ['MANUAL', 'REVIEW', 'AUTOMATIC'] as const
-const STATUS_PAGE_COMPONENT_TYPES = ['MONITOR', 'GROUP', 'STATIC'] as const
 
 const MIN_FREQUENCY = 30
 const MAX_FREQUENCY = 86400

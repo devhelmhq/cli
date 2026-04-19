@@ -119,7 +119,7 @@ const CreateEnvironmentRequest = z
       .max(100)
       .regex(/^[a-z0-9][a-z0-9_-]*$/),
     variables: z.record(z.string().nullable()).nullish(),
-    isDefault: z.boolean().optional(),
+    isDefault: z.boolean(),
   })
   .passthrough();
 const UpdateEnvironmentRequest = z
@@ -536,8 +536,8 @@ const TriggerRule = z
 const ConfirmationPolicy = z
   .object({
     type: z.literal("multi_region"),
-    minRegionsFailing: z.number().int().optional(),
-    maxWaitSeconds: z.number().int().optional(),
+    minRegionsFailing: z.number().int(),
+    maxWaitSeconds: z.number().int(),
   })
   .passthrough();
 const RecoveryPolicy = z
@@ -755,7 +755,7 @@ const MatchRule = z
   .passthrough();
 const EscalationStep = z
   .object({
-    delayMinutes: z.number().int().gte(0).optional(),
+    delayMinutes: z.number().int().gte(0),
     channelIds: z.array(z.string().uuid()).min(1),
     requireAck: z.boolean().nullish(),
     repeatIntervalSeconds: z.number().int().gte(1).nullish(),
@@ -812,8 +812,8 @@ const UpdateOrgDetailsRequest = z
 const RetryStrategy = z
   .object({
     type: z.string(),
-    maxRetries: z.number().int().optional(),
-    interval: z.number().int().optional(),
+    maxRetries: z.number().int(),
+    interval: z.number().int(),
   })
   .passthrough();
 const CreateResourceGroupRequest = z
@@ -997,7 +997,7 @@ const UpdateStatusPageComponentRequest = z
 const ComponentPosition = z
   .object({
     componentId: z.string().uuid(),
-    displayOrder: z.number().int().optional(),
+    displayOrder: z.number().int(),
     groupId: z.string().uuid().nullish(),
   })
   .passthrough();

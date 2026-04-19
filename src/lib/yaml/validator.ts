@@ -387,7 +387,7 @@ function validateMonitorConfig(type: string, config: YamlMonitorConfig, path: st
       if (!('hostname' in config) || !config.hostname) ctx.error(`${path}.hostname`, 'DNS monitor requires "hostname"')
       if ('recordTypes' in config && config.recordTypes && Array.isArray(config.recordTypes)) {
         for (const rt of config.recordTypes) {
-          if (!DNS_RECORD_TYPES.includes(rt as string)) {
+          if (!(DNS_RECORD_TYPES as readonly string[]).includes(rt as string)) {
             ctx.error(`${path}.recordTypes`, `Invalid DNS record type "${rt}". Must be one of: ${DNS_RECORD_TYPES.join(', ')}`)
           }
         }
@@ -479,7 +479,7 @@ function validateIncidentPolicy(policy: YamlIncidentPolicy, path: string, ctx: V
     if (!TRIGGER_SEVERITIES.includes(rule.severity)) {
       ctx.error(`${rpath}.severity`, `Must be one of: ${TRIGGER_SEVERITIES.join(', ')}`)
     }
-    if (rule.aggregationType && !TRIGGER_AGGREGATIONS.includes(rule.aggregationType as string)) {
+    if (rule.aggregationType && !(TRIGGER_AGGREGATIONS as readonly string[]).includes(rule.aggregationType as string)) {
       ctx.error(`${rpath}.aggregationType`, `Must be one of: ${TRIGGER_AGGREGATIONS.join(', ')}`)
     }
   }
