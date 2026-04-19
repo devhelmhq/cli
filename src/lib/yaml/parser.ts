@@ -159,7 +159,7 @@ function applyDefaults(config: DevhelmConfig): DevhelmConfig {
 function applyMonitorDefaults(monitor: YamlMonitor, defaults: YamlMonitorDefaults): YamlMonitor {
   return {
     ...monitor,
-    frequency: monitor.frequency ?? defaults.frequency,
+    frequencySeconds: monitor.frequencySeconds ?? defaults.frequencySeconds,
     enabled: monitor.enabled ?? defaults.enabled,
     regions: monitor.regions ?? defaults.regions,
     alertChannels: monitor.alertChannels ?? defaults.alertChannels,

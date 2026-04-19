@@ -4,4 +4,4 @@ monitors:
     config:
       url: https://example.com
       method: GET
-    frequency: 5
+    frequencySeconds: 5

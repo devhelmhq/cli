@@ -1,41 +1,41 @@
 alertChannels:
   - name: slack-chan
-    type: slack
     config:
+      channelType: slack
       webhookUrl: https://hooks.slack.com/services/T/B/x
       mentionText: "@channel"
 
   - name: discord-chan
-    type: discord
     config:
+      channelType: discord
       webhookUrl: https://discord.com/api/webhooks/123/abc
       mentionRoleId: "12345"
 
   - name: email-chan
-    type: email
     config:
+      channelType: email
       recipients: [a@test.com, b@test.com]
 
   - name: pagerduty-chan
-    type: pagerduty
     config:
+      channelType: pagerduty
       routingKey: routing-key-123
       severityOverride: critical
 
   - name: opsgenie-chan
-    type: opsgenie
     config:
+      channelType: opsgenie
       apiKey: og-api-key-456
       region: us
 
   - name: teams-chan
-    type: teams
     config:
+      channelType: teams
       webhookUrl: https://outlook.office.com/webhook/xxx
 
   - name: webhook-chan
-    type: webhook
     config:
+      channelType: webhook
       url: https://webhooks.example.com/alerts
       signingSecret: secret-123
       customHeaders:

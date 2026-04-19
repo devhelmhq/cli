@@ -1,7 +1,7 @@
 alertChannels:
   - name: ops
-    type: slack
     config:
+      channelType: slack
       webhookUrl: https://hooks.slack.com/test
 
 notificationPolicies:

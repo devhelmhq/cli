@@ -110,9 +110,9 @@ describe('parser', () => {
 
     it('applies defaults to monitors', () => {
       const config = loadConfig([join(fixtures, 'valid', 'defaults.yml')])
-      expect(config.monitors![0].frequency).toBe(120)
+      expect(config.monitors![0].frequencySeconds).toBe(120)
       expect(config.monitors![0].regions).toEqual(['us-east', 'eu-west'])
-      expect(config.monitors![1].frequency).toBe(30)
+      expect(config.monitors![1].frequencySeconds).toBe(30)
       expect(config.monitors![1].regions).toEqual(['us-west'])
     })
 

@@ -6,7 +6,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   "CreateMonitorRequest": {
     "name": "Human-readable name for this monitor",
     "type": "Monitor protocol type",
-    "frequencySeconds": "Check frequency in seconds (30–86400, default: 60)",
+    "frequencySeconds": "Check frequency in seconds (30–86400); null defaults to plan minimum (60s on most paid plans)",
     "enabled": "Whether the monitor is active (default: true)",
     "regions": "Probe regions to run checks from, e.g. us-east, eu-west",
     "managedBy": "Who manages this monitor: DASHBOARD or CLI",

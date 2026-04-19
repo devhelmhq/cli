@@ -167,7 +167,7 @@ describe('validator', () => {
           name: 't',
           type: 'HTTP',
           config: {url: 'u', method: 'GET'},
-          frequency: 100_000,
+          frequencySeconds: 100_000,
         }],
       }
       const result = validate(config)
@@ -211,7 +211,7 @@ describe('validator', () => {
   describe('channel config validation', () => {
     it('errors when slack missing webhookUrl', () => {
       const config: DevhelmConfig = {
-        alertChannels: [{name: 'test', type: 'slack', config: {}}],
+        alertChannels: [{name: 'test', config: {channelType: 'slack'}}],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('webhookUrl'))).toBe(true)
@@ -219,7 +219,7 @@ describe('validator', () => {
 
     it('errors when email missing recipients', () => {
       const config: DevhelmConfig = {
-        alertChannels: [{name: 'test', type: 'email', config: {}}],
+        alertChannels: [{name: 'test', config: {channelType: 'email'}}],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('recipients'))).toBe(true)
@@ -227,7 +227,7 @@ describe('validator', () => {
 
     it('errors when pagerduty missing routingKey', () => {
       const config: DevhelmConfig = {
-        alertChannels: [{name: 'test', type: 'pagerduty', config: {}}],
+        alertChannels: [{name: 'test', config: {channelType: 'pagerduty'}}],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('routingKey'))).toBe(true)
@@ -235,7 +235,7 @@ describe('validator', () => {
 
     it('errors when opsgenie missing apiKey', () => {
       const config: DevhelmConfig = {
-        alertChannels: [{name: 'test', type: 'opsgenie', config: {}}],
+        alertChannels: [{name: 'test', config: {channelType: 'opsgenie'}}],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('apiKey'))).toBe(true)
@@ -243,7 +243,7 @@ describe('validator', () => {
 
     it('errors when webhook missing url', () => {
       const config: DevhelmConfig = {
-        alertChannels: [{name: 'test', type: 'webhook', config: {}}],
+        alertChannels: [{name: 'test', config: {channelType: 'webhook'}}],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('url'))).toBe(true)
@@ -251,7 +251,7 @@ describe('validator', () => {
 
     it('errors when discord missing webhookUrl', () => {
       const config: DevhelmConfig = {
-        alertChannels: [{name: 'test', type: 'discord', config: {}}],
+        alertChannels: [{name: 'test', config: {channelType: 'discord'}}],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('webhookUrl'))).toBe(true)
@@ -259,7 +259,7 @@ describe('validator', () => {
 
     it('errors when teams missing webhookUrl', () => {
       const config: DevhelmConfig = {
-        alertChannels: [{name: 'test', type: 'teams', config: {}}],
+        alertChannels: [{name: 'test', config: {channelType: 'teams'}}],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('webhookUrl'))).toBe(true)
@@ -267,7 +267,7 @@ describe('validator', () => {
 
     it('errors when email recipients is empty array', () => {
       const config: DevhelmConfig = {
-        alertChannels: [{name: 'test', type: 'email', config: {recipients: []}}],
+        alertChannels: [{name: 'test', config: {channelType: 'email', recipients: []}}],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('recipients'))).toBe(true)
@@ -277,15 +277,15 @@ describe('validator', () => {
   describe('webhook definition validation', () => {
     it('errors when events is empty', () => {
       const config: DevhelmConfig = {
-        webhooks: [{url: 'https://x.com', events: []}],
+        webhooks: [{url: 'https://x.com', subscribedEvents: []}],
       }
       const result = validate(config)
-      expect(result.errors.some((e) => e.message.includes('events'))).toBe(true)
+      expect(result.errors.some((e) => e.message.includes('subscribedEvents'))).toBe(true)
     })
 
     it('errors when url is missing', () => {
       const config: DevhelmConfig = {
-        webhooks: [{url: '', events: ['monitor.down']}],
+        webhooks: [{url: '', subscribedEvents: ['monitor.down']}],
       }
       const result = validate(config)
       expect(result.errors.some((e) => e.message.includes('url'))).toBe(true)
@@ -660,7 +660,7 @@ describe('validator', () => {
 
     it('errors on negative delayMinutes', () => {
       const config: DevhelmConfig = {
-        alertChannels: [{name: 'ch', type: 'slack', config: {webhookUrl: 'url'}}],
+        alertChannels: [{name: 'ch', config: {channelType: 'slack', webhookUrl: 'url'}}],
         notificationPolicies: [{
           name: 'test',
           escalation: {steps: [{channels: ['ch'], delayMinutes: -5}]},
@@ -714,7 +714,7 @@ describe('validator', () => {
         monitors: [{
           name: 'test', type: 'HTTP',
           config: {url: 'https://x.com', method: 'GET'},
-          assertions: [{type: 'InvalidAssertion', severity: 'error'}],
+          assertions: [{config: {type: 'InvalidAssertion'}, severity: 'error'}],
         }],
       }
       const result = validate(config)
@@ -726,7 +726,7 @@ describe('validator', () => {
         monitors: [{
           name: 'test', type: 'HTTP',
           config: {url: 'https://x.com', method: 'GET'},
-          assertions: [{type: 'StatusCodeAssertion', severity: 'bad' as string}],
+          assertions: [{config: {type: 'StatusCodeAssertion'}, severity: 'bad' as string}],
         }],
       }
       const result = validate(config)
@@ -738,7 +738,7 @@ describe('validator', () => {
         monitors: [{
           name: 'test', type: 'HTTP',
           config: {url: 'https://x.com', method: 'GET'},
-          assertions: [{type: 'status_code', severity: 'error', config: {operator: 'INVALID_OP'}}],
+          assertions: [{severity: 'error', config: {type: 'status_code', operator: 'INVALID_OP'}}],
         }],
       }
       const result = validate(config)

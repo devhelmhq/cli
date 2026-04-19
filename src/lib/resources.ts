@@ -244,6 +244,7 @@ export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
       : []
     const body: CreateNotificationPolicyRequest = {
       name: String(raw.name),
+      matchRules: [],
       escalation: {steps: [{channelIds, delayMinutes: 0}]},
       enabled: (raw.enabled as boolean) ?? true,
       priority: 0,

@@ -17,7 +17,7 @@ describe('DevhelmConfigSchema', () => {
     it('accepts version and defaults', () => {
       const result = DevhelmConfigSchema.safeParse({
         version: '2',
-        defaults: {monitors: {frequency: 60, enabled: true}},
+        defaults: {monitors: {frequencySeconds: 60, enabled: true}},
       })
       expect(result.success).toBe(true)
     })
@@ -47,7 +47,7 @@ describe('DevhelmConfigSchema', () => {
         monitors: [{
           name: 'X', type: 'HTTP',
           config: {url: 'https://x', method: 'GET'},
-          frequency: 10,
+          frequencySeconds: 10,
         }],
       })
       expect(result.success).toBe(false)
@@ -58,7 +58,7 @@ describe('DevhelmConfigSchema', () => {
         monitors: [{
           name: 'X', type: 'HTTP',
           config: {url: 'https://x', method: 'GET'},
-          frequency: 999_999,
+          frequencySeconds: 999_999,
         }],
       })
       expect(result.success).toBe(false)
@@ -82,7 +82,7 @@ describe('DevhelmConfigSchema', () => {
         monitors: [{
           name: 'X', type: 'HTTP',
           config: {url: 'https://x', method: 'GET'},
-          assertions: [{type: 'status_code', config: {expected: 200}}],
+          assertions: [{config: {type: 'status_code', expected: '200', operator: 'equals'}}],
         }],
       })
       expect(result.success).toBe(true)
@@ -93,7 +93,7 @@ describe('DevhelmConfigSchema', () => {
         monitors: [{
           name: 'X', type: 'HTTP',
           config: {url: 'https://x', method: 'GET'},
-          assertions: [{type: 'totally_made_up'}],
+          assertions: [{config: {type: 'totally_made_up'}}],
         }],
       })
       expect(result.success).toBe(false)
@@ -108,13 +108,13 @@ describe('DevhelmConfigSchema', () => {
         monitors: [{
           name: 'X', type: 'HTTP',
           config: {url: 'https://x', method: 'GET'},
-          assertions: [{type: 'status_code'}],
+          assertions: [{config: {type: 'status_code'}}],
         }],
       })
       expect(result.success).toBe(false)
       if (!result.success) {
         const messages = formatZodErrors(result.error).join('\n')
-        expect(messages).toMatch(/requires a non-empty "config"/)
+        expect(messages).toContain('Required')
       }
     })
 
@@ -123,7 +123,7 @@ describe('DevhelmConfigSchema', () => {
         monitors: [{
           name: 'X', type: 'DNS',
           config: {hostname: 'example.com'},
-          assertions: [{type: 'dns_resolves'}],
+          assertions: [{config: {type: 'dns_resolves'}}],
         }],
       })
       expect(result.success).toBe(true)
@@ -170,8 +170,7 @@ describe('DevhelmConfigSchema', () => {
       const result = DevhelmConfigSchema.safeParse({
         alertChannels: [{
           name: 'ops',
-          type: 'slack',
-          config: {webhookUrl: 'https://hooks.slack.com/...'},
+          config: {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/...'},
         }],
       })
       expect(result.success).toBe(true)
@@ -179,7 +178,7 @@ describe('DevhelmConfigSchema', () => {
 
     it('rejects unknown channel type', () => {
       const result = DevhelmConfigSchema.safeParse({
-        alertChannels: [{name: 'x', type: 'sms', config: {webhookUrl: 'x'}}],
+        alertChannels: [{name: 'x', config: {channelType: 'sms', webhookUrl: 'x'}}],
       })
       expect(result.success).toBe(false)
     })

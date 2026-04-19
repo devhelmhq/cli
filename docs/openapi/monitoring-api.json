@@ -4215,6 +4215,48 @@
         }
       }
     },
+    "/api/v1/services/{slugOrId}/days/{date}": {
+      "get": {
+        "tags": [
+          "Status Data"
+        ],
+        "summary": "One-day rollup for a service: aggregated uptime, per-component impacts, and overlapping incidents",
+        "description": "Powers the click/hover-to-expand panel under each uptime bar on the public status page. Single round-trip — components, sums, and overlapping incidents (with affected component names) are returned in one response.",
+        "operationId": "getServiceDayDetail",
+        "parameters": [
+          {
+            "name": "slugOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "in": "path",
+            "description": "UTC calendar day in ISO format (YYYY-MM-DD)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseServiceDayDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/services/{slugOrId}/incidents": {
       "get": {
         "tags": [
@@ -6512,11 +6554,13 @@
         "properties": {
           "body": {
             "type": "string",
-            "description": "Update message or post-mortem notes"
+            "description": "Update message or post-mortem notes",
+            "nullable": true
           },
           "newStatus": {
             "type": "string",
             "description": "Updated incident status; null to keep current status",
+            "nullable": true,
             "enum": [
               "WATCHING",
               "TRIGGERED",
@@ -6530,8 +6574,6 @@
           }
         },
         "required": [
-          "body",
-          "newStatus",
           "notifySubscribers"
         ]
       },
@@ -6730,6 +6772,16 @@
         "description": "Alert channel with non-sensitive configuration metadata"
       },
       "AlertDeliveryDto": {
+        "required": [
+          "channel",
+          "channelId",
+          "channelType",
+          "createdAt",
+          "eventType",
+          "id",
+          "incidentId",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -6823,20 +6875,7 @@
             "format": "date-time"
           }
         },
-        "description": "Delivery record for a single channel within a notification dispatch",
-        "required": [
-          "id",
-          "incidentId",
-          "channelId",
-          "channel",
-          "channelType",
-          "status",
-          "eventType",
-          "stepNumber",
-          "fireCount",
-          "attemptCount",
-          "createdAt"
-        ]
+        "description": "Delivery record for a single channel within a notification dispatch"
       },
       "ApiKeyAuthConfig": {
         "required": [
@@ -6870,6 +6909,11 @@
         ]
       },
       "ApiKeyCreateResponse": {
+        "required": [
+          "createdAt",
+          "key",
+          "name"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -6878,10 +6922,12 @@
             "format": "int32"
           },
           "name": {
+            "minLength": 1,
             "type": "string",
             "description": "Human-readable name for this API key"
           },
           "key": {
+            "minLength": 1,
             "type": "string",
             "description": "Full API key value in dh_live_* format; store this now"
           },
@@ -6897,15 +6943,15 @@
             "nullable": true
           }
         },
-        "description": "Created API key with the full key value — store it now, it won't be shown again",
-        "required": [
-          "id",
-          "name",
-          "key",
-          "createdAt"
-        ]
+        "description": "Created API key with the full key value — store it now, it won't be shown again"
       },
       "ApiKeyDto": {
+        "required": [
+          "createdAt",
+          "key",
+          "name",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -6914,10 +6960,12 @@
             "format": "int32"
           },
           "name": {
+            "minLength": 1,
             "type": "string",
             "description": "Human-readable name for this API key"
           },
           "key": {
+            "minLength": 1,
             "type": "string",
             "description": "Full API key value in dh_live_* format"
           },
@@ -6950,14 +6998,7 @@
             "nullable": true
           }
         },
-        "description": "API key for programmatic access to the DevHelm API",
-        "required": [
-          "id",
-          "name",
-          "key",
-          "createdAt",
-          "updatedAt"
-        ]
+        "description": "API key for programmatic access to the DevHelm API"
       },
       "AssertionConfig": {
         "required": [
@@ -7019,6 +7060,10 @@
         }
       },
       "AssertionResultDto": {
+        "required": [
+          "severity",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "type": {
@@ -7056,14 +7101,14 @@
             "example": "503"
           }
         },
-        "description": "Result of evaluating a single assertion against a check result",
-        "required": [
-          "type",
-          "passed",
-          "severity"
-        ]
+        "description": "Result of evaluating a single assertion against a check result"
       },
       "AssertionTestResultDto": {
+        "required": [
+          "assertionType",
+          "message",
+          "severity"
+        ],
         "type": "object",
         "properties": {
           "assertionType": {
@@ -7140,15 +7185,13 @@
             "description": "Actual value observed during the test",
             "nullable": true
           }
-        },
-        "required": [
-          "assertionType",
-          "passed",
-          "severity",
-          "message"
-        ]
+        }
       },
       "AuditEventDto": {
+        "required": [
+          "action",
+          "createdAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -7201,14 +7244,15 @@
             "description": "Timestamp when the action was performed",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "action",
-          "createdAt"
-        ]
+        }
       },
       "AuthMeResponse": {
+        "required": [
+          "key",
+          "organization",
+          "plan",
+          "rateLimits"
+        ],
         "type": "object",
         "properties": {
           "key": {
@@ -7224,13 +7268,7 @@
             "$ref": "#/components/schemas/RateLimitInfo"
           }
         },
-        "description": "Identity, organization, plan, and rate-limit info for the authenticated API key",
-        "required": [
-          "key",
-          "organization",
-          "plan",
-          "rateLimits"
-        ]
+        "description": "Identity, organization, plan, and rate-limit info for the authenticated API key"
       },
       "BasicAuthConfig": {
         "type": "object",
@@ -7345,6 +7383,10 @@
         "description": "Request body for performing a bulk action on multiple monitors"
       },
       "BulkMonitorActionResult": {
+        "required": [
+          "failed",
+          "succeeded"
+        ],
         "type": "object",
         "properties": {
           "succeeded": {
@@ -7364,13 +7406,12 @@
             }
           }
         },
-        "description": "Result of a bulk monitor action, including partial-success details",
-        "required": [
-          "succeeded",
-          "failed"
-        ]
+        "description": "Result of a bulk monitor action, including partial-success details"
       },
       "CategoryDto": {
+        "required": [
+          "category"
+        ],
         "type": "object",
         "properties": {
           "category": {
@@ -7383,11 +7424,7 @@
             "format": "int64"
           }
         },
-        "description": "Service category with its count of catalog entries",
-        "required": [
-          "category",
-          "serviceCount"
-        ]
+        "description": "Service category with its count of catalog entries"
       },
       "ChangeRoleRequest": {
         "required": [
@@ -7453,6 +7490,9 @@
         }
       },
       "ChartBucketDto": {
+        "required": [
+          "bucket"
+        ],
         "type": "object",
         "properties": {
           "bucket": {
@@ -7490,10 +7530,7 @@
             "example": 480
           }
         },
-        "description": "Aggregated metrics for a time bucket",
-        "required": [
-          "bucket"
-        ]
+        "description": "Aggregated metrics for a time bucket"
       },
       "CheckResultDetailsDto": {
         "type": "object",
@@ -7572,6 +7609,11 @@
         "description": "Type-specific details captured during a check execution"
       },
       "CheckResultDto": {
+        "required": [
+          "id",
+          "region",
+          "timestamp"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -7626,13 +7668,7 @@
             "nullable": true
           }
         },
-        "description": "A single check result from a monitor run",
-        "required": [
-          "id",
-          "timestamp",
-          "region",
-          "passed"
-        ]
+        "description": "A single check result from a monitor run"
       },
       "CheckTypeDetailsDto": {
         "required": [
@@ -7648,6 +7684,45 @@
         "discriminator": {
           "propertyName": "check_type"
         }
+      },
+      "ComponentImpact": {
+        "required": [
+          "componentId",
+          "componentName"
+        ],
+        "type": "object",
+        "properties": {
+          "componentId": {
+            "type": "string",
+            "description": "Status page component UUID",
+            "format": "uuid"
+          },
+          "componentName": {
+            "type": "string",
+            "description": "Component display name"
+          },
+          "groupName": {
+            "type": "string",
+            "description": "Parent group display name when the component belongs to a group",
+            "nullable": true
+          },
+          "uptimePercentage": {
+            "type": "number",
+            "description": "Computed uptime % for this component on this day",
+            "format": "double"
+          },
+          "partialOutageSeconds": {
+            "type": "integer",
+            "description": "Seconds of partial outage observed on this day",
+            "format": "int32"
+          },
+          "majorOutageSeconds": {
+            "type": "integer",
+            "description": "Seconds of major outage observed on this day",
+            "format": "int32"
+          }
+        },
+        "description": "One component's uptime contribution for the day"
       },
       "ComponentPosition": {
         "required": [
@@ -7668,12 +7743,18 @@
           "groupId": {
             "type": "string",
             "description": "Target group ID, null for ungrouped",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           }
         },
         "description": "A single component position"
       },
       "ComponentStatusDto": {
+        "required": [
+          "id",
+          "name",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -7689,14 +7770,12 @@
             "description": "Current component status, e.g. operational, degraded_performance"
           }
         },
-        "description": "Current status of each active component",
-        "required": [
-          "id",
-          "name",
-          "status"
-        ]
+        "description": "Current status of each active component"
       },
       "ComponentUptimeDayDto": {
+        "required": [
+          "date"
+        ],
         "type": "object",
         "properties": {
           "date": {
@@ -7728,15 +7807,12 @@
             }
           }
         },
-        "description": "Daily uptime data for a status page component",
-        "required": [
-          "date",
-          "partialOutageSeconds",
-          "majorOutageSeconds",
-          "uptimePercentage"
-        ]
+        "description": "Daily uptime data for a status page component"
       },
       "ComponentUptimeSummaryDto": {
+        "required": [
+          "source"
+        ],
         "type": "object",
         "properties": {
           "day": {
@@ -7766,10 +7842,7 @@
             "example": "vendor_reported"
           }
         },
-        "description": "Inline uptime percentages for 24h, 7d, 30d",
-        "required": [
-          "source"
-        ]
+        "description": "Inline uptime percentages for 24h, 7d, 30d"
       },
       "ConfirmationPolicy": {
         "required": [
@@ -7859,7 +7932,8 @@
       },
       "CreateAssertionRequest": {
         "required": [
-          "config"
+          "config",
+          "severity"
         ],
         "type": "object",
         "properties": {
@@ -8075,7 +8149,8 @@
           "monitorId": {
             "type": "string",
             "description": "Monitor to attach this maintenance window to; null for org-wide",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "startsAt": {
             "type": "string",
@@ -8091,15 +8166,18 @@
             "maxLength": 100,
             "minLength": 0,
             "type": "string",
-            "description": "iCal RRULE for recurring windows (max 100 chars); null for one-time"
+            "description": "iCal RRULE for recurring windows (max 100 chars); null for one-time",
+            "nullable": true
           },
           "reason": {
             "type": "string",
-            "description": "Human-readable reason for the maintenance"
+            "description": "Human-readable reason for the maintenance",
+            "nullable": true
           },
           "suppressAlerts": {
             "type": "boolean",
-            "description": "Whether to suppress alerts during this window (default: true)"
+            "description": "Whether to suppress alerts during this window (default: true)",
+            "nullable": true
           }
         }
       },
@@ -8188,8 +8266,9 @@
           },
           "frequencySeconds": {
             "type": "integer",
-            "description": "Check frequency in seconds (30–86400, default: 60)",
-            "format": "int32"
+            "description": "Check frequency in seconds (30–86400); null defaults to plan minimum (60s on most paid plans)",
+            "format": "int32",
+            "nullable": true
           },
           "enabled": {
             "type": "boolean",
@@ -8266,8 +8345,11 @@
       },
       "CreateNotificationPolicyRequest": {
         "required": [
+          "enabled",
           "escalation",
-          "name"
+          "matchRules",
+          "name",
+          "priority"
         ],
         "type": "object",
         "properties": {
@@ -8745,7 +8827,8 @@
             "maxLength": 255,
             "minLength": 0,
             "type": "string",
-            "description": "Optional human-readable description"
+            "description": "Optional human-readable description",
+            "nullable": true
           },
           "subscribedEvents": {
             "minItems": 1,
@@ -8774,6 +8857,9 @@
         "description": "Create a new workspace within the organization"
       },
       "CursorPage": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -8794,13 +8880,12 @@
             "description": "Whether more results exist beyond this page"
           }
         },
-        "description": "Cursor-paginated response for time-series and append-only data",
-        "required": [
-          "data",
-          "hasMore"
-        ]
+        "description": "Cursor-paginated response for time-series and append-only data"
       },
       "CursorPageCheckResultDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -8820,13 +8905,12 @@
             "description": "Whether more results exist beyond this page"
           }
         },
-        "description": "Cursor-paginated response for time-series and append-only data",
-        "required": [
-          "data",
-          "hasMore"
-        ]
+        "description": "Cursor-paginated response for time-series and append-only data"
       },
       "CursorPageServiceCatalogDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -8846,13 +8930,12 @@
             "description": "Whether more results exist beyond this page"
           }
         },
-        "description": "Cursor-paginated response for time-series and append-only data",
-        "required": [
-          "data",
-          "hasMore"
-        ]
+        "description": "Cursor-paginated response for time-series and append-only data"
       },
       "CursorPageServicePollResultDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -8872,13 +8955,13 @@
             "description": "Whether more results exist beyond this page"
           }
         },
-        "description": "Cursor-paginated response for time-series and append-only data",
-        "required": [
-          "data",
-          "hasMore"
-        ]
+        "description": "Cursor-paginated response for time-series and append-only data"
       },
       "DashboardOverviewDto": {
+        "required": [
+          "incidents",
+          "monitors"
+        ],
         "type": "object",
         "properties": {
           "monitors": {
@@ -8888,13 +8971,78 @@
             "$ref": "#/components/schemas/IncidentsSummaryDto"
           }
         },
-        "description": "Combined dashboard overview for monitors and incidents",
+        "description": "Combined dashboard overview for monitors and incidents"
+      },
+      "DayIncident": {
         "required": [
-          "monitors",
-          "incidents"
-        ]
+          "affectedComponentNames",
+          "id",
+          "impact",
+          "status",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Status page incident UUID",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "description": "Incident title"
+          },
+          "status": {
+            "type": "string",
+            "description": "Lifecycle status (investigating, identified, monitoring, resolved, …)",
+            "enum": [
+              "INVESTIGATING",
+              "IDENTIFIED",
+              "MONITORING",
+              "RESOLVED"
+            ]
+          },
+          "impact": {
+            "type": "string",
+            "description": "Severity bucket (none, minor, major, critical)",
+            "enum": [
+              "NONE",
+              "MINOR",
+              "MAJOR",
+              "CRITICAL"
+            ]
+          },
+          "scheduled": {
+            "type": "boolean",
+            "description": "True for scheduled maintenances; false for unplanned incidents"
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "Incident start timestamp",
+            "format": "date-time",
+            "nullable": true
+          },
+          "resolvedAt": {
+            "type": "string",
+            "description": "Incident resolved timestamp; null while still active",
+            "format": "date-time",
+            "nullable": true
+          },
+          "affectedComponentNames": {
+            "type": "array",
+            "description": "Display names of components affected by this incident (deduplicated)",
+            "items": {
+              "type": "string",
+              "description": "Display names of components affected by this incident (deduplicated)"
+            }
+          }
+        },
+        "description": "Incident that overlapped the day"
       },
       "DekRotationResultDto": {
+        "required": [
+          "rotatedAt"
+        ],
         "type": "object",
         "properties": {
           "previousDekVersion": {
@@ -8923,14 +9071,7 @@
             "format": "date-time"
           }
         },
-        "description": "Result of a data encryption key rotation operation",
-        "required": [
-          "previousDekVersion",
-          "newDekVersion",
-          "secretsReEncrypted",
-          "channelsReEncrypted",
-          "rotatedAt"
-        ]
+        "description": "Result of a data encryption key rotation operation"
       },
       "DeleteChannelResult": {
         "type": "object",
@@ -8953,6 +9094,12 @@
         ]
       },
       "DeliveryAttemptDto": {
+        "required": [
+          "attemptedAt",
+          "deliveryId",
+          "id",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -9019,16 +9166,15 @@
             "format": "date-time"
           }
         },
-        "description": "Single delivery attempt with request/response audit data",
-        "required": [
-          "id",
-          "deliveryId",
-          "attemptNumber",
-          "status",
-          "attemptedAt"
-        ]
+        "description": "Single delivery attempt with request/response audit data"
       },
       "DeployLockDto": {
+        "required": [
+          "expiresAt",
+          "id",
+          "lockedAt",
+          "lockedBy"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -9037,6 +9183,7 @@
             "format": "uuid"
           },
           "lockedBy": {
+            "minLength": 1,
             "type": "string",
             "description": "Identity of the lock holder (e.g. CLI session ID, username)"
           },
@@ -9051,13 +9198,7 @@
             "format": "date-time"
           }
         },
-        "description": "Represents an active deploy lock for a workspace",
-        "required": [
-          "id",
-          "lockedBy",
-          "lockedAt",
-          "expiresAt"
-        ]
+        "description": "Represents an active deploy lock for a workspace"
       },
       "DiscordChannelConfig": {
         "required": [
@@ -9164,7 +9305,8 @@
               }
             },
             "required": [
-              "recordType"
+              "recordType",
+              "max"
             ]
           }
         ]
@@ -9193,7 +9335,8 @@
               }
             },
             "required": [
-              "recordType"
+              "recordType",
+              "min"
             ]
           }
         ]
@@ -9350,7 +9493,10 @@
                 "description": "Maximum allowed DNS resolution time in milliseconds",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "maxMs"
+            ]
           }
         ]
       },
@@ -9368,7 +9514,10 @@
                 "description": "DNS resolution time in milliseconds that triggers a warning only",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "warnMs"
+            ]
           }
         ]
       },
@@ -9386,7 +9535,10 @@
                 "description": "Maximum TTL in seconds before a high-TTL warning is raised",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "maxTtl"
+            ]
           }
         ]
       },
@@ -9404,7 +9556,10 @@
                 "description": "Minimum acceptable TTL in seconds before a warning is raised",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "minTtl"
+            ]
           }
         ]
       },
@@ -9462,6 +9617,9 @@
         ]
       },
       "EntitlementDto": {
+        "required": [
+          "key"
+        ],
         "type": "object",
         "properties": {
           "key": {
@@ -9483,15 +9641,17 @@
             "description": "Whether this entitlement has an org-level override"
           }
         },
-        "description": "A single resolved entitlement for the organization",
-        "required": [
-          "key",
-          "value",
-          "defaultValue",
-          "overridden"
-        ]
+        "description": "A single resolved entitlement for the organization"
       },
       "EnvironmentDto": {
+        "required": [
+          "createdAt",
+          "id",
+          "name",
+          "slug",
+          "updatedAt",
+          "variables"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -9505,10 +9665,12 @@
             "format": "int32"
           },
           "name": {
+            "minLength": 1,
             "type": "string",
             "description": "Human-readable environment name"
           },
           "slug": {
+            "minLength": 1,
             "type": "string",
             "description": "URL-safe identifier"
           },
@@ -9540,18 +9702,7 @@
             "description": "Whether this is the default environment for new monitors"
           }
         },
-        "description": "Environment with variable substitutions for monitor configs",
-        "required": [
-          "id",
-          "orgId",
-          "name",
-          "slug",
-          "variables",
-          "createdAt",
-          "updatedAt",
-          "monitorCount",
-          "isDefault"
-        ]
+        "description": "Environment with variable substitutions for monitor configs"
       },
       "EscalationChain": {
         "required": [
@@ -9618,6 +9769,10 @@
         "description": "Ordered escalation steps, evaluated in sequence"
       },
       "FailureDetail": {
+        "required": [
+          "monitorId",
+          "reason"
+        ],
         "type": "object",
         "properties": {
           "monitorId": {
@@ -9630,13 +9785,12 @@
             "description": "Human-readable reason for the failure"
           }
         },
-        "description": "Details about a single monitor that failed the bulk action",
-        "required": [
-          "monitorId",
-          "reason"
-        ]
+        "description": "Details about a single monitor that failed the bulk action"
       },
       "GlobalStatusSummaryDto": {
+        "required": [
+          "servicesWithIssues"
+        ],
         "type": "object",
         "properties": {
           "totalServices": {
@@ -9687,21 +9841,11 @@
             }
           }
         },
-        "description": "Global status summary across all subscribed vendor services",
-        "required": [
-          "totalServices",
-          "operationalCount",
-          "degradedCount",
-          "partialOutageCount",
-          "majorOutageCount",
-          "maintenanceCount",
-          "unknownCount",
-          "activeIncidentCount",
-          "servicesWithIssues"
-        ]
+        "description": "Global status summary across all subscribed vendor services"
       },
       "GroupComponentOrder": {
         "required": [
+          "groupId",
           "positions"
         ],
         "type": "object",
@@ -9791,8 +9935,8 @@
               }
             },
             "required": [
-              "expected",
               "headerName",
+              "expected",
               "operator"
             ]
           }
@@ -9978,8 +10122,8 @@
               }
             },
             "required": [
-              "method",
-              "url"
+              "url",
+              "method"
             ]
           }
         ]
@@ -10040,7 +10184,10 @@
                 "description": "Maximum allowed packet loss percentage before the check fails (0–100)",
                 "format": "double"
               }
-            }
+            },
+            "required": [
+              "maxPercent"
+            ]
           }
         ]
       },
@@ -10066,7 +10213,10 @@
                 "description": "Maximum average ICMP round-trip time in milliseconds",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "maxMs"
+            ]
           }
         ]
       },
@@ -10084,11 +10234,18 @@
                 "description": "ICMP round-trip time in milliseconds that triggers a warning only",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "warnMs"
+            ]
           }
         ]
       },
       "IncidentDetailDto": {
+        "required": [
+          "incident",
+          "updates"
+        ],
         "type": "object",
         "properties": {
           "incident": {
@@ -10107,13 +10264,18 @@
               "$ref": "#/components/schemas/LinkedStatusPageIncidentDto"
             }
           }
-        },
-        "required": [
-          "incident",
-          "updates"
-        ]
+        }
       },
       "IncidentDto": {
+        "required": [
+          "affectedRegions",
+          "createdAt",
+          "id",
+          "severity",
+          "source",
+          "status",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10302,25 +10464,14 @@
             "nullable": true
           }
         },
-        "description": "Incident triggered by a monitor check failure or manual creation",
-        "required": [
-          "id",
-          "organizationId",
-          "source",
-          "status",
-          "severity",
-          "affectedRegions",
-          "reopenCount",
-          "statusPageVisible",
-          "createdAt",
-          "updatedAt"
-        ]
+        "description": "Incident triggered by a monitor check failure or manual creation"
       },
       "IncidentFilterParams": {
         "type": "object",
         "properties": {
           "status": {
             "type": "string",
+            "nullable": true,
             "enum": [
               "WATCHING",
               "TRIGGERED",
@@ -10330,6 +10481,7 @@
           },
           "severity": {
             "type": "string",
+            "nullable": true,
             "enum": [
               "DOWN",
               "DEGRADED",
@@ -10338,6 +10490,7 @@
           },
           "source": {
             "type": "string",
+            "nullable": true,
             "enum": [
               "AUTOMATIC",
               "MANUAL",
@@ -10348,15 +10501,18 @@
           },
           "monitorId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "serviceId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "resourceGroupId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "tagId": {
             "type": "string",
@@ -10391,17 +10547,20 @@
           }
         },
         "required": [
-          "status",
-          "severity",
-          "source",
-          "monitorId",
-          "serviceId",
-          "resourceGroupId",
           "page",
           "size"
         ]
       },
       "IncidentPolicyDto": {
+        "required": [
+          "confirmation",
+          "createdAt",
+          "id",
+          "monitorId",
+          "recovery",
+          "triggerRules",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10450,18 +10609,14 @@
             "nullable": true
           }
         },
-        "description": "Incident detection, confirmation, and recovery policy for a monitor",
-        "required": [
-          "id",
-          "monitorId",
-          "triggerRules",
-          "confirmation",
-          "recovery",
-          "createdAt",
-          "updatedAt"
-        ]
+        "description": "Incident detection, confirmation, and recovery policy for a monitor"
       },
       "IncidentRef": {
+        "required": [
+          "id",
+          "impact",
+          "title"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10478,12 +10633,7 @@
             "description": "Incident impact level"
           }
         },
-        "description": "Lightweight reference to an incident overlapping this day",
-        "required": [
-          "id",
-          "title",
-          "impact"
-        ]
+        "description": "Lightweight reference to an incident overlapping this day"
       },
       "IncidentsSummaryDto": {
         "type": "object",
@@ -10509,6 +10659,11 @@
         ]
       },
       "IncidentUpdateDto": {
+        "required": [
+          "createdAt",
+          "id",
+          "incidentId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10545,6 +10700,7 @@
           },
           "createdBy": {
             "type": "string",
+            "nullable": true,
             "enum": [
               "SYSTEM",
               "USER"
@@ -10557,16 +10713,13 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "incidentId",
-          "createdBy",
-          "notifySubscribers",
-          "createdAt"
-        ]
+        }
       },
       "IntegrationConfigSchemaDto": {
+        "required": [
+          "channelFields",
+          "connectionFields"
+        ],
         "type": "object",
         "properties": {
           "connectionFields": {
@@ -10581,13 +10734,20 @@
               "$ref": "#/components/schemas/IntegrationFieldDto"
             }
           }
-        },
-        "required": [
-          "connectionFields",
-          "channelFields"
-        ]
+        }
       },
       "IntegrationDto": {
+        "required": [
+          "authType",
+          "configSchema",
+          "description",
+          "lifecycle",
+          "logoUrl",
+          "name",
+          "setupGuideUrl",
+          "tierAvailability",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "type": {
@@ -10625,18 +10785,7 @@
           "configSchema": {
             "$ref": "#/components/schemas/IntegrationConfigSchemaDto"
           }
-        },
-        "required": [
-          "type",
-          "name",
-          "description",
-          "logoUrl",
-          "authType",
-          "tierAvailability",
-          "lifecycle",
-          "setupGuideUrl",
-          "configSchema"
-        ]
+        }
       },
       "IntegrationFieldDto": {
         "required": [
@@ -10685,6 +10834,11 @@
         }
       },
       "InviteDto": {
+        "required": [
+          "email",
+          "expiresAt",
+          "roleOffered"
+        ],
         "type": "object",
         "properties": {
           "inviteId": {
@@ -10723,13 +10877,7 @@
             "nullable": true
           }
         },
-        "description": "Organization invite sent to an email address",
-        "required": [
-          "inviteId",
-          "email",
-          "roleOffered",
-          "expiresAt"
-        ]
+        "description": "Organization invite sent to an email address"
       },
       "JsonPathAssertion": {
         "required": [
@@ -10769,14 +10917,18 @@
               }
             },
             "required": [
+              "path",
               "expected",
-              "operator",
-              "path"
+              "operator"
             ]
           }
         ]
       },
       "KeyInfo": {
+        "required": [
+          "createdAt",
+          "name"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10806,14 +10958,18 @@
             "nullable": true
           }
         },
-        "description": "API key metadata",
-        "required": [
-          "id",
-          "name",
-          "createdAt"
-        ]
+        "description": "API key metadata"
       },
       "LinkedStatusPageIncidentDto": {
+        "required": [
+          "id",
+          "impact",
+          "status",
+          "statusPageId",
+          "statusPageName",
+          "statusPageSlug",
+          "title"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10859,19 +11015,14 @@
             "format": "date-time",
             "nullable": true
           }
-        },
-        "required": [
-          "id",
-          "statusPageId",
-          "statusPageName",
-          "statusPageSlug",
-          "title",
-          "status",
-          "impact",
-          "scheduled"
-        ]
+        }
       },
       "MaintenanceComponentRef": {
+        "required": [
+          "id",
+          "name",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10888,14 +11039,13 @@
             "description": "Component status at the time of the maintenance update"
           }
         },
-        "description": "A component affected by a scheduled maintenance window",
-        "required": [
-          "id",
-          "name",
-          "status"
-        ]
+        "description": "A component affected by a scheduled maintenance window"
       },
       "MaintenanceUpdateDto": {
+        "required": [
+          "id",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10919,13 +11069,15 @@
             "nullable": true
           }
         },
-        "description": "A status update within a scheduled maintenance lifecycle",
-        "required": [
-          "id",
-          "status"
-        ]
+        "description": "A status update within a scheduled maintenance lifecycle"
       },
       "MaintenanceWindowDto": {
+        "required": [
+          "createdAt",
+          "endsAt",
+          "id",
+          "startsAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -10974,15 +11126,7 @@
             "format": "date-time"
           }
         },
-        "description": "Scheduled maintenance window for a monitor",
-        "required": [
-          "id",
-          "organizationId",
-          "startsAt",
-          "endsAt",
-          "suppressAlerts",
-          "createdAt"
-        ]
+        "description": "Scheduled maintenance window for a monitor"
       },
       "MatchRule": {
         "required": [
@@ -11076,7 +11220,10 @@
                 "description": "Minimum number of tools the server must expose",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "min"
+            ]
           }
         ]
       },
@@ -11118,7 +11265,10 @@
                 "description": "Maximum allowed MCP check duration in milliseconds",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "maxMs"
+            ]
           }
         ]
       },
@@ -11136,7 +11286,10 @@
                 "description": "MCP check duration in milliseconds that triggers a warning only",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "warnMs"
+            ]
           }
         ]
       },
@@ -11222,11 +11375,20 @@
                 "description": "Expected tool count; warns when the live count differs",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "expectedCount"
+            ]
           }
         ]
       },
       "MemberDto": {
+        "required": [
+          "createdAt",
+          "email",
+          "orgRole",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "userId": {
@@ -11270,16 +11432,16 @@
             "format": "date-time"
           }
         },
-        "description": "Organization member with role and status",
-        "required": [
-          "userId",
-          "email",
-          "orgRole",
-          "status",
-          "createdAt"
-        ]
+        "description": "Organization member with role and status"
       },
       "MonitorAssertionDto": {
+        "required": [
+          "assertionType",
+          "config",
+          "id",
+          "monitorId",
+          "severity"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11474,14 +11636,7 @@
               "warn"
             ]
           }
-        },
-        "required": [
-          "id",
-          "monitorId",
-          "assertionType",
-          "config",
-          "severity"
-        ]
+        }
       },
       "MonitorAuthConfig": {
         "required": [
@@ -11505,6 +11660,12 @@
         }
       },
       "MonitorAuthDto": {
+        "required": [
+          "authType",
+          "config",
+          "id",
+          "monitorId"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11540,19 +11701,23 @@
               }
             ]
           }
-        },
-        "required": [
-          "id",
-          "monitorId",
-          "authType",
-          "config"
-        ]
+        }
       },
       "MonitorConfig": {
         "type": "object",
         "description": "Protocol-specific monitor configuration"
       },
       "MonitorDto": {
+        "required": [
+          "config",
+          "createdAt",
+          "id",
+          "managedBy",
+          "name",
+          "regions",
+          "type",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11566,6 +11731,7 @@
             "format": "int32"
           },
           "name": {
+            "minLength": 1,
             "type": "string",
             "description": "Human-readable name for this monitor"
           },
@@ -11694,22 +11860,13 @@
             }
           }
         },
-        "description": "Full monitor representation",
-        "required": [
-          "id",
-          "organizationId",
-          "name",
-          "type",
-          "config",
-          "frequencySeconds",
-          "enabled",
-          "regions",
-          "managedBy",
-          "createdAt",
-          "updatedAt"
-        ]
+        "description": "Full monitor representation"
       },
       "MonitorReference": {
+        "required": [
+          "id",
+          "name"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11722,11 +11879,7 @@
             "description": "Monitor name"
           }
         },
-        "description": "Monitors that reference this secret; null on create/update responses",
-        "required": [
-          "id",
-          "name"
-        ]
+        "description": "Monitors that reference this secret; null on create/update responses"
       },
       "MonitorsSummaryDto": {
         "type": "object",
@@ -11830,6 +11983,9 @@
         }
       },
       "MonitorTestResultDto": {
+        "required": [
+          "assertionResults"
+        ],
         "type": "object",
         "properties": {
           "passed": {
@@ -11892,13 +12048,16 @@
               "type": "string"
             }
           }
-        },
-        "required": [
-          "passed",
-          "assertionResults"
-        ]
+        }
       },
       "MonitorVersionDto": {
+        "required": [
+          "changedVia",
+          "createdAt",
+          "id",
+          "monitorId",
+          "snapshot"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -11946,15 +12105,7 @@
             "format": "date-time"
           }
         },
-        "description": "A point-in-time version snapshot of a monitor configuration",
-        "required": [
-          "id",
-          "monitorId",
-          "version",
-          "snapshot",
-          "changedVia",
-          "createdAt"
-        ]
+        "description": "A point-in-time version snapshot of a monitor configuration"
       },
       "NewTagRequest": {
         "required": [
@@ -11978,6 +12129,15 @@
         "description": "Inline tag creation — creates the tag if it does not already exist"
       },
       "NotificationDispatchDto": {
+        "required": [
+          "createdAt",
+          "deliveries",
+          "id",
+          "incidentId",
+          "policyId",
+          "status",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12069,19 +12229,14 @@
             "format": "date-time"
           }
         },
-        "description": "Dispatch state for a single (incident, notification policy) pair, with delivery history",
-        "required": [
-          "id",
-          "incidentId",
-          "policyId",
-          "status",
-          "currentStep",
-          "deliveries",
-          "createdAt",
-          "updatedAt"
-        ]
+        "description": "Dispatch state for a single (incident, notification policy) pair, with delivery history"
       },
       "NotificationDto": {
+        "required": [
+          "createdAt",
+          "title",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12122,16 +12277,17 @@
             "format": "date-time"
           }
         },
-        "description": "In-app notification for the current user",
-        "required": [
-          "id",
-          "type",
-          "title",
-          "read",
-          "createdAt"
-        ]
+        "description": "In-app notification for the current user"
       },
       "NotificationPolicyDto": {
+        "required": [
+          "createdAt",
+          "escalation",
+          "id",
+          "matchRules",
+          "name",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12145,6 +12301,7 @@
             "format": "int32"
           },
           "name": {
+            "minLength": 1,
             "type": "string",
             "description": "Human-readable name for this policy"
           },
@@ -12178,18 +12335,7 @@
             "format": "date-time"
           }
         },
-        "description": "Org-level notification policy with match rules and escalation chain",
-        "required": [
-          "id",
-          "organizationId",
-          "name",
-          "matchRules",
-          "escalation",
-          "enabled",
-          "priority",
-          "createdAt",
-          "updatedAt"
-        ]
+        "description": "Org-level notification policy with match rules and escalation chain"
       },
       "OpsGenieChannelConfig": {
         "required": [
@@ -12221,6 +12367,10 @@
         ]
       },
       "OrganizationDto": {
+        "required": [
+          "email",
+          "name"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12253,13 +12403,12 @@
             "nullable": true
           }
         },
-        "description": "Organization account details",
-        "required": [
-          "id",
-          "name"
-        ]
+        "description": "Organization account details"
       },
       "OrgInfo": {
+        "required": [
+          "name"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12272,11 +12421,7 @@
             "description": "Organization name"
           }
         },
-        "description": "Organization the key belongs to",
-        "required": [
-          "id",
-          "name"
-        ]
+        "description": "Organization the key belongs to"
       },
       "Pageable": {
         "type": "object",
@@ -12360,6 +12505,11 @@
         ]
       },
       "PlanInfo": {
+        "required": [
+          "entitlements",
+          "tier",
+          "usage"
+        ],
         "type": "object",
         "properties": {
           "tier": {
@@ -12406,15 +12556,12 @@
             "description": "Current usage counters keyed by entitlement name"
           }
         },
-        "description": "Billing plan and entitlement state",
-        "required": [
-          "tier",
-          "trialActive",
-          "entitlements",
-          "usage"
-        ]
+        "description": "Billing plan and entitlement state"
       },
       "PollChartBucketDto": {
+        "required": [
+          "bucket"
+        ],
         "type": "object",
         "properties": {
           "bucket": {
@@ -12443,11 +12590,7 @@
             "example": 60
           }
         },
-        "description": "Aggregated poll metrics for a time bucket",
-        "required": [
-          "bucket",
-          "totalPolls"
-        ]
+        "description": "Aggregated poll metrics for a time bucket"
       },
       "PublishStatusPageIncidentRequest": {
         "type": "object",
@@ -12567,7 +12710,10 @@
                 "description": "Maximum number of HTTP redirects allowed before the check fails",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "maxCount"
+            ]
           }
         ]
       },
@@ -12634,6 +12780,10 @@
         ]
       },
       "RegionStatusDto": {
+        "required": [
+          "region",
+          "timestamp"
+        ],
         "type": "object",
         "properties": {
           "region": {
@@ -12664,12 +12814,7 @@
             "nullable": true
           }
         },
-        "description": "Latest check result for a single region",
-        "required": [
-          "region",
-          "passed",
-          "timestamp"
-        ]
+        "description": "Latest check result for a single region"
       },
       "RemoveMonitorTagsRequest": {
         "required": [
@@ -12733,18 +12878,26 @@
         "description": "Reorder page-level layout: groups and ungrouped components share one ordering"
       },
       "ResolveIncidentRequest": {
+        "required": [
+          "body"
+        ],
         "type": "object",
         "properties": {
           "body": {
             "type": "string",
             "description": "Optional resolution message or post-mortem notes"
           }
-        },
-        "required": [
-          "body"
-        ]
+        }
       },
       "ResourceGroupDto": {
+        "required": [
+          "createdAt",
+          "health",
+          "id",
+          "name",
+          "slug",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -12758,10 +12911,12 @@
             "format": "int32"
           },
           "name": {
+            "minLength": 1,
             "type": "string",
             "description": "Human-readable group name"
           },
           "slug": {
+            "minLength": 1,
             "type": "string",
             "description": "URL-safe group identifier"
           },
@@ -12867,19 +13022,12 @@
             "format": "date-time"
           }
         },
-        "description": "Resource group with health summary and optional member details",
-        "required": [
-          "id",
-          "organizationId",
-          "name",
-          "slug",
-          "suppressMemberAlerts",
-          "health",
-          "createdAt",
-          "updatedAt"
-        ]
+        "description": "Resource group with health summary and optional member details"
       },
       "ResourceGroupHealthDto": {
+        "required": [
+          "status"
+        ],
         "type": "object",
         "properties": {
           "status": {
@@ -12924,15 +13072,16 @@
             "nullable": true
           }
         },
-        "description": "Aggregated health summary for a resource group",
-        "required": [
-          "status",
-          "totalMembers",
-          "operationalCount",
-          "activeIncidents"
-        ]
+        "description": "Aggregated health summary for a resource group"
       },
       "ResourceGroupMemberDto": {
+        "required": [
+          "createdAt",
+          "groupId",
+          "id",
+          "memberType",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13042,14 +13191,7 @@
             "nullable": true
           }
         },
-        "description": "A single member of a resource group with its computed health status",
-        "required": [
-          "id",
-          "groupId",
-          "memberType",
-          "status",
-          "createdAt"
-        ]
+        "description": "A single member of a resource group with its computed health status"
       },
       "ResponseSizeAssertion": {
         "type": "object",
@@ -13065,7 +13207,10 @@
                 "description": "Maximum response body size in bytes before the check fails",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "maxBytes"
+            ]
           }
         ]
       },
@@ -13083,7 +13228,10 @@
                 "description": "Maximum allowed response time in milliseconds before the check fails",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "thresholdMs"
+            ]
           }
         ]
       },
@@ -13101,11 +13249,19 @@
                 "description": "HTTP response time in milliseconds that triggers a warning only",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "warnMs"
+            ]
           }
         ]
       },
       "ResultSummaryDto": {
+        "required": [
+          "chartData",
+          "currentStatus",
+          "latestPerRegion"
+        ],
         "type": "object",
         "properties": {
           "currentStatus": {
@@ -13147,12 +13303,7 @@
             "example": 99.8
           }
         },
-        "description": "Dashboard summary: current status, per-region latest results, and chart data",
-        "required": [
-          "currentStatus",
-          "latestPerRegion",
-          "chartData"
-        ]
+        "description": "Dashboard summary: current status, per-region latest results, and chart data"
       },
       "RetryStrategy": {
         "required": [
@@ -13178,6 +13329,14 @@
         "description": "Default retry strategy for member monitors; null clears"
       },
       "ScheduledMaintenanceDto": {
+        "required": [
+          "affectedComponents",
+          "externalId",
+          "id",
+          "status",
+          "title",
+          "updates"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13246,17 +13405,16 @@
             }
           }
         },
-        "description": "A scheduled maintenance window from a vendor status page",
-        "required": [
-          "id",
-          "externalId",
-          "title",
-          "status",
-          "affectedComponents",
-          "updates"
-        ]
+        "description": "A scheduled maintenance window from a vendor status page"
       },
       "SecretDto": {
+        "required": [
+          "createdAt",
+          "id",
+          "key",
+          "updatedAt",
+          "valueHash"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13296,15 +13454,7 @@
             }
           }
         },
-        "description": "Secret with change-detection hash; plaintext value is never returned",
-        "required": [
-          "id",
-          "key",
-          "dekVersion",
-          "valueHash",
-          "createdAt",
-          "updatedAt"
-        ]
+        "description": "Secret with change-detection hash; plaintext value is never returned"
       },
       "SeoMetadataDto": {
         "type": "object",
@@ -13328,6 +13478,15 @@
         "description": "Admin-editable SEO metadata for pSEO pages"
       },
       "ServiceCatalogDto": {
+        "required": [
+          "adapterType",
+          "createdAt",
+          "dataCompleteness",
+          "id",
+          "name",
+          "slug",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13399,23 +13558,19 @@
             "nullable": true
           }
         },
-        "description": "Related services",
-        "required": [
-          "id",
-          "slug",
-          "name",
-          "adapterType",
-          "pollingIntervalSeconds",
-          "enabled",
-          "published",
-          "createdAt",
-          "updatedAt",
-          "componentCount",
-          "activeIncidentCount",
-          "dataCompleteness"
-        ]
+        "description": "Related services"
       },
       "ServiceComponentDto": {
+        "required": [
+          "dataType",
+          "externalId",
+          "firstSeenAt",
+          "id",
+          "lastSeenAt",
+          "lifecycleStatus",
+          "name",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13483,6 +13638,16 @@
             "description": "Display name of the parent group",
             "nullable": true
           },
+          "displayAggregatedUptime": {
+            "type": "boolean",
+            "description": "Group-only: render an aggregated uptime bar above this group's children"
+          },
+          "childCount": {
+            "type": "integer",
+            "description": "Group-only count of visible leaf children; null for leaves",
+            "format": "int32",
+            "nullable": true
+          },
           "uptime": {
             "nullable": true,
             "allOf": [
@@ -13504,27 +13669,71 @@
             "type": "string",
             "format": "date-time"
           },
-          "group": {
+          "isGroup": {
             "type": "boolean"
           }
         },
-        "description": "A first-class service component with lifecycle and uptime data",
+        "description": "A first-class service component with lifecycle and uptime data"
+      },
+      "ServiceDayDetailDto": {
         "required": [
-          "id",
-          "externalId",
-          "name",
-          "status",
-          "showcase",
-          "onlyShowIfDegraded",
-          "lifecycleStatus",
-          "dataType",
-          "hasUptime",
-          "firstSeenAt",
-          "lastSeenAt",
-          "group"
-        ]
+          "components",
+          "date",
+          "incidents"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "UTC calendar day this rollup covers",
+            "format": "date"
+          },
+          "overallUptimePercentage": {
+            "type": "number",
+            "description": "Average uptime % across leaf components with uptime data; null if no data",
+            "format": "double",
+            "nullable": true
+          },
+          "totalPartialOutageSeconds": {
+            "type": "integer",
+            "description": "Sum of partial outage seconds across all leaf components",
+            "format": "int64"
+          },
+          "totalMajorOutageSeconds": {
+            "type": "integer",
+            "description": "Sum of major outage seconds across all leaf components",
+            "format": "int64"
+          },
+          "components": {
+            "type": "array",
+            "description": "Per-component impact rows for the day (only components with uptime data)",
+            "items": {
+              "$ref": "#/components/schemas/ComponentImpact"
+            }
+          },
+          "incidents": {
+            "type": "array",
+            "description": "Incidents that were active at any point during this day (started before day end, resolved after day start)",
+            "items": {
+              "$ref": "#/components/schemas/DayIncident"
+            }
+          }
+        },
+        "description": "One-day rollup for a public service status page: aggregated uptime, per-component impact, and incidents that overlapped the day. Powers the click/hover-to-expand panel under each uptime bar."
       },
       "ServiceDetailDto": {
+        "required": [
+          "activeMaintenances",
+          "adapterType",
+          "components",
+          "createdAt",
+          "dataCompleteness",
+          "id",
+          "name",
+          "recentIncidents",
+          "slug",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13623,23 +13832,15 @@
               "$ref": "#/components/schemas/ServiceCatalogDto"
             }
           }
-        },
-        "required": [
-          "id",
-          "slug",
-          "name",
-          "adapterType",
-          "pollingIntervalSeconds",
-          "enabled",
-          "createdAt",
-          "updatedAt",
-          "recentIncidents",
-          "components",
-          "activeMaintenances",
-          "dataCompleteness"
-        ]
+        }
       },
       "ServiceIncidentDetailDto": {
+        "required": [
+          "id",
+          "status",
+          "title",
+          "updates"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13688,15 +13889,15 @@
               "$ref": "#/components/schemas/ServiceIncidentUpdateDto"
             }
           }
-        },
-        "required": [
-          "id",
-          "title",
-          "status",
-          "updates"
-        ]
+        }
       },
       "ServiceIncidentDto": {
+        "required": [
+          "id",
+          "serviceId",
+          "status",
+          "title"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -13758,15 +13959,12 @@
             "format": "date-time",
             "nullable": true
           }
-        },
-        "required": [
-          "id",
-          "serviceId",
-          "title",
-          "status"
-        ]
+        }
       },
       "ServiceIncidentUpdateDto": {
+        "required": [
+          "status"
+        ],
         "type": "object",
         "properties": {
           "status": {
@@ -13781,12 +13979,12 @@
             "format": "date-time",
             "nullable": true
           }
-        },
-        "required": [
-          "status"
-        ]
+        }
       },
       "ServiceLiveStatusDto": {
+        "required": [
+          "componentStatuses"
+        ],
         "type": "object",
         "properties": {
           "overallStatus": {
@@ -13811,13 +14009,13 @@
             "description": "ISO 8601 timestamp of the last status poll",
             "nullable": true
           }
-        },
-        "required": [
-          "componentStatuses",
-          "activeIncidentCount"
-        ]
+        }
       },
       "ServicePollResultDto": {
+        "required": [
+          "serviceId",
+          "timestamp"
+        ],
         "type": "object",
         "properties": {
           "serviceId": {
@@ -13873,16 +14071,13 @@
             "example": 1
           }
         },
-        "description": "A single poll result from the status poller",
-        "required": [
-          "serviceId",
-          "timestamp",
-          "passed",
-          "componentCount",
-          "degradedCount"
-        ]
+        "description": "A single poll result from the status poller"
       },
       "ServicePollSummaryDto": {
+        "required": [
+          "chartData",
+          "window"
+        ],
         "type": "object",
         "properties": {
           "uptimePercentage": {
@@ -13931,15 +14126,12 @@
             }
           }
         },
-        "description": "Aggregated poll metrics and chart data for a service",
-        "required": [
-          "totalPolls",
-          "passedPolls",
-          "window",
-          "chartData"
-        ]
+        "description": "Aggregated poll metrics and chart data for a service"
       },
       "ServiceStatusDto": {
+        "required": [
+          "overallStatus"
+        ],
         "type": "object",
         "properties": {
           "overallStatus": {
@@ -13950,10 +14142,7 @@
             "format": "date-time",
             "nullable": true
           }
-        },
-        "required": [
-          "overallStatus"
-        ]
+        }
       },
       "ServiceSubscribeRequest": {
         "type": "object",
@@ -13973,6 +14162,15 @@
         "description": "Optional body for subscribing to a specific component of a service"
       },
       "ServiceSubscriptionDto": {
+        "required": [
+          "adapterType",
+          "alertSensitivity",
+          "name",
+          "serviceId",
+          "slug",
+          "subscribedAt",
+          "subscriptionId"
+        ],
         "type": "object",
         "properties": {
           "subscriptionId": {
@@ -13986,9 +14184,11 @@
             "format": "uuid"
           },
           "slug": {
+            "minLength": 1,
             "type": "string"
           },
           "name": {
+            "minLength": 1,
             "type": "string"
           },
           "category": {
@@ -14000,6 +14200,7 @@
             "nullable": true
           },
           "adapterType": {
+            "minLength": 1,
             "type": "string"
           },
           "pollingIntervalSeconds": {
@@ -14034,6 +14235,7 @@
             ]
           },
           "alertSensitivity": {
+            "minLength": 1,
             "type": "string",
             "description": "Alert sensitivity: ALL (synthetic + real incidents), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (real + DOWN severity)",
             "enum": [
@@ -14048,20 +14250,14 @@
             "format": "date-time"
           }
         },
-        "description": "An org-level service subscription with current status information",
-        "required": [
-          "subscriptionId",
-          "serviceId",
-          "slug",
-          "name",
-          "adapterType",
-          "pollingIntervalSeconds",
-          "enabled",
-          "alertSensitivity",
-          "subscribedAt"
-        ]
+        "description": "An org-level service subscription with current status information"
       },
       "ServiceUptimeResponse": {
+        "required": [
+          "buckets",
+          "granularity",
+          "period"
+        ],
         "type": "object",
         "properties": {
           "overallUptimePct": {
@@ -14095,12 +14291,7 @@
             "example": "vendor_reported"
           }
         },
-        "description": "Uptime response with per-bucket breakdown and overall percentage for the period",
-        "required": [
-          "period",
-          "granularity",
-          "buckets"
-        ]
+        "description": "Uptime response with per-bucket breakdown and overall percentage for the period"
       },
       "SetAlertChannelsRequest": {
         "required": [
@@ -14145,160 +14336,163 @@
         }
       },
       "SingleValueResponseAlertChannelDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/AlertChannelDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseAlertDeliveryDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/AlertDeliveryDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseApiKeyCreateResponse": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ApiKeyCreateResponse"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseApiKeyDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ApiKeyDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseAuthMeResponse": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/AuthMeResponse"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseBulkMonitorActionResult": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/BulkMonitorActionResult"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseDashboardOverviewDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/DashboardOverviewDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseDekRotationResultDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/DekRotationResultDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseDeployLockDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/DeployLockDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseEnvironmentDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/EnvironmentDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseGlobalStatusSummaryDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/GlobalStatusSummaryDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseIncidentDetailDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/IncidentDetailDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseIncidentPolicyDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/IncidentPolicyDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseInviteDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/InviteDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseListUUID": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -14308,35 +14502,35 @@
               "format": "uuid"
             }
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseLong": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "type": "integer",
             "format": "int64"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseMaintenanceWindowDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/MaintenanceWindowDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseMapStringListComponentUptimeDayDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -14348,384 +14542,392 @@
               }
             }
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseMonitorAssertionDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/MonitorAssertionDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseMonitorAuthDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/MonitorAuthDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseMonitorDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/MonitorDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseMonitorTestResultDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/MonitorTestResultDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseMonitorVersionDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/MonitorVersionDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseNotificationDispatchDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/NotificationDispatchDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseNotificationPolicyDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/NotificationPolicyDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseOrganizationDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/OrganizationDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseResourceGroupDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ResourceGroupDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseResourceGroupHealthDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ResourceGroupHealthDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseResourceGroupMemberDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ResourceGroupMemberDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseResultSummaryDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ResultSummaryDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseSecretDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/SecretDto"
           }
-        },
+        }
+      },
+      "SingleValueResponseServiceDayDetailDto": {
         "required": [
           "data"
-        ]
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ServiceDayDetailDto"
+          }
+        }
       },
       "SingleValueResponseServiceDetailDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ServiceDetailDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseServiceIncidentDetailDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ServiceIncidentDetailDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseServiceLiveStatusDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ServiceLiveStatusDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseServicePollSummaryDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ServicePollSummaryDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseServiceSubscriptionDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ServiceSubscriptionDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseServiceUptimeResponse": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ServiceUptimeResponse"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseStatusPageComponentDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/StatusPageComponentDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseStatusPageComponentGroupDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/StatusPageComponentGroupDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseStatusPageCustomDomainDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/StatusPageCustomDomainDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseStatusPageDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/StatusPageDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseStatusPageIncidentDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/StatusPageIncidentDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseStatusPageSubscriberDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/StatusPageSubscriberDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseString": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "type": "string"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseTagDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/TagDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseTestChannelResult": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/TestChannelResult"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseTestMatchResult": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/TestMatchResult"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseUptimeDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/UptimeDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseWebhookEndpointDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/WebhookEndpointDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseWebhookSigningSecretDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/WebhookSigningSecretDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseWebhookTestResult": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/WebhookTestResult"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SingleValueResponseWorkspaceDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/WorkspaceDto"
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "SlackChannelConfig": {
         "required": [
@@ -14770,7 +14972,10 @@
                 "description": "Minimum days before TLS certificate expiry; fails or warns below this threshold",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "minDaysRemaining"
+            ]
           }
         ]
       },
@@ -14895,7 +15100,8 @@
           },
           "hidePoweredBy": {
             "type": "boolean",
-            "description": "Whether to hide the 'Powered by DevHelm' footer badge"
+            "description": "Whether to hide the 'Powered by DevHelm' footer badge (default: false)",
+            "default": false
           },
           "customCss": {
             "maxLength": 50000,
@@ -14912,12 +15118,18 @@
             "nullable": true
           }
         },
-        "description": "Updated branding configuration; null preserves current",
-        "required": [
-          "hidePoweredBy"
-        ]
+        "description": "Updated branding configuration; null preserves current"
       },
       "StatusPageComponentDto": {
+        "required": [
+          "createdAt",
+          "currentStatus",
+          "id",
+          "name",
+          "statusPageId",
+          "type",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -14934,6 +15146,7 @@
             "nullable": true
           },
           "name": {
+            "minLength": 1,
             "type": "string"
           },
           "description": {
@@ -14995,22 +15208,16 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "statusPageId",
-          "name",
-          "type",
-          "currentStatus",
-          "showUptime",
-          "displayOrder",
-          "pageOrder",
-          "excludeFromOverall",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "StatusPageComponentGroupDto": {
+        "required": [
+          "createdAt",
+          "id",
+          "name",
+          "statusPageId",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -15054,19 +15261,19 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "statusPageId",
-          "name",
-          "displayOrder",
-          "pageOrder",
-          "collapsed",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "StatusPageCustomDomainDto": {
+        "required": [
+          "createdAt",
+          "hostname",
+          "id",
+          "status",
+          "updatedAt",
+          "verificationCnameTarget",
+          "verificationMethod",
+          "verificationToken"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -15121,20 +15328,19 @@
           "primary": {
             "type": "boolean"
           }
-        },
-        "required": [
-          "id",
-          "hostname",
-          "status",
-          "verificationMethod",
-          "verificationToken",
-          "verificationCnameTarget",
-          "createdAt",
-          "updatedAt",
-          "primary"
-        ]
+        }
       },
       "StatusPageDto": {
+        "required": [
+          "branding",
+          "createdAt",
+          "id",
+          "incidentMode",
+          "name",
+          "slug",
+          "updatedAt",
+          "visibility"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -15150,9 +15356,11 @@
             "format": "int32"
           },
           "name": {
+            "minLength": 1,
             "type": "string"
           },
           "slug": {
+            "minLength": 1,
             "type": "string"
           },
           "description": {
@@ -15210,22 +15418,14 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "organizationId",
-          "workspaceId",
-          "name",
-          "slug",
-          "branding",
-          "visibility",
-          "enabled",
-          "incidentMode",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "StatusPageIncidentComponentDto": {
+        "required": [
+          "componentName",
+          "componentStatus",
+          "statusPageComponentId"
+        ],
         "type": "object",
         "properties": {
           "statusPageComponentId": {
@@ -15245,14 +15445,19 @@
           "componentName": {
             "type": "string"
           }
-        },
-        "required": [
-          "statusPageComponentId",
-          "componentStatus",
-          "componentName"
-        ]
+        }
       },
       "StatusPageIncidentDto": {
+        "required": [
+          "createdAt",
+          "id",
+          "impact",
+          "startedAt",
+          "status",
+          "statusPageId",
+          "title",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -15264,6 +15469,7 @@
             "format": "uuid"
           },
           "title": {
+            "minLength": 1,
             "type": "string"
           },
           "status": {
@@ -15354,21 +15560,15 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "statusPageId",
-          "title",
-          "status",
-          "impact",
-          "scheduled",
-          "autoResolve",
-          "startedAt",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "StatusPageIncidentUpdateDto": {
+        "required": [
+          "body",
+          "createdAt",
+          "id",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -15389,6 +15589,7 @@
           },
           "createdBy": {
             "type": "string",
+            "nullable": true,
             "enum": [
               "USER",
               "SYSTEM"
@@ -15406,17 +15607,14 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "status",
-          "body",
-          "createdBy",
-          "notifySubscribers",
-          "createdAt"
-        ]
+        }
       },
       "StatusPageSubscriberDto": {
+        "required": [
+          "createdAt",
+          "email",
+          "id"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -15433,15 +15631,14 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "email",
-          "confirmed",
-          "createdAt"
-        ]
+        }
       },
       "Summary": {
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -15449,20 +15646,20 @@
             "format": "uuid"
           },
           "name": {
+            "minLength": 1,
             "type": "string"
           },
           "slug": {
+            "minLength": 1,
             "type": "string"
           }
         },
-        "description": "Environment associated with this monitor; null when unassigned",
-        "required": [
-          "id",
-          "name",
-          "slug"
-        ]
+        "description": "Environment associated with this monitor; null when unassigned"
       },
       "TableValueResultAlertChannelDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15487,14 +15684,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultAlertDeliveryDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15519,14 +15714,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultApiKeyDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15551,14 +15744,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultAuditEventDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15583,14 +15774,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultCategoryDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15615,14 +15804,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultComponentUptimeDayDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15647,14 +15834,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultDeliveryAttemptDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15679,14 +15864,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultEnvironmentDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15711,14 +15894,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultIncidentDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15743,14 +15924,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultIntegrationDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15775,14 +15954,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultInviteDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15807,14 +15984,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultMaintenanceWindowDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15839,14 +16014,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultMemberDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15871,14 +16044,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultMonitorDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15903,14 +16074,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultMonitorVersionDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15935,14 +16104,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultNotificationDispatchDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15967,14 +16134,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultNotificationDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -15999,14 +16164,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultNotificationPolicyDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16031,14 +16194,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultResourceGroupDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16063,14 +16224,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultScheduledMaintenanceDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16095,14 +16254,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultSecretDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16127,14 +16284,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultServiceComponentDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16159,14 +16314,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultServiceIncidentDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16191,14 +16344,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultServiceSubscriptionDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16223,14 +16374,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultStatusPageComponentDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16255,14 +16404,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultStatusPageComponentGroupDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16287,14 +16434,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultStatusPageCustomDomainDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16319,14 +16464,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultStatusPageDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16351,14 +16494,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultStatusPageIncidentDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16383,14 +16524,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultStatusPageSubscriberDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16415,14 +16554,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultTagDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16447,14 +16584,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultWebhookDeliveryDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16479,14 +16614,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultWebhookEndpointDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16511,14 +16644,12 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TableValueResultWorkspaceDto": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -16543,14 +16674,16 @@
             "format": "int32",
             "nullable": true
           }
-        },
-        "required": [
-          "data",
-          "hasNext",
-          "hasPrev"
-        ]
+        }
       },
       "TagDto": {
+        "required": [
+          "color",
+          "createdAt",
+          "id",
+          "name",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -16564,10 +16697,12 @@
             "format": "int32"
           },
           "name": {
+            "minLength": 1,
             "type": "string",
             "description": "Tag name, unique within the org"
           },
           "color": {
+            "minLength": 1,
             "type": "string",
             "description": "Hex color code for display (e.g. #6B7280)"
           },
@@ -16582,15 +16717,7 @@
             "format": "date-time"
           }
         },
-        "description": "Tag for organizing and filtering monitors",
-        "required": [
-          "id",
-          "organizationId",
-          "name",
-          "color",
-          "createdAt",
-          "updatedAt"
-        ]
+        "description": "Tag for organizing and filtering monitors"
       },
       "TcpConnectsAssertion": {
         "type": "object",
@@ -16632,7 +16759,8 @@
               }
             },
             "required": [
-              "host"
+              "host",
+              "port"
             ]
           }
         ]
@@ -16651,7 +16779,10 @@
                 "description": "Maximum TCP connect time in milliseconds before the check fails",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "maxMs"
+            ]
           }
         ]
       },
@@ -16669,7 +16800,10 @@
                 "description": "TCP connect time in milliseconds that triggers a warning only",
                 "format": "int32"
               }
-            }
+            },
+            "required": [
+              "warnMs"
+            ]
           }
         ]
       },
@@ -16732,6 +16866,9 @@
         "description": "Alert channel configuration to test without saving"
       },
       "TestChannelResult": {
+        "required": [
+          "message"
+        ],
         "type": "object",
         "properties": {
           "success": {
@@ -16740,13 +16877,13 @@
           "message": {
             "type": "string"
           }
-        },
-        "required": [
-          "success",
-          "message"
-        ]
+        }
       },
       "TestMatchResult": {
+        "required": [
+          "matchedRules",
+          "unmatchedRules"
+        ],
         "type": "object",
         "properties": {
           "matched": {
@@ -16770,12 +16907,7 @@
             }
           }
         },
-        "description": "Result of a dry-run match evaluation against a notification policy",
-        "required": [
-          "matched",
-          "matchedRules",
-          "unmatchedRules"
-        ]
+        "description": "Result of a dry-run match evaluation against a notification policy"
       },
       "TestNotificationPolicyRequest": {
         "type": "object",
@@ -17183,6 +17315,7 @@
           "severity": {
             "type": "string",
             "description": "New outcome severity: FAIL or WARN",
+            "nullable": true,
             "enum": [
               "fail",
               "warn"
@@ -17252,7 +17385,8 @@
           "monitorId": {
             "type": "string",
             "description": "Monitor to attach this maintenance window to; null preserves current",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "startsAt": {
             "type": "string",
@@ -17268,15 +17402,18 @@
             "maxLength": 100,
             "minLength": 0,
             "type": "string",
-            "description": "Updated iCal RRULE; null clears the repeat rule"
+            "description": "Updated iCal RRULE; null clears the repeat rule",
+            "nullable": true
           },
           "reason": {
             "type": "string",
-            "description": "Updated reason; null clears the existing reason"
+            "description": "Updated reason; null clears the existing reason",
+            "nullable": true
           },
           "suppressAlerts": {
             "type": "boolean",
-            "description": "Whether to suppress alerts; null preserves current"
+            "description": "Whether to suppress alerts; null preserves current",
+            "nullable": true
           }
         }
       },
@@ -17419,36 +17556,38 @@
             "maxLength": 255,
             "minLength": 0,
             "type": "string",
-            "description": "Human-readable name for this policy; null preserves current"
+            "description": "Human-readable name for this policy; null preserves current",
+            "nullable": true
           },
           "matchRules": {
             "type": "array",
             "description": "Match rules to evaluate (all must pass; omit or empty for catch-all)",
+            "nullable": true,
             "items": {
               "$ref": "#/components/schemas/MatchRule"
             }
           },
           "escalation": {
-            "$ref": "#/components/schemas/EscalationChain"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EscalationChain"
+              }
+            ]
           },
           "enabled": {
             "type": "boolean",
-            "description": "Whether this policy is enabled; null preserves current"
+            "description": "Whether this policy is enabled; null preserves current",
+            "nullable": true
           },
           "priority": {
             "type": "integer",
             "description": "Evaluation priority; higher value = evaluated first; null preserves current",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           }
         },
-        "description": "Request body for updating a notification policy (null fields are preserved)",
-        "required": [
-          "name",
-          "matchRules",
-          "escalation",
-          "enabled",
-          "priority"
-        ]
+        "description": "Request body for updating a notification policy (null fields are preserved)"
       },
       "UpdateOrgDetailsRequest": {
         "required": [
@@ -17473,19 +17612,22 @@
             "maxLength": 50,
             "minLength": 0,
             "type": "string",
-            "description": "Team size range (e.g. 1-10, 11-50)"
+            "description": "Team size range (e.g. 1-10, 11-50)",
+            "nullable": true
           },
           "industry": {
             "maxLength": 100,
             "minLength": 0,
             "type": "string",
-            "description": "Industry vertical (e.g. SaaS, Fintech)"
+            "description": "Industry vertical (e.g. SaaS, Fintech)",
+            "nullable": true
           },
           "websiteUrl": {
             "maxLength": 255,
             "minLength": 0,
             "type": "string",
-            "description": "Organization website URL (max 255 chars)"
+            "description": "Organization website URL (max 255 chars)",
+            "nullable": true
           }
         }
       },
@@ -17866,6 +18008,9 @@
         "description": "Update workspace details"
       },
       "UptimeBucketDto": {
+        "required": [
+          "timestamp"
+        ],
         "type": "object",
         "properties": {
           "timestamp": {
@@ -17888,11 +18033,7 @@
             "example": 12
           }
         },
-        "description": "Uptime statistics for a single time bucket",
-        "required": [
-          "timestamp",
-          "totalPolls"
-        ]
+        "description": "Uptime statistics for a single time bucket"
       },
       "UptimeDto": {
         "type": "object",
@@ -17977,6 +18118,14 @@
         ]
       },
       "WebhookDeliveryDto": {
+        "required": [
+          "createdAt",
+          "endpointId",
+          "eventId",
+          "eventType",
+          "id",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -18037,19 +18186,16 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "required": [
-          "id",
-          "endpointId",
-          "eventId",
-          "eventType",
-          "status",
-          "attemptCount",
-          "maxAttempts",
-          "createdAt"
-        ]
+        }
       },
       "WebhookEndpointDto": {
+        "required": [
+          "createdAt",
+          "id",
+          "subscribedEvents",
+          "updatedAt",
+          "url"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -18105,18 +18251,14 @@
             "format": "date-time"
           }
         },
-        "description": "Webhook endpoint that receives event delivery payloads",
-        "required": [
-          "id",
-          "url",
-          "subscribedEvents",
-          "enabled",
-          "consecutiveFailures",
-          "createdAt",
-          "updatedAt"
-        ]
+        "description": "Webhook endpoint that receives event delivery payloads"
       },
       "WebhookEventCatalogEntry": {
+        "required": [
+          "description",
+          "surface",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "type": {
@@ -18132,14 +18274,12 @@
             "description": "Human-readable description of when this event fires"
           }
         },
-        "description": "List of all available webhook event types",
-        "required": [
-          "type",
-          "surface",
-          "description"
-        ]
+        "description": "List of all available webhook event types"
       },
       "WebhookEventCatalogResponse": {
+        "required": [
+          "data"
+        ],
         "type": "object",
         "properties": {
           "data": {
@@ -18149,10 +18289,7 @@
               "$ref": "#/components/schemas/WebhookEventCatalogEntry"
             }
           }
-        },
-        "required": [
-          "data"
-        ]
+        }
       },
       "WebhookSigningSecretDto": {
         "type": "object",
@@ -18170,6 +18307,9 @@
         ]
       },
       "WebhookTestResult": {
+        "required": [
+          "message"
+        ],
         "type": "object",
         "properties": {
           "success": {
@@ -18188,13 +18328,14 @@
             "format": "int64",
             "nullable": true
           }
-        },
-        "required": [
-          "success",
-          "message"
-        ]
+        }
       },
       "WorkspaceDto": {
+        "required": [
+          "createdAt",
+          "name",
+          "updatedAt"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -18213,6 +18354,7 @@
             "format": "date-time"
           },
           "name": {
+            "minLength": 1,
             "type": "string",
             "description": "Workspace name"
           },
@@ -18222,14 +18364,7 @@
             "format": "int32"
           }
         },
-        "description": "Workspace within an organization",
-        "required": [
-          "id",
-          "createdAt",
-          "updatedAt",
-          "name",
-          "orgId"
-        ]
+        "description": "Workspace within an organization"
       }
     },
     "securitySchemes": {

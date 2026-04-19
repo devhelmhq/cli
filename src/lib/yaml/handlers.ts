@@ -436,7 +436,7 @@ const alertChannelHandler = defineHandler<YamlAlertChannel, Schemas['AlertChanne
     // possible) would produce a different hash than the API.
     return {
       name: req.name,
-      channelType: yaml.type,
+      channelType: yaml.config.channelType,
       configHash: sha256Hex(stableStringify(stripNullish(req.config))),
     }
   },
@@ -525,7 +525,7 @@ const webhookHandler = defineHandler<YamlWebhook, Schemas['WebhookEndpointDto'],
   toDesiredSnapshot: (yaml, api) => ({
     url: yaml.url,
     description: yaml.description ?? api.description ?? null,
-    subscribedEvents: sortedIds(yaml.events),
+    subscribedEvents: sortedIds(yaml.subscribedEvents),
     enabled: yaml.enabled ?? api.enabled ?? true,
   }),
   toCurrentSnapshot: (api) => ({
@@ -649,7 +649,7 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
     // to null; the user's YAML almost never spells those out. Normalize both
     // sides by stripping null/undefined so we don't loop on phantom drift.
     config: stripNullish(yaml.config) as unknown as MonitorSnapshot['config'],
-    frequencySeconds: yaml.frequency ?? api.frequencySeconds ?? null,
+    frequencySeconds: yaml.frequencySeconds ?? api.frequencySeconds ?? null,
     enabled: yaml.enabled ?? api.enabled ?? null,
     regions: yaml.regions !== undefined
       ? sortedIds(yaml.regions)

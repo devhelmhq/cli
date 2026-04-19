@@ -81,8 +81,8 @@ describe('transforms', () => {
   describe('toCreateAlertChannelRequest', () => {
     it('transforms slack channel', () => {
       const channel: YamlAlertChannel = {
-        name: 'ops', type: 'slack',
-        config: {webhookUrl: 'https://hooks.slack.com/test'},
+        name: 'ops',
+        config: {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/test'},
       }
       const req = toCreateAlertChannelRequest(channel)
       expect(req.name).toBe('ops')
@@ -92,8 +92,8 @@ describe('transforms', () => {
 
     it('transforms email channel', () => {
       const channel: YamlAlertChannel = {
-        name: 'eng', type: 'email',
-        config: {recipients: ['a@test.com']},
+        name: 'eng',
+        config: {channelType: 'email', recipients: ['a@test.com']},
       }
       const req = toCreateAlertChannelRequest(channel)
       expect(req.config).toHaveProperty('channelType', 'email')
@@ -101,25 +101,25 @@ describe('transforms', () => {
     })
 
     it('transforms all 7 channel types', () => {
-      const types = [
-        {type: 'slack' as const, config: {webhookUrl: 'url'}, expected: 'slack'},
-        {type: 'discord' as const, config: {webhookUrl: 'url'}, expected: 'discord'},
-        {type: 'email' as const, config: {recipients: ['a@b.com']}, expected: 'email'},
-        {type: 'pagerduty' as const, config: {routingKey: 'key'}, expected: 'pagerduty'},
-        {type: 'opsgenie' as const, config: {apiKey: 'key'}, expected: 'opsgenie'},
-        {type: 'teams' as const, config: {webhookUrl: 'url'}, expected: 'teams'},
-        {type: 'webhook' as const, config: {url: 'url'}, expected: 'webhook'},
+      const channels: Array<{config: YamlAlertChannel['config'], expected: string}> = [
+        {config: {channelType: 'slack', webhookUrl: 'url'}, expected: 'slack'},
+        {config: {channelType: 'discord', webhookUrl: 'url'}, expected: 'discord'},
+        {config: {channelType: 'email', recipients: ['a@b.com']}, expected: 'email'},
+        {config: {channelType: 'pagerduty', routingKey: 'key'}, expected: 'pagerduty'},
+        {config: {channelType: 'opsgenie', apiKey: 'key'}, expected: 'opsgenie'},
+        {config: {channelType: 'teams', webhookUrl: 'url'}, expected: 'teams'},
+        {config: {channelType: 'webhook', url: 'url'}, expected: 'webhook'},
       ]
-      for (const {type, config, expected} of types) {
-        const req = toCreateAlertChannelRequest({name: 'test', type, config})
+      for (const {config, expected} of channels) {
+        const req = toCreateAlertChannelRequest({name: 'test', config})
         expect(req.config).toHaveProperty('channelType', expected)
       }
     })
 
     it('preserves extra config fields', () => {
       const channel: YamlAlertChannel = {
-        name: 'pg', type: 'pagerduty',
-        config: {routingKey: 'r-key', severity: 'critical'},
+        name: 'pg',
+        config: {channelType: 'pagerduty', routingKey: 'r-key', severity: 'critical'},
       }
       const req = toCreateAlertChannelRequest(channel)
       expect(req.config).toHaveProperty('routingKey', 'r-key')
@@ -236,7 +236,7 @@ describe('transforms', () => {
   describe('toCreateWebhookRequest', () => {
     it('transforms webhook', () => {
       const webhook: YamlWebhook = {
-        url: 'https://hooks.example.com', events: ['monitor.down'], description: 'test',
+        url: 'https://hooks.example.com', subscribedEvents: ['monitor.down'], description: 'test',
       }
       const req = toCreateWebhookRequest(webhook)
       expect(req.url).toBe('https://hooks.example.com')
@@ -245,7 +245,7 @@ describe('transforms', () => {
     })
 
     it('transforms webhook without description', () => {
-      const webhook: YamlWebhook = {url: 'https://x.com', events: ['a', 'b']}
+      const webhook: YamlWebhook = {url: 'https://x.com', subscribedEvents: ['a', 'b']}
       const req = toCreateWebhookRequest(webhook)
       expect(req.description).toBeUndefined()
       expect(req.subscribedEvents).toEqual(['a', 'b'])
@@ -306,7 +306,7 @@ describe('transforms', () => {
       const monitor: YamlMonitor = {
         name: 'Test', type: 'HTTP',
         config: {url: 'https://x.com', method: 'GET'},
-        frequency: 60,
+        frequencySeconds: 60,
         regions: ['us-east'],
         tags: ['production'],
         alertChannels: ['ops-slack'],
@@ -434,7 +434,7 @@ describe('transforms', () => {
       const monitor: YamlMonitor = {
         name: 'Test', type: 'HTTP',
         config: {url: 'https://x.com', method: 'GET'},
-        frequency: 30, regions: ['eu-west'],
+        frequencySeconds: 30, regions: ['eu-west'],
         tags: ['production'], alertChannels: ['ops-slack'],
       }
       const req = toUpdateMonitorRequest(monitor, refs)

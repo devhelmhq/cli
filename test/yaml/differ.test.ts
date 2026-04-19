@@ -54,7 +54,7 @@ describe('differ', () => {
       }})
       const config: DevhelmConfig = {
         monitors: [{
-          name: 'API', type: 'HTTP', enabled: true, frequency: 60,
+          name: 'API', type: 'HTTP', enabled: true, frequencySeconds: 60,
           regions: ['us-east', 'eu-west'],
           config: {url: 'https://api.com', method: 'GET'},
         }],
@@ -71,7 +71,7 @@ describe('differ', () => {
       }})
       const config: DevhelmConfig = {
         monitors: [{
-          name: 'API', type: 'HTTP', frequency: 30,
+          name: 'API', type: 'HTTP', frequencySeconds: 30,
           config: {url: 'https://api.com', method: 'GET'},
         }],
       }
@@ -117,7 +117,7 @@ describe('differ', () => {
         url: 'https://hooks.com/x', subscribedEvents: ['monitor.down', 'monitor.recovered'], description: 'test', enabled: true,
       }})
       const config: DevhelmConfig = {
-        webhooks: [{url: 'https://hooks.com/x', events: ['monitor.down', 'monitor.recovered'], description: 'test'}],
+        webhooks: [{url: 'https://hooks.com/x', subscribedEvents: ['monitor.down', 'monitor.recovered'], description: 'test'}],
       }
       const changeset = diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
@@ -129,7 +129,7 @@ describe('differ', () => {
         url: 'https://hooks.com/x', subscribedEvents: ['monitor.down'],
       }})
       const config: DevhelmConfig = {
-        webhooks: [{url: 'https://hooks.com/x', events: ['monitor.down', 'incident.created']}],
+        webhooks: [{url: 'https://hooks.com/x', subscribedEvents: ['monitor.down', 'incident.created']}],
       }
       const changeset = diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
@@ -271,7 +271,7 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         monitors: [{name: 'M', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}}],
         tags: [{name: 'T'}],
-        alertChannels: [{name: 'C', type: 'slack', config: {webhookUrl: 'url'}}],
+        alertChannels: [{name: 'C', config: {channelType: 'slack', webhookUrl: 'url'}}],
       }
       const changeset = diff(config, emptyRefs())
       const types = changeset.creates.map((c) => c.resourceType)
@@ -304,9 +304,9 @@ describe('differ', () => {
         tags: [{name: 'T'}],
         environments: [{name: 'E', slug: 'e'}],
         secrets: [{key: 'K', value: 'V'}],
-        alertChannels: [{name: 'C', type: 'slack', config: {webhookUrl: 'url'}}],
+        alertChannels: [{name: 'C', config: {channelType: 'slack', webhookUrl: 'url'}}],
         notificationPolicies: [{name: 'P', escalation: {steps: [{channels: ['C']}]}}],
-        webhooks: [{url: 'https://x.com', events: ['e']}],
+        webhooks: [{url: 'https://x.com', subscribedEvents: ['e']}],
         resourceGroups: [{name: 'G'}],
         monitors: [{name: 'M', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}}],
         dependencies: [{service: 'github'}],
@@ -590,7 +590,7 @@ describe('differ', () => {
         url: 'https://x.com', subscribedEvents: ['b', 'a'], enabled: true,
       }})
       const config: DevhelmConfig = {
-        webhooks: [{url: 'https://x.com', events: ['a', 'b']}],
+        webhooks: [{url: 'https://x.com', subscribedEvents: ['a', 'b']}],
       }
       const changeset = diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
@@ -603,7 +603,7 @@ describe('differ', () => {
         displayConfig: {}, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z',
       }})
       const config: DevhelmConfig = {
-        alertChannels: [{name: 'slack-ops', type: 'slack', config: {webhookUrl: 'https://hooks.slack.com/test'}}],
+        alertChannels: [{name: 'slack-ops', config: {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/test'}}],
       }
       const changeset = diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
@@ -636,7 +636,7 @@ describe('differ', () => {
           {name: 'changed', color: '#00FF00'},
           {name: 'brand-new'},
         ],
-        webhooks: [{url: 'https://same.com', events: ['a'], description: 'same'}],
+        webhooks: [{url: 'https://same.com', subscribedEvents: ['a'], description: 'same'}],
       }
       const changeset = diff(config, refs)
       expect(changeset.creates).toHaveLength(1)
@@ -1075,7 +1075,7 @@ describe('differ', () => {
         url: 'https://hooks.com/nonevents',
       }})
       const config: DevhelmConfig = {
-        webhooks: [{url: 'https://hooks.com/nonevents', events: ['e']}],
+        webhooks: [{url: 'https://hooks.com/nonevents', subscribedEvents: ['e']}],
       }
       const changeset = diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
@@ -1156,7 +1156,7 @@ describe('differ', () => {
       }})
       const config: DevhelmConfig = {
         monitors: [{
-          name: 'API', type: 'HTTP', frequency: 30,
+          name: 'API', type: 'HTTP', frequencySeconds: 30,
           config: {url: 'https://api.com', method: 'GET'},
         }],
       }
@@ -1164,7 +1164,7 @@ describe('differ', () => {
       expect(changeset.updates).toHaveLength(1)
       const update = changeset.updates[0]
       expect(update.attributeDiffs).toBeDefined()
-      const freqDiff = update.attributeDiffs!.find((d) => d.field === 'frequency' || d.field === 'frequencySeconds')
+      const freqDiff = update.attributeDiffs!.find((d) => d.field === 'frequencySeconds')
       expect(freqDiff).toBeDefined()
       expect(freqDiff!.old).toBe(60)
       expect(freqDiff!.new).toBe(30)
@@ -1192,7 +1192,7 @@ describe('differ', () => {
       }})
       const config: DevhelmConfig = {
         monitors: [{
-          name: 'M', type: 'HTTP', enabled: true, frequency: 60,
+          name: 'M', type: 'HTTP', enabled: true, frequencySeconds: 60,
           regions: ['us-east', 'eu-west'],
           config: {url: 'https://api.com', method: 'GET'},
         }],
@@ -1203,7 +1203,7 @@ describe('differ', () => {
       const changedFields = diffs.map((d) => d.field)
       expect(changedFields).toContain('regions')
       expect(changedFields).not.toContain('name')
-      expect(changedFields).not.toContain('frequency')
+      expect(changedFields).not.toContain('frequencySeconds')
       expect(changedFields).not.toContain('enabled')
     })
   })
@@ -1293,7 +1293,7 @@ describe('differ', () => {
           action: 'update' as const, resourceType: 'monitor' as const, refKey: 'API', existingId: 'm-1',
           attributeDiffs: [
             {field: 'name', old: 'API', new: 'Core API'},
-            {field: 'frequency', old: 60, new: 30},
+            {field: 'frequencySeconds', old: 60, new: 30},
           ],
         }],
         deletes: [],
@@ -1302,7 +1302,7 @@ describe('differ', () => {
       const result = formatPlan(changeset)
       expect(result).toContain('~ monitor "API"')
       expect(result).toContain('name: "API" → "Core API"')
-      expect(result).toContain('frequency: 60 → 30')
+      expect(result).toContain('frequencySeconds: 60 → 30')
     })
   })
 })

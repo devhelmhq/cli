@@ -85,7 +85,7 @@ describe('applier', () => {
       mockPost.mockResolvedValueOnce({data: {id: 'ch-new'}})
       const changeset: Changeset = {
         ...emptyChangeset(),
-        creates: [{action: 'create', resourceType: 'alertChannel', refKey: 'slack', desired: {name: 'slack', type: 'slack', config: {webhookUrl: 'url'}}}],
+        creates: [{action: 'create', resourceType: 'alertChannel', refKey: 'slack', desired: {name: 'slack', config: {channelType: 'slack', webhookUrl: 'url'}}}],
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
       expect(result.succeeded).toHaveLength(1)
@@ -152,7 +152,7 @@ describe('applier', () => {
         ...emptyChangeset(),
         creates: [{
           action: 'create', resourceType: 'webhook', refKey: 'hook1',
-          desired: {url: 'https://hook.com', events: ['monitor.down']},
+          desired: {url: 'https://hook.com', subscribedEvents: ['monitor.down']},
         }],
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
@@ -217,7 +217,7 @@ describe('applier', () => {
         ...emptyChangeset(),
         updates: [{
           action: 'update', resourceType: 'monitor', refKey: 'API', existingId: 'mon-1',
-          desired: {name: 'API', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}, frequency: 30},
+          desired: {name: 'API', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}, frequencySeconds: 30},
           current: {},
         }],
       }
@@ -281,7 +281,7 @@ describe('applier', () => {
         ...emptyChangeset(),
         updates: [{
           action: 'update', resourceType: 'alertChannel', refKey: 'slack', existingId: 'ch-1',
-          desired: {name: 'slack', type: 'slack', config: {webhookUrl: 'url'}}, current: {},
+          desired: {name: 'slack', config: {channelType: 'slack', webhookUrl: 'url'}}, current: {},
         }],
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)
@@ -329,7 +329,7 @@ describe('applier', () => {
         ...emptyChangeset(),
         updates: [{
           action: 'update', resourceType: 'webhook', refKey: 'w', existingId: 'wh-1',
-          desired: {url: 'https://hook.com', events: ['monitor.up']}, current: {},
+          desired: {url: 'https://hook.com', subscribedEvents: ['monitor.up']}, current: {},
         }],
       }
       const result = await apply(changeset, emptyRefs(), fakeClient)

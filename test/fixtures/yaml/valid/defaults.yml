@@ -1,6 +1,6 @@
 defaults:
   monitors:
-    frequency: 120
+    frequencySeconds: 120
     enabled: true
     regions: [us-east, eu-west]
 
@@ -16,5 +16,5 @@ monitors:
     config:
       url: https://b.example.com
       method: GET
-    frequency: 30
+    frequencySeconds: 30
     regions: [us-west]
