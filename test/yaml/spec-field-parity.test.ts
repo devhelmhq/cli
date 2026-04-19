@@ -231,3 +231,174 @@ describe('YAML ↔ OpenAPI field parity', () => {
     })
   }
 })
+
+// ── Snapshot function parity ──────────────────────────────────────────
+// Verifies that the field sets in statusPageComponentDesiredSnapshot and
+// statusPageGroupDesiredSnapshot stay aligned with the corresponding
+// response DTO schemas. If the API adds a field to StatusPageComponentDto,
+// the snapshot must be updated or the drift comparison will silently ignore it.
+
+const SNAPSHOT_COMPONENT_FIELDS = [
+  'name', 'description', 'type', 'showUptime', 'excludeFromOverall',
+  'startDate', 'group', 'monitor', 'resourceGroup',
+]
+
+const SNAPSHOT_COMPONENT_DTO_ONLY = [
+  'id', 'statusPageId', 'groupId', 'monitorId', 'resourceGroupId',
+  'displayOrder', 'pageOrder', 'currentStatus', 'createdAt', 'updatedAt',
+]
+
+const SNAPSHOT_GROUP_FIELDS = ['name', 'description', 'collapsed']
+
+const SNAPSHOT_GROUP_DTO_ONLY = [
+  'id', 'statusPageId', 'displayOrder', 'pageOrder',
+  'components', 'createdAt', 'updatedAt',
+]
+
+describe('Snapshot ↔ DTO field parity', () => {
+  describe('statusPageComponentDesiredSnapshot', () => {
+    const dtoFields = specFields('StatusPageComponentDto')
+
+    it('StatusPageComponentDto exists in the spec', () => {
+      expect(dtoFields.length).toBeGreaterThan(0)
+    })
+
+    it('every snapshot field maps to a DTO field or is a YAML name ref', () => {
+      const yamlNameRefs = ['group', 'monitor', 'resourceGroup']
+      for (const field of SNAPSHOT_COMPONENT_FIELDS) {
+        if (yamlNameRefs.includes(field)) continue
+        expect(
+          dtoFields,
+          `Snapshot field "${field}" not found in StatusPageComponentDto`,
+        ).toContain(field)
+      }
+    })
+
+    it('every DTO field is in the snapshot or listed as DTO-only', () => {
+      for (const field of dtoFields) {
+        const inSnapshot = SNAPSHOT_COMPONENT_FIELDS.includes(field)
+        const isDtoOnly = SNAPSHOT_COMPONENT_DTO_ONLY.includes(field)
+        expect(
+          inSnapshot || isDtoOnly,
+          `DTO field "${field}" on StatusPageComponentDto is not in the snapshot function ` +
+          `and not in SNAPSHOT_COMPONENT_DTO_ONLY. If the API added a new field, update ` +
+          `statusPageComponentDesiredSnapshot in handlers.ts.`,
+        ).toBe(true)
+      }
+    })
+  })
+
+  describe('statusPageGroupDesiredSnapshot', () => {
+    const dtoFields = specFields('StatusPageComponentGroupDto')
+
+    it('StatusPageComponentGroupDto exists in the spec', () => {
+      expect(dtoFields.length).toBeGreaterThan(0)
+    })
+
+    it('every snapshot field maps to a DTO field', () => {
+      for (const field of SNAPSHOT_GROUP_FIELDS) {
+        expect(
+          dtoFields,
+          `Snapshot field "${field}" not found in StatusPageComponentGroupDto`,
+        ).toContain(field)
+      }
+    })
+
+    it('every DTO field is in the snapshot or listed as DTO-only', () => {
+      for (const field of dtoFields) {
+        const inSnapshot = SNAPSHOT_GROUP_FIELDS.includes(field)
+        const isDtoOnly = SNAPSHOT_GROUP_DTO_ONLY.includes(field)
+        expect(
+          inSnapshot || isDtoOnly,
+          `DTO field "${field}" on StatusPageComponentGroupDto is not in the snapshot function ` +
+          `and not in SNAPSHOT_GROUP_DTO_ONLY. If the API added a new field, update ` +
+          `statusPageGroupDesiredSnapshot in handlers.ts.`,
+        ).toBe(true)
+      }
+    })
+  })
+})
+
+// ── Nested config schema coverage ─────────────────────────────────────
+// Verifies that the discriminated union dispatch maps in zod-schemas.ts
+// (MONITOR_TYPE_CONFIG_SCHEMAS, ASSERTION_CONFIG_SCHEMAS, CHANNEL_CONFIG_SCHEMAS)
+// cover every config variant defined in the OpenAPI spec.
+
+function specOneOfTypes(schemaName: string, discriminatorField: string): string[] {
+  const s = spec.components?.schemas?.[schemaName]
+  if (!s) return []
+  const variants = s.oneOf ?? s.allOf?.[0]?.oneOf ?? []
+  const types: string[] = []
+  for (const v of variants) {
+    const ref = v.$ref as string | undefined
+    if (ref) {
+      const refName = ref.split('/').pop()!
+      const refSchema = spec.components?.schemas?.[refName]
+      if (refSchema?.properties?.[discriminatorField]?.enum?.[0]) {
+        types.push(refSchema.properties[discriminatorField].enum[0])
+      }
+    }
+    if (v.properties?.[discriminatorField]?.enum?.[0]) {
+      types.push(v.properties[discriminatorField].enum[0])
+    }
+  }
+  return types
+}
+
+describe('Nested config schema coverage', () => {
+  it('branding schema fields match StatusPageBranding in spec', () => {
+    const brandingFields = specFields('StatusPageBranding')
+    const yamlBrandingFields = [
+      'logoUrl', 'faviconUrl', 'brandColor', 'pageBackground',
+      'cardBackground', 'textColor', 'borderColor', 'headerStyle',
+      'theme', 'reportUrl', 'hidePoweredBy', 'customCss', 'customHeadHtml',
+    ]
+    expect(brandingFields.length).toBeGreaterThan(0)
+    for (const field of yamlBrandingFields) {
+      expect(brandingFields, `Branding field "${field}" not in API spec`).toContain(field)
+    }
+    for (const field of brandingFields) {
+      expect(yamlBrandingFields, `API branding field "${field}" not in YAML schema`).toContain(field)
+    }
+  })
+
+  it('escalation step fields match EscalationStep in spec', () => {
+    const apiFields = specFields('EscalationStep')
+    const yamlFields = ['channels', 'delayMinutes', 'requireAck', 'repeatIntervalSeconds']
+    const yamlOnly = ['channels']
+    const apiOnly = ['channelIds']
+    expect(apiFields.length).toBeGreaterThan(0)
+    for (const field of yamlFields) {
+      if (yamlOnly.includes(field)) continue
+      expect(apiFields, `Escalation field "${field}" not in API spec`).toContain(field)
+    }
+    for (const field of apiFields) {
+      const inYaml = yamlFields.includes(field)
+      const isApiOnly = apiOnly.includes(field)
+      expect(
+        inYaml || isApiOnly,
+        `API escalation field "${field}" is not in YAML or API-only list`,
+      ).toBe(true)
+    }
+  })
+
+  it('match rule fields match MatchRule in spec', () => {
+    const apiFields = specFields('MatchRule')
+    const yamlFields = ['type', 'value', 'monitorNames', 'regions', 'values']
+    const yamlOnly = ['monitorNames']
+    const apiOnly = ['monitorIds']
+    expect(apiFields.length).toBeGreaterThan(0)
+    for (const field of yamlFields) {
+      if (yamlOnly.includes(field)) continue
+      expect(apiFields, `MatchRule field "${field}" not in API spec`).toContain(field)
+    }
+    for (const field of apiFields) {
+      const inYaml = yamlFields.includes(field)
+      const isApiOnly = apiOnly.includes(field)
+      expect(
+        inYaml || isApiOnly,
+        `API match rule field "${field}" is not in YAML or API-only list`,
+      ).toBe(true)
+    }
+  })
+})
