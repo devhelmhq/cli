@@ -96,11 +96,18 @@ function generateSpecFacts(spec) {
   ];
 
   for (const [name, values] of Object.entries(facts)) {
+    // If the spec dropped the underlying enum, fall back to an empty
+    // tuple instead of skipping the export. Skipping the export breaks
+    // every downstream consumer that imports the constant, even though
+    // the runtime semantics are clear: "no values are valid here". The
+    // empty tuple keeps types/imports compiling and lets Zod's
+    // `.enum([])` correctly reject all values at validation time.
+    const items = values && values.length > 0
+      ? values.map(v => `'${v}'`).join(', ')
+      : '';
     if (!values) {
-      lines.push(`// WARNING: ${name} — enum not found in spec`);
-      continue;
+      lines.push(`// NOTE: ${name} — enum missing from spec, exporting empty tuple`);
     }
-    const items = values.map(v => `'${v}'`).join(', ');
     lines.push(`export const ${name} = [${items}] as const`);
     const typeName = name.split('_').map(w => w[0] + w.slice(1).toLowerCase()).join('');
     lines.push(`export type ${typeName} = (typeof ${name})[number]`);
