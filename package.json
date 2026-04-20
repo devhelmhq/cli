@@ -70,7 +70,6 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@devhelm/openapi-tools": "file:../mini/packages/openapi-tools",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^25.5.2",
     "@typescript-eslint/eslint-plugin": "^8.58.1",
