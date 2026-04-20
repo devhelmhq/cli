@@ -214,6 +214,11 @@ function defineHandler<TYaml, TApiDto, TSnapshot>(
     applyUpdate: h.applyUpdate,
     deletePath: h.deletePath,
   }
+  // SAFETY: ResourceHandler<TYaml, TApiDto> → ResourceHandler<unknown, unknown>.
+  // Method params are contravariant, so TS rejects the direct assignment.
+  // defineHandler already verified all field accesses at compile time;
+  // the registry only calls methods with the correct concrete types
+  // (routed through HANDLER_MAP keyed by HandledResourceType).
   return handler as unknown as ResourceHandler
 }
 
@@ -247,6 +252,10 @@ function sortedIds(ids: string[]): string[] {
 function stripNullish<T>(value: T): T {
   if (value === null || value === undefined) return value
   if (Array.isArray(value)) {
+    // SAFETY: T is narrowed to an array type by the guard above, but TS
+    // can't re-narrow the generic. The mapped array preserves the runtime
+    // shape, so the cast back to T is sound.
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- Array.isArray narrows to any[]; cast is verified by the guard
     return value.map((v) => stripNullish(v)) as unknown as T
   }
   if (typeof value === 'object') {
@@ -648,6 +657,10 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
     // The API echoes back JSONB configs with every optional field expanded
     // to null; the user's YAML almost never spells those out. Normalize both
     // sides by stripping null/undefined so we don't loop on phantom drift.
+    // SAFETY: yaml.config is pre-validated by the Zod monitor config schema
+    // (dispatched by monitor.type), so it structurally matches the API config
+    // union. The double-cast bridges the YAML config type to the API snapshot
+    // config type which TS can't prove equivalent.
     config: stripNullish(yaml.config) as unknown as MonitorSnapshot['config'],
     frequencySeconds: yaml.frequencySeconds ?? api.frequencySeconds ?? null,
     enabled: yaml.enabled ?? api.enabled ?? null,

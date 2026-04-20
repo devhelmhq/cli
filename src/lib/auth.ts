@@ -1,18 +1,24 @@
-import {existsSync, readFileSync, mkdirSync, writeFileSync} from 'node:fs'
+import {existsSync, readFileSync, mkdirSync, writeFileSync, copyFileSync} from 'node:fs'
 import {homedir} from 'node:os'
 import {join} from 'node:path'
+import {z} from 'zod'
 
-export interface AuthContext {
-  name: string
-  apiUrl: string
-  token: string
-}
+const AuthContextSchema = z.object({
+  name: z.string(),
+  apiUrl: z.string(),
+  token: z.string(),
+})
 
-interface ContextsFile {
-  current: string
-  contexts: Record<string, AuthContext>
-}
+const ContextsFileSchema = z.object({
+  version: z.number().int().optional(),
+  current: z.string(),
+  contexts: z.record(z.string(), AuthContextSchema),
+})
 
+export type AuthContext = z.infer<typeof AuthContextSchema>
+type ContextsFile = z.infer<typeof ContextsFileSchema>
+
+const CONTEXTS_FILE_VERSION = 1
 const CONFIG_DIR = join(homedir(), '.devhelm')
 const CONTEXTS_PATH = join(CONFIG_DIR, 'contexts.json')
 
@@ -50,7 +56,7 @@ export function listContexts(): {current: string; contexts: AuthContext[]} {
 }
 
 export function saveContext(context: AuthContext, setCurrent = true): void {
-  const file = readContextsFile() ?? {current: '', contexts: {}}
+  const file = readContextsFile() ?? {version: CONTEXTS_FILE_VERSION, current: '', contexts: {}}
   file.contexts[context.name] = context
   if (setCurrent) file.current = context.name
   writeContextsFile(file)
@@ -81,10 +87,38 @@ export function setCurrentContext(name: string): boolean {
 
 function readContextsFile(): ContextsFile | undefined {
   if (!existsSync(CONTEXTS_PATH)) return undefined
+  let raw: string
   try {
-    return JSON.parse(readFileSync(CONTEXTS_PATH, 'utf8'))
+    raw = readFileSync(CONTEXTS_PATH, 'utf8')
   } catch {
     return undefined
+  }
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(raw)
+  } catch {
+    backupCorruptFile()
+    process.stderr.write('Warning: ~/.devhelm/contexts.json contains invalid JSON. A backup was saved.\n')
+    return undefined
+  }
+
+  const result = ContextsFileSchema.safeParse(parsed)
+  if (!result.success) {
+    backupCorruptFile()
+    process.stderr.write('Warning: ~/.devhelm/contexts.json has an invalid shape. A backup was saved.\n')
+    return undefined
+  }
+
+  return result.data
+}
+
+function backupCorruptFile(): void {
+  try {
+    const backupPath = `${CONTEXTS_PATH}.bak.${Date.now()}`
+    copyFileSync(CONTEXTS_PATH, backupPath)
+  } catch {
+    // Best-effort backup — don't crash if the copy fails
   }
 }
 
@@ -93,5 +127,6 @@ function writeContextsFile(file: ContextsFile): void {
     mkdirSync(CONFIG_DIR, {recursive: true})
   }
 
+  file.version = CONTEXTS_FILE_VERSION
   writeFileSync(CONTEXTS_PATH, JSON.stringify(file, null, 2))
 }

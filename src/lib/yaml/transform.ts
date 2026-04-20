@@ -30,7 +30,7 @@ export function toCreateEnvironmentRequest(env: YamlEnvironment): Schemas['Creat
     name: env.name,
     slug: env.slug,
     variables: env.variables ?? null,
-    isDefault: env.isDefault,
+    isDefault: env.isDefault ?? false,
   }
 }
 
@@ -132,11 +132,17 @@ export function toCreateResourceGroupRequest(
  * types; we route on `monitor.type` so the type-assertion is at least
  * partitioned per monitor type and any shape drift surfaces as a zod
  * parse failure before reaching this function.
+ *
+ * SAFETY: Each YAML config type (YamlHttpConfig, etc.) is structurally
+ * identical to its API counterpart (HttpMonitorConfig, etc.), but
+ * defined in schema.ts rather than api.generated.ts, so TS treats them
+ * as unrelated types. Zod validation at config load time guarantees the
+ * shapes match before this function is reached.
  */
 function toMonitorConfig(
   monitor: YamlMonitor,
 ): Schemas['CreateMonitorRequest']['config'] {
-  const cfg = monitor.config as unknown
+  const cfg: unknown = monitor.config
   switch (monitor.type) {
     case 'HTTP': return cfg as Schemas['HttpMonitorConfig']
     case 'DNS': return cfg as Schemas['DnsMonitorConfig']

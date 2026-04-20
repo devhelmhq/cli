@@ -1,8 +1,18 @@
 import {readFileSync} from 'node:fs'
 import {Flags} from '@oclif/core'
+import {z} from 'zod'
 import {ResourceConfig} from './crud-commands.js'
 import type {components} from './api.generated.js'
+import {schemas as apiSchemas} from './api-zod.generated.js'
 import {fieldDescriptions} from './descriptions.generated.js'
+import {urlFlag} from './validators.js'
+import {
+  MONITOR_TYPES,
+  HTTP_METHODS,
+  INCIDENT_SEVERITIES,
+  CHANNEL_TYPES,
+  STATUS_PAGE_INCIDENT_MODES,
+} from './spec-facts.generated.js'
 
 // ── Description lookup from OpenAPI spec ───────────────────────────────
 function desc(schema: string, field: string, fallback?: string): string {
@@ -35,21 +45,6 @@ type CreateNotificationPolicyRequest = Schemas['CreateNotificationPolicyRequest'
 type UpdateNotificationPolicyRequest = Schemas['UpdateNotificationPolicyRequest']
 type CreateApiKeyRequest = Schemas['CreateApiKeyRequest']
 
-const MONITOR_TYPES: MonitorType[] = ['HTTP', 'DNS', 'TCP', 'ICMP', 'HEARTBEAT', 'MCP_SERVER']
-const HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD']
-const INCIDENT_SEVERITIES: IncidentSeverity[] = ['DOWN', 'DEGRADED', 'MAINTENANCE']
-const CHANNEL_TYPES = ['SLACK', 'EMAIL', 'PAGERDUTY', 'OPSGENIE', 'DISCORD', 'TEAMS', 'WEBHOOK'] as const
-
-const CHANNEL_TYPE_MAP: Record<string, string> = {
-  SLACK: 'slack',
-  EMAIL: 'email',
-  PAGERDUTY: 'pagerduty',
-  OPSGENIE: 'opsgenie',
-  DISCORD: 'discord',
-  TEAMS: 'teams',
-  WEBHOOK: 'webhook',
-}
-
 // ── Resource definitions ───────────────────────────────────────────────
 
 export const MONITORS: ResourceConfig<MonitorDto> = {
@@ -70,13 +65,13 @@ export const MONITORS: ResourceConfig<MonitorDto> = {
     type: Flags.string({
       description: desc('CreateMonitorRequest', 'type'),
       required: true,
-      options: MONITOR_TYPES,
+      options: [...MONITOR_TYPES],
     }),
     url: Flags.string({description: desc('HttpMonitorConfig', 'url', 'Target URL or host')}),
     frequency: Flags.string({description: desc('CreateMonitorRequest', 'frequencySeconds'), default: '60'}),
     method: Flags.string({
       description: desc('HttpMonitorConfig', 'method'),
-      options: HTTP_METHODS,
+      options: [...HTTP_METHODS],
     }),
     port: Flags.string({description: desc('TcpMonitorConfig', 'port', 'TCP port to connect to')}),
     regions: Flags.string({description: desc('CreateMonitorRequest', 'regions')}),
@@ -85,7 +80,7 @@ export const MONITORS: ResourceConfig<MonitorDto> = {
     name: Flags.string({description: desc('UpdateMonitorRequest', 'name')}),
     url: Flags.string({description: desc('HttpMonitorConfig', 'url', 'Target URL or host')}),
     frequency: Flags.string({description: desc('UpdateMonitorRequest', 'frequencySeconds')}),
-    method: Flags.string({description: desc('HttpMonitorConfig', 'method'), options: HTTP_METHODS}),
+    method: Flags.string({description: desc('HttpMonitorConfig', 'method'), options: [...HTTP_METHODS]}),
     port: Flags.string({description: desc('TcpMonitorConfig', 'port', 'TCP port to connect to')}),
   },
   bodyBuilder: (raw) => {
@@ -155,7 +150,7 @@ export const INCIDENTS: ResourceConfig<IncidentDto> = {
     severity: Flags.string({
       description: desc('CreateManualIncidentRequest', 'severity'),
       required: true,
-      options: INCIDENT_SEVERITIES,
+      options: [...INCIDENT_SEVERITIES],
     }),
     'monitor-id': Flags.string({description: desc('CreateManualIncidentRequest', 'monitorId')}),
     body: Flags.string({description: desc('CreateManualIncidentRequest', 'body')}),
@@ -190,21 +185,20 @@ export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
       options: [...CHANNEL_TYPES],
     }),
     config: Flags.string({description: 'Channel-specific configuration as JSON'}),
-    'webhook-url': Flags.string({description: desc('SlackChannelConfig', 'webhookUrl', 'Slack/Discord/Teams webhook URL')}),
+    'webhook-url': urlFlag({description: desc('SlackChannelConfig', 'webhookUrl', 'Slack/Discord/Teams webhook URL')}),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateAlertChannelRequest', 'name')}),
     type: Flags.string({description: 'Alert channel type', options: [...CHANNEL_TYPES]}),
     config: Flags.string({description: 'Channel-specific configuration as JSON'}),
-    'webhook-url': Flags.string({description: desc('SlackChannelConfig', 'webhookUrl', 'Slack/Discord/Teams webhook URL')}),
+    'webhook-url': urlFlag({description: desc('SlackChannelConfig', 'webhookUrl', 'Slack/Discord/Teams webhook URL')}),
   },
   bodyBuilder: (raw) => {
     let config: CreateAlertChannelRequest['config'] | undefined
     if (raw.config) {
-      config = JSON.parse(String(raw.config)) as CreateAlertChannelRequest['config']
+      config = parseAlertChannelConfigFlag(String(raw.config))
     } else {
-      const typeKey = String(raw.type || 'SLACK').toUpperCase()
-      const channelType = CHANNEL_TYPE_MAP[typeKey] ?? 'slack'
+      const channelType = String(raw.type || 'slack').toLowerCase()
       if (raw['webhook-url'] !== undefined) {
         config = {channelType, webhookUrl: String(raw['webhook-url'])} as CreateAlertChannelRequest['config']
       } else {
@@ -216,6 +210,59 @@ export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
     if (config !== undefined) body.config = config
     return body
   },
+}
+
+// Validates a `--config` JSON string against the per-channelType schema from
+// the OpenAPI spec. Throws with a clear message if the JSON is malformed,
+// the discriminator is missing, or the payload doesn't match the expected
+// shape — so users see the error here rather than a generic API 400.
+function parseAlertChannelConfigFlag(raw: string): CreateAlertChannelRequest['config'] {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(raw)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    throw new Error(`Failed to parse --config as JSON: ${msg}`)
+  }
+
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('--config must be a JSON object, e.g. \'{"channelType":"slack","webhookUrl":"..."}\'')
+  }
+
+  const channelType = (parsed as Record<string, unknown>).channelType
+  if (typeof channelType !== 'string') {
+    throw new Error(
+      `--config must include "channelType" (one of: ${[...CHANNEL_TYPES].join(', ')})`,
+    )
+  }
+
+  const schema = ALERT_CHANNEL_CONFIG_SCHEMAS[channelType]
+  if (!schema) {
+    throw new Error(
+      `Unknown channelType "${channelType}". Valid types: ${[...CHANNEL_TYPES].join(', ')}`,
+    )
+  }
+
+  const result = schema.safeParse(parsed)
+  if (!result.success) {
+    const issues = result.error.issues
+      .map((i) => `${i.path.join('.') || '<root>'}: ${i.message}`)
+      .join('; ')
+    throw new Error(`Invalid --config payload for channelType "${channelType}": ${issues}`)
+  }
+
+  return result.data as CreateAlertChannelRequest['config']
+}
+
+// Discriminated by `channelType` to match the API's AlertChannelConfig union.
+const ALERT_CHANNEL_CONFIG_SCHEMAS: Record<string, z.ZodType> = {
+  discord: apiSchemas.DiscordChannelConfig,
+  email: apiSchemas.EmailChannelConfig,
+  opsgenie: apiSchemas.OpsGenieChannelConfig,
+  pagerduty: apiSchemas.PagerDutyChannelConfig,
+  slack: apiSchemas.SlackChannelConfig,
+  teams: apiSchemas.TeamsChannelConfig,
+  webhook: apiSchemas.WebhookChannelConfig,
 }
 
 export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
@@ -353,12 +400,12 @@ export const WEBHOOKS: ResourceConfig<WebhookEndpointDto> = {
     {header: 'EVENTS', get: (r) => (r.subscribedEvents ?? []).join(', ')},
   ],
   createFlags: {
-    url: Flags.string({description: desc('CreateWebhookEndpointRequest', 'url'), required: true}),
+    url: urlFlag({description: desc('CreateWebhookEndpointRequest', 'url'), required: true}),
     events: Flags.string({description: desc('CreateWebhookEndpointRequest', 'subscribedEvents'), required: true}),
     description: Flags.string({description: desc('CreateWebhookEndpointRequest', 'description')}),
   },
   updateFlags: {
-    url: Flags.string({description: desc('UpdateWebhookEndpointRequest', 'url')}),
+    url: urlFlag({description: desc('UpdateWebhookEndpointRequest', 'url')}),
     events: Flags.string({description: desc('UpdateWebhookEndpointRequest', 'subscribedEvents')}),
     description: Flags.string({description: desc('UpdateWebhookEndpointRequest', 'description')}),
   },
@@ -377,6 +424,7 @@ export const API_KEYS: ResourceConfig<ApiKeyDto> = {
   name: 'API key',
   plural: 'api-keys',
   apiPath: '/api/v1/api-keys',
+  validateIdAsUuid: false,
   columns: [
     {header: 'ID', get: (r) => String(r.id ?? '')},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -428,7 +476,7 @@ export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
     // Only PUBLIC is enforced today — PASSWORD / IP_RESTRICTED exist in the
     // API enum but are not implemented. Expose a narrower, honest option set.
     visibility: Flags.string({description: 'Page visibility (PUBLIC only today)', options: ['PUBLIC']}),
-    'incident-mode': Flags.string({description: desc('CreateStatusPageRequest', 'incidentMode'), options: ['MANUAL', 'REVIEW', 'AUTOMATIC']}),
+    'incident-mode': Flags.string({description: desc('CreateStatusPageRequest', 'incidentMode'), options: [...STATUS_PAGE_INCIDENT_MODES]}),
     'branding-file': Flags.string({description: 'Path to a JSON file with branding fields (logoUrl, brandColor, theme, customCss, …)'}),
   },
   updateFlags: {
@@ -436,7 +484,7 @@ export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
     description: Flags.string({description: desc('UpdateStatusPageRequest', 'description')}),
     visibility: Flags.string({description: 'Page visibility (PUBLIC only today)', options: ['PUBLIC']}),
     enabled: Flags.boolean({description: 'Whether the page is enabled', allowNo: true}),
-    'incident-mode': Flags.string({description: desc('UpdateStatusPageRequest', 'incidentMode'), options: ['MANUAL', 'REVIEW', 'AUTOMATIC']}),
+    'incident-mode': Flags.string({description: desc('UpdateStatusPageRequest', 'incidentMode'), options: [...STATUS_PAGE_INCIDENT_MODES]}),
     'branding-file': Flags.string({description: 'Path to a JSON file with branding fields; omit to preserve existing branding'}),
   },
   bodyBuilder: (raw) => {
@@ -461,12 +509,44 @@ export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
 // is `"type": "module"` and CommonJS `require` is undefined in that context.
 // `readFileSync` is in the always-resolved Node core, so the import cost is
 // effectively zero — it's already loaded before the CLI's top-level code runs.
-function loadBrandingFile(path: string): unknown {
+function loadBrandingFile(path: string): components['schemas']['StatusPageBranding'] {
   const raw = readFileSync(path, 'utf8')
+  let parsed: unknown
   try {
-    return JSON.parse(raw)
+    parsed = JSON.parse(raw)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     throw new Error(`Failed to parse branding file "${path}" as JSON: ${msg}`)
   }
+
+  const result = BrandingFileSchema.safeParse(parsed)
+  if (!result.success) {
+    const issues = result.error.issues
+      .map((i) => `${i.path.join('.') || '<root>'}: ${i.message}`)
+      .join('; ')
+    throw new Error(`Invalid branding file "${path}": ${issues}`)
+  }
+  return result.data as components['schemas']['StatusPageBranding']
 }
+
+// Mirrors the API's StatusPageBranding record (see api-zod.generated.ts).
+// Hand-defined here (rather than reusing the generated schema) so we can
+// surface clearer per-field validation errors on hex colors and URLs before
+// the request hits the API.
+const HEX_COLOR_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/
+const HTTP_URL_RE = /^https?:\/\/.+/
+const BrandingFileSchema = z.object({
+  logoUrl: z.string().regex(HTTP_URL_RE, 'must be an http(s) URL').max(2048).optional(),
+  faviconUrl: z.string().regex(HTTP_URL_RE, 'must be an http(s) URL').max(2048).optional(),
+  brandColor: z.string().regex(HEX_COLOR_RE, 'must be a hex color, e.g. #4F46E5').optional(),
+  pageBackground: z.string().regex(HEX_COLOR_RE, 'must be a hex color').optional(),
+  cardBackground: z.string().regex(HEX_COLOR_RE, 'must be a hex color').optional(),
+  textColor: z.string().regex(HEX_COLOR_RE, 'must be a hex color').optional(),
+  borderColor: z.string().regex(HEX_COLOR_RE, 'must be a hex color').optional(),
+  headerStyle: z.string().max(50).optional(),
+  theme: z.string().max(50).optional(),
+  reportUrl: z.string().regex(HTTP_URL_RE, 'must be an http(s) URL').max(2048).optional(),
+  hidePoweredBy: z.boolean().optional(),
+  customCss: z.string().max(50_000).optional(),
+  customHeadHtml: z.string().max(50_000).optional(),
+}).strict()

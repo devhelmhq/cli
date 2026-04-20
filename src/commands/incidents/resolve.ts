@@ -1,11 +1,12 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
 import {checkedFetch} from '../../lib/api-client.js'
+import {uuidArg} from '../../lib/validators.js'
 
 export default class IncidentsResolve extends Command {
   static description = 'Resolve an incident'
   static examples = ['<%= config.bin %> incidents resolve 42']
-  static args = {id: Args.string({description: 'Incident ID', required: true})}
+  static args = {id: uuidArg({description: 'Incident ID', required: true})}
   static flags = {
     ...globalFlags,
     message: Flags.string({description: 'Resolution message'}),

@@ -2,6 +2,7 @@ import {Command, Args, Flags} from '@oclif/core'
 import type {components} from '../lib/api.generated.js'
 import {createApiClient} from '../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../lib/auth.js'
+import {urlFlag} from '../lib/validators.js'
 import {fetchAllRefs} from '../lib/yaml/resolver.js'
 import {allHandlers} from '../lib/yaml/handlers.js'
 import {fetchPaginated} from '../lib/typed-api.js'
@@ -37,7 +38,7 @@ export default class Import extends Command {
   }
 
   static flags = {
-    'api-url': Flags.string({description: 'Override API base URL'}),
+    'api-url': urlFlag({description: 'Override API base URL'}),
     'api-token': Flags.string({description: 'Override API token'}),
     verbose: Flags.boolean({char: 'v', description: 'Show verbose output', default: false}),
   }

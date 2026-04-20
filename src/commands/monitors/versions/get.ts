@@ -2,6 +2,7 @@ import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {apiGet} from '../../../lib/api-client.js'
 import type {components} from '../../../lib/api.generated.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 type MonitorVersionDto = components['schemas']['MonitorVersionDto']
 
@@ -13,7 +14,7 @@ export default class MonitorsVersionsGet extends Command {
   ]
 
   static args = {
-    id: Args.string({description: 'Monitor ID', required: true}),
+    id: uuidArg({description: 'Monitor ID', required: true}),
     version: Args.integer({description: 'Version number', required: true}),
   }
 

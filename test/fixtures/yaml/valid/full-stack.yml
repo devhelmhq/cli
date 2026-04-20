@@ -53,7 +53,7 @@ notificationPolicies:
 
 webhooks:
   - url: https://hooks.company.com/devhelm
-    subscribedEvents: [monitor.down, monitor.recovered, incident.created]
+    subscribedEvents: [monitor.created, monitor.deleted, incident.created]
     description: Internal webhook for status page
 
 resourceGroups:

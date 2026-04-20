@@ -14,8 +14,11 @@
  * empty URLs/tokens. To allow an explicit empty value, use the form
  * `${VAR:-}` (i.e. an empty default).
  *
- * Interpolation runs on the raw YAML string before parsing, so it works
- * in any value position (strings, URLs, etc.).
+ * **Security:** `interpolateObject` should be used instead of `interpolate`
+ * when processing YAML configs. It operates on already-parsed objects,
+ * replacing `${VAR}` references only inside string values. This prevents
+ * env values containing YAML metacharacters (`:`, newlines, quotes,
+ * `${...}`) from altering YAML structure or causing injection.
  */
 
 // Matches either a literal-$ escape ($$) or a ${…} expression. The
@@ -65,6 +68,35 @@ export function interpolate(input: string, env: Record<string, string | undefine
 }
 
 /**
+ * Recursively walk a parsed object and interpolate `${VAR}` references
+ * in string values only. Operates post-YAML-parse so env values containing
+ * YAML metacharacters can never alter document structure.
+ */
+export function interpolateObject<T>(obj: T, env: Record<string, string | undefined> = process.env): T {
+  return walkAndInterpolate(obj, env) as T
+}
+
+function walkAndInterpolate(node: unknown, env: Record<string, string | undefined>): unknown {
+  if (typeof node === 'string') {
+    return interpolate(node, env)
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((item) => walkAndInterpolate(item, env))
+  }
+
+  if (node !== null && typeof node === 'object') {
+    const result: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+      result[key] = walkAndInterpolate(value, env)
+    }
+    return result
+  }
+
+  return node
+}
+
+/**
  * Find all ${VAR} references in a string without resolving them.
  * Returns variable names (without fallback info).
  */
@@ -78,6 +110,15 @@ export function findVariables(input: string): string[] {
     const separatorIdx = expr.indexOf(':-')
     vars.push(separatorIdx !== -1 ? expr.slice(0, separatorIdx) : expr.trim())
   }
+  return vars
+}
+
+/**
+ * Find all ${VAR} references in a parsed object's string values.
+ */
+export function findVariablesInObject(obj: unknown): string[] {
+  const vars: string[] = []
+  walkStrings(obj, (s) => vars.push(...findVariables(s)))
   return vars
 }
 
@@ -101,4 +142,34 @@ export function findMissingVariables(input: string, env: Record<string, string |
     }
   }
   return missing
+}
+
+/**
+ * Check which variables would fail during interpolation on a parsed object.
+ */
+export function findMissingVariablesInObject(
+  obj: unknown,
+  env: Record<string, string | undefined> = process.env,
+): string[] {
+  const missing: string[] = []
+  walkStrings(obj, (s) => missing.push(...findMissingVariables(s, env)))
+  return missing
+}
+
+function walkStrings(node: unknown, visitor: (s: string) => void): void {
+  if (typeof node === 'string') {
+    visitor(node)
+    return
+  }
+
+  if (Array.isArray(node)) {
+    for (const item of node) walkStrings(item, visitor)
+    return
+  }
+
+  if (node !== null && typeof node === 'object') {
+    for (const value of Object.values(node as Record<string, unknown>)) {
+      walkStrings(value, visitor)
+    }
+  }
 }

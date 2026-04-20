@@ -1,6 +1,7 @@
 import {Command, Flags} from '@oclif/core'
 import {createApiClient, apiDelete} from '../../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
+import {urlFlag} from '../../lib/validators.js'
 
 export default class DeployForceUnlock extends Command {
   static description = 'Force-release a stuck deploy lock on the current workspace'
@@ -16,7 +17,7 @@ export default class DeployForceUnlock extends Command {
       description: 'Skip confirmation prompt',
       default: false,
     }),
-    'api-url': Flags.string({description: 'Override API base URL'}),
+    'api-url': urlFlag({description: 'Override API base URL'}),
     'api-token': Flags.string({description: 'Override API token'}),
     verbose: Flags.boolean({char: 'v', description: 'Show verbose output', default: false}),
   }

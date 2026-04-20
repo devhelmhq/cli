@@ -8,52 +8,59 @@ const pageable = z
     size: z.number().int().gte(1),
     sort: z.array(z.string()),
   })
-  .passthrough();
-const ChannelConfig = z.object({ channelType: z.string() }).passthrough();
-const DiscordChannelConfig = ChannelConfig.and(
-  z
-    .object({
-      webhookUrl: z.string().min(1),
-      mentionRoleId: z.string().nullish(),
-    })
-    .passthrough()
-);
-const EmailChannelConfig = ChannelConfig.and(
-  z.object({ recipients: z.array(z.string().email()).min(1) }).passthrough()
-);
-const OpsGenieChannelConfig = ChannelConfig.and(
-  z
-    .object({ apiKey: z.string().min(1), region: z.string().nullish() })
-    .passthrough()
-);
-const PagerDutyChannelConfig = ChannelConfig.and(
-  z
-    .object({
-      routingKey: z.string().min(1),
-      severityOverride: z.string().nullish(),
-    })
-    .passthrough()
-);
-const SlackChannelConfig = ChannelConfig.and(
-  z
-    .object({
-      webhookUrl: z.string().min(1),
-      mentionText: z.string().nullish(),
-    })
-    .passthrough()
-);
-const TeamsChannelConfig = ChannelConfig.and(
-  z.object({ webhookUrl: z.string().min(1) }).passthrough()
-);
-const WebhookChannelConfig = ChannelConfig.and(
-  z
-    .object({
-      url: z.string().min(1),
-      signingSecret: z.string().nullish(),
-      customHeaders: z.record(z.string().nullable()).nullish(),
-    })
-    .passthrough()
-);
+  .strict();
+const ErrorResponse = z
+  .object({
+    status: z.number().int(),
+    message: z.string(),
+    timestamp: z.number().int(),
+  })
+  .strict();
+const DiscordChannelConfig = z
+  .object({
+    channelType: z.literal("discord"),
+    webhookUrl: z.string().min(1),
+    mentionRoleId: z.string().nullish(),
+  })
+  .strict();
+const EmailChannelConfig = z
+  .object({
+    channelType: z.literal("email"),
+    recipients: z.array(z.string().email()).min(1),
+  })
+  .strict();
+const OpsGenieChannelConfig = z
+  .object({
+    channelType: z.literal("opsgenie"),
+    apiKey: z.string().min(1),
+    region: z.string().nullish(),
+  })
+  .strict();
+const PagerDutyChannelConfig = z
+  .object({
+    channelType: z.literal("pagerduty"),
+    routingKey: z.string().min(1),
+    severityOverride: z.string().nullish(),
+  })
+  .strict();
+const SlackChannelConfig = z
+  .object({
+    channelType: z.literal("slack"),
+    webhookUrl: z.string().min(1),
+    mentionText: z.string().nullish(),
+  })
+  .strict();
+const TeamsChannelConfig = z
+  .object({ channelType: z.literal("teams"), webhookUrl: z.string().min(1) })
+  .strict();
+const WebhookChannelConfig = z
+  .object({
+    channelType: z.literal("webhook"),
+    url: z.string().min(1),
+    signingSecret: z.string().nullish(),
+    customHeaders: z.record(z.string().nullable()).nullish(),
+  })
+  .strict();
 const CreateAlertChannelRequest = z
   .object({
     name: z.string().min(0).max(255),
@@ -67,7 +74,7 @@ const CreateAlertChannelRequest = z
       WebhookChannelConfig,
     ]),
   })
-  .passthrough();
+  .strict();
 const UpdateAlertChannelRequest = z
   .object({
     name: z.string().min(0).max(255),
@@ -81,7 +88,7 @@ const UpdateAlertChannelRequest = z
       WebhookChannelConfig,
     ]),
   })
-  .passthrough();
+  .strict();
 const TestAlertChannelRequest = z
   .object({
     config: z.union([
@@ -94,22 +101,22 @@ const TestAlertChannelRequest = z
       WebhookChannelConfig,
     ]),
   })
-  .passthrough();
+  .strict();
 const CreateApiKeyRequest = z
   .object({
     name: z.string().min(0).max(200),
     expiresAt: z.string().datetime({ offset: true }).nullish(),
   })
-  .passthrough();
+  .strict();
 const UpdateApiKeyRequest = z
   .object({ name: z.string().min(0).max(200) })
-  .passthrough();
+  .strict();
 const AcquireDeployLockRequest = z
   .object({
     lockedBy: z.string().min(1),
     ttlMinutes: z.number().int().nullish(),
   })
-  .passthrough();
+  .strict();
 const CreateEnvironmentRequest = z
   .object({
     name: z.string().min(0).max(100),
@@ -119,9 +126,9 @@ const CreateEnvironmentRequest = z
       .max(100)
       .regex(/^[a-z0-9][a-z0-9_-]*$/),
     variables: z.record(z.string().nullable()).nullish(),
-    isDefault: z.boolean().optional(),
+    isDefault: z.boolean(),
   })
-  .passthrough();
+  .strict();
 const UpdateEnvironmentRequest = z
   .object({
     name: z.string().min(0).max(100).nullable(),
@@ -129,7 +136,7 @@ const UpdateEnvironmentRequest = z
     isDefault: z.boolean().nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const params = z
   .object({
     status: z
@@ -155,7 +162,7 @@ const params = z
     page: z.number().int().gte(0),
     size: z.number().int().gte(1).lte(200),
   })
-  .passthrough();
+  .strict();
 const CreateManualIncidentRequest = z
   .object({
     title: z.string().min(1),
@@ -163,8 +170,11 @@ const CreateManualIncidentRequest = z
     monitorId: z.string().uuid().nullish(),
     body: z.string().nullish(),
   })
-  .passthrough();
-const ResolveIncidentRequest = z.object({ body: z.string() }).passthrough();
+  .strict();
+const ResolveIncidentRequest = z
+  .object({ body: z.string().nullable() })
+  .partial()
+  .strict();
 const AddIncidentUpdateRequest = z
   .object({
     body: z.string().nullish(),
@@ -173,13 +183,13 @@ const AddIncidentUpdateRequest = z
       .nullish(),
     notifySubscribers: z.boolean(),
   })
-  .passthrough();
+  .strict();
 const CreateInviteRequest = z
   .object({
     email: z.string().min(1).email(),
     roleOffered: z.enum(["OWNER", "ADMIN", "MEMBER"]),
   })
-  .passthrough();
+  .strict();
 const CreateMaintenanceWindowRequest = z
   .object({
     monitorId: z.string().uuid().nullish(),
@@ -189,7 +199,7 @@ const CreateMaintenanceWindowRequest = z
     reason: z.string().nullish(),
     suppressAlerts: z.boolean().nullish(),
   })
-  .passthrough();
+  .strict();
 const UpdateMaintenanceWindowRequest = z
   .object({
     monitorId: z.string().uuid().nullish(),
@@ -199,10 +209,10 @@ const UpdateMaintenanceWindowRequest = z
     reason: z.string().nullish(),
     suppressAlerts: z.boolean().nullish(),
   })
-  .passthrough();
+  .strict();
 const ChangeRoleRequest = z
   .object({ orgRole: z.enum(["OWNER", "ADMIN", "MEMBER"]) })
-  .passthrough();
+  .strict();
 const ChangeStatusRequest = z
   .object({
     status: z.enum([
@@ -214,260 +224,298 @@ const ChangeStatusRequest = z
       "DECLINED",
     ]),
   })
-  .passthrough();
-const MonitorConfig = z.object({}).partial().passthrough();
-const DnsMonitorConfig = MonitorConfig.and(
-  z
-    .object({
-      hostname: z.string().min(1),
-      recordTypes: z
-        .array(
-          z
-            .enum([
-              "A",
-              "AAAA",
-              "CNAME",
-              "MX",
-              "NS",
-              "TXT",
-              "SRV",
-              "SOA",
-              "CAA",
-              "PTR",
-            ])
-            .nullable()
-        )
-        .nullish(),
-      nameservers: z.array(z.string().nullable()).nullish(),
-      timeoutMs: z.number().int().nullish(),
-      totalTimeoutMs: z.number().int().nullish(),
-    })
-    .passthrough()
-);
-const HeartbeatMonitorConfig = MonitorConfig.and(
-  z
-    .object({
-      expectedInterval: z.number().int().gte(1).lte(86400),
-      gracePeriod: z.number().int().gte(1),
-    })
-    .passthrough()
-);
-const HttpMonitorConfig = MonitorConfig.and(
-  z
-    .object({
-      url: z.string().min(1),
-      method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"]),
-      customHeaders: z.record(z.string().nullable()).nullish(),
-      requestBody: z.string().nullish(),
-      contentType: z.string().nullish(),
-      verifyTls: z.boolean().nullish(),
-    })
-    .passthrough()
-);
-const IcmpMonitorConfig = MonitorConfig.and(
-  z
-    .object({
-      host: z.string().min(1),
-      packetCount: z.number().int().gte(1).lte(20).nullish(),
-      timeoutMs: z.number().int().nullish(),
-    })
-    .passthrough()
-);
-const McpServerMonitorConfig = MonitorConfig.and(
-  z
-    .object({
-      command: z.string().min(1),
-      args: z.array(z.string().nullable()).nullish(),
-      env: z.record(z.string().nullable()).nullish(),
-    })
-    .passthrough()
-);
-const TcpMonitorConfig = MonitorConfig.and(
-  z
-    .object({
-      host: z.string().min(1),
-      port: z.number().int().gte(1).lte(65535),
-      timeoutMs: z.number().int().nullish(),
-    })
-    .passthrough()
-);
-const AssertionConfig = z.object({ type: z.string() }).passthrough();
-const BodyContainsAssertion = AssertionConfig.and(
-  z.object({ substring: z.string().min(1) }).passthrough()
-);
-const DnsExpectedCnameAssertion = AssertionConfig.and(
-  z.object({ value: z.string().min(1) }).passthrough()
-);
-const DnsExpectedIpsAssertion = AssertionConfig.and(
-  z.object({ ips: z.array(z.string()).min(1) }).passthrough()
-);
-const DnsMaxAnswersAssertion = AssertionConfig.and(
-  z
-    .object({ recordType: z.string().min(1), max: z.number().int() })
-    .passthrough()
-);
-const DnsMinAnswersAssertion = AssertionConfig.and(
-  z
-    .object({ recordType: z.string().min(1), min: z.number().int() })
-    .passthrough()
-);
-const DnsRecordContainsAssertion = AssertionConfig.and(
-  z
-    .object({ recordType: z.string().min(1), substring: z.string().min(1) })
-    .passthrough()
-);
-const DnsRecordEqualsAssertion = AssertionConfig.and(
-  z
-    .object({ recordType: z.string().min(1), value: z.string().min(1) })
-    .passthrough()
-);
-const DnsResolvesAssertion = AssertionConfig;
-const DnsResponseTimeAssertion = AssertionConfig.and(
-  z.object({ maxMs: z.number().int() }).passthrough()
-);
-const DnsResponseTimeWarnAssertion = AssertionConfig.and(
-  z.object({ warnMs: z.number().int() }).passthrough()
-);
-const DnsTtlHighAssertion = AssertionConfig.and(
-  z.object({ maxTtl: z.number().int() }).passthrough()
-);
-const DnsTtlLowAssertion = AssertionConfig.and(
-  z.object({ minTtl: z.number().int() }).passthrough()
-);
-const DnsTxtContainsAssertion = AssertionConfig.and(
-  z.object({ substring: z.string().min(1) }).passthrough()
-);
-const HeaderValueAssertion = AssertionConfig.and(
-  z
-    .object({
-      headerName: z.string().min(1),
-      expected: z.string().min(1),
-      operator: z.enum([
-        "equals",
-        "contains",
-        "less_than",
-        "greater_than",
-        "matches",
-        "range",
-      ]),
-    })
-    .passthrough()
-);
-const HeartbeatIntervalDriftAssertion = AssertionConfig.and(
-  z
-    .object({ maxDeviationPercent: z.number().int().gte(1).lte(100) })
-    .passthrough()
-);
-const HeartbeatMaxIntervalAssertion = AssertionConfig.and(
-  z.object({ maxSeconds: z.number().int().gte(1) }).passthrough()
-);
-const HeartbeatPayloadContainsAssertion = AssertionConfig.and(
-  z.object({ path: z.string().min(1), value: z.string() }).passthrough()
-);
-const HeartbeatReceivedAssertion = AssertionConfig;
-const IcmpPacketLossAssertion = AssertionConfig.and(
-  z.object({ maxPercent: z.number().gte(0).lte(100) }).passthrough()
-);
-const IcmpReachableAssertion = AssertionConfig;
-const IcmpResponseTimeAssertion = AssertionConfig.and(
-  z.object({ maxMs: z.number().int() }).passthrough()
-);
-const IcmpResponseTimeWarnAssertion = AssertionConfig.and(
-  z.object({ warnMs: z.number().int() }).passthrough()
-);
-const JsonPathAssertion = AssertionConfig.and(
-  z
-    .object({
-      path: z.string().min(1),
-      expected: z.string().min(1),
-      operator: z.enum([
-        "equals",
-        "contains",
-        "less_than",
-        "greater_than",
-        "matches",
-        "range",
-      ]),
-    })
-    .passthrough()
-);
-const McpConnectsAssertion = AssertionConfig;
-const McpHasCapabilityAssertion = AssertionConfig.and(
-  z.object({ capability: z.string().min(1) }).passthrough()
-);
-const McpMinToolsAssertion = AssertionConfig.and(
-  z.object({ min: z.number().int() }).passthrough()
-);
-const McpProtocolVersionAssertion = AssertionConfig.and(
-  z.object({ version: z.string().min(1) }).passthrough()
-);
-const McpResponseTimeAssertion = AssertionConfig.and(
-  z.object({ maxMs: z.number().int() }).passthrough()
-);
-const McpResponseTimeWarnAssertion = AssertionConfig.and(
-  z.object({ warnMs: z.number().int() }).passthrough()
-);
-const McpToolAvailableAssertion = AssertionConfig.and(
-  z.object({ toolName: z.string().min(1) }).passthrough()
-);
-const McpToolCountChangedAssertion = AssertionConfig.and(
-  z.object({ expectedCount: z.number().int() }).passthrough()
-);
-const RedirectCountAssertion = AssertionConfig.and(
-  z.object({ maxCount: z.number().int() }).passthrough()
-);
-const RedirectTargetAssertion = AssertionConfig.and(
-  z
-    .object({
-      expected: z.string().min(1),
-      operator: z.enum([
-        "equals",
-        "contains",
-        "less_than",
-        "greater_than",
-        "matches",
-        "range",
-      ]),
-    })
-    .passthrough()
-);
-const RegexBodyAssertion = AssertionConfig.and(
-  z.object({ pattern: z.string().min(1) }).passthrough()
-);
-const ResponseSizeAssertion = AssertionConfig.and(
-  z.object({ maxBytes: z.number().int() }).passthrough()
-);
-const ResponseTimeAssertion = AssertionConfig.and(
-  z.object({ thresholdMs: z.number().int() }).passthrough()
-);
-const ResponseTimeWarnAssertion = AssertionConfig.and(
-  z.object({ warnMs: z.number().int() }).passthrough()
-);
-const SslExpiryAssertion = AssertionConfig.and(
-  z.object({ minDaysRemaining: z.number().int() }).passthrough()
-);
-const StatusCodeAssertion = AssertionConfig.and(
-  z
-    .object({
-      expected: z.string().min(1),
-      operator: z.enum([
-        "equals",
-        "contains",
-        "less_than",
-        "greater_than",
-        "matches",
-        "range",
-      ]),
-    })
-    .passthrough()
-);
-const TcpConnectsAssertion = AssertionConfig;
-const TcpResponseTimeAssertion = AssertionConfig.and(
-  z.object({ maxMs: z.number().int() }).passthrough()
-);
-const TcpResponseTimeWarnAssertion = AssertionConfig.and(
-  z.object({ warnMs: z.number().int() }).passthrough()
-);
+  .strict();
+const DnsMonitorConfig = z
+  .object({
+    hostname: z.string().min(1),
+    recordTypes: z
+      .array(
+        z
+          .enum([
+            "A",
+            "AAAA",
+            "CNAME",
+            "MX",
+            "NS",
+            "TXT",
+            "SRV",
+            "SOA",
+            "CAA",
+            "PTR",
+          ])
+          .nullable()
+      )
+      .nullish(),
+    nameservers: z.array(z.string().nullable()).nullish(),
+    timeoutMs: z.number().int().nullish(),
+    totalTimeoutMs: z.number().int().nullish(),
+  })
+  .strict();
+const HeartbeatMonitorConfig = z
+  .object({
+    expectedInterval: z.number().int().gte(1).lte(86400),
+    gracePeriod: z.number().int().gte(1),
+  })
+  .strict();
+const HttpMonitorConfig = z
+  .object({
+    url: z.string().min(1),
+    method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"]),
+    customHeaders: z.record(z.string().nullable()).nullish(),
+    requestBody: z.string().nullish(),
+    contentType: z.string().nullish(),
+    verifyTls: z.boolean().nullish(),
+  })
+  .strict();
+const IcmpMonitorConfig = z
+  .object({
+    host: z.string().min(1),
+    packetCount: z.number().int().gte(1).lte(20).nullish(),
+    timeoutMs: z.number().int().nullish(),
+  })
+  .strict();
+const McpServerMonitorConfig = z
+  .object({
+    command: z.string().min(1),
+    args: z.array(z.string().nullable()).nullish(),
+    env: z.record(z.string().nullable()).nullish(),
+  })
+  .strict();
+const TcpMonitorConfig = z
+  .object({
+    host: z.string().min(1),
+    port: z.number().int().gte(1).lte(65535),
+    timeoutMs: z.number().int().nullish(),
+  })
+  .strict();
+const BodyContainsAssertion = z
+  .object({ type: z.literal("body_contains"), substring: z.string().min(1) })
+  .strict();
+const DnsExpectedCnameAssertion = z
+  .object({ type: z.literal("dns_expected_cname"), value: z.string().min(1) })
+  .strict();
+const DnsExpectedIpsAssertion = z
+  .object({
+    type: z.literal("dns_expected_ips"),
+    ips: z.array(z.string()).min(1),
+  })
+  .strict();
+const DnsMaxAnswersAssertion = z
+  .object({
+    type: z.literal("dns_max_answers"),
+    recordType: z.string().min(1),
+    max: z.number().int(),
+  })
+  .strict();
+const DnsMinAnswersAssertion = z
+  .object({
+    type: z.literal("dns_min_answers"),
+    recordType: z.string().min(1),
+    min: z.number().int(),
+  })
+  .strict();
+const DnsRecordContainsAssertion = z
+  .object({
+    type: z.literal("dns_record_contains"),
+    recordType: z.string().min(1),
+    substring: z.string().min(1),
+  })
+  .strict();
+const DnsRecordEqualsAssertion = z
+  .object({
+    type: z.literal("dns_record_equals"),
+    recordType: z.string().min(1),
+    value: z.string().min(1),
+  })
+  .strict();
+const DnsResolvesAssertion = z
+  .object({ type: z.literal("dns_resolves") })
+  .strict();
+const DnsResponseTimeAssertion = z
+  .object({ type: z.literal("dns_response_time"), maxMs: z.number().int() })
+  .strict();
+const DnsResponseTimeWarnAssertion = z
+  .object({
+    type: z.literal("dns_response_time_warn"),
+    warnMs: z.number().int(),
+  })
+  .strict();
+const DnsTtlHighAssertion = z
+  .object({ type: z.literal("dns_ttl_high"), maxTtl: z.number().int() })
+  .strict();
+const DnsTtlLowAssertion = z
+  .object({ type: z.literal("dns_ttl_low"), minTtl: z.number().int() })
+  .strict();
+const DnsTxtContainsAssertion = z
+  .object({ type: z.literal("dns_txt_contains"), substring: z.string().min(1) })
+  .strict();
+const HeaderValueAssertion = z
+  .object({
+    type: z.literal("header_value"),
+    headerName: z.string().min(1),
+    expected: z.string().min(1),
+    operator: z.enum([
+      "equals",
+      "contains",
+      "less_than",
+      "greater_than",
+      "matches",
+      "range",
+    ]),
+  })
+  .strict();
+const HeartbeatIntervalDriftAssertion = z
+  .object({
+    type: z.literal("heartbeat_interval_drift"),
+    maxDeviationPercent: z.number().int().gte(1).lte(100),
+  })
+  .strict();
+const HeartbeatMaxIntervalAssertion = z
+  .object({
+    type: z.literal("heartbeat_max_interval"),
+    maxSeconds: z.number().int().gte(1),
+  })
+  .strict();
+const HeartbeatPayloadContainsAssertion = z
+  .object({
+    type: z.literal("heartbeat_payload_contains"),
+    path: z.string().min(1),
+    value: z.string(),
+  })
+  .strict();
+const HeartbeatReceivedAssertion = z
+  .object({ type: z.literal("heartbeat_received") })
+  .strict();
+const IcmpPacketLossAssertion = z
+  .object({
+    type: z.literal("icmp_packet_loss"),
+    maxPercent: z.number().gte(0).lte(100),
+  })
+  .strict();
+const IcmpReachableAssertion = z
+  .object({ type: z.literal("icmp_reachable") })
+  .strict();
+const IcmpResponseTimeAssertion = z
+  .object({ type: z.literal("icmp_response_time"), maxMs: z.number().int() })
+  .strict();
+const IcmpResponseTimeWarnAssertion = z
+  .object({
+    type: z.literal("icmp_response_time_warn"),
+    warnMs: z.number().int(),
+  })
+  .strict();
+const JsonPathAssertion = z
+  .object({
+    type: z.literal("json_path"),
+    path: z.string().min(1),
+    expected: z.string().min(1),
+    operator: z.enum([
+      "equals",
+      "contains",
+      "less_than",
+      "greater_than",
+      "matches",
+      "range",
+    ]),
+  })
+  .strict();
+const McpConnectsAssertion = z
+  .object({ type: z.literal("mcp_connects") })
+  .strict();
+const McpHasCapabilityAssertion = z
+  .object({
+    type: z.literal("mcp_has_capability"),
+    capability: z.string().min(1),
+  })
+  .strict();
+const McpMinToolsAssertion = z
+  .object({ type: z.literal("mcp_min_tools"), min: z.number().int() })
+  .strict();
+const McpProtocolVersionAssertion = z
+  .object({
+    type: z.literal("mcp_protocol_version"),
+    version: z.string().min(1),
+  })
+  .strict();
+const McpResponseTimeAssertion = z
+  .object({ type: z.literal("mcp_response_time"), maxMs: z.number().int() })
+  .strict();
+const McpResponseTimeWarnAssertion = z
+  .object({
+    type: z.literal("mcp_response_time_warn"),
+    warnMs: z.number().int(),
+  })
+  .strict();
+const McpToolAvailableAssertion = z
+  .object({
+    type: z.literal("mcp_tool_available"),
+    toolName: z.string().min(1),
+  })
+  .strict();
+const McpToolCountChangedAssertion = z
+  .object({
+    type: z.literal("mcp_tool_count_changed"),
+    expectedCount: z.number().int(),
+  })
+  .strict();
+const RedirectCountAssertion = z
+  .object({ type: z.literal("redirect_count"), maxCount: z.number().int() })
+  .strict();
+const RedirectTargetAssertion = z
+  .object({
+    type: z.literal("redirect_target"),
+    expected: z.string().min(1),
+    operator: z.enum([
+      "equals",
+      "contains",
+      "less_than",
+      "greater_than",
+      "matches",
+      "range",
+    ]),
+  })
+  .strict();
+const RegexBodyAssertion = z
+  .object({ type: z.literal("regex_body"), pattern: z.string().min(1) })
+  .strict();
+const ResponseSizeAssertion = z
+  .object({ type: z.literal("response_size"), maxBytes: z.number().int() })
+  .strict();
+const ResponseTimeAssertion = z
+  .object({ type: z.literal("response_time"), thresholdMs: z.number().int() })
+  .strict();
+const ResponseTimeWarnAssertion = z
+  .object({ type: z.literal("response_time_warn"), warnMs: z.number().int() })
+  .strict();
+const SslExpiryAssertion = z
+  .object({ type: z.literal("ssl_expiry"), minDaysRemaining: z.number().int() })
+  .strict();
+const StatusCodeAssertion = z
+  .object({
+    type: z.literal("status_code"),
+    expected: z.string().min(1),
+    operator: z.enum([
+      "equals",
+      "contains",
+      "less_than",
+      "greater_than",
+      "matches",
+      "range",
+    ]),
+  })
+  .strict();
+const TcpConnectsAssertion = z
+  .object({ type: z.literal("tcp_connects") })
+  .strict();
+const TcpResponseTimeAssertion = z
+  .object({ type: z.literal("tcp_response_time"), maxMs: z.number().int() })
+  .strict();
+const TcpResponseTimeWarnAssertion = z
+  .object({
+    type: z.literal("tcp_response_time_warn"),
+    warnMs: z.number().int(),
+  })
+  .strict();
 const CreateAssertionRequest = z
   .object({
     config: z.union([
@@ -514,10 +562,47 @@ const CreateAssertionRequest = z
       TcpResponseTimeAssertion,
       TcpResponseTimeWarnAssertion,
     ]),
-    severity: z.enum(["fail", "warn"]),
+    severity: z.enum(["fail", "warn"]).nullish(),
   })
-  .passthrough();
-const MonitorAuthConfig = z.object({ type: z.string() }).passthrough();
+  .strict();
+const BearerAuthConfig = z
+  .object({
+    type: z.literal("bearer"),
+    vaultSecretId: z.string().uuid().nullish(),
+  })
+  .strict();
+const BasicAuthConfig = z
+  .object({
+    type: z.literal("basic"),
+    vaultSecretId: z.string().uuid().nullish(),
+  })
+  .strict();
+const HeaderAuthConfig = z
+  .object({
+    type: z.literal("header"),
+    headerName: z
+      .string()
+      .min(1)
+      .regex(/^[A-Za-z0-9\-_]+$/),
+    vaultSecretId: z.string().uuid().nullish(),
+  })
+  .strict();
+const ApiKeyAuthConfig = z
+  .object({
+    type: z.literal("api_key"),
+    headerName: z
+      .string()
+      .min(1)
+      .regex(/^[A-Za-z0-9\-_]+$/),
+    vaultSecretId: z.string().uuid().nullish(),
+  })
+  .strict();
+const MonitorAuthConfig = z.discriminatedUnion("type", [
+  BearerAuthConfig,
+  BasicAuthConfig,
+  HeaderAuthConfig,
+  ApiKeyAuthConfig,
+]);
 const TriggerRule = z
   .object({
     type: z.enum([
@@ -532,28 +617,28 @@ const TriggerRule = z
     severity: z.enum(["down", "degraded"]),
     aggregationType: z.enum(["all_exceed", "average", "p95", "max"]).nullish(),
   })
-  .passthrough();
+  .strict();
 const ConfirmationPolicy = z
   .object({
     type: z.literal("multi_region"),
-    minRegionsFailing: z.number().int().optional(),
-    maxWaitSeconds: z.number().int().optional(),
+    minRegionsFailing: z.number().int(),
+    maxWaitSeconds: z.number().int(),
   })
-  .passthrough();
+  .strict();
 const RecoveryPolicy = z
   .object({
     consecutiveSuccesses: z.number().int(),
     minRegionsPassing: z.number().int(),
     cooldownMinutes: z.number().int(),
   })
-  .passthrough();
+  .strict();
 const UpdateIncidentPolicyRequest = z
   .object({
     triggerRules: z.array(TriggerRule).min(1),
     confirmation: ConfirmationPolicy,
     recovery: RecoveryPolicy,
   })
-  .passthrough();
+  .strict();
 const NewTagRequest = z
   .object({
     name: z.string().min(0).max(100),
@@ -562,14 +647,14 @@ const NewTagRequest = z
       .regex(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/)
       .nullish(),
   })
-  .passthrough();
+  .strict();
 const AddMonitorTagsRequest = z
   .object({
     tagIds: z.array(z.string().uuid()).nullable(),
     newTags: z.array(NewTagRequest).nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const CreateMonitorRequest = z
   .object({
     name: z.string().min(0).max(255),
@@ -593,11 +678,20 @@ const CreateMonitorRequest = z
     alertChannelIds: z.array(z.string().uuid()).nullish(),
     tags: AddMonitorTagsRequest.nullish(),
   })
-  .passthrough();
+  .strict();
 const UpdateMonitorRequest = z
   .object({
     name: z.string().min(0).max(255).nullable(),
-    config: MonitorConfig.nullable(),
+    config: z
+      .union([
+        DnsMonitorConfig,
+        HeartbeatMonitorConfig,
+        HttpMonitorConfig,
+        IcmpMonitorConfig,
+        McpServerMonitorConfig,
+        TcpMonitorConfig,
+      ])
+      .nullable(),
     frequencySeconds: z.number().int().nullable(),
     enabled: z.boolean().nullable(),
     regions: z.array(z.string()).nullable(),
@@ -612,13 +706,13 @@ const UpdateMonitorRequest = z
     tags: AddMonitorTagsRequest.nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const RemoveMonitorTagsRequest = z
   .object({ tagIds: z.array(z.string().uuid()).min(1) })
-  .passthrough();
+  .strict();
 const SetAlertChannelsRequest = z
   .object({ channelIds: z.array(z.string().uuid()) })
-  .passthrough();
+  .strict();
 const UpdateAssertionRequest = z
   .object({
     config: z.union([
@@ -667,61 +761,17 @@ const UpdateAssertionRequest = z
     ]),
     severity: z.enum(["fail", "warn"]).nullish(),
   })
-  .passthrough();
-const ApiKeyAuthConfig = MonitorAuthConfig.and(
-  z
-    .object({
-      headerName: z
-        .string()
-        .min(1)
-        .regex(/^[A-Za-z0-9\-_]+$/),
-      vaultSecretId: z.string().uuid().nullish(),
-    })
-    .passthrough()
-);
-const BasicAuthConfig = MonitorAuthConfig.and(
-  z
-    .object({ vaultSecretId: z.string().uuid().nullable() })
-    .partial()
-    .passthrough()
-);
-const BearerAuthConfig = MonitorAuthConfig.and(
-  z
-    .object({ vaultSecretId: z.string().uuid().nullable() })
-    .partial()
-    .passthrough()
-);
-const HeaderAuthConfig = MonitorAuthConfig.and(
-  z
-    .object({
-      headerName: z
-        .string()
-        .min(1)
-        .regex(/^[A-Za-z0-9\-_]+$/),
-      vaultSecretId: z.string().uuid().nullish(),
-    })
-    .passthrough()
-);
+  .strict();
 const UpdateMonitorAuthRequest = z
   .object({
-    config: z.union([
-      ApiKeyAuthConfig,
-      BasicAuthConfig,
-      BearerAuthConfig,
-      HeaderAuthConfig,
-    ]),
+    config: z.discriminatedUnion("type", [ApiKeyAuthConfig, BasicAuthConfig, BearerAuthConfig, HeaderAuthConfig]),
   })
-  .passthrough();
+  .strict();
 const SetMonitorAuthRequest = z
   .object({
-    config: z.union([
-      ApiKeyAuthConfig,
-      BasicAuthConfig,
-      BearerAuthConfig,
-      HeaderAuthConfig,
-    ]),
+    config: z.discriminatedUnion("type", [ApiKeyAuthConfig, BasicAuthConfig, BearerAuthConfig, HeaderAuthConfig]),
   })
-  .passthrough();
+  .strict();
 const BulkMonitorActionRequest = z
   .object({
     monitorIds: z.array(z.string().uuid()).max(200),
@@ -729,7 +779,7 @@ const BulkMonitorActionRequest = z
     tagIds: z.array(z.string().uuid()).nullish(),
     newTags: z.array(NewTagRequest).nullish(),
   })
-  .passthrough();
+  .strict();
 const MonitorTestRequest = z
   .object({
     type: z.enum(["HTTP", "DNS", "MCP_SERVER", "TCP", "ICMP", "HEARTBEAT"]),
@@ -743,7 +793,7 @@ const MonitorTestRequest = z
     ]),
     assertions: z.array(CreateAssertionRequest).nullish(),
   })
-  .passthrough();
+  .strict();
 const MatchRule = z
   .object({
     type: z.string(),
@@ -752,31 +802,31 @@ const MatchRule = z
     regions: z.array(z.string()).nullish(),
     values: z.array(z.string()).nullish(),
   })
-  .passthrough();
+  .strict();
 const EscalationStep = z
   .object({
-    delayMinutes: z.number().int().gte(0).optional(),
+    delayMinutes: z.number().int().gte(0),
     channelIds: z.array(z.string().uuid()).min(1),
     requireAck: z.boolean().nullish(),
     repeatIntervalSeconds: z.number().int().gte(1).nullish(),
   })
-  .passthrough();
+  .strict();
 const EscalationChain = z
   .object({
     steps: z.array(EscalationStep).min(1),
     onResolve: z.string().nullish(),
     onReopen: z.string().nullish(),
   })
-  .passthrough();
+  .strict();
 const CreateNotificationPolicyRequest = z
   .object({
     name: z.string().min(0).max(255),
-    matchRules: z.array(MatchRule),
+    matchRules: z.array(MatchRule).nullish(),
     escalation: EscalationChain,
-    enabled: z.boolean().default(true),
-    priority: z.number().int().default(0),
+    enabled: z.boolean().nullish().default(true),
+    priority: z.number().int().nullish().default(0),
   })
-  .passthrough();
+  .strict();
 const UpdateNotificationPolicyRequest = z
   .object({
     name: z.string().min(0).max(255).nullable(),
@@ -786,7 +836,7 @@ const UpdateNotificationPolicyRequest = z
     priority: z.number().int().nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const TestNotificationPolicyRequest = z
   .object({
     severity: z.string().nullable(),
@@ -799,7 +849,7 @@ const TestNotificationPolicyRequest = z
     resourceGroupIds: z.array(z.string().uuid()).nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const UpdateOrgDetailsRequest = z
   .object({
     name: z.string().min(0).max(200),
@@ -808,14 +858,14 @@ const UpdateOrgDetailsRequest = z
     industry: z.string().min(0).max(100).nullish(),
     websiteUrl: z.string().min(0).max(255).nullish(),
   })
-  .passthrough();
+  .strict();
 const RetryStrategy = z
   .object({
     type: z.string(),
-    maxRetries: z.number().int().optional(),
-    interval: z.number().int().optional(),
+    maxRetries: z.number().int(),
+    interval: z.number().int(),
   })
-  .passthrough();
+  .strict();
 const CreateResourceGroupRequest = z
   .object({
     name: z.string().min(0).max(255),
@@ -832,7 +882,7 @@ const CreateResourceGroupRequest = z
     confirmationDelaySeconds: z.number().int().gte(0).lte(600).nullish(),
     recoveryCooldownMinutes: z.number().int().gte(0).lte(60).nullish(),
   })
-  .passthrough();
+  .strict();
 const UpdateResourceGroupRequest = z
   .object({
     name: z.string().min(0).max(255),
@@ -849,7 +899,7 @@ const UpdateResourceGroupRequest = z
     confirmationDelaySeconds: z.number().int().gte(0).lte(600).nullish(),
     recoveryCooldownMinutes: z.number().int().gte(0).lte(60).nullish(),
   })
-  .passthrough();
+  .strict();
 const AddResourceGroupMemberRequest = z
   .object({
     memberType: z
@@ -858,16 +908,16 @@ const AddResourceGroupMemberRequest = z
       .regex(/monitor|service/),
     memberId: z.string().uuid(),
   })
-  .passthrough();
+  .strict();
 const CreateSecretRequest = z
   .object({
     key: z.string().min(0).max(255),
     value: z.string().min(0).max(32768),
   })
-  .passthrough();
+  .strict();
 const UpdateSecretRequest = z
   .object({ value: z.string().min(0).max(32768) })
-  .passthrough();
+  .strict();
 const UpdateAlertSensitivityRequest = z
   .object({
     alertSensitivity: z
@@ -875,14 +925,14 @@ const UpdateAlertSensitivityRequest = z
       .min(1)
       .regex(/ALL|INCIDENTS_ONLY|MAJOR_ONLY/),
   })
-  .passthrough();
+  .strict();
 const ServiceSubscribeRequest = z
   .object({
     componentId: z.string().uuid().nullable(),
     alertSensitivity: z.string().nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const StatusPageBranding = z
   .object({
     logoUrl: z
@@ -890,56 +940,57 @@ const StatusPageBranding = z
       .min(0)
       .max(2048)
       .regex(/^https?:\/\/.*/)
-      .nullish(),
+      .nullable(),
     faviconUrl: z
       .string()
       .min(0)
       .max(2048)
       .regex(/^https?:\/\/.*/)
-      .nullish(),
+      .nullable(),
     brandColor: z
       .string()
       .min(0)
       .max(30)
       .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
-      .nullish(),
+      .nullable(),
     pageBackground: z
       .string()
       .min(0)
       .max(30)
       .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
-      .nullish(),
+      .nullable(),
     cardBackground: z
       .string()
       .min(0)
       .max(30)
       .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
-      .nullish(),
+      .nullable(),
     textColor: z
       .string()
       .min(0)
       .max(30)
       .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
-      .nullish(),
+      .nullable(),
     borderColor: z
       .string()
       .min(0)
       .max(30)
       .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
-      .nullish(),
-    headerStyle: z.string().min(0).max(50).nullish(),
-    theme: z.string().min(0).max(50).nullish(),
+      .nullable(),
+    headerStyle: z.string().min(0).max(50).nullable(),
+    theme: z.string().min(0).max(50).nullable(),
     reportUrl: z
       .string()
       .min(0)
       .max(2048)
       .regex(/^https?:\/\/.*/)
-      .nullish(),
+      .nullable(),
     hidePoweredBy: z.boolean().default(false),
-    customCss: z.string().min(0).max(50000).nullish(),
-    customHeadHtml: z.string().min(0).max(50000).nullish(),
+    customCss: z.string().min(0).max(50000).nullable(),
+    customHeadHtml: z.string().min(0).max(50000).nullable(),
   })
-  .passthrough();
+  .partial()
+  .strict();
 const CreateStatusPageRequest = z
   .object({
     name: z.string().min(0).max(255),
@@ -954,7 +1005,7 @@ const CreateStatusPageRequest = z
     enabled: z.boolean().nullish(),
     incidentMode: z.enum(["MANUAL", "REVIEW", "AUTOMATIC"]).nullish(),
   })
-  .passthrough();
+  .strict();
 const UpdateStatusPageRequest = z
   .object({
     name: z.string().min(0).max(255).nullable(),
@@ -965,7 +1016,7 @@ const UpdateStatusPageRequest = z
     incidentMode: z.enum(["MANUAL", "REVIEW", "AUTOMATIC"]).nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const CreateStatusPageComponentRequest = z
   .object({
     name: z.string().min(0).max(255),
@@ -979,7 +1030,7 @@ const CreateStatusPageComponentRequest = z
     excludeFromOverall: z.boolean().nullish(),
     startDate: z.string().nullish(),
   })
-  .passthrough();
+  .strict();
 const UpdateStatusPageComponentRequest = z
   .object({
     name: z.string().min(0).max(255).nullable(),
@@ -992,17 +1043,17 @@ const UpdateStatusPageComponentRequest = z
     startDate: z.string().nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const ComponentPosition = z
   .object({
     componentId: z.string().uuid(),
-    displayOrder: z.number().int().optional(),
+    displayOrder: z.number().int(),
     groupId: z.string().uuid().nullish(),
   })
-  .passthrough();
+  .strict();
 const ReorderComponentsRequest = z
   .object({ positions: z.array(ComponentPosition).min(1) })
-  .passthrough();
+  .strict();
 const AddCustomDomainRequest = z
   .object({
     hostname: z
@@ -1013,7 +1064,7 @@ const AddCustomDomainRequest = z
         /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/
       ),
   })
-  .passthrough();
+  .strict();
 const CreateStatusPageComponentGroupRequest = z
   .object({
     name: z.string().min(0).max(255),
@@ -1021,7 +1072,7 @@ const CreateStatusPageComponentGroupRequest = z
     displayOrder: z.number().int().nullish(),
     collapsed: z.boolean().nullish(),
   })
-  .passthrough();
+  .strict();
 const UpdateStatusPageComponentGroupRequest = z
   .object({
     name: z.string().min(0).max(255).nullable(),
@@ -1030,7 +1081,7 @@ const UpdateStatusPageComponentGroupRequest = z
     collapsed: z.boolean().nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const AffectedComponent = z
   .object({
     componentId: z.string().uuid(),
@@ -1042,7 +1093,7 @@ const AffectedComponent = z
       "UNDER_MAINTENANCE",
     ]),
   })
-  .passthrough();
+  .strict();
 const CreateStatusPageIncidentRequest = z
   .object({
     title: z.string().min(0).max(500),
@@ -1058,7 +1109,7 @@ const CreateStatusPageIncidentRequest = z
     autoResolve: z.boolean().nullish(),
     notifySubscribers: z.boolean().nullish(),
   })
-  .passthrough();
+  .strict();
 const UpdateStatusPageIncidentRequest = z
   .object({
     title: z.string().min(0).max(500).nullable(),
@@ -1076,7 +1127,7 @@ const UpdateStatusPageIncidentRequest = z
       .nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const PublishStatusPageIncidentRequest = z
   .object({
     title: z.string().min(0).max(500).nullable(),
@@ -1089,7 +1140,7 @@ const PublishStatusPageIncidentRequest = z
     notifySubscribers: z.boolean().nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const CreateStatusPageIncidentUpdateRequest = z
   .object({
     status: z.enum(["INVESTIGATING", "IDENTIFIED", "MONITORING", "RESOLVED"]),
@@ -1097,29 +1148,29 @@ const CreateStatusPageIncidentUpdateRequest = z
     notifySubscribers: z.boolean().nullish(),
     affectedComponents: z.array(AffectedComponent).nullish(),
   })
-  .passthrough();
+  .strict();
 const PageSection = z
   .object({
     groupId: z.string().uuid().nullish(),
     componentId: z.string().uuid().nullish(),
     pageOrder: z.number().int(),
   })
-  .passthrough();
+  .strict();
 const GroupComponentOrder = z
   .object({
     groupId: z.string().uuid(),
     positions: z.array(ComponentPosition).min(1),
   })
-  .passthrough();
+  .strict();
 const ReorderPageLayoutRequest = z
   .object({
     sections: z.array(PageSection).min(1),
     groupOrders: z.array(GroupComponentOrder).nullish(),
   })
-  .passthrough();
+  .strict();
 const AdminAddSubscriberRequest = z
   .object({ email: z.string().min(1).email() })
-  .passthrough();
+  .strict();
 const CreateTagRequest = z
   .object({
     name: z.string().min(0).max(100),
@@ -1128,7 +1179,7 @@ const CreateTagRequest = z
       .regex(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/)
       .nullish(),
   })
-  .passthrough();
+  .strict();
 const UpdateTagRequest = z
   .object({
     name: z.string().min(0).max(100).nullable(),
@@ -1138,14 +1189,14 @@ const UpdateTagRequest = z
       .nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const CreateWebhookEndpointRequest = z
   .object({
     url: z.string().min(0).max(2048),
     description: z.string().min(0).max(255).nullish(),
     subscribedEvents: z.array(z.string().min(1)).min(1),
   })
-  .passthrough();
+  .strict();
 const UpdateWebhookEndpointRequest = z
   .object({
     url: z.string().min(0).max(2048).nullable(),
@@ -1154,21 +1205,19 @@ const UpdateWebhookEndpointRequest = z
     enabled: z.boolean().nullable(),
   })
   .partial()
-  .passthrough();
+  .strict();
 const TestWebhookEndpointRequest = z
   .object({ eventType: z.string().nullable() })
   .partial()
-  .passthrough();
-const CreateWorkspaceRequest = z
-  .object({ name: z.string().min(1) })
-  .passthrough();
+  .strict();
+const CreateWorkspaceRequest = z.object({ name: z.string().min(1) }).strict();
 const UpdateWorkspaceRequest = z
   .object({ name: z.string().min(0).max(200) })
-  .passthrough();
+  .strict();
 
 export const schemas = {
   pageable,
-  ChannelConfig,
+  ErrorResponse,
   DiscordChannelConfig,
   EmailChannelConfig,
   OpsGenieChannelConfig,
@@ -1193,14 +1242,12 @@ export const schemas = {
   UpdateMaintenanceWindowRequest,
   ChangeRoleRequest,
   ChangeStatusRequest,
-  MonitorConfig,
   DnsMonitorConfig,
   HeartbeatMonitorConfig,
   HttpMonitorConfig,
   IcmpMonitorConfig,
   McpServerMonitorConfig,
   TcpMonitorConfig,
-  AssertionConfig,
   BodyContainsAssertion,
   DnsExpectedCnameAssertion,
   DnsExpectedIpsAssertion,
@@ -1244,6 +1291,10 @@ export const schemas = {
   TcpResponseTimeAssertion,
   TcpResponseTimeWarnAssertion,
   CreateAssertionRequest,
+  BearerAuthConfig,
+  BasicAuthConfig,
+  HeaderAuthConfig,
+  ApiKeyAuthConfig,
   MonitorAuthConfig,
   TriggerRule,
   ConfirmationPolicy,
@@ -1256,10 +1307,6 @@ export const schemas = {
   RemoveMonitorTagsRequest,
   SetAlertChannelsRequest,
   UpdateAssertionRequest,
-  ApiKeyAuthConfig,
-  BasicAuthConfig,
-  BearerAuthConfig,
-  HeaderAuthConfig,
   UpdateMonitorAuthRequest,
   SetMonitorAuthRequest,
   BulkMonitorActionRequest,

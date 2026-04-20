@@ -1,13 +1,14 @@
-import {Command, Args} from '@oclif/core'
+import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../../lib/base-command.js'
 import {apiDelete} from '../../../lib/api-client.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesDomainsRemove extends Command {
   static description = 'Remove a custom domain from a status page'
   static examples = ['<%= config.bin %> status-pages domains remove <page-id> <domain-id>']
   static args = {
-    id: Args.string({description: 'Status page ID', required: true}),
-    'domain-id': Args.string({description: 'Domain ID', required: true}),
+    id: uuidArg({description: 'Status page ID', required: true}),
+    'domain-id': uuidArg({description: 'Domain ID', required: true}),
   }
   static flags = {...globalFlags}
 

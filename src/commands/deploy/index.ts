@@ -3,6 +3,7 @@ import {Command, Flags} from '@oclif/core'
 import {createApiClient, apiPost, apiDelete} from '../../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
 import {EXIT_CODES} from '../../lib/errors.js'
+import {urlFlag} from '../../lib/validators.js'
 import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, formatPlan, changesetToJson, apply, writeState, buildStateV2, readState, emptyState, processMovedBlocks, resourceAddress, StateFileCorruptError} from '../../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../../lib/yaml/entitlements.js'
 
@@ -68,7 +69,7 @@ export default class Deploy extends Command {
       description: 'Seconds to wait for a conflicting lock to release (0 = fail immediately)',
       default: 0,
     }),
-    'api-url': Flags.string({description: 'Override API base URL'}),
+    'api-url': urlFlag({description: 'Override API base URL'}),
     'api-token': Flags.string({description: 'Override API token'}),
     verbose: Flags.boolean({char: 'v', description: 'Show verbose output', default: false}),
   }

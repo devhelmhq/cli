@@ -2,6 +2,7 @@ import {Command, Flags} from '@oclif/core'
 import {createApiClient} from '../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../lib/auth.js'
 import {EXIT_CODES} from '../lib/errors.js'
+import {urlFlag} from '../lib/validators.js'
 import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, formatPlan, changesetToJson, readState, emptyState, previewMovedBlocks, StateFileCorruptError} from '../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../lib/yaml/entitlements.js'
 
@@ -42,7 +43,7 @@ export default class Plan extends Command {
       options: ['text', 'json'],
       default: 'text',
     }),
-    'api-url': Flags.string({description: 'Override API base URL'}),
+    'api-url': urlFlag({description: 'Override API base URL'}),
     'api-token': Flags.string({description: 'Override API token'}),
     verbose: Flags.boolean({char: 'v', description: 'Show verbose output', default: false}),
   }

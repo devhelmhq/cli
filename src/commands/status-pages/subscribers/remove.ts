@@ -1,13 +1,14 @@
-import {Command, Args} from '@oclif/core'
+import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../../lib/base-command.js'
 import {apiDelete} from '../../../lib/api-client.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesSubscribersRemove extends Command {
   static description = 'Remove a subscriber from a status page'
   static examples = ['<%= config.bin %> status-pages subscribers remove <page-id> <subscriber-id>']
   static args = {
-    id: Args.string({description: 'Status page ID', required: true}),
-    'subscriber-id': Args.string({description: 'Subscriber ID', required: true}),
+    id: uuidArg({description: 'Status page ID', required: true}),
+    'subscriber-id': uuidArg({description: 'Subscriber ID', required: true}),
   }
   static flags = {...globalFlags}
 

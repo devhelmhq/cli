@@ -1,11 +1,12 @@
-import {Command, Args} from '@oclif/core'
+import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
 import {checkedFetch} from '../../lib/api-client.js'
+import {uuidArg} from '../../lib/validators.js'
 
 export default class AlertChannelsTest extends Command {
   static description = 'Send a test notification to an alert channel'
   static examples = ['<%= config.bin %> alert-channels test <id>']
-  static args = {id: Args.string({description: 'Alert channel ID', required: true})}
+  static args = {id: uuidArg({description: 'Alert channel ID', required: true})}
   static flags = {...globalFlags}
 
   async run() {

@@ -1,11 +1,12 @@
-import {Command, Args} from '@oclif/core'
+import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
 import {checkedFetch} from '../../lib/api-client.js'
+import {uuidArg} from '../../lib/validators.js'
 
 export default class WebhooksTest extends Command {
   static description = 'Send a test event to a webhook'
   static examples = ['<%= config.bin %> webhooks test <id>']
-  static args = {id: Args.string({description: 'Webhook ID', required: true})}
+  static args = {id: uuidArg({description: 'Webhook ID', required: true})}
   static flags = {...globalFlags}
 
   async run() {

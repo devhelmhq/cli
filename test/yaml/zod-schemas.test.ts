@@ -451,6 +451,126 @@ describe('enum-parity (zod-schemas vs schema.ts)', () => {
   }
 })
 
+describe('enum validation', () => {
+  describe('matchRule type', () => {
+    it('accepts valid match rule types', () => {
+      for (const type of ['severity_gte', 'monitor_id_in', 'region_in', 'incident_status']) {
+        const result = DevhelmConfigSchema.safeParse({
+          notificationPolicies: [{
+            name: 'test',
+            escalation: {steps: [{channels: ['ops']}]},
+            matchRules: [{type, value: 'x'}],
+          }],
+        })
+        expect(result.success, `expected ${type} to be valid`).toBe(true)
+      }
+    })
+
+    it('rejects invalid match rule type', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        notificationPolicies: [{
+          name: 'test',
+          escalation: {steps: [{channels: ['ops']}]},
+          matchRules: [{type: 'bogus_rule', value: 'x'}],
+        }],
+      })
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe('retryStrategy type', () => {
+    it('accepts "fixed" retry strategy', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        resourceGroups: [{
+          name: 'core',
+          defaultRetryStrategy: {type: 'fixed', maxRetries: 3, interval: 10},
+        }],
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects unknown retry strategy type', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        resourceGroups: [{
+          name: 'core',
+          defaultRetryStrategy: {type: 'exponential', maxRetries: 3},
+        }],
+      })
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe('webhook subscribedEvents', () => {
+    it('accepts valid webhook event types', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        webhooks: [{
+          url: 'https://hooks.example.com/devhelm',
+          subscribedEvents: ['monitor.created', 'incident.resolved'],
+        }],
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects invalid webhook event type', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        webhooks: [{
+          url: 'https://hooks.example.com/devhelm',
+          subscribedEvents: ['monitor.created', 'totally.fake.event'],
+        }],
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects empty subscribedEvents', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        webhooks: [{
+          url: 'https://hooks.example.com/devhelm',
+          subscribedEvents: [],
+        }],
+      })
+      expect(result.success).toBe(false)
+    })
+  })
+})
+
+describe('strict nested schemas (no passthrough)', () => {
+  it('rejects unknown fields on assertion', () => {
+    const result = DevhelmConfigSchema.safeParse({
+      monitors: [{
+        name: 'X', type: 'HTTP',
+        config: {url: 'https://x', method: 'GET'},
+        assertions: [{
+          config: {type: 'status_code', expected: '200', operator: 'equals'},
+          severity: 'fail',
+          bogusField: 'nope',
+        }],
+      }],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects unknown fields on alert channel', () => {
+    const result = DevhelmConfigSchema.safeParse({
+      alertChannels: [{
+        name: 'ops',
+        config: {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/...'},
+        extraField: 'nope',
+      }],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts valid alert channel without extra fields', () => {
+    const result = DevhelmConfigSchema.safeParse({
+      alertChannels: [{
+        name: 'ops',
+        config: {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/...'},
+      }],
+    })
+    expect(result.success).toBe(true)
+  })
+})
+
 describe('formatZodErrors', () => {
   it('includes field path and message', () => {
     const result = DevhelmConfigSchema.safeParse({

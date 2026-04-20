@@ -2,90 +2,23 @@
 /**
  * Generate Zod schemas from the OpenAPI spec for CLI validation.
  *
- * Applies the same Springdoc preprocessing as the dashboard's sync-schema,
+ * Uses @devhelm/openapi-tools for preprocessing (shared with all surfaces),
  * then runs openapi-zod-client to produce typed Zod schemas that the YAML
  * validation layer imports.
  *
  * Usage: node scripts/generate-zod.mjs
- *
- * Preprocessing logic is kept in sync with packages/openapi-tools in the
- * monorepo. If you change preprocessing there, update it here too.
  */
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { preprocessSpec, rewriteUnionsAsDiscriminated } from './lib/preprocess.mjs';
 import { generateZodClientFromOpenAPI } from 'openapi-zod-client';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const SPEC_PATH = join(ROOT, 'docs/openapi/monitoring-api.json');
 const OUTPUT_PATH = join(ROOT, 'src/lib/api-zod.generated.ts');
-
-// ── Springdoc preprocessing (synced from packages/openapi-tools) ──────
-
-function setRequiredFields(spec) {
-  const schemas = spec.components?.schemas ?? {};
-  for (const schema of Object.values(schemas)) {
-    if (schema.type !== 'object' || !schema.properties) continue;
-    if (Array.isArray(schema.required)) {
-      for (const [prop, propSchema] of Object.entries(schema.properties)) {
-        if (propSchema.nullable) continue;
-        if (propSchema.oneOf && !schema.required.includes(prop)) {
-          schema.required.push(prop);
-        }
-      }
-      continue;
-    }
-    const required = [];
-    for (const [prop, propSchema] of Object.entries(schema.properties)) {
-      if (propSchema.nullable) continue;
-      if (propSchema.allOf) continue;
-      required.push(prop);
-    }
-    if (required.length > 0) schema.required = required;
-  }
-}
-
-function setRequiredOnAllOfMembers(spec) {
-  const schemas = spec.components?.schemas ?? {};
-  for (const schema of Object.values(schemas)) {
-    if (!Array.isArray(schema.allOf)) continue;
-    for (const member of schema.allOf) {
-      if (!member.properties) continue;
-      if (Array.isArray(member.required)) continue;
-      const required = [];
-      for (const [prop, propSchema] of Object.entries(member.properties)) {
-        if (propSchema.nullable) continue;
-        if (propSchema.allOf) continue;
-        required.push(prop);
-      }
-      if (required.length > 0) member.required = required;
-    }
-  }
-}
-
-function pushRequiredIntoAllOf(spec) {
-  const schemas = spec.components?.schemas ?? {};
-  for (const schema of Object.values(schemas)) {
-    if (!Array.isArray(schema.required) || !Array.isArray(schema.allOf)) continue;
-    for (const member of schema.allOf) {
-      if (!member.properties) continue;
-      const memberRequired = [];
-      for (const field of schema.required) {
-        if (field in member.properties) memberRequired.push(field);
-      }
-      if (memberRequired.length > 0) {
-        member.required = member.required
-          ? [...new Set([...member.required, ...memberRequired])]
-          : memberRequired;
-      }
-    }
-  }
-}
-
-// ── Post-processing (strip Zodios client, keep only Zod schemas) ─────
-// Same approach as sdk-js/scripts/generate-schemas.js
 
 function extractSchemas(raw) {
   const lines = raw.split('\n');
@@ -99,16 +32,109 @@ function extractSchemas(raw) {
     kept.join('\n') + '\n';
 }
 
-// ── Main ──────────────────────────────────────────────────────────────
+const FACTS_PATH = join(ROOT, 'src/lib/spec-facts.generated.ts');
+
+/**
+ * Extract enum values and constraints from the OpenAPI spec to produce
+ * a spec-facts file. These constants replace hand-maintained arrays in
+ * zod-schemas.ts and schema.ts — if the API adds a new enum value or
+ * changes a constraint, re-running zodgen picks it up automatically.
+ */
+function generateSpecFacts(spec) {
+  const schemas = spec.components?.schemas ?? {};
+
+  function enumsFrom(schemaName, propName) {
+    const s = schemas[schemaName];
+    if (!s) return null;
+    if (s.properties?.[propName]?.enum) return s.properties[propName].enum;
+    // Array-typed property whose items carry the enum
+    // (e.g. DnsMonitorConfig.recordTypes is `string[]` with enum on items).
+    if (s.properties?.[propName]?.items?.enum) {
+      return s.properties[propName].items.enum;
+    }
+    if (s.allOf) {
+      for (const member of s.allOf) {
+        if (member.properties?.[propName]?.enum) return member.properties[propName].enum;
+        if (member.properties?.[propName]?.items?.enum) return member.properties[propName].items.enum;
+      }
+    }
+    return null;
+  }
+
+  const facts = {
+    MONITOR_TYPES: enumsFrom('CreateMonitorRequest', 'type'),
+    HTTP_METHODS: enumsFrom('HttpMonitorConfig', 'method'),
+    DNS_RECORD_TYPES: enumsFrom('DnsMonitorConfig', 'recordTypes'),
+    INCIDENT_SEVERITIES: enumsFrom('CreateManualIncidentRequest', 'severity'),
+    ASSERTION_SEVERITIES: enumsFrom('CreateAssertionRequest', 'severity'),
+    CHANNEL_TYPES: enumsFrom('AlertChannelDto', 'channelType'),
+    TRIGGER_RULE_TYPES: enumsFrom('TriggerRule', 'type'),
+    TRIGGER_SCOPES: enumsFrom('TriggerRule', 'scope'),
+    TRIGGER_SEVERITIES: enumsFrom('TriggerRule', 'severity'),
+    TRIGGER_AGGREGATIONS: enumsFrom('TriggerRule', 'aggregationType'),
+    ALERT_SENSITIVITIES: enumsFrom('ServiceSubscriptionDto', 'alertSensitivity'),
+    HEALTH_THRESHOLD_TYPES: enumsFrom('CreateResourceGroupRequest', 'healthThresholdType'),
+    STATUS_PAGE_VISIBILITIES: enumsFrom('CreateStatusPageRequest', 'visibility'),
+    STATUS_PAGE_INCIDENT_MODES: enumsFrom('CreateStatusPageRequest', 'incidentMode'),
+    STATUS_PAGE_COMPONENT_TYPES: enumsFrom('CreateStatusPageComponentRequest', 'type'),
+    SP_INCIDENT_IMPACTS: enumsFrom('CreateStatusPageIncidentRequest', 'impact'),
+    SP_INCIDENT_STATUSES: enumsFrom('CreateStatusPageIncidentRequest', 'status'),
+    AUTH_TYPES: enumsFrom('MonitorAuthDto', 'authType'),
+    MANAGED_BY: enumsFrom('CreateMonitorRequest', 'managedBy'),
+    // ``operator`` is duplicated across StatusCodeAssertion, HeaderValueAssertion,
+    // JsonPathAssertion, ResponseSizeAssertion, etc. — pull from one
+    // representative schema. The validator and Zod layer share this single
+    // tuple so a spec change to the comparison operators is picked up
+    // automatically by re-running ``zodgen``.
+    COMPARISON_OPERATORS: enumsFrom('StatusCodeAssertion', 'operator'),
+  };
+
+  const lines = [
+    '// Auto-generated from OpenAPI spec. DO NOT EDIT.',
+    '// Re-run `npm run zodgen` to regenerate.',
+    '',
+  ];
+
+  for (const [name, values] of Object.entries(facts)) {
+    if (!values) {
+      lines.push(`// WARNING: ${name} — enum not found in spec`);
+      continue;
+    }
+    const items = values.map(v => `'${v}'`).join(', ');
+    lines.push(`export const ${name} = [${items}] as const`);
+    const typeName = name.split('_').map(w => w[0] + w.slice(1).toLowerCase()).join('');
+    lines.push(`export type ${typeName} = (typeof ${name})[number]`);
+    lines.push('');
+  }
+
+  writeFileSync(FACTS_PATH, lines.join('\n') + '\n', 'utf8');
+  console.log(`Generated spec facts (${Object.keys(facts).length} enums) → ${FACTS_PATH}`);
+}
 
 async function main() {
   console.log('Reading spec from', SPEC_PATH);
   const spec = JSON.parse(readFileSync(SPEC_PATH, 'utf8'));
 
-  setRequiredFields(spec);
-  setRequiredOnAllOfMembers(spec);
-  pushRequiredIntoAllOf(spec);
+  const { flattened, inlinedDiscriminators, inlinedNullableDeductions } =
+    preprocessSpec(spec);
   console.log(`Preprocessed spec (${Object.keys(spec.components?.schemas ?? {}).length} schemas)`);
+  if (flattened.length > 0) {
+    console.log(`  Flattened circular oneOf: ${flattened.join(', ')}`);
+  }
+  if (inlinedDiscriminators.length > 0) {
+    console.log(
+      `  Inlined discriminator subtypes: ${inlinedDiscriminators
+        .map((u) => `${u.parent}(${u.discriminator})`)
+        .join(', ')}`,
+    );
+  }
+  if (inlinedNullableDeductions && inlinedNullableDeductions.length > 0) {
+    console.log(
+      `  Inlined nullable deduction refs for: ${inlinedNullableDeductions.join(', ')}`,
+    );
+  }
+
+  generateSpecFacts(spec);
 
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
 
@@ -117,11 +143,20 @@ async function main() {
     distPath: OUTPUT_PATH,
     options: {
       exportSchemas: true,
+      // Strict objects everywhere — generated `.passthrough()` calls erase
+      // type narrowing in consumers (e.g. CLI YAML validators). Also
+      // required so `z.union([...])` correctly rejects non-matching
+      // variants instead of silently stripping subtype-specific fields.
+      additionalPropertiesDefaultValue: false,
+      strictObjects: true,
     },
   });
 
   const raw = readFileSync(OUTPUT_PATH, 'utf8');
-  const clean = extractSchemas(raw);
+  let clean = extractSchemas(raw);
+  // Post-process: convert `z.union([...])` → `z.discriminatedUnion("type", [...])`
+  // for hierarchies the preprocessor inlined.
+  clean = rewriteUnionsAsDiscriminated(clean, inlinedDiscriminators);
   writeFileSync(OUTPUT_PATH, clean, 'utf8');
 
   const schemaCount = (clean.match(/^const /gm) || []).length;

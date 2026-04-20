@@ -21,7 +21,7 @@ jobs:
 
       - name: Download latest OpenAPI spec from monorepo
         run: |
-          gh api repos/devhelmhq/mono/contents/docs/openapi/monitoring-api.yaml \
+          gh api repos/devhelmhq/mono/contents/docs/openapi/monitoring-api.json \
             -H "Accept: application/vnd.github.raw+json" \
             -o docs/openapi/monitoring-api.json
         env:

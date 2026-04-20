@@ -1,14 +1,15 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import type {components} from '../../../lib/api.generated.js'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {fetchPaginated} from '../../../lib/typed-api.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 type StatusPageIncident = components['schemas']['StatusPageIncidentDto']
 
 export default class StatusPagesIncidentsList extends Command {
   static description = 'List incidents on a status page'
   static examples = ['<%= config.bin %> status-pages incidents list <page-id>']
-  static args = {id: Args.string({description: 'Status page ID', required: true})}
+  static args = {id: uuidArg({description: 'Status page ID', required: true})}
   static flags = {
     ...globalFlags,
     limit: Flags.integer({description: 'Maximum number of incidents to show', default: 20}),

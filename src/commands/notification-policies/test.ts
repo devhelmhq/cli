@@ -1,11 +1,12 @@
-import {Command, Args} from '@oclif/core'
+import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
 import {checkedFetch} from '../../lib/api-client.js'
+import {uuidArg} from '../../lib/validators.js'
 
 export default class NotificationPoliciesTest extends Command {
   static description = 'Test a notification policy'
   static examples = ['<%= config.bin %> notification-policies test <id>']
-  static args = {id: Args.string({description: 'Policy ID', required: true})}
+  static args = {id: uuidArg({description: 'Policy ID', required: true})}
   static flags = {...globalFlags}
 
   async run() {

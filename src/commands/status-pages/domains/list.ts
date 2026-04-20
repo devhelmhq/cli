@@ -1,14 +1,15 @@
-import {Command, Args} from '@oclif/core'
+import {Command} from '@oclif/core'
 import type {components} from '../../../lib/api.generated.js'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {fetchPaginated} from '../../../lib/typed-api.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 type StatusPageCustomDomain = components['schemas']['StatusPageCustomDomainDto']
 
 export default class StatusPagesDomainsList extends Command {
   static description = 'List custom domains on a status page'
   static examples = ['<%= config.bin %> status-pages domains list <page-id>']
-  static args = {id: Args.string({description: 'Status page ID', required: true})}
+  static args = {id: uuidArg({description: 'Status page ID', required: true})}
   static flags = {...globalFlags}
 
   async run() {

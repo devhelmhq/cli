@@ -10,7 +10,7 @@ import {parse as parseYaml} from 'yaml'
 
 import type {DevhelmConfig, YamlMonitor, YamlMonitorDefaults} from './schema.js'
 import {YAML_SECTION_KEYS} from './schema.js'
-import {interpolate, findMissingVariables} from './interpolation.js'
+import {interpolateObject, findMissingVariablesInObject} from './interpolation.js'
 import {DevhelmConfigSchema, formatZodErrors} from './zod-schemas.js'
 
 export class ParseError extends Error {
@@ -31,9 +31,19 @@ export function parseConfigFile(filePath: string, resolveEnv = true): DevhelmCon
 
   const raw = readFileSync(absPath, 'utf8')
 
-  let interpolated: string
+  let parsed: unknown
+  try {
+    parsed = parseYaml(raw)
+  } catch (err) {
+    throw new ParseError(`Invalid YAML: ${err instanceof Error ? err.message : String(err)}`, filePath)
+  }
+
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new ParseError('Config file is empty or not a YAML object', filePath)
+  }
+
   if (resolveEnv) {
-    const missing = findMissingVariables(raw)
+    const missing = findMissingVariablesInObject(parsed)
     if (missing.length > 0) {
       throw new ParseError(
         `Missing required environment variables: ${missing.join(', ')}. ` +
@@ -41,20 +51,7 @@ export function parseConfigFile(filePath: string, resolveEnv = true): DevhelmCon
         filePath,
       )
     }
-    interpolated = interpolate(raw)
-  } else {
-    interpolated = raw
-  }
-
-  let parsed: unknown
-  try {
-    parsed = parseYaml(interpolated)
-  } catch (err) {
-    throw new ParseError(`Invalid YAML: ${err instanceof Error ? err.message : String(err)}`, filePath)
-  }
-
-  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new ParseError('Config file is empty or not a YAML object', filePath)
+    parsed = interpolateObject(parsed)
   }
 
   const result = DevhelmConfigSchema.safeParse(parsed)
