@@ -9,6 +9,13 @@ const pageable = z
     sort: z.array(z.string()),
   })
   .passthrough();
+const ErrorResponse = z
+  .object({
+    status: z.number().int(),
+    message: z.string(),
+    timestamp: z.number().int(),
+  })
+  .passthrough();
 const ChannelConfig = z.object({ channelType: z.string() }).passthrough();
 const DiscordChannelConfig = ChannelConfig.and(
   z
@@ -164,7 +171,10 @@ const CreateManualIncidentRequest = z
     body: z.string().nullish(),
   })
   .passthrough();
-const ResolveIncidentRequest = z.object({ body: z.string() }).passthrough();
+const ResolveIncidentRequest = z
+  .object({ body: z.string().nullable() })
+  .partial()
+  .passthrough();
 const AddIncidentUpdateRequest = z
   .object({
     body: z.string().nullish(),
@@ -514,7 +524,7 @@ const CreateAssertionRequest = z
       TcpResponseTimeAssertion,
       TcpResponseTimeWarnAssertion,
     ]),
-    severity: z.enum(["fail", "warn"]),
+    severity: z.enum(["fail", "warn"]).nullish(),
   })
   .passthrough();
 const MonitorAuthConfig = z.object({ type: z.string() }).passthrough();
@@ -771,10 +781,10 @@ const EscalationChain = z
 const CreateNotificationPolicyRequest = z
   .object({
     name: z.string().min(0).max(255),
-    matchRules: z.array(MatchRule),
+    matchRules: z.array(MatchRule).nullish(),
     escalation: EscalationChain,
-    enabled: z.boolean().default(true),
-    priority: z.number().int().default(0),
+    enabled: z.boolean().nullish().default(true),
+    priority: z.number().int().nullish().default(0),
   })
   .passthrough();
 const UpdateNotificationPolicyRequest = z
@@ -1169,6 +1179,7 @@ const UpdateWorkspaceRequest = z
 
 export const schemas = {
   pageable,
+  ErrorResponse,
   ChannelConfig,
   DiscordChannelConfig,
   EmailChannelConfig,

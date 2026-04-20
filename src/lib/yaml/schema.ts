@@ -268,8 +268,8 @@ export type YamlChannelConfig =
 
 export interface YamlRetryStrategy {
   type: string
-  maxRetries?: number
-  interval?: number
+  maxRetries: number
+  interval: number
 }
 
 // ── Top-level YAML resource types ──────────────────────────────────────

@@ -30,7 +30,7 @@ export function toCreateEnvironmentRequest(env: YamlEnvironment): Schemas['Creat
     name: env.name,
     slug: env.slug,
     variables: env.variables ?? null,
-    isDefault: env.isDefault,
+    isDefault: env.isDefault ?? false,
   }
 }
 

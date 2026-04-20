@@ -284,8 +284,8 @@ export const ChannelConfigSchema = z.union([
 
 const RetryStrategySchema = z.object({
   type: z.enum(RETRY_STRATEGY_TYPES),
-  maxRetries: z.number().int().positive().optional(),
-  interval: z.number().int().positive().optional(),
+  maxRetries: z.number().int().positive(),
+  interval: z.number().int().positive(),
 }).strict()
 
 // ── Top-level resource schemas ───────────────────────────────────────

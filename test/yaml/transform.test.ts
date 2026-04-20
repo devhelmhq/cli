@@ -63,10 +63,10 @@ describe('transforms', () => {
       expect(req.variables).toBeNull()
     })
 
-    it('defaults isDefault to undefined', () => {
+    it('defaults isDefault to false (API requires the field)', () => {
       const env: YamlEnvironment = {name: 'CI', slug: 'ci'}
       const req = toCreateEnvironmentRequest(env)
-      expect(req.isDefault).toBeUndefined()
+      expect(req.isDefault).toBe(false)
     })
   })
 
