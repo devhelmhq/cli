@@ -204,6 +204,116 @@ export function flattenCircularOneOf(spec) {
   return flattened;
 }
 
+/**
+ * Rewrite `{nullable: true, allOf: [{$ref: Parent}]}` wrappers into an
+ * inline `oneOf` of subtype refs, for Jackson `Id.DEDUCTION` hierarchies
+ * (e.g. `MonitorConfig`) where Springdoc emits an abstract empty parent.
+ *
+ * Without this pass, `UpdateMonitorRequest.config` resolves to an empty
+ * `z.object({})` and silently strips the entire config body.
+ */
+export function inlineNullableDeductionRefs(spec) {
+  const schemas = getSchemas(spec);
+  const rewritten = new Set();
+
+  const abstractParents = new Set();
+  for (const [name, schema] of Object.entries(schemas)) {
+    const isAbstract =
+      !schema.oneOf &&
+      !schema.properties &&
+      !schema.allOf &&
+      (schema.type === 'object' || schema.type === undefined);
+    if (isAbstract) abstractParents.add(name);
+  }
+  if (abstractParents.size === 0) return [];
+
+  const subtypesByParent = new Map();
+  for (const parent of abstractParents) {
+    const parentRef = `#/components/schemas/${parent}`;
+    const subs = [];
+    for (const [name, schema] of Object.entries(schemas)) {
+      if (name === parent) continue;
+      if (!Array.isArray(schema.allOf)) continue;
+      const hasBackref = schema.allOf.some(
+        (m) => '$ref' in m && m.$ref === parentRef,
+      );
+      if (hasBackref) subs.push(name);
+    }
+    if (subs.length >= 2) subtypesByParent.set(parent, subs);
+  }
+  if (subtypesByParent.size === 0) return [];
+
+  // Flatten each subtype: drop the `{$ref: parent}` entry so generated codegens
+  // don't intersect the subtype with the empty strict parent.
+  for (const [parent, subs] of subtypesByParent) {
+    const parentRef = `#/components/schemas/${parent}`;
+    for (const subName of subs) {
+      const sub = schemas[subName];
+      if (!sub || !Array.isArray(sub.allOf)) continue;
+      const remaining = sub.allOf.filter(
+        (m) => !('$ref' in m) || m.$ref !== parentRef,
+      );
+      if (remaining.length === sub.allOf.length) continue;
+      if (remaining.length === 0) {
+        delete sub.allOf;
+      } else if (remaining.length === 1 && isSchemaObj(remaining[0])) {
+        const inline = remaining[0];
+        delete sub.allOf;
+        if (inline.type && !sub.type) sub.type = inline.type;
+        if (inline.properties) {
+          sub.properties = { ...(sub.properties ?? {}), ...inline.properties };
+        }
+        if (Array.isArray(inline.required)) {
+          const merged = new Set([
+            ...(sub.required ?? []),
+            ...inline.required,
+          ]);
+          sub.required = Array.from(merged);
+        }
+        if (
+          inline.additionalProperties !== undefined &&
+          sub.additionalProperties === undefined
+        ) {
+          sub.additionalProperties = inline.additionalProperties;
+        }
+      } else {
+        sub.allOf = remaining;
+      }
+    }
+  }
+
+  const visit = (schema) => {
+    if (!isSchemaObj(schema)) return;
+    const props = schema.properties;
+    if (props) {
+      for (const raw of Object.values(props)) {
+        if (!isSchemaObj(raw)) continue;
+        if (Array.isArray(raw.allOf) && raw.allOf.length === 1) {
+          const m = raw.allOf[0];
+          if ('$ref' in m && typeof m.$ref === 'string') {
+            const n = m.$ref.split('/').pop();
+            const subs = n ? subtypesByParent.get(n) : undefined;
+            if (subs && n) {
+              delete raw.allOf;
+              raw.oneOf = subs.map((s) => ({
+                $ref: `#/components/schemas/${s}`,
+              }));
+              rewritten.add(n);
+            }
+          }
+        }
+        visit(raw);
+      }
+    }
+    if (Array.isArray(schema.allOf)) for (const m of schema.allOf) visit(m);
+    if (Array.isArray(schema.oneOf)) for (const m of schema.oneOf) visit(m);
+    if (Array.isArray(schema.anyOf)) for (const m of schema.anyOf) visit(m);
+  };
+  for (const schema of Object.values(schemas)) visit(schema);
+
+  return Array.from(rewritten);
+}
+
 export function preprocessSpec(spec) {
   setRequiredFields(spec);
   setRequiredOnAllOfMembers(spec);
@@ -212,8 +322,11 @@ export function preprocessSpec(spec) {
   // don't accidentally drop the parent oneOf we just installed (the cycle
   // is broken once subtypes no longer back-reference the parent).
   const inlinedDiscriminators = inlineDiscriminatorSubtypesWithInfo(spec);
+  // Must run AFTER the discriminator pass so we don't misidentify proper
+  // discriminator-based parents as abstract/empty ones.
+  const inlinedNullableDeductions = inlineNullableDeductionRefs(spec);
   const flattened = flattenCircularOneOf(spec);
-  return { flattened, inlinedDiscriminators };
+  return { flattened, inlinedDiscriminators, inlinedNullableDeductions };
 }
 
 /**

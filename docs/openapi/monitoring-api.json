@@ -23543,68 +23543,57 @@
           "hostname"
         ],
         "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MonitorConfig"
+        "properties": {
+          "hostname": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Domain name to resolve"
           },
-          {
-            "type": "object",
-            "properties": {
-              "hostname": {
-                "minLength": 1,
-                "type": "string",
-                "description": "Domain name to resolve"
-              },
-              "recordTypes": {
-                "type": "array",
-                "description": "DNS record types to query: A, AAAA, CNAME, MX, NS, TXT, SRV, SOA, CAA, PTR",
-                "nullable": true,
-                "items": {
-                  "type": "string",
-                  "description": "DNS record types to query: A, AAAA, CNAME, MX, NS, TXT, SRV, SOA, CAA, PTR",
-                  "nullable": true,
-                  "enum": [
-                    "A",
-                    "AAAA",
-                    "CNAME",
-                    "MX",
-                    "NS",
-                    "TXT",
-                    "SRV",
-                    "SOA",
-                    "CAA",
-                    "PTR"
-                  ]
-                }
-              },
-              "nameservers": {
-                "type": "array",
-                "description": "Custom nameservers to query (uses system defaults if omitted)",
-                "nullable": true,
-                "items": {
-                  "type": "string",
-                  "description": "Custom nameservers to query (uses system defaults if omitted)",
-                  "nullable": true
-                }
-              },
-              "timeoutMs": {
-                "type": "integer",
-                "description": "Per-query timeout in milliseconds",
-                "format": "int32",
-                "nullable": true
-              },
-              "totalTimeoutMs": {
-                "type": "integer",
-                "description": "Total timeout for all queries in milliseconds",
-                "format": "int32",
-                "nullable": true
-              }
-            },
-            "required": [
-              "hostname"
-            ]
+          "recordTypes": {
+            "type": "array",
+            "description": "DNS record types to query: A, AAAA, CNAME, MX, NS, TXT, SRV, SOA, CAA, PTR",
+            "nullable": true,
+            "items": {
+              "type": "string",
+              "description": "DNS record types to query: A, AAAA, CNAME, MX, NS, TXT, SRV, SOA, CAA, PTR",
+              "nullable": true,
+              "enum": [
+                "A",
+                "AAAA",
+                "CNAME",
+                "MX",
+                "NS",
+                "TXT",
+                "SRV",
+                "SOA",
+                "CAA",
+                "PTR"
+              ]
+            }
+          },
+          "nameservers": {
+            "type": "array",
+            "description": "Custom nameservers to query (uses system defaults if omitted)",
+            "nullable": true,
+            "items": {
+              "type": "string",
+              "description": "Custom nameservers to query (uses system defaults if omitted)",
+              "nullable": true
+            }
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "description": "Per-query timeout in milliseconds",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalTimeoutMs": {
+            "type": "integer",
+            "description": "Total timeout for all queries in milliseconds",
+            "format": "int32",
+            "nullable": true
           }
-        ]
+        }
       },
       "DnsRecordContainsAssertion": {
         "required": [
@@ -24210,33 +24199,21 @@
           "gracePeriod"
         ],
         "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MonitorConfig"
+        "properties": {
+          "expectedInterval": {
+            "maximum": 86400,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Expected heartbeat interval in seconds",
+            "format": "int32"
           },
-          {
-            "type": "object",
-            "properties": {
-              "expectedInterval": {
-                "maximum": 86400,
-                "minimum": 1,
-                "type": "integer",
-                "description": "Expected heartbeat interval in seconds",
-                "format": "int32"
-              },
-              "gracePeriod": {
-                "minimum": 1,
-                "type": "integer",
-                "description": "Grace period in seconds before marking as down",
-                "format": "int32"
-              }
-            },
-            "required": [
-              "expectedInterval",
-              "gracePeriod"
-            ]
+          "gracePeriod": {
+            "minimum": 1,
+            "type": "integer",
+            "description": "Grace period in seconds before marking as down",
+            "format": "int32"
           }
-        ]
+        }
       },
       "HeartbeatPayloadContainsAssertion": {
         "required": [
@@ -24327,62 +24304,50 @@
           "url"
         ],
         "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MonitorConfig"
+        "properties": {
+          "url": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Target URL to send requests to"
           },
-          {
-            "type": "object",
-            "properties": {
-              "url": {
-                "minLength": 1,
-                "type": "string",
-                "description": "Target URL to send requests to"
-              },
-              "method": {
-                "type": "string",
-                "description": "HTTP method: GET, POST, PUT, PATCH, DELETE, or HEAD",
-                "enum": [
-                  "GET",
-                  "POST",
-                  "PUT",
-                  "PATCH",
-                  "DELETE",
-                  "HEAD"
-                ]
-              },
-              "customHeaders": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "string",
-                  "description": "Additional HTTP headers to include in requests",
-                  "nullable": true
-                },
-                "description": "Additional HTTP headers to include in requests",
-                "nullable": true
-              },
-              "requestBody": {
-                "type": "string",
-                "description": "Request body content for POST/PUT/PATCH methods",
-                "nullable": true
-              },
-              "contentType": {
-                "type": "string",
-                "description": "Content-Type header value for the request body",
-                "nullable": true
-              },
-              "verifyTls": {
-                "type": "boolean",
-                "description": "Whether to verify TLS certificates (default: true)",
-                "nullable": true
-              }
-            },
-            "required": [
-              "url",
-              "method"
+          "method": {
+            "type": "string",
+            "description": "HTTP method: GET, POST, PUT, PATCH, DELETE, or HEAD",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE",
+              "HEAD"
             ]
+          },
+          "customHeaders": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Additional HTTP headers to include in requests",
+              "nullable": true
+            },
+            "description": "Additional HTTP headers to include in requests",
+            "nullable": true
+          },
+          "requestBody": {
+            "type": "string",
+            "description": "Request body content for POST/PUT/PATCH methods",
+            "nullable": true
+          },
+          "contentType": {
+            "type": "string",
+            "description": "Content-Type header value for the request body",
+            "nullable": true
+          },
+          "verifyTls": {
+            "type": "boolean",
+            "description": "Whether to verify TLS certificates (default: true)",
+            "nullable": true
           }
-        ]
+        }
       },
       "Icmp": {
         "required": [
@@ -24453,38 +24418,27 @@
           "host"
         ],
         "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MonitorConfig"
+        "properties": {
+          "host": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Target hostname or IP address to ping"
           },
-          {
-            "type": "object",
-            "properties": {
-              "host": {
-                "minLength": 1,
-                "type": "string",
-                "description": "Target hostname or IP address to ping"
-              },
-              "packetCount": {
-                "maximum": 20,
-                "minimum": 1,
-                "type": "integer",
-                "description": "Number of ICMP packets to send",
-                "format": "int32",
-                "nullable": true
-              },
-              "timeoutMs": {
-                "type": "integer",
-                "description": "Ping timeout in milliseconds",
-                "format": "int32",
-                "nullable": true
-              }
-            },
-            "required": [
-              "host"
-            ]
+          "packetCount": {
+            "maximum": 20,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Number of ICMP packets to send",
+            "format": "int32",
+            "nullable": true
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "description": "Ping timeout in milliseconds",
+            "format": "int32",
+            "nullable": true
           }
-        ]
+        }
       },
       "IcmpPacketLossAssertion": {
         "type": "object",
@@ -25686,44 +25640,33 @@
           "command"
         ],
         "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MonitorConfig"
+        "properties": {
+          "command": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Command to execute to start the MCP server"
           },
-          {
+          "args": {
+            "type": "array",
+            "description": "Command-line arguments for the MCP server process",
+            "nullable": true,
+            "items": {
+              "type": "string",
+              "description": "Command-line arguments for the MCP server process",
+              "nullable": true
+            }
+          },
+          "env": {
             "type": "object",
-            "properties": {
-              "command": {
-                "minLength": 1,
-                "type": "string",
-                "description": "Command to execute to start the MCP server"
-              },
-              "args": {
-                "type": "array",
-                "description": "Command-line arguments for the MCP server process",
-                "nullable": true,
-                "items": {
-                  "type": "string",
-                  "description": "Command-line arguments for the MCP server process",
-                  "nullable": true
-                }
-              },
-              "env": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "string",
-                  "description": "Environment variables to pass to the MCP server process",
-                  "nullable": true
-                },
-                "description": "Environment variables to pass to the MCP server process",
-                "nullable": true
-              }
+            "additionalProperties": {
+              "type": "string",
+              "description": "Environment variables to pass to the MCP server process",
+              "nullable": true
             },
-            "required": [
-              "command"
-            ]
+            "description": "Environment variables to pass to the MCP server process",
+            "nullable": true
           }
-        ]
+        }
       },
       "McpToolAvailableAssertion": {
         "required": [
@@ -26091,10 +26034,6 @@
             ]
           }
         }
-      },
-      "MonitorConfig": {
-        "type": "object",
-        "description": "Protocol-specific monitor configuration; concrete type is deduced from the JSON shape"
       },
       "MonitorDto": {
         "required": [
@@ -31326,41 +31265,30 @@
       },
       "TcpMonitorConfig": {
         "required": [
-          "host"
+          "host",
+          "port"
         ],
         "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MonitorConfig"
+        "properties": {
+          "host": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Target hostname or IP address"
           },
-          {
-            "type": "object",
-            "properties": {
-              "host": {
-                "minLength": 1,
-                "type": "string",
-                "description": "Target hostname or IP address"
-              },
-              "port": {
-                "maximum": 65535,
-                "minimum": 1,
-                "type": "integer",
-                "description": "TCP port to connect to",
-                "format": "int32"
-              },
-              "timeoutMs": {
-                "type": "integer",
-                "description": "Connection timeout in milliseconds",
-                "format": "int32",
-                "nullable": true
-              }
-            },
-            "required": [
-              "host",
-              "port"
-            ]
+          "port": {
+            "maximum": 65535,
+            "minimum": 1,
+            "type": "integer",
+            "description": "TCP port to connect to",
+            "format": "int32"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "description": "Connection timeout in milliseconds",
+            "format": "int32",
+            "nullable": true
           }
-        ]
+        }
       },
       "TcpResponseTimeAssertion": {
         "type": "object",
@@ -32046,9 +31974,24 @@
           },
           "config": {
             "nullable": true,
-            "allOf": [
+            "oneOf": [
               {
-                "$ref": "#/components/schemas/MonitorConfig"
+                "$ref": "#/components/schemas/DnsMonitorConfig"
+              },
+              {
+                "$ref": "#/components/schemas/HeartbeatMonitorConfig"
+              },
+              {
+                "$ref": "#/components/schemas/HttpMonitorConfig"
+              },
+              {
+                "$ref": "#/components/schemas/IcmpMonitorConfig"
+              },
+              {
+                "$ref": "#/components/schemas/McpServerMonitorConfig"
+              },
+              {
+                "$ref": "#/components/schemas/TcpMonitorConfig"
               }
             ]
           },

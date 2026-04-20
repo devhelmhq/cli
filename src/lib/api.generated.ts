@@ -2458,7 +2458,12 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
-        ApiKeyAuthConfig: Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+        ApiKeyAuthConfig: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "api_key";
             /** @description HTTP header name that carries the API key */
             headerName: string;
             /**
@@ -2466,12 +2471,6 @@ export interface components {
              * @description Vault secret ID for the API key value
              */
             vaultSecretId?: string | null;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "api_key";
         };
         /** @description Created API key with the full key value — store it now, it won't be shown again */
         ApiKeyCreateResponse: {
@@ -2531,10 +2530,6 @@ export interface components {
              * @description Timestamp when the key expires; null if no expiration
              */
             expiresAt?: string | null;
-        };
-        /** @description New assertion configuration (full replacement) */
-        AssertionConfig: {
-            type: string;
         };
         /** @description Result of evaluating a single assertion against a check result */
         AssertionResultDto: {
@@ -2621,18 +2616,17 @@ export interface components {
             plan: components["schemas"]["PlanInfo"];
             rateLimits: components["schemas"]["RateLimitInfo"];
         };
-        BasicAuthConfig: Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
-            /**
-             * Format: uuid
-             * @description Vault secret ID holding Basic auth username and password
-             */
-            vaultSecretId?: string | null;
-        } & {
+        BasicAuthConfig: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             type: "basic";
+            /**
+             * Format: uuid
+             * @description Vault secret ID holding Basic auth username and password
+             */
+            vaultSecretId?: string | null;
         };
         /** @description Batch daily uptime per component, keyed by component ID */
         BatchComponentUptimeDto: {
@@ -2641,28 +2635,23 @@ export interface components {
                 [key: string]: components["schemas"]["ComponentUptimeDayDto"][];
             };
         };
-        BearerAuthConfig: Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
-            /**
-             * Format: uuid
-             * @description Vault secret ID holding the bearer token value
-             */
-            vaultSecretId?: string | null;
-        } & {
+        BearerAuthConfig: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             type: "bearer";
+            /**
+             * Format: uuid
+             * @description Vault secret ID holding the bearer token value
+             */
+            vaultSecretId?: string | null;
         };
-        BodyContainsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        BodyContainsAssertion: {
+            /** @enum {string} */
+            type: "body_contains";
             /** @description Substring that must appear in the response body */
             substring: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "body_contains";
         };
         /** @description Request body for performing a bulk action on multiple monitors */
         BulkMonitorActionRequest: {
@@ -2710,10 +2699,6 @@ export interface components {
              * @enum {string}
              */
             status: "INVITED" | "ACTIVE" | "SUSPENDED" | "LEFT" | "REMOVED" | "DECLINED";
-        };
-        /** @description New channel configuration (full replacement, not partial update) */
-        ChannelConfig: {
-            channelType: string;
         };
         /** @description Aggregated metrics for a time bucket */
         ChartBucketDto: {
@@ -2821,9 +2806,7 @@ export interface components {
             checkId?: string | null;
         };
         /** @description Check-type-specific details — polymorphic by check_type discriminator */
-        CheckTypeDetailsDto: {
-            check_type: string;
-        };
+        CheckTypeDetailsDto: components["schemas"]["Http"] | components["schemas"]["Tcp"] | components["schemas"]["Icmp"] | components["schemas"]["Dns"] | components["schemas"]["McpServer"];
         /** @description One component's uptime contribution for the day */
         ComponentImpact: {
             /**
@@ -3454,20 +3437,21 @@ export interface components {
              */
             expiresAt: string;
         };
-        DiscordChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        DiscordChannelConfig: {
+            /** @enum {string} */
+            channelType: "discord";
             /** @description Discord webhook URL */
             webhookUrl: string;
             /** @description Optional Discord role ID to mention in notifications */
             mentionRoleId?: string | null;
-        } & {
+        };
+        /** @description DNS check-type-specific details */
+        Dns: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            channelType: "discord";
-        };
-        /** @description DNS check-type-specific details */
-        Dns: Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
+            check_type: "dns";
             /** @description Target hostname */
             hostname?: string | null;
             /** @description Requested DNS record types */
@@ -3486,34 +3470,22 @@ export interface components {
             } | null)[] | null;
             /** @description Kind of DNS failure, if any */
             failureKind?: string | null;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            check_type: "dns";
         };
-        DnsExpectedCnameAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsExpectedCnameAssertion: {
+            /** @enum {string} */
+            type: "dns_expected_cname";
             /** @description Expected CNAME target the resolution must include */
             value: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_expected_cname";
         };
-        DnsExpectedIpsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsExpectedIpsAssertion: {
+            /** @enum {string} */
+            type: "dns_expected_ips";
             /** @description Allowed IP addresses; at least one resolved address must match */
             ips: string[];
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_expected_ips";
         };
-        DnsMaxAnswersAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsMaxAnswersAssertion: {
+            /** @enum {string} */
+            type: "dns_max_answers";
             /** @description DNS record type whose answer count is checked */
             recordType: string;
             /**
@@ -3521,14 +3493,10 @@ export interface components {
              * @description Maximum number of answers allowed for that record type
              */
             max: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_max_answers";
         };
-        DnsMinAnswersAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsMinAnswersAssertion: {
+            /** @enum {string} */
+            type: "dns_min_answers";
             /** @description DNS record type whose answer count is checked */
             recordType: string;
             /**
@@ -3536,14 +3504,8 @@ export interface components {
              * @description Minimum number of answers required for that record type
              */
             min: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_min_answers";
         };
-        DnsMonitorConfig: components["schemas"]["MonitorConfig"] & {
+        DnsMonitorConfig: {
             /** @description Domain name to resolve */
             hostname: string;
             /** @description DNS record types to query: A, AAAA, CNAME, MX, NS, TXT, SRV, SOA, CAA, PTR */
@@ -3561,108 +3523,73 @@ export interface components {
              */
             totalTimeoutMs?: number | null;
         };
-        DnsRecordContainsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsRecordContainsAssertion: {
+            /** @enum {string} */
+            type: "dns_record_contains";
             /** @description DNS record type to assert on (A, AAAA, CNAME, MX, TXT) */
             recordType: string;
             /** @description Substring that must appear in a matching record value */
             substring: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_record_contains";
         };
-        DnsRecordEqualsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsRecordEqualsAssertion: {
+            /** @enum {string} */
+            type: "dns_record_equals";
             /** @description DNS record type to assert on (A, AAAA, CNAME, MX, TXT) */
             recordType: string;
             /** @description Expected DNS record value for an exact match */
             value: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_record_equals";
         };
-        DnsResolvesAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
+        DnsResolvesAssertion: {
+            /** @enum {string} */
             type: "dns_resolves";
         };
-        DnsResponseTimeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsResponseTimeAssertion: {
+            /** @enum {string} */
+            type: "dns_response_time";
             /**
              * Format: int32
              * @description Maximum allowed DNS resolution time in milliseconds
              */
             maxMs: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_response_time";
         };
-        DnsResponseTimeWarnAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsResponseTimeWarnAssertion: {
+            /** @enum {string} */
+            type: "dns_response_time_warn";
             /**
              * Format: int32
              * @description DNS resolution time in milliseconds that triggers a warning only
              */
             warnMs: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_response_time_warn";
         };
-        DnsTtlHighAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsTtlHighAssertion: {
+            /** @enum {string} */
+            type: "dns_ttl_high";
             /**
              * Format: int32
              * @description Maximum TTL in seconds before a high-TTL warning is raised
              */
             maxTtl: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_ttl_high";
         };
-        DnsTtlLowAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsTtlLowAssertion: {
+            /** @enum {string} */
+            type: "dns_ttl_low";
             /**
              * Format: int32
              * @description Minimum acceptable TTL in seconds before a warning is raised
              */
             minTtl: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_ttl_low";
         };
-        DnsTxtContainsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        DnsTxtContainsAssertion: {
+            /** @enum {string} */
+            type: "dns_txt_contains";
             /** @description Substring that must appear in at least one TXT record */
             substring: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "dns_txt_contains";
         };
-        EmailChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        EmailChannelConfig: {
+            /** @enum {string} */
+            channelType: "email";
             /** @description Email addresses to send notifications to */
             recipients: string[];
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            channelType: "email";
         };
         /** @description A single resolved entitlement for the organization */
         EntitlementDto: {
@@ -3837,7 +3764,12 @@ export interface components {
             /** @description Ordered component IDs with their within-group display order */
             positions: components["schemas"]["ComponentPosition"][];
         };
-        HeaderAuthConfig: Omit<components["schemas"]["MonitorAuthConfig"], "type"> & {
+        HeaderAuthConfig: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "header";
             /** @description Custom HTTP header name for the secret value */
             headerName: string;
             /**
@@ -3845,14 +3777,10 @@ export interface components {
              * @description Vault secret ID for the header value
              */
             vaultSecretId?: string | null;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "header";
         };
-        HeaderValueAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        HeaderValueAssertion: {
+            /** @enum {string} */
+            type: "header_value";
             /** @description HTTP header name to assert on */
             headerName: string;
             /** @description Expected value to compare against */
@@ -3862,40 +3790,26 @@ export interface components {
              * @enum {string}
              */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "header_value";
         };
-        HeartbeatIntervalDriftAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        HeartbeatIntervalDriftAssertion: {
+            /** @enum {string} */
+            type: "heartbeat_interval_drift";
             /**
              * Format: int32
              * @description Max percent drift from expected ping interval before warning (non-fatal)
              */
             maxDeviationPercent: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "heartbeat_interval_drift";
         };
-        HeartbeatMaxIntervalAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        HeartbeatMaxIntervalAssertion: {
+            /** @enum {string} */
+            type: "heartbeat_max_interval";
             /**
              * Format: int32
              * @description Maximum allowed gap in seconds between consecutive heartbeat pings
              */
             maxSeconds: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "heartbeat_max_interval";
         };
-        HeartbeatMonitorConfig: components["schemas"]["MonitorConfig"] & {
+        HeartbeatMonitorConfig: {
             /**
              * Format: int32
              * @description Expected heartbeat interval in seconds
@@ -3907,17 +3821,13 @@ export interface components {
              */
             gracePeriod: number;
         };
-        HeartbeatPayloadContainsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        HeartbeatPayloadContainsAssertion: {
+            /** @enum {string} */
+            type: "heartbeat_payload_contains";
             /** @description JSONPath expression into the heartbeat ping JSON payload */
             path: string;
             /** @description Expected value to compare against at that path */
             value: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "heartbeat_payload_contains";
         };
         /** @description Acknowledgement that a heartbeat ping was accepted */
         HeartbeatPingResponse: {
@@ -3927,29 +3837,25 @@ export interface components {
              */
             ok: boolean;
         };
-        HeartbeatReceivedAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        HeartbeatReceivedAssertion: {
+            /** @enum {string} */
+            type: "heartbeat_received";
+        };
+        /** @description HTTP check-type-specific details */
+        Http: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            type: "heartbeat_received";
-        };
-        /** @description HTTP check-type-specific details */
-        Http: Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
+            check_type: "http";
             /** @description Request phase timing breakdown */
             timing?: {
                 [key: string]: Record<string, never> | null;
             } | null;
             /** @description Whether the response body was truncated before storage */
             bodyTruncated?: boolean | null;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            check_type: "http";
         };
-        HttpMonitorConfig: components["schemas"]["MonitorConfig"] & {
+        HttpMonitorConfig: {
             /** @description Target URL to send requests to */
             url: string;
             /**
@@ -3969,7 +3875,12 @@ export interface components {
             verifyTls?: boolean | null;
         };
         /** @description ICMP (ping) check-type-specific details */
-        Icmp: Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
+        Icmp: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            check_type: "icmp";
             /**
              * @description Target host
              * @example 1.1.1.1
@@ -4011,14 +3922,8 @@ export interface components {
              * @description Jitter in ms
              */
             jitterMs?: number | null;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            check_type: "icmp";
         };
-        IcmpMonitorConfig: components["schemas"]["MonitorConfig"] & {
+        IcmpMonitorConfig: {
             /** @description Target hostname or IP address to ping */
             host: string;
             /**
@@ -4032,51 +3937,36 @@ export interface components {
              */
             timeoutMs?: number | null;
         };
-        IcmpPacketLossAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        IcmpPacketLossAssertion: {
+            /** @enum {string} */
+            type: "icmp_packet_loss";
             /**
              * Format: double
              * @description Maximum allowed packet loss percentage before the check fails (0–100)
              */
             maxPercent: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "icmp_packet_loss";
         };
-        IcmpReachableAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
+        IcmpReachableAssertion: {
+            /** @enum {string} */
             type: "icmp_reachable";
         };
-        IcmpResponseTimeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        IcmpResponseTimeAssertion: {
+            /** @enum {string} */
+            type: "icmp_response_time";
             /**
              * Format: int32
              * @description Maximum average ICMP round-trip time in milliseconds
              */
             maxMs: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "icmp_response_time";
         };
-        IcmpResponseTimeWarnAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        IcmpResponseTimeWarnAssertion: {
+            /** @enum {string} */
+            type: "icmp_response_time_warn";
             /**
              * Format: int32
              * @description ICMP round-trip time in milliseconds that triggers a warning only
              */
             warnMs: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "icmp_response_time_warn";
         };
         IncidentDetailDto: {
             incident: components["schemas"]["IncidentDto"];
@@ -4395,7 +4285,9 @@ export interface components {
              */
             revokedAt?: string | null;
         };
-        JsonPathAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        JsonPathAssertion: {
+            /** @enum {string} */
+            type: "json_path";
             /** @description JSONPath expression to extract a value from the response body */
             path: string;
             /** @description Expected value to compare against */
@@ -4405,12 +4297,6 @@ export interface components {
              * @enum {string}
              */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "json_path";
         };
         /** @description API key metadata */
         KeyInfo: {
@@ -4534,74 +4420,56 @@ export interface components {
             /** @description Values list for multi-value rules like monitor_type_in */
             values?: string[] | null;
         };
-        McpConnectsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
+        McpConnectsAssertion: {
+            /** @enum {string} */
             type: "mcp_connects";
         };
-        McpHasCapabilityAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        McpHasCapabilityAssertion: {
+            /** @enum {string} */
+            type: "mcp_has_capability";
             /** @description Capability name the server must advertise, e.g. tools or resources */
             capability: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "mcp_has_capability";
         };
-        McpMinToolsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        McpMinToolsAssertion: {
+            /** @enum {string} */
+            type: "mcp_min_tools";
             /**
              * Format: int32
              * @description Minimum number of tools the server must expose
              */
             min: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "mcp_min_tools";
         };
-        McpProtocolVersionAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        McpProtocolVersionAssertion: {
+            /** @enum {string} */
+            type: "mcp_protocol_version";
             /** @description Expected MCP protocol version string from the server handshake */
             version: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "mcp_protocol_version";
         };
-        McpResponseTimeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        McpResponseTimeAssertion: {
+            /** @enum {string} */
+            type: "mcp_response_time";
             /**
              * Format: int32
              * @description Maximum allowed MCP check duration in milliseconds
              */
             maxMs: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "mcp_response_time";
         };
-        McpResponseTimeWarnAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        McpResponseTimeWarnAssertion: {
+            /** @enum {string} */
+            type: "mcp_response_time_warn";
             /**
              * Format: int32
              * @description MCP check duration in milliseconds that triggers a warning only
              */
             warnMs: number;
-        } & {
+        };
+        /** @description MCP server check-type-specific details */
+        McpServer: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            type: "mcp_response_time_warn";
-        };
-        /** @description MCP server check-type-specific details */
-        McpServer: Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
+            check_type: "mcp_server";
             /** @description MCP server URL */
             url?: string | null;
             /** @description MCP protocol version */
@@ -4625,14 +4493,8 @@ export interface components {
              * @description Number of prompts exposed
              */
             promptCount?: number | null;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            check_type: "mcp_server";
         };
-        McpServerMonitorConfig: components["schemas"]["MonitorConfig"] & {
+        McpServerMonitorConfig: {
             /** @description Command to execute to start the MCP server */
             command: string;
             /** @description Command-line arguments for the MCP server process */
@@ -4642,28 +4504,20 @@ export interface components {
                 [key: string]: string | null;
             } | null;
         };
-        McpToolAvailableAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        McpToolAvailableAssertion: {
+            /** @enum {string} */
+            type: "mcp_tool_available";
             /** @description MCP tool name that must appear in the server's tool list */
             toolName: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "mcp_tool_available";
         };
-        McpToolCountChangedAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        McpToolCountChangedAssertion: {
+            /** @enum {string} */
+            type: "mcp_tool_count_changed";
             /**
              * Format: int32
              * @description Expected tool count; warns when the live count differs
              */
             expectedCount: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "mcp_tool_count_changed";
         };
         /** @description Organization member with role and status */
         MemberDto: {
@@ -4704,9 +4558,7 @@ export interface components {
             severity: "fail" | "warn";
         };
         /** @description New authentication configuration (full replacement) */
-        MonitorAuthConfig: {
-            type: string;
-        };
+        MonitorAuthConfig: components["schemas"]["BearerAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["HeaderAuthConfig"] | components["schemas"]["ApiKeyAuthConfig"];
         MonitorAuthDto: {
             /** Format: uuid */
             id: string;
@@ -4716,8 +4568,6 @@ export interface components {
             authType: "bearer" | "basic" | "header" | "api_key";
             config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
         };
-        /** @description Protocol-specific monitor configuration; concrete type is deduced from the JSON shape */
-        MonitorConfig: Record<string, never>;
         /** @description Full monitor representation */
         MonitorDto: {
             /**
@@ -5018,17 +4868,13 @@ export interface components {
              */
             updatedAt: string;
         };
-        OpsGenieChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        OpsGenieChannelConfig: {
+            /** @enum {string} */
+            channelType: "opsgenie";
             /** @description OpsGenie API key for alert creation */
             apiKey: string;
             /** @description OpsGenie API region: us or eu */
             region?: string | null;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            channelType: "opsgenie";
         };
         /** @description Organization account details */
         OrganizationDto: {
@@ -5065,17 +4911,13 @@ export interface components {
             size: number;
             sort: string[];
         };
-        PagerDutyChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        PagerDutyChannelConfig: {
+            /** @enum {string} */
+            channelType: "pagerduty";
             /** @description PagerDuty Events API v2 routing (integration) key */
             routingKey: string;
             /** @description Override PagerDuty severity mapping */
             severityOverride?: string | null;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            channelType: "pagerduty";
         };
         /** @description A top-level page section (either a group or an ungrouped component) */
         PageSection: {
@@ -5202,20 +5044,18 @@ export interface components {
              */
             cooldownMinutes: number;
         };
-        RedirectCountAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        RedirectCountAssertion: {
+            /** @enum {string} */
+            type: "redirect_count";
             /**
              * Format: int32
              * @description Maximum number of HTTP redirects allowed before the check fails
              */
             maxCount: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "redirect_count";
         };
-        RedirectTargetAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        RedirectTargetAssertion: {
+            /** @enum {string} */
+            type: "redirect_target";
             /** @description Expected final URL after following redirects */
             expected: string;
             /**
@@ -5223,22 +5063,12 @@ export interface components {
              * @enum {string}
              */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "redirect_target";
         };
-        RegexBodyAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        RegexBodyAssertion: {
+            /** @enum {string} */
+            type: "regex_body";
             /** @description Regular expression the response body must match */
             pattern: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "regex_body";
         };
         /** @description Latest check result for a single region */
         RegionStatusDto: {
@@ -5463,44 +5293,32 @@ export interface components {
             /** @description Environment name; monitors only */
             environmentName?: string | null;
         };
-        ResponseSizeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        ResponseSizeAssertion: {
+            /** @enum {string} */
+            type: "response_size";
             /**
              * Format: int32
              * @description Maximum response body size in bytes before the check fails
              */
             maxBytes: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "response_size";
         };
-        ResponseTimeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        ResponseTimeAssertion: {
+            /** @enum {string} */
+            type: "response_time";
             /**
              * Format: int32
              * @description Maximum allowed response time in milliseconds before the check fails
              */
             thresholdMs: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "response_time";
         };
-        ResponseTimeWarnAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        ResponseTimeWarnAssertion: {
+            /** @enum {string} */
+            type: "response_time_warn";
             /**
              * Format: int32
              * @description HTTP response time in milliseconds that triggers a warning only
              */
             warnMs: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "response_time_warn";
         };
         /** @description Dashboard summary: current status, per-region latest results, and chart data */
         ResultSummaryDto: {
@@ -6153,32 +5971,26 @@ export interface components {
         SingleValueResponseWorkspaceDto: {
             data: components["schemas"]["WorkspaceDto"];
         };
-        SlackChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        SlackChannelConfig: {
+            /** @enum {string} */
+            channelType: "slack";
             /** @description Slack incoming webhook URL */
             webhookUrl: string;
             /** @description Optional mention text included in notifications, e.g. @channel */
             mentionText?: string | null;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            channelType: "slack";
         };
-        SslExpiryAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        SslExpiryAssertion: {
+            /** @enum {string} */
+            type: "ssl_expiry";
             /**
              * Format: int32
              * @description Minimum days before TLS certificate expiry; fails or warns below this threshold
              */
             minDaysRemaining: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "ssl_expiry";
         };
-        StatusCodeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        StatusCodeAssertion: {
+            /** @enum {string} */
+            type: "status_code";
             /** @description Expected status code, range pattern, or wildcard such as 2xx */
             expected: string;
             /**
@@ -6186,12 +5998,6 @@ export interface components {
              * @enum {string}
              */
             operator: "equals" | "contains" | "less_than" | "greater_than" | "matches" | "range";
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "status_code";
         };
         /** @description Updated branding configuration; null preserves current */
         StatusPageBranding: {
@@ -6758,7 +6564,12 @@ export interface components {
             updatedAt: string;
         };
         /** @description TCP check-type-specific details */
-        Tcp: Omit<components["schemas"]["CheckTypeDetailsDto"], "check_type"> & {
+        Tcp: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            check_type: "tcp";
             /**
              * @description Target host
              * @example db.example.com
@@ -6772,21 +6583,12 @@ export interface components {
             port: number;
             /** @description Whether a TCP connection was established */
             connected: boolean;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            check_type: "tcp";
         };
-        TcpConnectsAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
+        TcpConnectsAssertion: {
+            /** @enum {string} */
             type: "tcp_connects";
         };
-        TcpMonitorConfig: components["schemas"]["MonitorConfig"] & {
+        TcpMonitorConfig: {
             /** @description Target hostname or IP address */
             host: string;
             /**
@@ -6800,41 +6602,29 @@ export interface components {
              */
             timeoutMs?: number | null;
         };
-        TcpResponseTimeAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        TcpResponseTimeAssertion: {
+            /** @enum {string} */
+            type: "tcp_response_time";
             /**
              * Format: int32
              * @description Maximum TCP connect time in milliseconds before the check fails
              */
             maxMs: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "tcp_response_time";
         };
-        TcpResponseTimeWarnAssertion: Omit<components["schemas"]["AssertionConfig"], "type"> & {
+        TcpResponseTimeWarnAssertion: {
+            /** @enum {string} */
+            type: "tcp_response_time_warn";
             /**
              * Format: int32
              * @description TCP connect time in milliseconds that triggers a warning only
              */
             warnMs: number;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "tcp_response_time_warn";
         };
-        TeamsChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        TeamsChannelConfig: {
+            /** @enum {string} */
+            channelType: "teams";
             /** @description Microsoft Teams incoming webhook URL */
             webhookUrl: string;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            channelType: "teams";
         };
         /** @description Alert channel configuration to test without saving */
         TestAlertChannelRequest: {
@@ -7024,7 +6814,7 @@ export interface components {
         UpdateMonitorRequest: {
             /** @description New monitor name; null preserves current */
             name?: string | null;
-            config?: components["schemas"]["MonitorConfig"] | null;
+            config?: (components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"]) | null;
             /**
              * Format: int32
              * @description New check frequency in seconds (30–86400); null preserves current
@@ -7291,7 +7081,9 @@ export interface components {
              */
             p95LatencyMs?: number | null;
         };
-        WebhookChannelConfig: Omit<components["schemas"]["ChannelConfig"], "channelType"> & {
+        WebhookChannelConfig: {
+            /** @enum {string} */
+            channelType: "webhook";
             /** @description Webhook endpoint URL that receives alert payloads */
             url: string;
             /** @description Optional HMAC signing secret for payload verification */
@@ -7300,12 +7092,6 @@ export interface components {
             customHeaders?: {
                 [key: string]: string | null;
             } | null;
-        } & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            channelType: "webhook";
         };
         WebhookDeliveryDto: {
             /** Format: uuid */

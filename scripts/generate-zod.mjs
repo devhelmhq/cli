@@ -47,6 +47,11 @@ function generateSpecFacts(spec) {
     const s = schemas[schemaName];
     if (!s) return null;
     if (s.properties?.[propName]?.enum) return s.properties[propName].enum;
+    // Array-typed property whose items carry the enum
+    // (e.g. DnsMonitorConfig.recordTypes is `string[]` with enum on items).
+    if (s.properties?.[propName]?.items?.enum) {
+      return s.properties[propName].items.enum;
+    }
     if (s.allOf) {
       for (const member of s.allOf) {
         if (member.properties?.[propName]?.enum) return member.properties[propName].enum;
@@ -110,7 +115,8 @@ async function main() {
   console.log('Reading spec from', SPEC_PATH);
   const spec = JSON.parse(readFileSync(SPEC_PATH, 'utf8'));
 
-  const { flattened, inlinedDiscriminators } = preprocessSpec(spec);
+  const { flattened, inlinedDiscriminators, inlinedNullableDeductions } =
+    preprocessSpec(spec);
   console.log(`Preprocessed spec (${Object.keys(spec.components?.schemas ?? {}).length} schemas)`);
   if (flattened.length > 0) {
     console.log(`  Flattened circular oneOf: ${flattened.join(', ')}`);
@@ -120,6 +126,11 @@ async function main() {
       `  Inlined discriminator subtypes: ${inlinedDiscriminators
         .map((u) => `${u.parent}(${u.discriminator})`)
         .join(', ')}`,
+    );
+  }
+  if (inlinedNullableDeductions && inlinedNullableDeductions.length > 0) {
+    console.log(
+      `  Inlined nullable deduction refs for: ${inlinedNullableDeductions.join(', ')}`,
     );
   }
 
@@ -133,8 +144,11 @@ async function main() {
     options: {
       exportSchemas: true,
       // Strict objects everywhere — generated `.passthrough()` calls erase
-      // type narrowing in consumers (e.g. CLI YAML validators).
+      // type narrowing in consumers (e.g. CLI YAML validators). Also
+      // required so `z.union([...])` correctly rejects non-matching
+      // variants instead of silently stripping subtype-specific fields.
       additionalPropertiesDefaultValue: false,
+      strictObjects: true,
     },
   });
 
