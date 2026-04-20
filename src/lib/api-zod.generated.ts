@@ -1,5 +1,5 @@
-// @ts-nocheck
 // Auto-generated Zod schemas from OpenAPI spec. DO NOT EDIT.
+/* eslint-disable */
 import { z } from "zod";
 
 const pageable = z
@@ -796,7 +796,16 @@ const MonitorTestRequest = z
   .strict();
 const MatchRule = z
   .object({
-    type: z.string(),
+    type: z.enum([
+      "severity_gte",
+      "monitor_id_in",
+      "region_in",
+      "incident_status",
+      "monitor_type_in",
+      "service_id_in",
+      "resource_group_id_in",
+      "component_name_in",
+    ]),
     value: z.string().nullish(),
     monitorIds: z.array(z.string().uuid()).nullish(),
     regions: z.array(z.string()).nullish(),
@@ -1194,14 +1203,46 @@ const CreateWebhookEndpointRequest = z
   .object({
     url: z.string().min(0).max(2048),
     description: z.string().min(0).max(255).nullish(),
-    subscribedEvents: z.array(z.string().min(1)).min(1),
+    subscribedEvents: z
+      .array(
+        z.enum([
+          "monitor.created",
+          "monitor.updated",
+          "monitor.deleted",
+          "incident.created",
+          "incident.resolved",
+          "incident.reopened",
+          "service.status_changed",
+          "service.component_changed",
+          "service.incident_created",
+          "service.incident_updated",
+          "service.incident_resolved",
+        ])
+      )
+      .min(1),
   })
   .strict();
 const UpdateWebhookEndpointRequest = z
   .object({
     url: z.string().min(0).max(2048).nullable(),
     description: z.string().min(0).max(255).nullable(),
-    subscribedEvents: z.array(z.string()).nullable(),
+    subscribedEvents: z
+      .array(
+        z.enum([
+          "monitor.created",
+          "monitor.updated",
+          "monitor.deleted",
+          "incident.created",
+          "incident.resolved",
+          "incident.reopened",
+          "service.status_changed",
+          "service.component_changed",
+          "service.incident_created",
+          "service.incident_updated",
+          "service.incident_resolved",
+        ])
+      )
+      .nullable(),
     enabled: z.boolean().nullable(),
   })
   .partial()

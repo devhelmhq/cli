@@ -1,8 +1,24 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest'
 
-vi.mock('../../src/lib/api-client.js', () => ({
-  checkedFetch: vi.fn(async (p: unknown) => p),
-}))
+vi.mock('../../src/lib/api-client.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../src/lib/api-client.js')>()
+  return {
+    ...actual,
+    // Stub apiGetSingle to bypass the real openapi-fetch call: the test
+    // fakes `client.GET(...)` to return a settled promise, so we just unwrap
+    // it and let the caller's Zod schema validate the inner data.
+    apiGetSingle: vi.fn(
+      async (
+        client: {GET: (...args: unknown[]) => Promise<unknown>},
+        path: string,
+        schema: {parse: (v: unknown) => unknown},
+      ) => {
+        const envelope = (await client.GET(path)) as {data?: unknown}
+        return schema.parse(envelope.data)
+      },
+    ),
+  }
+})
 
 import {checkEntitlements, formatEntitlementWarnings} from '../../src/lib/yaml/entitlements.js'
 import type {Changeset} from '../../src/lib/yaml/differ.js'

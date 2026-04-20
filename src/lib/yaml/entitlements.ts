@@ -3,12 +3,11 @@
  * planned resource creation against plan limits.
  */
 import type {ApiClient} from '../api-client.js'
-import {checkedFetch} from '../api-client.js'
-import type {components} from '../api.generated.js'
+import {apiGetSingle} from '../api-client.js'
 import {AuthMeResponseSchema} from '../response-schemas.js'
 import type {Changeset} from './types.js'
 
-type AuthMeResponse = components['schemas']['AuthMeResponse']
+type AuthMeResponse = ReturnType<typeof AuthMeResponseSchema.parse>
 
 export interface EntitlementWarning {
   resource: string
@@ -46,20 +45,7 @@ export async function checkEntitlements(
 ): Promise<EntitlementCheck | null> {
   let data: AuthMeResponse
   try {
-    const resp = await checkedFetch<{data?: AuthMeResponse}>(client.GET('/api/v1/auth/me'))
-    if (!resp.data) {
-      process.stderr.write('Entitlement check skipped: API returned empty response for /api/v1/auth/me\n')
-      return null
-    }
-
-    const parsed = AuthMeResponseSchema.safeParse(resp.data)
-    if (!parsed.success) {
-      const issues = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')
-      process.stderr.write(`Entitlement check skipped: unexpected auth/me shape — ${issues}\n`)
-      return null
-    }
-
-    data = resp.data
+    data = await apiGetSingle(client, '/api/v1/auth/me', AuthMeResponseSchema)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     process.stderr.write(`Entitlement check skipped: ${msg}\n`)

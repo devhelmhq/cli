@@ -25,7 +25,13 @@ export default class AuthLogin extends Command {
     const client = createApiClient({baseUrl: apiUrl, token})
 
     try {
-      const resp = await checkedFetch(client.GET('/api/v1/auth/me'))
+      const resp = (await checkedFetch(client.GET('/api/v1/auth/me'))) as {
+        data?: {
+          organization?: {name?: string; id?: string | number}
+          key?: {name?: string}
+          plan?: {tier?: string}
+        }
+      }
       if (!resp.data) {
         throw new Error('Empty response')
       }

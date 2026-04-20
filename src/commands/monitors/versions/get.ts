@@ -1,10 +1,7 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {apiGet} from '../../../lib/api-client.js'
-import type {components} from '../../../lib/api.generated.js'
+import {apiGet, unwrapData} from '../../../lib/api-client.js'
 import {uuidArg} from '../../../lib/validators.js'
-
-type MonitorVersionDto = components['schemas']['MonitorVersionDto']
 
 export default class MonitorsVersionsGet extends Command {
   static description = 'Get a specific version snapshot for a monitor'
@@ -23,10 +20,10 @@ export default class MonitorsVersionsGet extends Command {
   async run() {
     const {args, flags} = await this.parse(MonitorsVersionsGet)
     const client = buildClient(flags)
-    const resp = await apiGet<{data?: MonitorVersionDto}>(
+    const resp = await apiGet(
       client,
       `/api/v1/monitors/${args.id}/versions/${args.version}`,
     )
-    display(this, resp.data ?? resp, flags.output)
+    display(this, unwrapData(resp), flags.output)
   }
 }

@@ -1,6 +1,6 @@
 import {Command} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../lib/base-command.js'
-import {checkedFetch} from '../../lib/api-client.js'
+import {checkedFetch, unwrapData} from '../../lib/api-client.js'
 import {uuidArg} from '../../lib/validators.js'
 
 export default class MonitorsTest extends Command {
@@ -14,6 +14,6 @@ export default class MonitorsTest extends Command {
     const client = buildClient(flags)
     this.log('Running test...')
     const resp = await checkedFetch(client.POST('/api/v1/monitors/{id}/test', {params: {path: {id: args.id}}}))
-    display(this, resp.data ?? resp, flags.output)
+    display(this, unwrapData(resp), flags.output)
   }
 }

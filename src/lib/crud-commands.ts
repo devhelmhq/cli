@@ -61,7 +61,7 @@ export function createGetCommand<T>(config: ResourceConfig<T>) {
       const {args, flags} = await this.parse(GetCmd)
       const client = buildClient(flags)
       const id = args[idLabel]
-      const resp = await apiGet<{data?: T}>(client, `${config.apiPath}/${id}`)
+      const resp = (await apiGet(client, `${config.apiPath}/${id}`)) as {data?: T}
       display(this, resp.data ?? resp, flags.output)
     }
   }
@@ -81,7 +81,7 @@ export function createCreateCommand<T>(config: ResourceConfig<T>) {
       const client = buildClient(flags)
       const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
       const body = config.bodyBuilder ? config.bodyBuilder(raw) : raw
-      const resp = await apiPost<{data?: T}>(client, config.apiPath, body)
+      const resp = (await apiPost(client, config.apiPath, body)) as {data?: T}
       display(this, resp.data ?? resp, flags.output)
     }
   }
@@ -105,7 +105,7 @@ export function createUpdateCommand<T>(config: ResourceConfig<T>) {
       const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
       const builder = config.updateBodyBuilder ?? config.bodyBuilder
       const body = builder ? builder(raw) : raw
-      const resp = await apiPut<{data?: T}>(client, `${config.apiPath}/${id}`, body)
+      const resp = (await apiPut(client, `${config.apiPath}/${id}`, body)) as {data?: T}
       display(this, resp.data ?? resp, flags.output)
     }
   }

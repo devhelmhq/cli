@@ -13,6 +13,7 @@ import {
   CHANNEL_TYPES,
   STATUS_PAGE_INCIDENT_MODES,
 } from './spec-facts.generated.js'
+import {STATUS_PAGE_VISIBILITIES} from './yaml/schema.js'
 
 // ── Description lookup from OpenAPI spec ───────────────────────────────
 function desc(schema: string, field: string, fallback?: string): string {
@@ -473,16 +474,18 @@ export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
     name: Flags.string({description: desc('CreateStatusPageRequest', 'name'), required: true}),
     slug: Flags.string({description: desc('CreateStatusPageRequest', 'slug'), required: true}),
     description: Flags.string({description: desc('CreateStatusPageRequest', 'description')}),
-    // Only PUBLIC is enforced today — PASSWORD / IP_RESTRICTED exist in the
-    // API enum but are not implemented. Expose a narrower, honest option set.
-    visibility: Flags.string({description: 'Page visibility (PUBLIC only today)', options: ['PUBLIC']}),
+    // STATUS_PAGE_VISIBILITIES is intentionally narrowed to ['PUBLIC'] in
+    // schema.ts because PASSWORD / IP_RESTRICTED exist in the API enum but
+    // are not implemented yet. Sharing the constant keeps the imperative
+    // flag and YAML validator in lockstep.
+    visibility: Flags.string({description: desc('CreateStatusPageRequest', 'visibility'), options: [...STATUS_PAGE_VISIBILITIES]}),
     'incident-mode': Flags.string({description: desc('CreateStatusPageRequest', 'incidentMode'), options: [...STATUS_PAGE_INCIDENT_MODES]}),
     'branding-file': Flags.string({description: 'Path to a JSON file with branding fields (logoUrl, brandColor, theme, customCss, …)'}),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateStatusPageRequest', 'name')}),
     description: Flags.string({description: desc('UpdateStatusPageRequest', 'description')}),
-    visibility: Flags.string({description: 'Page visibility (PUBLIC only today)', options: ['PUBLIC']}),
+    visibility: Flags.string({description: desc('UpdateStatusPageRequest', 'visibility'), options: [...STATUS_PAGE_VISIBILITIES]}),
     enabled: Flags.boolean({description: 'Whether the page is enabled', allowNo: true}),
     'incident-mode': Flags.string({description: desc('UpdateStatusPageRequest', 'incidentMode'), options: [...STATUS_PAGE_INCIDENT_MODES]}),
     'branding-file': Flags.string({description: 'Path to a JSON file with branding fields; omit to preserve existing branding'}),

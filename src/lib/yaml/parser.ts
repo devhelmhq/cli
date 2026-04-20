@@ -76,7 +76,7 @@ export function loadConfig(paths: string[], resolveEnv = true): DevhelmConfig {
     throw new ParseError('No YAML files found in the specified paths')
   }
 
-  if (files.length === 1) {
+  if (files.length === 1 && files[0] !== undefined) {
     const config = parseConfigFile(files[0], resolveEnv)
     return applyDefaults(config)
   }

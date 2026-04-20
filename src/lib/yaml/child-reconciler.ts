@@ -84,8 +84,7 @@ export function diffChildren<TYaml, TApi>(
 ): ChildDiffResult {
   // Build lookup: identity key → {apiId, snapshot}
   const currentMap = new Map<string, {apiId: string; snapshot: Record<string, unknown>; index: number}>()
-  for (let i = 0; i < currentApi.length; i++) {
-    const api = currentApi[i]
+  for (const [i, api] of currentApi.entries()) {
     const apiId = def.apiId(api)
     const apiKey = def.apiIdentityKey(api)
 
@@ -111,8 +110,7 @@ export function diffChildren<TYaml, TApi>(
   const updates: ChildDiffResult['updates'] = []
   const matched = new Set<string>()
 
-  for (let i = 0; i < desiredYaml.length; i++) {
-    const yaml = desiredYaml[i]
+  for (const [i, yaml] of desiredYaml.entries()) {
     const key = def.identityKey(yaml)
     const desiredSnapshot = def.toDesiredSnapshot(yaml)
 
@@ -193,6 +191,7 @@ export async function applyChildDiff<TYaml, TApi>(
   const newIds = new Map<string, string>()
   for (const create of diffResult.creates) {
     const yaml = desiredYaml[create.index]
+    if (yaml === undefined) continue
     const newId = await def.applyCreate(parentId, yaml, create.index)
     newIds.set(create.key, newId)
     changes.push({action: 'create', childKey: create.key, childId: newId})
@@ -201,6 +200,7 @@ export async function applyChildDiff<TYaml, TApi>(
   // Update existing children
   for (const update of diffResult.updates) {
     const yaml = desiredYaml[update.index]
+    if (yaml === undefined) continue
     await def.applyUpdate(parentId, update.childId, yaml, update.index)
     changes.push({action: 'update', childKey: update.key, childId: update.childId})
   }

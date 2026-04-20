@@ -1,11 +1,8 @@
 import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../lib/base-command.js'
-import {apiGet} from '../lib/api-client.js'
+import {apiGetSingle} from '../lib/api-client.js'
 import {formatOutput, OutputFormat} from '../lib/output.js'
-import type {components} from '../lib/api.generated.js'
 import {DashboardOverviewSchema} from '../lib/response-schemas.js'
-
-type DashboardOverviewDto = components['schemas']['DashboardOverviewDto']
 
 export default class Status extends Command {
   static description = 'Show dashboard overview'
@@ -15,17 +12,7 @@ export default class Status extends Command {
   async run() {
     const {flags} = await this.parse(Status)
     const client = buildClient(flags)
-    const resp = await apiGet<{data?: DashboardOverviewDto}>(client, '/api/v1/dashboard/overview')
-    if (!resp.data) {
-      this.error('API returned an empty response for /api/v1/dashboard/overview')
-    }
-
-    const parsed = DashboardOverviewSchema.safeParse(resp.data)
-    if (!parsed.success) {
-      this.error(`Unexpected dashboard response shape: ${parsed.error.issues.map((i) => i.message).join(', ')}`)
-    }
-
-    const overview = parsed.data
+    const overview = await apiGetSingle(client, '/api/v1/dashboard/overview', DashboardOverviewSchema)
 
     const format = flags.output as OutputFormat
     if (format === 'json' || format === 'yaml') {

@@ -106,7 +106,7 @@ export function findVariables(input: string): string[] {
   const re = new RegExp(ENV_VAR_OR_ESCAPE_PATTERN.source, 'g')
   while ((match = re.exec(input)) !== null) {
     if (match[0] === '$$') continue
-    const expr = match[1]
+    const expr = match[1] ?? ''
     const separatorIdx = expr.indexOf(':-')
     vars.push(separatorIdx !== -1 ? expr.slice(0, separatorIdx) : expr.trim())
   }
@@ -132,7 +132,7 @@ export function findMissingVariables(input: string, env: Record<string, string |
   let match: RegExpExecArray | null
   while ((match = re.exec(input)) !== null) {
     if (match[0] === '$$') continue
-    const expr = match[1]
+    const expr = match[1] ?? ''
     const separatorIdx = expr.indexOf(':-')
     if (separatorIdx === -1) {
       const varName = expr.trim()

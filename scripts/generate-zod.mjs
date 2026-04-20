@@ -28,7 +28,8 @@ function extractSchemas(raw) {
     if (line.includes('@zodios/core')) continue;
     kept.push(line);
   }
-  return '// @ts-nocheck\n// Auto-generated Zod schemas from OpenAPI spec. DO NOT EDIT.\n' +
+  return '// Auto-generated Zod schemas from OpenAPI spec. DO NOT EDIT.\n' +
+    '/* eslint-disable */\n' +
     kept.join('\n') + '\n';
 }
 
@@ -81,6 +82,8 @@ function generateSpecFacts(spec) {
     SP_INCIDENT_STATUSES: enumsFrom('CreateStatusPageIncidentRequest', 'status'),
     AUTH_TYPES: enumsFrom('MonitorAuthDto', 'authType'),
     MANAGED_BY: enumsFrom('CreateMonitorRequest', 'managedBy'),
+    MATCH_RULE_TYPES: enumsFrom('MatchRule', 'type'),
+    WEBHOOK_EVENT_TYPES: enumsFrom('CreateWebhookEndpointRequest', 'subscribedEvents'),
     // ``operator`` is duplicated across StatusCodeAssertion, HeaderValueAssertion,
     // JsonPathAssertion, ResponseSizeAssertion, etc. — pull from one
     // representative schema. The validator and Zod layer share this single

@@ -277,10 +277,10 @@ export default class Deploy extends Command {
 
     while (true) {
       try {
-        const resp = await apiPost<{data?: {id?: string}}>(
+        const resp = (await apiPost(
           client, '/api/v1/deploy/lock',
           {lockedBy: `${process.env.USER ?? 'cli'}@${hostname()}`, ttlMinutes: DEFAULT_LOCK_TTL},
-        )
+        )) as {data?: {id?: string}}
         const lockId = resp.data?.id
         if (!lockId) {
           this.warn('Deploy lock acquired but no lock ID returned. Proceeding without lock protection.')

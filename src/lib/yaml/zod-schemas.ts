@@ -25,30 +25,17 @@ import {
   CHANNEL_TYPES, TRIGGER_RULE_TYPES, TRIGGER_SCOPES, TRIGGER_SEVERITIES,
   TRIGGER_AGGREGATIONS, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
   STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
+  MATCH_RULE_TYPES, WEBHOOK_EVENT_TYPES,
 } from '../spec-facts.generated.js'
 import {STATUS_PAGE_VISIBILITIES, MIN_FREQUENCY, MAX_FREQUENCY} from './schema.js'
 
+export {MATCH_RULE_TYPES, WEBHOOK_EVENT_TYPES}
+
 // ── Enum constants not (yet) expressed as OpenAPI enums ───────────────
-// These are the known valid values from the API source code, hardcoded
-// here because the OpenAPI spec uses free-form `string` for these fields.
-// Kept in sync manually — the parity test will catch drift.
-
-/** Match rule types supported by the notification policy engine. */
-export const MATCH_RULE_TYPES = [
-  'severity_gte', 'monitor_id_in', 'region_in', 'incident_status',
-  'monitor_type_in', 'service_id_in', 'resource_group_id_in', 'component_name_in',
-] as const
-
-/** Retry strategy kinds for resource group defaults. */
+// Retry strategy kinds for resource group defaults — the OpenAPI spec
+// does not yet enumerate these, so they remain hardcoded here. Match
+// rule types and webhook event types now come from spec-facts.
 export const RETRY_STRATEGY_TYPES = ['fixed'] as const
-
-/** All known webhook event type identifiers from the event catalog. */
-export const WEBHOOK_EVENT_TYPES = [
-  'monitor.created', 'monitor.updated', 'monitor.deleted',
-  'incident.created', 'incident.resolved', 'incident.reopened',
-  'service.status_changed', 'service.component_changed',
-  'service.incident_created', 'service.incident_updated', 'service.incident_resolved',
-] as const
 
 // ── Assertion config schemas (imported from generated OpenAPI Zod) ────
 // Maps wire-format type strings (from AssertionConfig discriminator)

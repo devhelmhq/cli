@@ -25,7 +25,7 @@ export async function fetchPaginated<TItem>(
   let page = 0
 
   while (true) {
-    const resp = await apiGet<PageResponse<TItem>>(client, path, {query: {page, size: pageSize}})
+    const resp = (await apiGet(client, path, {query: {page, size: pageSize}})) as PageResponse<TItem>
     results.push(...(resp.data ?? []))
     if (resp.hasNext !== true) break
     page++
@@ -53,9 +53,9 @@ export async function fetchCursorPaginated<TItem>(
 
   while (true) {
     const effectiveLimit = maxItems ? Math.min(pageSize, maxItems - results.length) : pageSize
-    const resp = await apiGet<CursorResponse<TItem>>(client, path, {
+    const resp = (await apiGet(client, path, {
       query: {...query, cursor, limit: effectiveLimit},
-    })
+    })) as CursorResponse<TItem>
     results.push(...(resp.data ?? []))
 
     if (maxItems && results.length >= maxItems) break

@@ -12,7 +12,9 @@ export default class WebhooksTest extends Command {
   async run() {
     const {args, flags} = await this.parse(WebhooksTest)
     const client = buildClient(flags)
-    const resp = await checkedFetch(client.POST('/api/v1/webhooks/{id}/test', {params: {path: {id: args.id}}}))
+    const resp = (await checkedFetch(
+      client.POST('/api/v1/webhooks/{id}/test', {params: {path: {id: args.id}}}),
+    )) as {data?: {success?: boolean}}
     this.log(resp.data?.success ? 'Test event delivered.' : 'Test delivery failed.')
   }
 }
