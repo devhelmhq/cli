@@ -1,7 +1,13 @@
 import {describe, it, expect, beforeEach, afterEach, vi} from 'vitest'
-import {existsSync, mkdirSync, writeFileSync, readFileSync, rmSync, readdirSync} from 'node:fs'
+import {mkdirSync, writeFileSync, readFileSync, rmSync, readdirSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
+
+interface ContextsFile {
+  version: number
+  current: string
+  contexts: Record<string, {name: string; apiUrl: string; token: string}>
+}
 
 let tempDir: string
 let contextsPath: string
@@ -112,7 +118,7 @@ describe('saveContext', () => {
     rmSync(contextsPath, {force: true})
     const auth = await freshAuth()
     auth.saveContext({name: 'new', apiUrl: 'https://api.example.com', token: 'tok'})
-    const file = JSON.parse(readFileSync(contextsPath, 'utf8'))
+    const file = JSON.parse(readFileSync(contextsPath, 'utf8')) as ContextsFile
     expect(file.version).toBe(1)
     expect(file.current).toBe('new')
     expect(file.contexts.new.token).toBe('tok')
@@ -126,7 +132,7 @@ describe('saveContext', () => {
     }))
     const auth = await freshAuth()
     auth.saveContext({name: 'b', apiUrl: 'https://b.example.com', token: 'tok-b'})
-    const file = JSON.parse(readFileSync(contextsPath, 'utf8'))
+    const file = JSON.parse(readFileSync(contextsPath, 'utf8')) as ContextsFile
     expect(Object.keys(file.contexts)).toEqual(['a', 'b'])
     expect(file.current).toBe('b')
   })
@@ -139,7 +145,7 @@ describe('saveContext', () => {
     }))
     const auth = await freshAuth()
     auth.saveContext({name: 'b', apiUrl: 'https://b.example.com', token: 'tok-b'}, false)
-    const file = JSON.parse(readFileSync(contextsPath, 'utf8'))
+    const file = JSON.parse(readFileSync(contextsPath, 'utf8')) as ContextsFile
     expect(file.current).toBe('a')
   })
 })
@@ -156,7 +162,7 @@ describe('removeContext', () => {
     }))
     const auth = await freshAuth()
     expect(auth.removeContext('a')).toBe(true)
-    const file = JSON.parse(readFileSync(contextsPath, 'utf8'))
+    const file = JSON.parse(readFileSync(contextsPath, 'utf8')) as ContextsFile
     expect(file.contexts.a).toBeUndefined()
     expect(file.current).toBe('b')
   })

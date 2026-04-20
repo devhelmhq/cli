@@ -1,12 +1,13 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {apiPost} from '../../../lib/api-client.js'
 import {STATUS_PAGE_COMPONENT_TYPES} from '../../../lib/spec-facts.generated.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesComponentsCreate extends Command {
   static description = 'Add a component to a status page'
   static examples = ['<%= config.bin %> status-pages components create <page-id> --name "API" --type STATIC']
-  static args = {id: Args.string({description: 'Status page ID', required: true})}
+  static args = {id: uuidArg({description: 'Status page ID', required: true})}
   static flags = {
     ...globalFlags,
     name: Flags.string({description: 'Component name', required: true}),

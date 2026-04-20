@@ -1,13 +1,14 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {apiPut} from '../../../lib/api-client.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesGroupsUpdate extends Command {
   static description = 'Update a component group on a status page'
   static examples = ['<%= config.bin %> status-pages groups update <page-id> <group-id> --name "Core"']
   static args = {
-    id: Args.string({description: 'Status page ID', required: true}),
-    'group-id': Args.string({description: 'Group ID', required: true}),
+    id: uuidArg({description: 'Status page ID', required: true}),
+    'group-id': uuidArg({description: 'Group ID', required: true}),
   }
   static flags = {
     ...globalFlags,

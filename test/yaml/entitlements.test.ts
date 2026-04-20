@@ -27,6 +27,33 @@ function monitorCreates(n: number): Changeset {
   return {creates, updates: [], deletes: [], memberships: []}
 }
 
+// Build a full /auth/me response. The runtime Zod schema requires every
+// top-level field; tests only care about plan + organization, so we provide
+// inert defaults for the rest.
+function makeAuthMeData(overrides: {
+  plan: {
+    tier: string
+    entitlements: Record<string, {value: number; key?: string}>
+    usage: Record<string, number>
+  }
+  organization?: {name: string; id?: number}
+}) {
+  const planEntitlements: Record<string, {key: string; value: number}> = {}
+  for (const [k, v] of Object.entries(overrides.plan.entitlements)) {
+    planEntitlements[k] = {key: v.key ?? k, value: v.value}
+  }
+  return {
+    key: {id: 1, name: 'test-key', createdAt: '2024-01-01T00:00:00Z'},
+    organization: overrides.organization ?? {id: 1, name: 'TestOrg'},
+    plan: {
+      tier: overrides.plan.tier,
+      entitlements: planEntitlements,
+      usage: overrides.plan.usage,
+    },
+    rateLimits: {requestsPerMinute: 60, remaining: 60, windowMs: 60_000},
+  }
+}
+
 describe('entitlements', () => {
   let fakeClient: ReturnType<typeof makeFakeClient>
   let mockGet: ReturnType<typeof vi.fn>
@@ -87,14 +114,9 @@ describe('entitlements', () => {
 
     it('detects over-limit creates', async () => {
       mockGet.mockResolvedValueOnce({
-        data: {
-          plan: {
-            tier: 'FREE',
-            entitlements: {monitors: {value: 10}},
-            usage: {monitors: 8},
-          },
-          organization: {name: 'TestOrg'},
-        },
+        data: makeAuthMeData({
+          plan: {tier: 'FREE', entitlements: {monitors: {value: 10}}, usage: {monitors: 8}},
+        }),
       })
       const result = await checkEntitlements(fakeClient, monitorCreates(5))
       expect(result).not.toBeNull()
@@ -109,14 +131,9 @@ describe('entitlements', () => {
 
     it('no warnings when under limit', async () => {
       mockGet.mockResolvedValueOnce({
-        data: {
-          plan: {
-            tier: 'FREE',
-            entitlements: {monitors: {value: 10}},
-            usage: {monitors: 8},
-          },
-          organization: {name: 'TestOrg'},
-        },
+        data: makeAuthMeData({
+          plan: {tier: 'FREE', entitlements: {monitors: {value: 10}}, usage: {monitors: 8}},
+        }),
       })
       const result = await checkEntitlements(fakeClient, monitorCreates(1))
       expect(result).not.toBeNull()
@@ -125,13 +142,13 @@ describe('entitlements', () => {
 
     it('skips unlimited entitlements', async () => {
       mockGet.mockResolvedValueOnce({
-        data: {
+        data: makeAuthMeData({
           plan: {
             tier: 'FREE',
             entitlements: {monitors: {value: Number.MAX_SAFE_INTEGER}},
             usage: {monitors: 8},
           },
-        },
+        }),
       })
       const result = await checkEntitlements(fakeClient, monitorCreates(100))
       expect(result).not.toBeNull()
@@ -140,14 +157,9 @@ describe('entitlements', () => {
 
     it('builds header correctly', async () => {
       mockGet.mockResolvedValueOnce({
-        data: {
-          plan: {
-            tier: 'FREE',
-            entitlements: {monitors: {value: 10}},
-            usage: {monitors: 8},
-          },
-          organization: {name: 'TestOrg'},
-        },
+        data: makeAuthMeData({
+          plan: {tier: 'FREE', entitlements: {monitors: {value: 10}}, usage: {monitors: 8}},
+        }),
       })
       const result = await checkEntitlements(fakeClient, monitorCreates(0))
       expect(result).not.toBeNull()
@@ -158,13 +170,9 @@ describe('entitlements', () => {
 
     it('warns when creating statusPages exceeds limit', async () => {
       mockGet.mockResolvedValueOnce({
-        data: {
-          plan: {
-            tier: 'FREE',
-            entitlements: {status_pages: {value: 1}},
-            usage: {status_pages: 1},
-          },
-        },
+        data: makeAuthMeData({
+          plan: {tier: 'FREE', entitlements: {status_pages: {value: 1}}, usage: {status_pages: 1}},
+        }),
       })
       const changeset: Changeset = {
         creates: [{action: 'create', resourceType: 'statusPage', refKey: 'p1'}],
@@ -180,13 +188,9 @@ describe('entitlements', () => {
 
     it('no warning when statusPage creates under limit', async () => {
       mockGet.mockResolvedValueOnce({
-        data: {
-          plan: {
-            tier: 'PRO',
-            entitlements: {status_pages: {value: 5}},
-            usage: {status_pages: 2},
-          },
-        },
+        data: makeAuthMeData({
+          plan: {tier: 'PRO', entitlements: {status_pages: {value: 5}}, usage: {status_pages: 2}},
+        }),
       })
       const changeset: Changeset = {
         creates: [
@@ -202,13 +206,9 @@ describe('entitlements', () => {
 
     it('ignores tag creates (no entitlement mapping)', async () => {
       mockGet.mockResolvedValueOnce({
-        data: {
-          plan: {
-            tier: 'FREE',
-            entitlements: {monitors: {value: 10}},
-            usage: {monitors: 0},
-          },
-        },
+        data: makeAuthMeData({
+          plan: {tier: 'FREE', entitlements: {monitors: {value: 10}}, usage: {monitors: 0}},
+        }),
       })
       const changeset: Changeset = {
         creates: [
@@ -235,16 +235,13 @@ describe('entitlements', () => {
 
     it('handles multiple resource types', async () => {
       mockGet.mockResolvedValueOnce({
-        data: {
+        data: makeAuthMeData({
           plan: {
             tier: 'FREE',
-            entitlements: {
-              monitors: {value: 10},
-              webhooks: {value: 5},
-            },
+            entitlements: {monitors: {value: 10}, webhooks: {value: 5}},
             usage: {monitors: 9, webhooks: 4},
           },
-        },
+        }),
       })
       const changeset: Changeset = {
         creates: [

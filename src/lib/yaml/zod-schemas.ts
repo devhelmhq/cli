@@ -26,6 +26,29 @@ import {
   TRIGGER_AGGREGATIONS, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
   STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
 } from '../spec-facts.generated.js'
+import {STATUS_PAGE_VISIBILITIES, MIN_FREQUENCY, MAX_FREQUENCY} from './schema.js'
+
+// ── Enum constants not (yet) expressed as OpenAPI enums ───────────────
+// These are the known valid values from the API source code, hardcoded
+// here because the OpenAPI spec uses free-form `string` for these fields.
+// Kept in sync manually — the parity test will catch drift.
+
+/** Match rule types supported by the notification policy engine. */
+export const MATCH_RULE_TYPES = [
+  'severity_gte', 'monitor_id_in', 'region_in', 'incident_status',
+  'monitor_type_in', 'service_id_in', 'resource_group_id_in', 'component_name_in',
+] as const
+
+/** Retry strategy kinds for resource group defaults. */
+export const RETRY_STRATEGY_TYPES = ['fixed'] as const
+
+/** All known webhook event type identifiers from the event catalog. */
+export const WEBHOOK_EVENT_TYPES = [
+  'monitor.created', 'monitor.updated', 'monitor.deleted',
+  'incident.created', 'incident.resolved', 'incident.reopened',
+  'service.status_changed', 'service.component_changed',
+  'service.incident_created', 'service.incident_updated', 'service.incident_resolved',
+] as const
 
 // ── Assertion config schemas (imported from generated OpenAPI Zod) ────
 // Maps wire-format type strings (from AssertionConfig discriminator)
@@ -105,14 +128,11 @@ const MONITOR_TYPE_CONFIG_SCHEMAS: Record<string, z.ZodType> = {
 
 // ── Constants ────────────────────────────────────────────────────────
 // Enum tuples are imported from spec-facts.generated.ts (auto-extracted
-// from the OpenAPI spec). Only STATUS_PAGE_VISIBILITIES is intentionally
-// narrowed — the API also accepts PASSWORD and IP_RESTRICTED, but those
-// modes are not yet wired to storage or enforcement server-side.
-
-const STATUS_PAGE_VISIBILITIES = ['PUBLIC'] as const
-
-const MIN_FREQUENCY = 30
-const MAX_FREQUENCY = 86400
+// from the OpenAPI spec). STATUS_PAGE_VISIBILITIES, MIN_FREQUENCY, and
+// MAX_FREQUENCY come from schema.ts so the validator and Zod layer share
+// a single source of truth — STATUS_PAGE_VISIBILITIES is intentionally
+// narrowed (the spec also accepts PASSWORD and IP_RESTRICTED, but those
+// modes are not yet wired to storage or enforcement server-side).
 
 export const _ZOD_ENUMS = {
   MONITOR_TYPES, HTTP_METHODS, DNS_RECORD_TYPES, ASSERTION_SEVERITIES,
@@ -120,15 +140,19 @@ export const _ZOD_ENUMS = {
   TRIGGER_AGGREGATIONS, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
   STATUS_PAGE_VISIBILITIES, STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
   MIN_FREQUENCY, MAX_FREQUENCY,
+  MATCH_RULE_TYPES, RETRY_STRATEGY_TYPES, WEBHOOK_EVENT_TYPES,
 } as const
 
 // ── Assertion schema (dispatches by config.type to generated schemas) ─
 
 const AssertionSchema = z.object({
-  config: z.object({type: z.string()}).passthrough(),
+  config: z.record(z.unknown()).refine(
+    (c) => typeof c.type === 'string',
+    {message: 'config.type is required and must be a string'},
+  ),
   severity: z.enum(ASSERTION_SEVERITIES).optional(),
-}).superRefine((data, ctx) => {
-  const assertionType = data.config.type
+}).strict().superRefine((data, ctx) => {
+  const assertionType = data.config.type as string
   const configSchema = ASSERTION_CONFIG_SCHEMAS[assertionType]
   if (!configSchema) {
     ctx.addIssue({
@@ -237,7 +261,7 @@ const EscalationChainSchema = z.object({
 // ── Match rule schema ────────────────────────────────────────────────
 
 const MatchRuleSchema = z.object({
-  type: z.string(),
+  type: z.enum(MATCH_RULE_TYPES),
   value: z.string().optional(),
   monitorNames: z.array(z.string()).optional(),
   regions: z.array(z.string()).optional(),
@@ -259,7 +283,7 @@ export const ChannelConfigSchema = z.union([
 // ── Retry strategy schema ────────────────────────────────────────────
 
 const RetryStrategySchema = z.object({
-  type: z.string(),
+  type: z.enum(RETRY_STRATEGY_TYPES),
   maxRetries: z.number().int().positive().optional(),
   interval: z.number().int().positive().optional(),
 }).strict()
@@ -285,9 +309,22 @@ const SecretSchema = z.object({
 
 const AlertChannelSchema = z.object({
   name: z.string(),
-  config: z.object({channelType: z.enum(CHANNEL_TYPES)}).passthrough(),
-}).superRefine((data, ctx) => {
-  const configSchema = CHANNEL_CONFIG_SCHEMAS[data.config.channelType]
+  config: z.record(z.unknown()).refine(
+    (c) => typeof c.channelType === 'string',
+    {message: 'config.channelType is required'},
+  ),
+}).strict().superRefine((data, ctx) => {
+  const channelType = data.config.channelType as string
+  if (!(CHANNEL_TYPES as readonly string[]).includes(channelType)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['config', 'channelType'],
+      message: `Unknown channel type "${channelType}". Valid types: ${CHANNEL_TYPES.join(', ')}`,
+    })
+    return
+  }
+
+  const configSchema = CHANNEL_CONFIG_SCHEMAS[channelType]
   if (!configSchema) return
   const result = configSchema.safeParse(data.config)
   if (!result.success) {
@@ -307,7 +344,7 @@ const NotificationPolicySchema = z.object({
 
 const WebhookSchema = z.object({
   url: z.string(),
-  subscribedEvents: z.array(z.string()).min(1),
+  subscribedEvents: z.array(z.enum(WEBHOOK_EVENT_TYPES)).min(1),
   description: z.string().optional(),
   enabled: z.boolean().optional(),
 }).strict()
@@ -333,7 +370,7 @@ const ResourceGroupSchema = z.object({
 const MonitorSchema = z.object({
   name: z.string(),
   type: z.enum(MONITOR_TYPES),
-  config: z.object({}).passthrough(),
+  config: z.record(z.unknown()),
   frequencySeconds: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
   enabled: z.boolean().optional(),
   regions: z.array(z.string()).optional(),

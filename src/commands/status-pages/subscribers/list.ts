@@ -1,14 +1,15 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import type {components} from '../../../lib/api.generated.js'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {fetchPaginated} from '../../../lib/typed-api.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 type StatusPageSubscriber = components['schemas']['StatusPageSubscriberDto']
 
 export default class StatusPagesSubscribersList extends Command {
   static description = 'List subscribers on a status page'
   static examples = ['<%= config.bin %> status-pages subscribers list <page-id>']
-  static args = {id: Args.string({description: 'Status page ID', required: true})}
+  static args = {id: uuidArg({description: 'Status page ID', required: true})}
   static flags = {
     ...globalFlags,
     limit: Flags.integer({description: 'Maximum number of subscribers to show', default: 20}),

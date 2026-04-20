@@ -3,12 +3,18 @@ import {globalFlags, buildClient, display} from './base-command.js'
 import {fetchPaginated} from './typed-api.js'
 import {apiGet, apiPost, apiPut, apiDelete} from './api-client.js'
 import type {ColumnDef} from './output.js'
+import {uuidArg} from './validators.js'
+
+type Arg<T> = Interfaces.Arg<T>
 
 export interface ResourceConfig<T = unknown> {
   name: string
   plural: string
   apiPath: string
+  /** Field name used as the resource identifier (default: 'id'). */
   idField?: string
+  /** Set to false to skip UUID validation on the id arg (e.g. for slug/key ids). */
+  validateIdAsUuid?: boolean
   columns: ColumnDef<T>[]
   createFlags?: Interfaces.FlagInput
   updateFlags?: Interfaces.FlagInput
@@ -36,12 +42,19 @@ export function createListCommand<T>(config: ResourceConfig<T>) {
   return ListCmd
 }
 
+function idArg(config: Pick<ResourceConfig, 'name' | 'idField' | 'validateIdAsUuid'>): Arg<string> {
+  const idLabel = config.idField ?? 'id'
+  const useUuid = config.validateIdAsUuid ?? (idLabel === 'id' || idLabel === 'subscriptionId')
+  if (useUuid) return uuidArg({description: `${config.name} ${idLabel}`, required: true})
+  return Args.string({description: `${config.name} ${idLabel}`, required: true})
+}
+
 export function createGetCommand<T>(config: ResourceConfig<T>) {
   const idLabel = config.idField ?? 'id'
   class GetCmd extends Command {
     static description = `Get a ${config.name} by ${idLabel}`
     static examples = [`<%= config.bin %> ${config.plural} get <${idLabel}>`]
-    static args = {[idLabel]: Args.string({description: `${config.name} ${idLabel}`, required: true})}
+    static args = {[idLabel]: idArg(config)}
     static flags = {...globalFlags}
 
     async run() {
@@ -82,7 +95,7 @@ export function createUpdateCommand<T>(config: ResourceConfig<T>) {
   class UpdateCmd extends Command {
     static description = `Update a ${config.name}`
     static examples = [`<%= config.bin %> ${config.plural} update <${idLabel}>`]
-    static args = {[idLabel]: Args.string({description: `${config.name} ${idLabel}`, required: true})}
+    static args = {[idLabel]: idArg(config)}
     static flags = {...globalFlags, ...resourceFlags}
 
     async run() {
@@ -105,7 +118,7 @@ export function createDeleteCommand<T>(config: ResourceConfig<T>) {
   class DeleteCmd extends Command {
     static description = `Delete a ${config.name}`
     static examples = [`<%= config.bin %> ${config.plural} delete <${idLabel}>`]
-    static args = {[idLabel]: Args.string({description: `${config.name} ${idLabel}`, required: true})}
+    static args = {[idLabel]: idArg(config)}
     static flags = {...globalFlags}
 
     async run() {

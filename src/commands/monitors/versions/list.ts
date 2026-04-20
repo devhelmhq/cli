@@ -1,7 +1,8 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {fetchPaginated} from '../../../lib/typed-api.js'
 import type {components} from '../../../lib/api.generated.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 type MonitorVersionDto = components['schemas']['MonitorVersionDto']
 
@@ -13,7 +14,7 @@ export default class MonitorsVersionsList extends Command {
     '<%= config.bin %> monitors versions list 42 -o json',
   ]
 
-  static args = {id: Args.string({description: 'Monitor ID', required: true})}
+  static args = {id: uuidArg({description: 'Monitor ID', required: true})}
   static flags = {
     ...globalFlags,
     limit: Flags.integer({description: 'Maximum number of versions to show', default: 20}),
@@ -29,11 +30,11 @@ export default class MonitorsVersionsList extends Command {
     )
     const items = allVersions.slice(0, flags.limit)
     display(this, items, flags.output, [
-      {header: 'VERSION', get: (r) => String(r.version ?? '')},
-      {header: 'CHANGED VIA', get: (r) => String(r.changedVia ?? '')},
-      {header: 'SUMMARY', get: (r) => r.changeSummary ?? ''},
-      {header: 'CREATED AT', get: (r) => String(r.createdAt ?? '')},
-      {header: 'ID', get: (r) => String(r.id ?? '')},
+      {header: 'VERSION', get: (r: MonitorVersionDto) => String(r.version ?? '')},
+      {header: 'CHANGED VIA', get: (r: MonitorVersionDto) => String(r.changedVia ?? '')},
+      {header: 'SUMMARY', get: (r: MonitorVersionDto) => r.changeSummary ?? ''},
+      {header: 'CREATED AT', get: (r: MonitorVersionDto) => String(r.createdAt ?? '')},
+      {header: 'ID', get: (r: MonitorVersionDto) => String(r.id ?? '')},
     ])
   }
 }

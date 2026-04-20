@@ -5,9 +5,9 @@ import type {Changeset, Change} from '../../src/lib/yaml/differ.js'
 
 vi.mock('../../src/lib/api-client.js', () => ({
   checkedFetch: vi.fn(async (p: unknown) => p),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock delegates to client stub
   apiDelete: vi.fn(async (client: any, path: string) => client.DELETE(path, {params: {path: {}}})),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock delegates to client stub
   apiPatch: vi.fn(async (client: any, path: string, body: object) => client.PATCH(path, {body})),
 }))
 

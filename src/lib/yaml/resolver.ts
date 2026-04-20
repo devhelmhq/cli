@@ -224,6 +224,10 @@ export async function fetchAllRefs(client: ApiClient, state?: DeployState): Prom
  */
 export function registerYamlPendingRefs(refs: ResolvedRefs, config: DevhelmConfig): void {
   for (const handler of allHandlers()) {
+    // SAFETY: handler.configKey is a YamlSectionKey, so config[key] is one
+    // of the typed arrays (YamlTag[] | YamlMonitor[] | ...). The handler's
+    // getRefKey is type-erased to accept `unknown` in the registry, matching
+    // the element type. We widen to unknown[] to iterate generically.
     const items = config[handler.configKey] as unknown[] | undefined
     if (!items) continue
     for (const item of items) {

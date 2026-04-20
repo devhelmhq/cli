@@ -10,6 +10,7 @@
  */
 import {existsSync, readFileSync, writeFileSync, mkdirSync} from 'node:fs'
 import {join, dirname} from 'node:path'
+import {z} from 'zod'
 import type {ResourceType} from './types.js'
 
 // ── V2 types ─────────────────────────────────────────────────────────────
@@ -49,6 +50,40 @@ export interface DeployStateV1 {
 }
 
 export type DeployState = DeployStateV2
+
+// ── Zod schemas for state file validation ────────────────────────────────
+
+const ChildStateEntrySchema = z.object({
+  apiId: z.string(),
+  attributes: z.record(z.unknown()),
+})
+
+const StateEntrySchema = z.object({
+  apiId: z.string(),
+  resourceType: z.string(),
+  attributes: z.record(z.unknown()),
+  children: z.record(ChildStateEntrySchema),
+})
+
+const DeployStateV2Schema = z.object({
+  version: z.literal('2'),
+  serial: z.number(),
+  lastDeployedAt: z.string(),
+  resources: z.record(StateEntrySchema),
+})
+
+const StateEntryV1Schema = z.object({
+  resourceType: z.string(),
+  refKey: z.string(),
+  id: z.string(),
+  createdAt: z.string(),
+})
+
+const DeployStateV1Schema = z.object({
+  version: z.string().optional(),
+  lastDeployedAt: z.string().optional(),
+  resources: z.array(StateEntryV1Schema),
+})
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -164,14 +199,25 @@ export function readState(cwd: string = process.cwd()): DeployState | undefined 
   if (raw === null || typeof raw !== 'object') {
     throw new StateFileCorruptError(path, new Error('expected JSON object at top level'))
   }
+
   const obj = raw as Record<string, unknown>
+
+  // V1 detection: explicit version "1" or legacy shape (no version + array resources)
   if (obj.version === '1' || (obj.version === undefined && Array.isArray(obj.resources))) {
-    return migrateV1(obj as unknown as DeployStateV1)
+    const v1 = DeployStateV1Schema.safeParse(raw)
+    if (!v1.success) {
+      const issues = v1.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')
+      throw new StateFileCorruptError(path, new Error(`invalid v1 state: ${issues}`))
+    }
+    return migrateV1(v1.data as DeployStateV1)
   }
-  if (obj.version !== '2' || typeof obj.resources !== 'object' || obj.resources === null) {
-    throw new StateFileCorruptError(path, new Error(`unrecognized state shape (version=${String(obj.version)})`))
+
+  const v2 = DeployStateV2Schema.safeParse(raw)
+  if (!v2.success) {
+    const issues = v2.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')
+    throw new StateFileCorruptError(path, new Error(`invalid v2 state: ${issues}`))
   }
-  return obj as unknown as DeployState
+  return v2.data as DeployState
 }
 
 export function writeState(state: DeployState, cwd: string = process.cwd()): void {

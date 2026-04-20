@@ -5,7 +5,7 @@ import {join, dirname} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const pkg = JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf8'))
+const pkg = JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf8')) as {version: string}
 
 test('devhelm version prints version string', () => {
   const output = execSync('node bin/dev.js version', {

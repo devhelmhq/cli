@@ -1,11 +1,12 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {apiPost} from '../../../lib/api-client.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesGroupsCreate extends Command {
   static description = 'Create a component group on a status page'
   static examples = ['<%= config.bin %> status-pages groups create <page-id> --name "Infrastructure"']
-  static args = {id: Args.string({description: 'Status page ID', required: true})}
+  static args = {id: uuidArg({description: 'Status page ID', required: true})}
   static flags = {
     ...globalFlags,
     name: Flags.string({description: 'Group name', required: true}),

@@ -19,7 +19,16 @@ import {fileURLToPath} from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..', '..')
-const spec = JSON.parse(readFileSync(join(ROOT, 'docs/openapi/monitoring-api.json'), 'utf8'))
+interface OpenApiSpec {
+  components?: {
+    schemas?: Record<string, {
+      properties?: Record<string, {enum?: string[]}>
+      allOf?: Array<{properties?: Record<string, {enum?: string[]}>; oneOf?: Array<{$ref?: string; properties?: Record<string, {enum?: string[]}>}>}>
+      oneOf?: Array<{$ref?: string; properties?: Record<string, {enum?: string[]}>}>
+    }>
+  }
+}
+const spec: OpenApiSpec = JSON.parse(readFileSync(join(ROOT, 'docs/openapi/monitoring-api.json'), 'utf8')) as OpenApiSpec
 
 function specFields(...schemaNames: string[]): string[] {
   const props = new Set<string>()
@@ -323,27 +332,6 @@ describe('Snapshot ↔ DTO field parity', () => {
 // Verifies that the discriminated union dispatch maps in zod-schemas.ts
 // (MONITOR_TYPE_CONFIG_SCHEMAS, ASSERTION_CONFIG_SCHEMAS, CHANNEL_CONFIG_SCHEMAS)
 // cover every config variant defined in the OpenAPI spec.
-
-function specOneOfTypes(schemaName: string, discriminatorField: string): string[] {
-  const s = spec.components?.schemas?.[schemaName]
-  if (!s) return []
-  const variants = s.oneOf ?? s.allOf?.[0]?.oneOf ?? []
-  const types: string[] = []
-  for (const v of variants) {
-    const ref = v.$ref as string | undefined
-    if (ref) {
-      const refName = ref.split('/').pop()!
-      const refSchema = spec.components?.schemas?.[refName]
-      if (refSchema?.properties?.[discriminatorField]?.enum?.[0]) {
-        types.push(refSchema.properties[discriminatorField].enum[0])
-      }
-    }
-    if (v.properties?.[discriminatorField]?.enum?.[0]) {
-      types.push(v.properties[discriminatorField].enum[0])
-    }
-  }
-  return types
-}
 
 describe('Nested config schema coverage', () => {
   it('branding schema fields match StatusPageBranding in spec', () => {

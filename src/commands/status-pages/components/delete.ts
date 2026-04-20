@@ -1,13 +1,14 @@
-import {Command, Args} from '@oclif/core'
+import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../../lib/base-command.js'
 import {apiDelete} from '../../../lib/api-client.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesComponentsDelete extends Command {
   static description = 'Remove a component from a status page'
   static examples = ['<%= config.bin %> status-pages components delete <page-id> <component-id>']
   static args = {
-    id: Args.string({description: 'Status page ID', required: true}),
-    'component-id': Args.string({description: 'Component ID', required: true}),
+    id: uuidArg({description: 'Status page ID', required: true}),
+    'component-id': uuidArg({description: 'Component ID', required: true}),
   }
   static flags = {...globalFlags}
 

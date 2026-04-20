@@ -10,7 +10,7 @@ export default class Version extends Command {
   async run(): Promise<void> {
     await this.parse(Version)
     const __dirname = dirname(fileURLToPath(import.meta.url))
-    const pkg = JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf8'))
+    const pkg = JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf8')) as {version: string}
     this.log(`devhelm/${pkg.version} ${process.platform}-${process.arch} node-${process.version}`)
   }
 }

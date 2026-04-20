@@ -1,14 +1,15 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {apiPost} from '../../../lib/api-client.js'
 import {SP_INCIDENT_STATUSES} from '../../../lib/spec-facts.generated.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesIncidentsPostUpdate extends Command {
   static description = 'Post a timeline update on a status page incident'
   static examples = ['<%= config.bin %> status-pages incidents post-update <page-id> <incident-id> --body "Fix deployed" --status MONITORING']
   static args = {
-    id: Args.string({description: 'Status page ID', required: true}),
-    'incident-id': Args.string({description: 'Incident ID', required: true}),
+    id: uuidArg({description: 'Status page ID', required: true}),
+    'incident-id': uuidArg({description: 'Incident ID', required: true}),
   }
   static flags = {
     ...globalFlags,

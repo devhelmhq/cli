@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest'
-import {interpolate, findVariables, findMissingVariables, InterpolationError} from '../../src/lib/yaml/interpolation.js'
+import {interpolate, interpolateObject, findVariables, findVariablesInObject, findMissingVariables, findMissingVariablesInObject, InterpolationError} from '../../src/lib/yaml/interpolation.js'
 
 describe('interpolation', () => {
   describe('interpolate', () => {
@@ -168,6 +168,117 @@ describe('interpolation', () => {
     it('returns multiple distinct missing vars', () => {
       const missing = findMissingVariables('${A} ${B} ${C}', {})
       expect(missing).toEqual(['A', 'B', 'C'])
+    })
+  })
+
+  describe('interpolateObject (post-parse, injection-safe)', () => {
+    it('interpolates string values in a flat object', () => {
+      const result = interpolateObject({url: '${API_URL}', name: 'test'}, {API_URL: 'https://api.com'})
+      expect(result).toEqual({url: 'https://api.com', name: 'test'})
+    })
+
+    it('interpolates nested objects', () => {
+      const result = interpolateObject(
+        {config: {url: '${URL}', headers: {auth: '${TOKEN}'}}},
+        {URL: 'https://x', TOKEN: 'secret'},
+      )
+      expect(result).toEqual({config: {url: 'https://x', headers: {auth: 'secret'}}})
+    })
+
+    it('interpolates inside arrays', () => {
+      const result = interpolateObject(
+        {regions: ['${R1}', '${R2}']},
+        {R1: 'us-east', R2: 'eu-west'},
+      )
+      expect(result).toEqual({regions: ['us-east', 'eu-west']})
+    })
+
+    it('leaves non-string values unchanged', () => {
+      const result = interpolateObject(
+        {name: '${N}', count: 42, enabled: true, data: null},
+        {N: 'test'},
+      )
+      expect(result).toEqual({name: 'test', count: 42, enabled: true, data: null})
+    })
+
+    it('YAML metacharacters in env values cannot alter structure', () => {
+      const result = interpolateObject(
+        {url: '${EVIL}'},
+        {EVIL: 'value: injected\nnewkey: hacked'},
+      )
+      expect(result).toEqual({url: 'value: injected\nnewkey: hacked'})
+      expect(Object.keys(result as Record<string, unknown>)).toEqual(['url'])
+    })
+
+    it('colons in env values are treated as literal text', () => {
+      const result = interpolateObject(
+        {url: '${URL}'},
+        {URL: 'host:port:extra'},
+      )
+      expect(result).toEqual({url: 'host:port:extra'})
+    })
+
+    it('quotes in env values are treated as literal text', () => {
+      const result = interpolateObject(
+        {value: '${Q}'},
+        {Q: `it's a "test" with 'quotes'`},
+      )
+      expect(result).toEqual({value: `it's a "test" with 'quotes'`})
+    })
+
+    it('nested ${...} in env values are treated as literal text (no re-interpolation)', () => {
+      const result = interpolateObject(
+        {token: '${OUTER}'},
+        {OUTER: '${INNER}', INNER: 'should-not-appear'},
+      )
+      expect(result).toEqual({token: '${INNER}'})
+    })
+
+    it('throws InterpolationError for missing required var in nested object', () => {
+      expect(() => interpolateObject({deep: {key: '${MISSING}'}}, {})).toThrow(InterpolationError)
+    })
+
+    it('uses fallback for missing vars in objects', () => {
+      const result = interpolateObject({url: '${URL:-https://default.com}'}, {})
+      expect(result).toEqual({url: 'https://default.com'})
+    })
+
+    it('handles $$ escape in object values', () => {
+      const result = interpolateObject({price: '$$100'}, {})
+      expect(result).toEqual({price: '$100'})
+    })
+  })
+
+  describe('findVariablesInObject', () => {
+    it('finds variables in nested objects and arrays', () => {
+      const vars = findVariablesInObject({
+        name: '${A}',
+        config: {url: '${B:-x}'},
+        regions: ['${C}'],
+      })
+      expect(vars).toEqual(['A', 'B', 'C'])
+    })
+
+    it('returns empty for objects without vars', () => {
+      expect(findVariablesInObject({name: 'plain', count: 42})).toEqual([])
+    })
+  })
+
+  describe('findMissingVariablesInObject', () => {
+    it('finds missing vars across nested structure', () => {
+      const missing = findMissingVariablesInObject(
+        {url: '${URL}', config: {token: '${TOKEN}', port: '${PORT:-8080}'}},
+        {URL: 'https://x'},
+      )
+      expect(missing).toEqual(['TOKEN'])
+    })
+
+    it('returns empty when all vars are set or have defaults', () => {
+      const missing = findMissingVariablesInObject(
+        {a: '${X}', b: '${Y:-default}'},
+        {X: 'val'},
+      )
+      expect(missing).toEqual([])
     })
   })
 })

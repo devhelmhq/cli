@@ -3,6 +3,7 @@ import {createApiClient, type ApiClient} from './api-client.js'
 import {resolveToken, resolveApiUrl} from './auth.js'
 import {AuthError} from './errors.js'
 import {formatOutput, OutputFormat, ColumnDef} from './output.js'
+import {urlFlag} from './validators.js'
 
 export const globalFlags = {
   output: Flags.string({
@@ -11,7 +12,7 @@ export const globalFlags = {
     options: ['table', 'json', 'yaml'],
     default: 'table',
   }),
-  'api-url': Flags.string({description: 'Override API base URL'}),
+  'api-url': urlFlag({description: 'Override API base URL'}),
   'api-token': Flags.string({description: 'Override API token'}),
   verbose: Flags.boolean({char: 'v', description: 'Show verbose output', default: false}),
 }

@@ -18,8 +18,9 @@ export class ApiRequestError extends Error {
 
   private static parseBody(body: string): string {
     try {
-      const json = JSON.parse(body)
-      return json.message || json.error || body
+      const json = JSON.parse(body) as Record<string, unknown>
+      const msg = json.message ?? json.error
+      return typeof msg === 'string' ? msg : body
     } catch {
       return body || 'Unknown API error'
     }

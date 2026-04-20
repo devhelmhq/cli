@@ -1,14 +1,15 @@
-import {Command, Args} from '@oclif/core'
+import {Command} from '@oclif/core'
 import type {components} from '../../../lib/api.generated.js'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {fetchPaginated} from '../../../lib/typed-api.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 type StatusPageComponent = components['schemas']['StatusPageComponentDto']
 
 export default class StatusPagesComponentsList extends Command {
   static description = 'List components on a status page'
   static examples = ['<%= config.bin %> status-pages components list <page-id>']
-  static args = {id: Args.string({description: 'Status page ID', required: true})}
+  static args = {id: uuidArg({description: 'Status page ID', required: true})}
   static flags = {...globalFlags}
 
   async run() {

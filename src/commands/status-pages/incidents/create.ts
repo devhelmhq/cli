@@ -1,12 +1,13 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
 import {apiPost} from '../../../lib/api-client.js'
 import {SP_INCIDENT_IMPACTS, SP_INCIDENT_STATUSES} from '../../../lib/spec-facts.generated.js'
+import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesIncidentsCreate extends Command {
   static description = 'Create an incident on a status page'
   static examples = ['<%= config.bin %> status-pages incidents create <page-id> --title "Outage" --impact MAJOR']
-  static args = {id: Args.string({description: 'Status page ID', required: true})}
+  static args = {id: uuidArg({description: 'Status page ID', required: true})}
   static flags = {
     ...globalFlags,
     title: Flags.string({description: 'Incident title', required: true}),
