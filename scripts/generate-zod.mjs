@@ -12,7 +12,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { preprocessSpec } from './lib/preprocess.mjs';
+import { preprocessSpec, rewriteUnionsAsDiscriminated } from './lib/preprocess.mjs';
 import { generateZodClientFromOpenAPI } from 'openapi-zod-client';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -110,10 +110,17 @@ async function main() {
   console.log('Reading spec from', SPEC_PATH);
   const spec = JSON.parse(readFileSync(SPEC_PATH, 'utf8'));
 
-  const { flattened } = preprocessSpec(spec);
+  const { flattened, inlinedDiscriminators } = preprocessSpec(spec);
   console.log(`Preprocessed spec (${Object.keys(spec.components?.schemas ?? {}).length} schemas)`);
   if (flattened.length > 0) {
     console.log(`  Flattened circular oneOf: ${flattened.join(', ')}`);
+  }
+  if (inlinedDiscriminators.length > 0) {
+    console.log(
+      `  Inlined discriminator subtypes: ${inlinedDiscriminators
+        .map((u) => `${u.parent}(${u.discriminator})`)
+        .join(', ')}`,
+    );
   }
 
   generateSpecFacts(spec);
@@ -125,11 +132,17 @@ async function main() {
     distPath: OUTPUT_PATH,
     options: {
       exportSchemas: true,
+      // Strict objects everywhere — generated `.passthrough()` calls erase
+      // type narrowing in consumers (e.g. CLI YAML validators).
+      additionalPropertiesDefaultValue: false,
     },
   });
 
   const raw = readFileSync(OUTPUT_PATH, 'utf8');
-  const clean = extractSchemas(raw);
+  let clean = extractSchemas(raw);
+  // Post-process: convert `z.union([...])` → `z.discriminatedUnion("type", [...])`
+  // for hierarchies the preprocessor inlined.
+  clean = rewriteUnionsAsDiscriminated(clean, inlinedDiscriminators);
   writeFileSync(OUTPUT_PATH, clean, 'utf8');
 
   const schemaCount = (clean.match(/^const /gm) || []).length;

@@ -19,9 +19,19 @@
  *      generates `.partial()` for inner objects without their own
  *      `required`.
  *
- *   3. Circular `oneOf` + `allOf` back-references — openapi-zod-client
- *      turns these into `z.lazy()` with broken type inference. Only
- *      affects schemas with inheritance cycles (e.g. billing types).
+ *   3. Discriminator-based polymorphic types (`@JsonTypeInfo`) emit:
+ *        - parent: `{type: object, properties: {<disc>: {type: string}}, discriminator}`
+ *        - subtype: `{allOf: [{$ref: parent}, {type: object, properties: {...}}]}`
+ *      which downstream codegens handle inconsistently and which lose all
+ *      union information at nullable use sites. Pass A inlines parent
+ *      props into each subtype + overloads the discriminator field with a
+ *      `string` enum literal; pass B rewrites the parent itself as a
+ *      `oneOf` of subtype refs (preserving the discriminator).
+ *
+ *   4. Circular `oneOf` + `allOf` back-references — openapi-zod-client
+ *      turns these into `z.lazy()` with broken type inference. After the
+ *      discriminator inline pass these no longer exist for the inlined
+ *      hierarchies, but other (non-discriminated) cycles may still occur.
  *
  * These functions mutate the spec in-place.
  */
@@ -91,6 +101,87 @@ export function pushRequiredIntoAllOf(spec) {
   }
 }
 
+function inlineSubtype(subtype, parent, parentName, discProp, discValue) {
+  const allOf = subtype.allOf ?? [];
+  let inlineMember;
+  for (const m of allOf) {
+    if (!isSchemaObj(m)) continue;
+    inlineMember = m;
+    break;
+  }
+
+  const mergedProps = {};
+  if (parent.properties) Object.assign(mergedProps, parent.properties);
+  if (inlineMember?.properties) Object.assign(mergedProps, inlineMember.properties);
+  if (subtype.properties) Object.assign(mergedProps, subtype.properties);
+
+  mergedProps[discProp] = { type: 'string', enum: [discValue] };
+
+  const requiredSet = new Set();
+  for (const r of parent.required ?? []) requiredSet.add(r);
+  for (const r of inlineMember?.required ?? []) requiredSet.add(r);
+  for (const r of subtype.required ?? []) requiredSet.add(r);
+  requiredSet.add(discProp);
+
+  const description = subtype.description ?? inlineMember?.description;
+
+  delete subtype.allOf;
+  subtype.type = 'object';
+  subtype.properties = mergedProps;
+  subtype.required = Array.from(requiredSet);
+  if (description) subtype.description = description;
+
+  void parentName;
+}
+
+/**
+ * Inline discriminator subtypes and rewrite the parent as a `oneOf` of
+ * subtype refs (with discriminator preserved). Returns metadata for each
+ * rewritten hierarchy so callers can post-process generated code.
+ */
+export function inlineDiscriminatorSubtypesWithInfo(spec) {
+  const schemas = getSchemas(spec);
+  const result = [];
+
+  for (const [parentName, parent] of Object.entries(schemas)) {
+    const disc = parent.discriminator;
+    if (!disc?.propertyName || !disc.mapping) continue;
+    const discProp = disc.propertyName;
+
+    const subtypeNames = new Map();
+    for (const [value, ref] of Object.entries(disc.mapping)) {
+      if (typeof ref !== 'string') continue;
+      const name = ref.split('/').pop();
+      if (name && schemas[name]) subtypeNames.set(name, value);
+    }
+    if (subtypeNames.size === 0) continue;
+
+    for (const [subtypeName, discValue] of subtypeNames) {
+      inlineSubtype(schemas[subtypeName], parent, parentName, discProp, discValue);
+    }
+
+    const subtypeRefs = Array.from(subtypeNames.keys()).map((name) => ({
+      $ref: `#/components/schemas/${name}`,
+    }));
+    const description = parent.description;
+    const rewritten = { oneOf: subtypeRefs, discriminator: disc };
+    if (description) rewritten.description = description;
+
+    delete parent.type;
+    delete parent.properties;
+    delete parent.required;
+    delete parent.allOf;
+    Object.assign(parent, rewritten);
+
+    result.push({
+      parent: parentName,
+      discriminator: discProp,
+      subtypes: Array.from(subtypeNames.keys()),
+    });
+  }
+  return result;
+}
+
 export function flattenCircularOneOf(spec) {
   const schemas = getSchemas(spec);
   const flattened = [];
@@ -117,6 +208,39 @@ export function preprocessSpec(spec) {
   setRequiredFields(spec);
   setRequiredOnAllOfMembers(spec);
   pushRequiredIntoAllOf(spec);
+  // Inline discriminator subtypes BEFORE the circular-oneOf flatten so we
+  // don't accidentally drop the parent oneOf we just installed (the cycle
+  // is broken once subtypes no longer back-reference the parent).
+  const inlinedDiscriminators = inlineDiscriminatorSubtypesWithInfo(spec);
   const flattened = flattenCircularOneOf(spec);
-  return { flattened };
+  return { flattened, inlinedDiscriminators };
+}
+
+/**
+ * Rewrite `z.union([A, B, C])` calls into
+ * `z.discriminatedUnion("<prop>", [A, B, C])` when the member set matches
+ * one of the supplied unions exactly (set equality).
+ */
+export function rewriteUnionsAsDiscriminated(source, unions) {
+  if (!unions || unions.length === 0) return source;
+
+  const lookup = new Map();
+  for (const u of unions) {
+    const key = [...u.subtypes].sort().join(',');
+    lookup.set(key, u.discriminator);
+  }
+
+  const unionRe =
+    /z\.union\(\s*\[\s*([A-Z][A-Za-z0-9_]*(?:\s*,\s*[A-Z][A-Za-z0-9_]*)*)\s*,?\s*\]\s*\)/g;
+
+  return source.replace(unionRe, (full, members) => {
+    const memberList = members
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const key = [...memberList].sort().join(',');
+    const disc = lookup.get(key);
+    if (!disc) return full;
+    return `z.discriminatedUnion("${disc}", [${memberList.join(', ')}])`;
+  });
 }
