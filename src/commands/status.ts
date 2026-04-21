@@ -2,7 +2,7 @@ import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../lib/base-command.js'
 import {apiGetSingle} from '../lib/api-client.js'
 import {formatOutput, OutputFormat} from '../lib/output.js'
-import {DashboardOverviewSchema} from '../lib/response-schemas.js'
+import {schemas as apiSchemas} from '../lib/api-zod.generated.js'
 
 export default class Status extends Command {
   static description = 'Show dashboard overview'
@@ -12,7 +12,7 @@ export default class Status extends Command {
   async run() {
     const {flags} = await this.parse(Status)
     const client = buildClient(flags)
-    const overview = await apiGetSingle(client, '/api/v1/dashboard/overview', DashboardOverviewSchema)
+    const overview = await apiGetSingle(client, '/api/v1/dashboard/overview', apiSchemas.DashboardOverviewDto)
 
     const format = flags.output as OutputFormat
     if (format === 'json' || format === 'yaml') {

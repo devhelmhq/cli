@@ -240,7 +240,7 @@ function nonNullStrings(arr: (string | null)[] | null | undefined): string[] {
   return (arr ?? []).filter((v): v is string => v !== null)
 }
 
-function sortedIds(ids: string[]): string[] {
+function sortedIds<T extends string>(ids: readonly T[]): T[] {
   return [...ids].sort()
 }
 
@@ -552,7 +552,14 @@ const webhookHandler = defineHandler<YamlWebhook, Schemas['WebhookEndpointDto'],
   toCurrentSnapshot: (api) => ({
     url: api.url ?? null,
     description: api.description ?? null,
-    subscribedEvents: api.subscribedEvents ? sortedIds(api.subscribedEvents) : null,
+    // Cast: spec asymmetry — `CreateWebhookEndpointRequest.subscribedEvents`
+    // narrows items to the WEBHOOK_EVENT_TYPES enum, but the response DTO
+    // emits plain `string[]`. The API only ever returns valid event types
+    // (it's the same backing column as the request enum), so this cast is
+    // safe; remove once the OpenAPI spec adds the enum to the DTO too.
+    subscribedEvents: api.subscribedEvents
+      ? (sortedIds(api.subscribedEvents) as WebhookSnapshot['subscribedEvents'])
+      : null,
     enabled: api.enabled ?? null,
   }),
 

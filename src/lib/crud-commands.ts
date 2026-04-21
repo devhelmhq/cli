@@ -1,7 +1,8 @@
 import {Command, Args, Flags, type Interfaces} from '@oclif/core'
+import type {ZodType} from 'zod'
 import {globalFlags, buildClient, display} from './base-command.js'
-import {fetchPaginated} from './typed-api.js'
-import {apiGet, apiPost, apiPut, apiDelete} from './api-client.js'
+import {fetchPaginated, fetchPaginatedValidated} from './typed-api.js'
+import {apiGet, apiPost, apiPut, apiDelete, apiGetSingle, apiPostSingle, apiPutSingle, unwrapData} from './api-client.js'
 import type {ColumnDef} from './output.js'
 import {uuidArg} from './validators.js'
 
@@ -20,6 +21,21 @@ export interface ResourceConfig<T = unknown> {
   updateFlags?: Interfaces.FlagInput
   bodyBuilder?: (flags: Record<string, unknown>) => object
   updateBodyBuilder?: (flags: Record<string, unknown>) => object
+  /**
+   * Zod schema for the response DTO — should always be imported from
+   * `api-zod.generated.ts` so it tracks the OpenAPI spec exactly. The
+   * CRUD factory routes single-item responses through `parseSingle`
+   * (envelope `.strict()` — P1) and list responses through
+   * `fetchPaginatedValidated`, so unknown response fields raise a typed
+   * `ValidationError` at the API boundary rather than flowing silently
+   * into `display()` and surfacing as a confusing downstream crash.
+   *
+   * Optional only because a few generic tools (e.g. probe / debug
+   * commands) operate on resources without a stable DTO; production
+   * resources MUST pass a schema. Falls back to a best-effort
+   * `unwrapData()` if omitted.
+   */
+  responseSchema?: ZodType<T>
 }
 
 export function createListCommand<T>(config: ResourceConfig<T>) {
@@ -34,7 +50,14 @@ export function createListCommand<T>(config: ResourceConfig<T>) {
     async run() {
       const {flags} = await this.parse(ListCmd)
       const client = buildClient(flags)
-      const items = await fetchPaginated<T>(client, config.apiPath, flags['page-size'])
+      const items = config.responseSchema
+        ? await fetchPaginatedValidated<T>(
+            client,
+            config.apiPath,
+            config.responseSchema,
+            flags['page-size'],
+          )
+        : await fetchPaginated<T>(client, config.apiPath, flags['page-size'])
       display(this, items, flags.output, config.columns)
     }
   }
@@ -61,8 +84,11 @@ export function createGetCommand<T>(config: ResourceConfig<T>) {
       const {args, flags} = await this.parse(GetCmd)
       const client = buildClient(flags)
       const id = args[idLabel]
-      const resp = (await apiGet(client, `${config.apiPath}/${id}`)) as {data?: T}
-      display(this, resp.data ?? resp, flags.output)
+      const path = `${config.apiPath}/${id}`
+      const value = config.responseSchema
+        ? await apiGetSingle<T>(client, path, config.responseSchema)
+        : unwrapData(await apiGet(client, path))
+      display(this, value, flags.output)
     }
   }
 
@@ -81,8 +107,10 @@ export function createCreateCommand<T>(config: ResourceConfig<T>) {
       const client = buildClient(flags)
       const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
       const body = config.bodyBuilder ? config.bodyBuilder(raw) : raw
-      const resp = (await apiPost(client, config.apiPath, body)) as {data?: T}
-      display(this, resp.data ?? resp, flags.output)
+      const value = config.responseSchema
+        ? await apiPostSingle<T>(client, config.apiPath, config.responseSchema, body)
+        : unwrapData(await apiPost(client, config.apiPath, body))
+      display(this, value, flags.output)
     }
   }
 
@@ -105,8 +133,11 @@ export function createUpdateCommand<T>(config: ResourceConfig<T>) {
       const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
       const builder = config.updateBodyBuilder ?? config.bodyBuilder
       const body = builder ? builder(raw) : raw
-      const resp = (await apiPut(client, `${config.apiPath}/${id}`, body)) as {data?: T}
-      display(this, resp.data ?? resp, flags.output)
+      const path = `${config.apiPath}/${id}`
+      const value = config.responseSchema
+        ? await apiPutSingle<T>(client, path, config.responseSchema, body)
+        : unwrapData(await apiPut(client, path, body))
+      display(this, value, flags.output)
     }
   }
 

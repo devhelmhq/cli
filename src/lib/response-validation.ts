@@ -1,20 +1,19 @@
 /**
  * Runtime response validation helpers — port of sdk-js's `validation.ts`.
  *
- * Why: Until this lands, every CLI command unwrapped its API response with
- * `apiGet<T>(...)` whose body was `data as T` — a compile-time-only assertion
- * that silently accepted any shape from the server. Spec drift (renamed
- * field, removed enum value, missing required) would surface as a confusing
- * runtime error deep in `display()` / `transform()` rather than as a typed
- * `DevhelmError` at the API boundary.
+ * Callers that pass a Zod schema get a typed envelope unwrap
+ * (`parseSingle` → `T`, `parsePage` → `Page<T>`, `parseCursorPage` →
+ * `CursorPage<T>`) where unknown top-level fields raise (P1) and shape
+ * mismatches throw a typed `ValidationError` with a path into the
+ * offending field.
  *
- * Now: callers that opt in by passing a Zod schema get a typed envelope
- * unwrap (`parseSingle` → `T`, `parsePage` → `Page<T>`, `parseCursorPage`
- * → `CursorPage<T>`) where unknown top-level fields raise (P1) and shape
- * mismatches throw a typed `ValidationError` with a path into the offending
- * field. The CRUD factory in `crud-commands.ts` reads `responseSchema` off
- * the per-resource `ResourceConfig` and routes through these helpers
- * automatically; ad-hoc handwritten commands can call them directly.
+ * The CRUD factory in `crud-commands.ts` reads `responseSchema` off the
+ * per-resource `ResourceConfig` and routes through these helpers
+ * automatically — every resource passes a schema imported from
+ * `api-zod.generated.ts`, so spec drift surfaces as a typed
+ * `ValidationError` at the API boundary instead of a confusing crash
+ * deep in `display()`. Ad-hoc handwritten commands can call
+ * `parseSingle` / `parsePage` / `parseCursorPage` directly.
  */
 import {z, type ZodType, type ZodIssue, type ZodError} from 'zod'
 import {ValidationError} from './errors.js'

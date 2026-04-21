@@ -2,12 +2,13 @@
  * Pre-flight entitlement check: fetches /auth/me and compares
  * planned resource creation against plan limits.
  */
+import {z} from 'zod'
 import type {ApiClient} from '../api-client.js'
 import {apiGetSingle} from '../api-client.js'
-import {AuthMeResponseSchema} from '../response-schemas.js'
+import {schemas as apiSchemas} from '../api-zod.generated.js'
 import type {Changeset} from './types.js'
 
-type AuthMeResponse = ReturnType<typeof AuthMeResponseSchema.parse>
+type AuthMeResponse = z.infer<typeof apiSchemas.AuthMeResponse>
 
 export interface EntitlementWarning {
   resource: string
@@ -45,7 +46,7 @@ export async function checkEntitlements(
 ): Promise<EntitlementCheck | null> {
   let data: AuthMeResponse
   try {
-    data = await apiGetSingle(client, '/api/v1/auth/me', AuthMeResponseSchema)
+    data = await apiGetSingle(client, '/api/v1/auth/me', apiSchemas.AuthMeResponse)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     process.stderr.write(`Entitlement check skipped: ${msg}\n`)

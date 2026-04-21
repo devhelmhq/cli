@@ -152,7 +152,14 @@ async function main() {
     openApiDoc: spec,
     distPath: OUTPUT_PATH,
     options: {
-      exportSchemas: true,
+      // Emit a top-level export for every named schema in the spec — without
+      // this, openapi-zod-client only exports schemas reused across multiple
+      // endpoints and inlines single-use response DTOs (MonitorDto,
+      // IncidentDto, …) into the endpoint definitions, which extractSchemas()
+      // then strips. Matches sdk-js so all surfaces share the same import
+      // pattern (`schemas.MonitorDto`) instead of forcing the CLI to
+      // hand-roll DTO Zod schemas that drift from the spec.
+      shouldExportAllSchemas: true,
       // Strict objects everywhere — generated `.passthrough()` calls erase
       // type narrowing in consumers (e.g. CLI YAML validators). Also
       // required so `z.union([...])` correctly rejects non-matching

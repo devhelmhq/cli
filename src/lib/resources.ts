@@ -12,6 +12,8 @@ import {
   INCIDENT_SEVERITIES,
   CHANNEL_TYPES,
   STATUS_PAGE_INCIDENT_MODES,
+  WEBHOOK_EVENT_TYPES,
+  type WebhookEventTypes,
 } from './spec-facts.generated.js'
 import {STATUS_PAGE_VISIBILITIES} from './yaml/schema.js'
 
@@ -52,6 +54,7 @@ export const MONITORS: ResourceConfig<MonitorDto> = {
   name: 'monitor',
   plural: 'monitors',
   apiPath: '/api/v1/monitors',
+  responseSchema: apiSchemas.MonitorDto as z.ZodType<MonitorDto>,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -138,6 +141,7 @@ export const INCIDENTS: ResourceConfig<IncidentDto> = {
   name: 'incident',
   plural: 'incidents',
   apiPath: '/api/v1/incidents',
+  responseSchema: apiSchemas.IncidentDto as z.ZodType<IncidentDto>,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'TITLE', get: (r) => r.title ?? ''},
@@ -171,6 +175,7 @@ export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
   name: 'alert channel',
   plural: 'alert-channels',
   apiPath: '/api/v1/alert-channels',
+  responseSchema: apiSchemas.AlertChannelDto as z.ZodType<AlertChannelDto>,
   columns: [
     {header: 'ID', get: (r) => r.id},
     {header: 'NAME', get: (r) => r.name},
@@ -270,6 +275,7 @@ export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
   name: 'notification policy',
   plural: 'notification-policies',
   apiPath: '/api/v1/notification-policies',
+  responseSchema: apiSchemas.NotificationPolicyDto as z.ZodType<NotificationPolicyDto>,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -316,6 +322,7 @@ export const ENVIRONMENTS: ResourceConfig<EnvironmentDto> = {
   plural: 'environments',
   apiPath: '/api/v1/environments',
   idField: 'slug',
+  responseSchema: apiSchemas.EnvironmentDto as z.ZodType<EnvironmentDto>,
   columns: [
     {header: 'SLUG', get: (r) => r.slug ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -336,6 +343,7 @@ export const SECRETS: ResourceConfig<SecretDto> = {
   plural: 'secrets',
   apiPath: '/api/v1/secrets',
   idField: 'key',
+  responseSchema: apiSchemas.SecretDto as z.ZodType<SecretDto>,
   columns: [
     {header: 'KEY', get: (r) => r.key ?? ''},
     {header: 'CREATED', get: (r) => r.createdAt ?? ''},
@@ -355,6 +363,7 @@ export const TAGS: ResourceConfig<TagDto> = {
   name: 'tag',
   plural: 'tags',
   apiPath: '/api/v1/tags',
+  responseSchema: apiSchemas.TagDto as z.ZodType<TagDto>,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -374,6 +383,7 @@ export const RESOURCE_GROUPS: ResourceConfig<ResourceGroupDto> = {
   name: 'resource group',
   plural: 'resource-groups',
   apiPath: '/api/v1/resource-groups',
+  responseSchema: apiSchemas.ResourceGroupDto as z.ZodType<ResourceGroupDto>,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -394,6 +404,7 @@ export const WEBHOOKS: ResourceConfig<WebhookEndpointDto> = {
   name: 'webhook',
   plural: 'webhooks',
   apiPath: '/api/v1/webhooks',
+  responseSchema: apiSchemas.WebhookEndpointDto as z.ZodType<WebhookEndpointDto>,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'URL', get: (r) => r.url ?? ''},
@@ -414,11 +425,27 @@ export const WEBHOOKS: ResourceConfig<WebhookEndpointDto> = {
     const body: Partial<Schemas['CreateWebhookEndpointRequest']> = {}
     if (raw.url !== undefined) body.url = String(raw.url)
     if (raw.events !== undefined) {
-      body.subscribedEvents = String(raw.events).split(',').map((s) => s.trim()).filter(Boolean)
+      body.subscribedEvents = parseWebhookEvents(String(raw.events))
     }
     if (raw.description !== undefined) body.description = String(raw.description)
     return body
   },
+}
+
+// Splits a comma-separated `--events` flag, validates each value against the
+// spec-derived `WEBHOOK_EVENT_TYPES` tuple, and returns the narrowed array.
+// Throws a single error listing every unknown value so users don't have to
+// fix-and-retry per typo.
+function parseWebhookEvents(raw: string): WebhookEventTypes[] {
+  const parts = raw.split(',').map((s) => s.trim()).filter(Boolean)
+  const valid = new Set<string>(WEBHOOK_EVENT_TYPES)
+  const invalid = parts.filter((p) => !valid.has(p))
+  if (invalid.length > 0) {
+    throw new Error(
+      `Unknown webhook event(s): ${invalid.join(', ')}. Valid: ${[...WEBHOOK_EVENT_TYPES].join(', ')}`,
+    )
+  }
+  return parts as WebhookEventTypes[]
 }
 
 export const API_KEYS: ResourceConfig<ApiKeyDto> = {
@@ -426,6 +453,7 @@ export const API_KEYS: ResourceConfig<ApiKeyDto> = {
   plural: 'api-keys',
   apiPath: '/api/v1/api-keys',
   validateIdAsUuid: false,
+  responseSchema: apiSchemas.ApiKeyDto as z.ZodType<ApiKeyDto>,
   columns: [
     {header: 'ID', get: (r) => String(r.id ?? '')},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -449,6 +477,7 @@ export const DEPENDENCIES: ResourceConfig<ServiceSubscriptionDto> = {
   plural: 'dependencies',
   apiPath: '/api/v1/service-subscriptions',
   idField: 'subscriptionId',
+  responseSchema: apiSchemas.ServiceSubscriptionDto as z.ZodType<ServiceSubscriptionDto>,
   columns: [
     {header: 'ID', get: (r) => r.subscriptionId ?? ''},
     {header: 'SERVICE', get: (r) => r.name ?? ''},
@@ -462,6 +491,7 @@ export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
   name: 'status page',
   plural: 'status-pages',
   apiPath: '/api/v1/status-pages',
+  responseSchema: apiSchemas.StatusPageDto as z.ZodType<Schemas['StatusPageDto']>,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},

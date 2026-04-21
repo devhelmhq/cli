@@ -4,8 +4,9 @@
  * Uses `apiGet` from api-client (which centralizes the dynamic-path cast)
  * to iterate through pages until exhausted or a max-items cap is reached.
  */
+import type {ZodType} from 'zod'
 import type {ApiClient} from './api-client.js'
-import {apiGet} from './api-client.js'
+import {apiGet, apiGetPage} from './api-client.js'
 
 const DEFAULT_PAGE_SIZE = 200
 
@@ -28,6 +29,33 @@ export async function fetchPaginated<TItem>(
     const resp = (await apiGet(client, path, {query: {page, size: pageSize}})) as PageResponse<TItem>
     results.push(...(resp.data ?? []))
     if (resp.hasNext !== true) break
+    page++
+  }
+
+  return results
+}
+
+/**
+ * Schema-validated variant of `fetchPaginated`.
+ *
+ * Each page is parsed through `parsePage` (envelope `.strict()` — P1) so an
+ * unknown top-level field on the `TableValueResult` envelope, or a per-item
+ * shape mismatch, raises a typed `ValidationError` rather than flowing
+ * silently into `display()`. Continues paginating until `hasNext === false`.
+ */
+export async function fetchPaginatedValidated<TItem>(
+  client: ApiClient,
+  path: string,
+  itemSchema: ZodType<TItem>,
+  pageSize = DEFAULT_PAGE_SIZE,
+): Promise<TItem[]> {
+  const results: TItem[] = []
+  let page = 0
+
+  while (true) {
+    const resp = await apiGetPage(client, path, itemSchema, {query: {page, size: pageSize}})
+    results.push(...resp.data)
+    if (!resp.hasNext) break
     page++
   }
 

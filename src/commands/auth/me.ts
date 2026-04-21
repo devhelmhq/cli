@@ -2,7 +2,7 @@ import {Command} from '@oclif/core'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
 import {apiGetSingle} from '../../lib/api-client.js'
 import {formatOutput, OutputFormat} from '../../lib/output.js'
-import {AuthMeResponseSchema} from '../../lib/response-schemas.js'
+import {schemas as apiSchemas} from '../../lib/api-zod.generated.js'
 
 export default class AuthMe extends Command {
   static description = 'Show current API key identity, organization, plan, and rate limits'
@@ -12,7 +12,7 @@ export default class AuthMe extends Command {
   async run() {
     const {flags} = await this.parse(AuthMe)
     const client = buildClient(flags)
-    const me = await apiGetSingle(client, '/api/v1/auth/me', AuthMeResponseSchema)
+    const me = await apiGetSingle(client, '/api/v1/auth/me', apiSchemas.AuthMeResponse)
 
     const format = flags.output as OutputFormat
     if (format === 'json' || format === 'yaml') {

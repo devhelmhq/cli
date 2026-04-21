@@ -43,26 +43,37 @@ function monitorCreates(n: number): Changeset {
   return {creates, updates: [], deletes: [], memberships: []}
 }
 
-// Build a full /auth/me response. The runtime Zod schema requires every
-// top-level field; tests only care about plan + organization, so we provide
-// inert defaults for the rest.
+// Build a full /auth/me response shaped to satisfy the strict generated
+// `AuthMeResponse` Zod schema. Tests only care about plan + organization,
+// but every required field on KeyInfo / PlanInfo / EntitlementDto /
+// RateLimitInfo must be present and well-typed (e.g. ISO datetime with
+// timezone offset) — exactly what the API guarantees.
 function makeAuthMeData(overrides: {
   plan: {
-    tier: string
+    tier: 'FREE' | 'STARTER' | 'PRO' | 'TEAM' | 'BUSINESS' | 'ENTERPRISE'
     entitlements: Record<string, {value: number; key?: string}>
     usage: Record<string, number>
   }
   organization?: {name: string; id?: number}
 }) {
-  const planEntitlements: Record<string, {key: string; value: number}> = {}
+  const planEntitlements: Record<
+    string,
+    {key: string; value: number; defaultValue: number; overridden: boolean}
+  > = {}
   for (const [k, v] of Object.entries(overrides.plan.entitlements)) {
-    planEntitlements[k] = {key: v.key ?? k, value: v.value}
+    planEntitlements[k] = {
+      key: v.key ?? k,
+      value: v.value,
+      defaultValue: v.value,
+      overridden: false,
+    }
   }
   return {
-    key: {id: 1, name: 'test-key', createdAt: '2024-01-01T00:00:00Z'},
+    key: {id: 1, name: 'test-key', createdAt: '2024-01-01T00:00:00+00:00'},
     organization: overrides.organization ?? {id: 1, name: 'TestOrg'},
     plan: {
       tier: overrides.plan.tier,
+      trialActive: false,
       entitlements: planEntitlements,
       usage: overrides.plan.usage,
     },

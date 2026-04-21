@@ -3265,7 +3265,7 @@ export interface components {
             /** @description Optional human-readable description */
             description?: string | null;
             /** @description Event types to deliver, e.g. monitor.created, incident.resolved */
-            subscribedEvents: string[];
+            subscribedEvents: ("monitor.created" | "monitor.updated" | "monitor.deleted" | "incident.created" | "incident.resolved" | "incident.reopened" | "service.status_changed" | "service.component_changed" | "service.incident_created" | "service.incident_updated" | "service.incident_resolved")[];
         };
         /** @description Create a new workspace within the organization */
         CreateWorkspaceRequest: {
@@ -4409,8 +4409,11 @@ export interface components {
         };
         /** @description Match rules to evaluate (all must pass; omit or empty for catch-all) */
         MatchRule: {
-            /** @description Rule type, e.g. severity_gte, monitor_id_in, region_in */
-            type: string;
+            /**
+             * @description Rule type, e.g. severity_gte, monitor_id_in, region_in
+             * @enum {string}
+             */
+            type: "severity_gte" | "monitor_id_in" | "region_in" | "incident_status" | "monitor_type_in" | "service_id_in" | "resource_group_id_in" | "component_name_in";
             /** @description Comparison value for single-value rules like severity_gte */
             value?: string | null;
             /** @description Monitor UUIDs to match for monitor_id_in rules */
@@ -7018,7 +7021,7 @@ export interface components {
             /** @description New description; null preserves current */
             description?: string | null;
             /** @description Replace subscribed events; null preserves current */
-            subscribedEvents?: string[] | null;
+            subscribedEvents?: ("monitor.created" | "monitor.updated" | "monitor.deleted" | "incident.created" | "incident.resolved" | "incident.reopened" | "service.status_changed" | "service.component_changed" | "service.incident_created" | "service.incident_updated" | "service.incident_resolved")[] | null;
             /** @description Enable or disable delivery; null preserves current */
             enabled?: boolean | null;
         };
