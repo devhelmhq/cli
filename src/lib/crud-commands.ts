@@ -44,6 +44,14 @@ export interface ResourceConfig<T> {
    * into `display()` and surfacing as a confusing downstream crash.
    */
   responseSchema: ZodType<T>
+  /**
+   * Optional response schema for the `get <id>` endpoint when it
+   * returns a richer detail DTO than the list/entity DTO (e.g. incident
+   * `get` returns `IncidentDetailDto` with the update timeline; list
+   * returns the flat `IncidentDto`). Defaults to `responseSchema` when
+   * the entity DTO is the same on both endpoints.
+   */
+  getResponseSchema?: ZodType<unknown>
 }
 
 /**
@@ -58,10 +66,19 @@ export interface ResourceConfig<T> {
  * schema is `z.object(...)` so this fits, but it would correctly reject
  * a primitive schema like `z.string()`.
  */
-export interface CreatableResource<T> extends ResourceConfig<T> {
+export interface CreatableResource<T, C = T> extends ResourceConfig<T> {
   createFlags: Interfaces.FlagInput
   bodyBuilder: (flags: Record<string, unknown>) => object
   createRequestSchema: ZodType<object>
+  /**
+   * Optional response schema for the `create` endpoint when it differs
+   * from the entity DTO returned by `list` / `get` (e.g. API key
+   * `create` returns `ApiKeyCreateResponse` with the full secret value
+   * rather than `ApiKeyDto`; incident `create` returns
+   * `IncidentDetailDto` rather than `IncidentDto`). Defaults to
+   * `responseSchema` for the common case where create echoes the entity.
+   */
+  createResponseSchema?: ZodType<C>
 }
 
 /**
@@ -112,6 +129,7 @@ function idArg(config: Pick<ResourceConfig<unknown>, 'name' | 'idField' | 'valid
 
 export function createGetCommand<T>(config: ResourceConfig<T>) {
   const idLabel = config.idField ?? 'id'
+  const getResponseSchema = (config.getResponseSchema ?? config.responseSchema) as ZodType<unknown>
   class GetCmd extends Command {
     static description = `Get a ${config.name} by ${idLabel}`
     static examples = [`<%= config.bin %> ${config.plural} get <${idLabel}>`]
@@ -123,7 +141,7 @@ export function createGetCommand<T>(config: ResourceConfig<T>) {
       const client = buildClient(flags)
       const id = args[idLabel]
       const path = `${config.apiPath}/${id}`
-      const value = await apiGetSingle<T>(client, path, config.responseSchema)
+      const value = await apiGetSingle<unknown>(client, path, getResponseSchema)
       display(this, value, flags.output)
     }
   }
@@ -131,8 +149,9 @@ export function createGetCommand<T>(config: ResourceConfig<T>) {
   return GetCmd
 }
 
-export function createCreateCommand<T>(config: CreatableResource<T>) {
+export function createCreateCommand<T, C = T>(config: CreatableResource<T, C>) {
   const resourceFlags = config.createFlags
+  const createResponseSchema = (config.createResponseSchema ?? (config.responseSchema as unknown)) as ZodType<C>
   class CreateCmd extends Command {
     static description = `Create a new ${config.name}`
     static examples = [`<%= config.bin %> ${config.plural} create`]
@@ -144,7 +163,7 @@ export function createCreateCommand<T>(config: CreatableResource<T>) {
       const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
       const built = config.bodyBuilder(raw)
       const body = parseSchema(config.createRequestSchema, built, `${config.name}.create body invalid`)
-      const value = await apiPostSingle<T>(client, config.apiPath, config.responseSchema, body)
+      const value = await apiPostSingle<C>(client, config.apiPath, createResponseSchema, body)
       display(this, value, flags.output)
     }
   }

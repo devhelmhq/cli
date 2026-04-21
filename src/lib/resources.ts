@@ -34,6 +34,7 @@ type Schemas = components['schemas']
 
 type MonitorDto = Schemas['MonitorDto']
 type IncidentDto = Schemas['IncidentDto']
+type IncidentDetailDto = Schemas['IncidentDetailDto']
 type AlertChannelDto = Schemas['AlertChannelDto']
 type NotificationPolicyDto = Schemas['NotificationPolicyDto']
 type EnvironmentDto = Schemas['EnvironmentDto']
@@ -42,6 +43,7 @@ type TagDto = Schemas['TagDto']
 type ResourceGroupDto = Schemas['ResourceGroupDto']
 type WebhookEndpointDto = Schemas['WebhookEndpointDto']
 type ApiKeyDto = Schemas['ApiKeyDto']
+type ApiKeyCreateResponse = Schemas['ApiKeyCreateResponse']
 type ServiceSubscriptionDto = Schemas['ServiceSubscriptionDto']
 
 // Imperative `bodyBuilder`s build `Record<string, unknown>` and lean on the
@@ -149,11 +151,18 @@ function buildMonitorConfig(type: string, raw: Record<string, unknown>): object 
   }
 }
 
-export const INCIDENTS: CreatableResource<IncidentDto> = {
+export const INCIDENTS: CreatableResource<IncidentDto, IncidentDetailDto> = {
   name: 'incident',
   plural: 'incidents',
   apiPath: '/api/v1/incidents',
   responseSchema: apiSchemas.IncidentDto as z.ZodType<IncidentDto>,
+  // POST /api/v1/incidents and GET /api/v1/incidents/{id} both return
+  // the full IncidentDetailDto envelope ({incident, updates,
+  // statusPageIncidents}); only list returns the flat IncidentDto.
+  // Distinguishing the two prevents the strict SingleValueResponse
+  // parser from rejecting the wider create / get payload.
+  createResponseSchema: apiSchemas.IncidentDetailDto as z.ZodType<IncidentDetailDto>,
+  getResponseSchema: apiSchemas.IncidentDetailDto as z.ZodType<IncidentDetailDto>,
   createRequestSchema: apiSchemas.CreateManualIncidentRequest,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
@@ -519,12 +528,16 @@ function parseWebhookEvents(raw: string): WebhookEventTypes[] {
   return parts as WebhookEventTypes[]
 }
 
-export const API_KEYS: CreatableResource<ApiKeyDto> = {
+export const API_KEYS: CreatableResource<ApiKeyDto, ApiKeyCreateResponse> = {
   name: 'API key',
   plural: 'api-keys',
   apiPath: '/api/v1/api-keys',
   validateIdAsUuid: false,
   responseSchema: apiSchemas.ApiKeyDto as z.ZodType<ApiKeyDto>,
+  // POST /api/v1/api-keys returns the one-shot ApiKeyCreateResponse
+  // (omits updatedAt/lastUsedAt/revokedAt; surfaces the full secret
+  // exactly once). list/get use the persisted ApiKeyDto.
+  createResponseSchema: apiSchemas.ApiKeyCreateResponse as z.ZodType<ApiKeyCreateResponse>,
   createRequestSchema: apiSchemas.CreateApiKeyRequest,
   columns: [
     {header: 'ID', get: (r) => String(r.id ?? '')},
