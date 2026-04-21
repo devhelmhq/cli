@@ -2,43 +2,65 @@ import createClient, {type Middleware} from 'openapi-fetch'
 import type {PathsWithMethod} from 'openapi-typescript-helpers'
 import type {ZodType} from 'zod'
 import type {paths, components} from './api.generated.js'
-import {AuthError, DevhelmError, EXIT_CODES} from './errors.js'
+import {
+  DevhelmApiError,
+  DevhelmAuthError,
+  DevhelmNotFoundError,
+  DevhelmTransportError,
+  type DevhelmApiErrorOptions,
+} from './errors.js'
 import {parseSingle, parsePage, parseCursorPage, type Page, type CursorPage as ValidatedCursorPage} from './response-validation.js'
 
 export type {paths, components}
 
-export class ApiRequestError extends Error {
-  constructor(
-    public status: number,
-    public statusText: string,
-    public body: string,
-  ) {
-    const parsed = ApiRequestError.parseBody(body)
-    super(parsed)
-    this.name = 'ApiRequestError'
+/**
+ * Build a `DevhelmApiError` (or appropriate subclass) from the openapi-fetch
+ * `error` body and the raw `Response`. Pulls `code` and `requestId` from the
+ * canonical `ErrorResponse` envelope; the `X-Request-Id` response header
+ * always wins so we still get the id even when the body is non-conforming.
+ */
+function errorFromResponse(rawError: unknown, response: Response): DevhelmApiError {
+  const headerRequestId = response.headers.get('x-request-id') ?? undefined
+
+  let code: string | undefined
+  let bodyRequestId: string | undefined
+  let detail: string | undefined
+  let message = response.statusText || `HTTP ${response.status}`
+
+  if (rawError && typeof rawError === 'object') {
+    const body = rawError as Record<string, unknown>
+    if (typeof body.message === 'string' && body.message.length > 0) {
+      message = body.message
+      detail = body.message
+    } else if (typeof body.error === 'string' && body.error.length > 0) {
+      message = body.error
+      detail = body.error
+    }
+    if (typeof body.code === 'string' && body.code.length > 0) code = body.code
+    if (typeof body.requestId === 'string' && body.requestId.length > 0) {
+      bodyRequestId = body.requestId
+    } else if (typeof body.request_id === 'string' && body.request_id.length > 0) {
+      bodyRequestId = body.request_id
+    }
+  } else if (typeof rawError === 'string' && rawError.length > 0) {
+    message = rawError
+    detail = rawError
   }
 
-  private static parseBody(body: string): string {
-    try {
-      const json = JSON.parse(body) as Record<string, unknown>
-      const msg = json.message ?? json.error
-      return typeof msg === 'string' ? msg : body
-    } catch {
-      return body || 'Unknown API error'
-    }
+  const opts: DevhelmApiErrorOptions = {
+    code,
+    requestId: headerRequestId ?? bodyRequestId,
+    detail,
+    rawBody: rawError,
   }
 
-  toTypedError(): DevhelmError {
-    if (this.status === 401 || this.status === 403) {
-      return new AuthError(`Authentication failed: ${this.message}`)
-    }
-
-    if (this.status === 404) {
-      return new DevhelmError(this.message, EXIT_CODES.NOT_FOUND)
-    }
-
-    return new DevhelmError(this.message, EXIT_CODES.API)
+  if (response.status === 401 || response.status === 403) {
+    return new DevhelmAuthError(message, response.status, opts)
   }
+  if (response.status === 404) {
+    return new DevhelmNotFoundError(message, response.status, opts)
+  }
+  return new DevhelmApiError(message, response.status, opts)
 }
 
 // Backward-compatible wrapper types matching the API response shapes
@@ -92,8 +114,10 @@ export type ApiClient = ReturnType<typeof createApiClient>
 
 /**
  * Unwrap an openapi-fetch response: returns the raw JSON body as `unknown`
- * on success, throws a typed DevhelmError on failure (AuthError for 401/403,
- * NOT_FOUND for 404, API for others).
+ * on success, throws a typed `DevhelmApiError` (or `DevhelmAuthError` /
+ * `DevhelmNotFoundError` for 401-403/404) on a non-2xx response, or a
+ * `DevhelmTransportError` when the request never produced a response (DNS,
+ * timeout, TLS, connection reset).
  *
  * Callers MUST validate the returned `unknown` through a Zod schema (use
  * `apiGetSingle` / `apiGetPage` / `apiGetCursorPage` from this module, or
@@ -104,11 +128,16 @@ export type ApiClient = ReturnType<typeof createApiClient>
 export async function checkedFetch(
   promise: Promise<{data?: unknown; error?: unknown; response: Response}>,
 ): Promise<unknown> {
-  const {data, error, response} = await promise
+  let result: {data?: unknown; error?: unknown; response: Response}
+  try {
+    result = await promise
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause)
+    throw new DevhelmTransportError(message, {cause})
+  }
+  const {data, error, response} = result
   if (error || !response.ok) {
-    const body = typeof error === 'object' && error !== null ? JSON.stringify(error) : String(error ?? 'Unknown error')
-    const apiError = new ApiRequestError(response.status, response.statusText, body)
-    throw apiError.toTypedError()
+    throw errorFromResponse(error, response)
   }
   return data
 }
