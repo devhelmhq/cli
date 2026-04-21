@@ -55,7 +55,7 @@ export default class Plan extends Command {
     try {
       config = loadConfig(flags.file)
     } catch (err) {
-      this.error(err instanceof Error ? err.message : String(err), {exit: 1})
+      this.error(err instanceof Error ? err.message : String(err), {exit: EXIT_CODES.VALIDATION})
     }
 
     const result = validate(config)
@@ -64,12 +64,15 @@ export default class Plan extends Command {
       for (const e of result.errors) {
         this.log(`  ✗ ${e.path}: ${e.message}`)
       }
-      this.error('Fix validation errors first', {exit: 4})
+      this.error('Fix validation errors first', {exit: EXIT_CODES.VALIDATION})
     }
 
     const token = flags['api-token'] ?? resolveToken()
     if (!token) {
-      this.error('No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.', {exit: 1})
+      this.error(
+        'No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.',
+        {exit: EXIT_CODES.VALIDATION},
+      )
     }
 
     const client = createApiClient({
@@ -83,7 +86,7 @@ export default class Plan extends Command {
       currentState = readState() ?? emptyState()
     } catch (err) {
       if (err instanceof StateFileCorruptError) {
-        this.error(err.message, {exit: 1})
+        this.error(err.message, {exit: EXIT_CODES.VALIDATION})
       }
       throw err
     }
@@ -120,7 +123,7 @@ export default class Plan extends Command {
       for (const e of planResult.errors) {
         this.log(`  ✗ ${e.path}: ${e.message}`)
       }
-      this.error('Fix validation errors first', {exit: 4})
+      this.error('Fix validation errors first', {exit: EXIT_CODES.VALIDATION})
     }
 
     const changeset = diff(

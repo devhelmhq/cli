@@ -1,4 +1,5 @@
 import {Command, Flags} from '@oclif/core'
+import {EXIT_CODES} from '../../lib/errors.js'
 import {readState, StateFileCorruptError} from '../../lib/yaml/state.js'
 
 export default class StateShow extends Command {
@@ -20,7 +21,7 @@ export default class StateShow extends Command {
       state = readState()
     } catch (err) {
       if (err instanceof StateFileCorruptError) {
-        this.error(err.message, {exit: 1})
+        this.error(err.message, {exit: EXIT_CODES.VALIDATION})
       }
       throw err
     }

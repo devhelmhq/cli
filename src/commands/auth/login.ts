@@ -2,6 +2,7 @@ import {Command, Flags} from '@oclif/core'
 import {globalFlags} from '../../lib/base-command.js'
 import {createApiClient, checkedFetch, apiGet} from '../../lib/api-client.js'
 import {saveContext, resolveApiUrl} from '../../lib/auth.js'
+import {EXIT_CODES} from '../../lib/errors.js'
 import * as readline from 'node:readline'
 
 export default class AuthLogin extends Command {
@@ -25,18 +26,12 @@ export default class AuthLogin extends Command {
     const client = createApiClient({baseUrl: apiUrl, token})
 
     try {
-      const resp = (await checkedFetch(client.GET('/api/v1/auth/me'))) as {
-        data?: {
-          organization?: {name?: string; id?: string | number}
-          key?: {name?: string}
-          plan?: {tier?: string}
-        }
-      }
-      if (!resp.data) {
+      const resp = await checkedFetch(client.GET('/api/v1/auth/me'))
+      const me = resp?.data
+      if (!me) {
         throw new Error('Empty response')
       }
 
-      const me = resp.data
       saveContext({name: flags.name, apiUrl, token}, true)
       this.log('')
       this.log(`  Authenticated successfully.`)
@@ -57,7 +52,10 @@ export default class AuthLogin extends Command {
       this.log(`  Authenticated successfully.`)
       this.log(`  Context '${flags.name}' saved to ~/.devhelm/contexts.json`)
     } catch {
-      this.error('Invalid token. Authentication failed.', {exit: 2})
+      // Token rejected by the API. Surface as DevhelmAuthError-equivalent
+      // (exit 11 — same as any other 4xx) so scripts can branch on the
+      // canonical API error code instead of a bespoke "auth login" exit.
+      this.error('Invalid token. Authentication failed.', {exit: EXIT_CODES.API})
     }
   }
 

@@ -2,6 +2,7 @@ import {Command, Flags} from '@oclif/core'
 import type {components} from '../../lib/api.generated.js'
 import {createApiClient} from '../../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
+import {EXIT_CODES} from '../../lib/errors.js'
 import {urlFlag} from '../../lib/validators.js'
 import {fetchAllRefs} from '../../lib/yaml/resolver.js'
 import {allHandlers} from '../../lib/yaml/handlers.js'
@@ -31,7 +32,10 @@ export default class StatePull extends Command {
 
     const token = flags['api-token'] ?? resolveToken()
     if (!token) {
-      this.error('No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.', {exit: 1})
+      this.error(
+        'No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.',
+        {exit: EXIT_CODES.VALIDATION},
+      )
     }
 
     const client = createApiClient({

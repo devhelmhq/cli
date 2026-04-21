@@ -1,4 +1,5 @@
 import {Command, Args, Flags} from '@oclif/core'
+import {EXIT_CODES} from '../lib/errors.js'
 import {parseConfigFile, validate} from '../lib/yaml/index.js'
 
 export default class Validate extends Command {
@@ -43,9 +44,9 @@ export default class Validate extends Command {
       const msg = err instanceof Error ? err.message : String(err)
       if (isJson) {
         this.log(JSON.stringify({valid: false, errors: [{path: '', message: msg}], warnings: []}, null, 2))
-        this.exit(1)
+        this.exit(EXIT_CODES.VALIDATION)
       }
-      this.error(msg, {exit: 1})
+      this.error(msg, {exit: EXIT_CODES.VALIDATION})
     }
 
     const result = validate(config)
@@ -59,7 +60,7 @@ export default class Validate extends Command {
         errors: result.errors,
         warnings: result.warnings,
       }, null, 2))
-      if (hasErrors || strictFail) this.exit(4)
+      if (hasErrors || strictFail) this.exit(EXIT_CODES.VALIDATION)
       return
     }
 
@@ -77,7 +78,7 @@ export default class Validate extends Command {
         this.log(`  ✗ ${e.path}: ${e.message}`)
       }
       this.log('')
-      this.exit(4)
+      this.exit(EXIT_CODES.VALIDATION)
     }
 
     if (strictFail) {
@@ -86,7 +87,7 @@ export default class Validate extends Command {
         this.log(`  ✗ ${w.path}: ${w.message}`)
       }
       this.log('')
-      this.exit(4)
+      this.exit(EXIT_CODES.VALIDATION)
     }
 
     const sections: string[] = []

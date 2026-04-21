@@ -1,6 +1,7 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags} from '../../../lib/base-command.js'
 import {removeContext} from '../../../lib/auth.js'
+import {EXIT_CODES} from '../../../lib/errors.js'
 
 export default class AuthContextDelete extends Command {
   static description = 'Delete an auth context'
@@ -11,7 +12,9 @@ export default class AuthContextDelete extends Command {
   async run() {
     const {args} = await this.parse(AuthContextDelete)
     const ok = removeContext(args.name)
-    if (!ok) { this.error(`Context '${args.name}' not found.`, {exit: 1}) }
+    if (!ok) {
+      this.error(`Context '${args.name}' not found.`, {exit: EXIT_CODES.VALIDATION})
+    }
     this.log(`Context '${args.name}' deleted.`)
   }
 }

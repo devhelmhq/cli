@@ -1,8 +1,8 @@
 import {hostname} from 'node:os'
 import {Command, Flags} from '@oclif/core'
-import {createApiClient, apiPost, apiDelete} from '../../lib/api-client.js'
+import {checkedFetch, createApiClient, apiDelete} from '../../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
-import {EXIT_CODES} from '../../lib/errors.js'
+import {DevhelmApiError, EXIT_CODES} from '../../lib/errors.js'
 import {urlFlag} from '../../lib/validators.js'
 import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, formatPlan, changesetToJson, apply, writeState, buildStateV2, readState, emptyState, processMovedBlocks, resourceAddress, StateFileCorruptError} from '../../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../../lib/yaml/entitlements.js'
@@ -82,7 +82,7 @@ export default class Deploy extends Command {
     try {
       config = loadConfig(flags.file)
     } catch (err) {
-      this.error(err instanceof Error ? err.message : String(err), {exit: 1})
+      this.error(err instanceof Error ? err.message : String(err), {exit: EXIT_CODES.VALIDATION})
     }
 
     const result = validate(config)
@@ -91,12 +91,15 @@ export default class Deploy extends Command {
       for (const e of result.errors) {
         this.log(`  ✗ ${e.path}: ${e.message}`)
       }
-      this.error('Fix validation errors before deploying', {exit: 4})
+      this.error('Fix validation errors before deploying', {exit: EXIT_CODES.VALIDATION})
     }
 
     const token = flags['api-token'] ?? resolveToken()
     if (!token) {
-      this.error('No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.', {exit: 1})
+      this.error(
+        'No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.',
+        {exit: EXIT_CODES.VALIDATION},
+      )
     }
 
     const client = createApiClient({
@@ -110,7 +113,7 @@ export default class Deploy extends Command {
       currentState = readState() ?? emptyState()
     } catch (err) {
       if (err instanceof StateFileCorruptError) {
-        this.error(err.message, {exit: 1})
+        this.error(err.message, {exit: EXIT_CODES.VALIDATION})
       }
       throw err
     }
@@ -146,7 +149,7 @@ export default class Deploy extends Command {
       for (const e of planResult.errors) {
         this.log(`  ✗ ${e.path}: ${e.message}`)
       }
-      this.error('Fix validation errors before deploying', {exit: 4})
+      this.error('Fix validation errors before deploying', {exit: EXIT_CODES.VALIDATION})
     }
 
     const changeset = diff(
@@ -277,18 +280,23 @@ export default class Deploy extends Command {
 
     while (true) {
       try {
-        const resp = (await apiPost(
-          client, '/api/v1/deploy/lock',
-          {lockedBy: `${process.env.USER ?? 'cli'}@${hostname()}`, ttlMinutes: DEFAULT_LOCK_TTL},
-        )) as {data?: {id?: string}}
-        const lockId = resp.data?.id
+        const resp = await checkedFetch(
+          client.POST('/api/v1/deploy/lock', {
+            body: {lockedBy: `${process.env.USER ?? 'cli'}@${hostname()}`, ttlMinutes: DEFAULT_LOCK_TTL},
+          }),
+        )
+        const lockId = resp?.data?.id
         if (!lockId) {
           this.warn('Deploy lock acquired but no lock ID returned. Proceeding without lock protection.')
         }
         return lockId
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
-        const isConflict = msg.includes('409') || msg.includes('Conflict') || msg.includes('lock held')
+        // Branch on the typed error rather than substring-matching, which
+        // otherwise misclassifies any message containing "Conflict" as a
+        // lock contention. Server returns 409 when another session holds
+        // the lock.
+        const isConflict = err instanceof DevhelmApiError && err.status === 409
 
         if (isConflict && Date.now() < deadline) {
           lastError = msg
