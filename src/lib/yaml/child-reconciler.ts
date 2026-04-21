@@ -6,8 +6,18 @@
  * via an optional reorder callback.
  *
  * Used by status page groups/components and (future) resource group members.
+ *
+ * Partial-failure contract:
+ *   Each delete/create/update is attempted in isolation. When an op
+ *   throws, we record it as failed but keep going through the remaining
+ *   ops in the same phase, so the user gets maximum forward progress per
+ *   deploy. We accumulate the surviving child state map and, if any op
+ *   failed, raise a `PartialApplyError` carrying that map so the caller
+ *   (status page handler → applier) can persist the partial state and
+ *   surface the error. See `apply-error.ts` for the rationale.
  */
 import isEqual from 'lodash-es/isEqual.js'
+import {PartialApplyError} from './apply-error.js'
 import type {ChildStateEntry} from './state.js'
 
 // ── Public interface ─────────────────────────────────────────────────────
@@ -163,6 +173,16 @@ export function hasChildChanges(result: ChildDiffResult): boolean {
 
 /**
  * Apply child diff operations to the API and return updated state.
+ *
+ * On per-op failure: we keep going through the remaining ops in the same
+ * phase (deletes, creates, updates) so a single transient error doesn't
+ * block independent siblings. Successfully reconciled children land in
+ * `childState`; failed creates are excluded so the next deploy retries
+ * them as creates, and failed updates/deletes are recorded with empty
+ * attributes so the next diff still sees drift and retries.
+ *
+ * If any op failed, we throw `PartialApplyError` carrying the accumulated
+ * partial state — the caller persists it and surfaces the error.
  */
 export async function applyChildDiff<TYaml, TApi>(
   def: ChildCollectionDef<TYaml, TApi>,
@@ -174,6 +194,9 @@ export async function applyChildDiff<TYaml, TApi>(
 ): Promise<ChildApplyResult> {
   const changes: ChildChange[] = []
   const childState: Record<string, ChildStateEntry> = {}
+  const errors: string[] = []
+  const failedKeys = new Set<string>()
+  const newIds = new Map<string, string>()
 
   // `existingByKey` (built by diffChildren) is keyed by the YAML identity key
   // and reflects state-aware matching, so renames resolve correctly. We must
@@ -181,32 +204,61 @@ export async function applyChildDiff<TYaml, TApi>(
   // *old* API name and miss any child whose YAML name has changed.
   const existingByKey = diffResult.existingByKey
 
-  // Delete first (avoids name conflicts during create)
+  // Phase 1: deletes (avoid name conflicts during create). Continue on
+  // failure: a stuck delete shouldn't block creates of unrelated siblings.
   for (const del of diffResult.deletes) {
-    await def.applyDelete(parentId, del.childId)
-    changes.push({action: 'delete', childKey: del.key, childId: del.childId})
+    try {
+      await def.applyDelete(parentId, del.childId)
+      changes.push({action: 'delete', childKey: del.key, childId: del.childId})
+    } catch (err) {
+      errors.push(`delete ${def.name}.${del.key}: ${errorMessage(err)}`)
+      // Carry the orphan forward in state so the next diff still sees it
+      // (its YAML key is gone, so the next run re-queues the delete).
+      // Empty attributes keep `hasChildChanges` indifferent — the diff
+      // logic decides delete vs update from YAML presence, not attrs.
+      childState[`${def.name}.${del.key}`] = {apiId: del.childId, attributes: {}}
+    }
   }
 
-  // Create new children
-  const newIds = new Map<string, string>()
+  // Phase 2: creates
   for (const create of diffResult.creates) {
     const yaml = desiredYaml[create.index]
     if (yaml === undefined) continue
-    const newId = await def.applyCreate(parentId, yaml, create.index)
-    newIds.set(create.key, newId)
-    changes.push({action: 'create', childKey: create.key, childId: newId})
+    try {
+      const newId = await def.applyCreate(parentId, yaml, create.index)
+      newIds.set(create.key, newId)
+      changes.push({action: 'create', childKey: create.key, childId: newId})
+    } catch (err) {
+      errors.push(`create ${def.name}.${create.key}: ${errorMessage(err)}`)
+      failedKeys.add(create.key)
+    }
   }
 
-  // Update existing children
+  // Phase 3: updates
   for (const update of diffResult.updates) {
     const yaml = desiredYaml[update.index]
     if (yaml === undefined) continue
-    await def.applyUpdate(parentId, update.childId, yaml, update.index)
-    changes.push({action: 'update', childKey: update.key, childId: update.childId})
+    try {
+      await def.applyUpdate(parentId, update.childId, yaml, update.index)
+      changes.push({action: 'update', childKey: update.key, childId: update.childId})
+    } catch (err) {
+      errors.push(`update ${def.name}.${update.key}: ${errorMessage(err)}`)
+      // Record the apiId with empty attributes so the next diff sees the
+      // child as still drifted (desired snapshot ≠ stored {}) and retries
+      // the update. Critically, we do NOT store the desired snapshot here
+      // — that would mark the child as in-sync and the retry would never
+      // happen.
+      childState[`${def.name}.${update.key}`] = {
+        apiId: update.childId, attributes: {},
+      }
+      failedKeys.add(update.key)
+    }
   }
 
-  // Reorder if needed and handler supports it
-  if (diffResult.reorder && def.applyReorder) {
+  // Phase 4: reorder. Skip when any earlier op failed: the ordered set is
+  // incomplete, so a partial reorder could move surviving children to wrong
+  // positions. Re-run handles ordering once everything is in place.
+  if (diffResult.reorder && def.applyReorder && errors.length === 0) {
     const orderedIds: string[] = []
     for (const yaml of desiredYaml) {
       const key = def.identityKey(yaml)
@@ -214,22 +266,44 @@ export async function applyChildDiff<TYaml, TApi>(
       if (id) orderedIds.push(id)
     }
     if (orderedIds.length > 0) {
-      await def.applyReorder(parentId, orderedIds)
+      try {
+        await def.applyReorder(parentId, orderedIds)
+      } catch (err) {
+        errors.push(`reorder ${def.name}: ${errorMessage(err)}`)
+      }
     }
   }
 
-  // Build child state for all desired children. Renamed children survive here
-  // because `existingByKey` was populated by state-aware matching in diff.
+  // Build child state for every desired child whose identity is known.
+  // - Skipped: failed creates (no apiId yet — re-run retries as create)
+  // - Skipped: keys already populated above (failed updates/deletes) so we
+  //   don't overwrite their attributes-empty marker with the desired snap.
+  // Renamed children survive because `existingByKey` was populated by
+  // state-aware matching in diff.
   for (const yaml of desiredYaml) {
     const key = def.identityKey(yaml)
+    if (failedKeys.has(key) && !newIds.has(key)) continue
+    const stateKey = `${def.name}.${key}`
+    if (childState[stateKey] !== undefined) continue
     const apiId = newIds.get(key) ?? existingByKey[key]
     if (apiId) {
-      childState[`${def.name}.${key}`] = {
+      childState[stateKey] = {
         apiId,
         attributes: def.toDesiredSnapshot(yaml),
       }
     }
   }
 
+  if (errors.length > 0) {
+    throw new PartialApplyError(
+      `${def.name}: ${errors.length} operation(s) failed: ${errors.join('; ')}`,
+      {children: childState},
+    )
+  }
+
   return {changes, childState}
+}
+
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err)
 }

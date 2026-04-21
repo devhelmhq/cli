@@ -7,6 +7,7 @@
 import type {ApiClient} from '../api-client.js'
 import {checkedFetch, apiDelete} from '../api-client.js'
 import {HANDLER_MAP, normalizeCreateOutcome, normalizeUpdateOutcome} from './handlers.js'
+import {PartialApplyError} from './apply-error.js'
 import type {Changeset, Change, HandledResourceType, ResourceType} from './types.js'
 import type {ResolvedRefs, RefEntry} from './resolver.js'
 import type {ChildStateEntry, DeployState} from './state.js'
@@ -99,6 +100,28 @@ export async function apply(
         })
       }
     } catch (err) {
+      // Partial-success recovery: if the handler created the parent in
+      // the API but failed during a downstream step (e.g. child
+      // reconciliation), persist the parent id + surviving children so
+      // the next deploy doesn't have to re-discover them. Mirrors the
+      // "partial-state-with-warning" contract used by the Terraform
+      // provider for monitor.Update / webhook.Create.
+      if (err instanceof PartialApplyError && err.partial.id) {
+        const handler = HANDLER_MAP[change.resourceType as HandledResourceType]
+        if (handler) {
+          refs.set(handler.refType, change.refKey, {
+            id: err.partial.id, refKey: change.refKey,
+            raw: change.desired as RefEntry['raw'],
+          })
+        }
+        stateEntries.push({
+          resourceType: change.resourceType as ResourceType,
+          refKey: change.refKey,
+          apiId: err.partial.id,
+          attributes: {name: change.refKey},
+          children: err.partial.children ?? {},
+        })
+      }
       failed.push({
         action: 'create', resourceType: change.resourceType,
         refKey: change.refKey, error: errorMessage(err),
@@ -107,9 +130,9 @@ export async function apply(
   }
 
   for (const change of changeset.updates) {
+    const priorChildren = lookupPriorChildren(change.resourceType as ResourceType, change.refKey)
     try {
       const handler = lookupHandler(change.resourceType, 'update')
-      const priorChildren = lookupPriorChildren(change.resourceType as ResourceType, change.refKey)
       const raw = await handler.applyUpdate(change.desired, change.existingId!, refs, client, priorChildren)
       const outcome = normalizeUpdateOutcome(raw)
       succeeded.push({action: 'update', resourceType: change.resourceType, refKey: change.refKey, id: change.existingId})
@@ -123,6 +146,19 @@ export async function apply(
         })
       }
     } catch (err) {
+      // Same partial-success recovery as the create branch above. The
+      // parent body update may have landed even though child
+      // reconciliation failed; if so, we still want state to reflect
+      // any surviving children so the next deploy's diff is accurate.
+      if (err instanceof PartialApplyError && change.existingId) {
+        stateEntries.push({
+          resourceType: change.resourceType as ResourceType,
+          refKey: change.refKey,
+          apiId: change.existingId,
+          attributes: {name: change.refKey},
+          children: err.partial.children ?? priorChildren,
+        })
+      }
       failed.push({
         action: 'update', resourceType: change.resourceType,
         refKey: change.refKey, error: errorMessage(err),

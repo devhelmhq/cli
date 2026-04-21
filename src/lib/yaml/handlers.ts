@@ -65,6 +65,7 @@ function castEnvelope<T>(resp: unknown): {data?: T} {
 }
 import type {ChildCollectionDef} from './child-reconciler.js'
 import {diffChildren, applyChildDiff} from './child-reconciler.js'
+import {PartialApplyError} from './apply-error.js'
 import type {ChildStateEntry} from './state.js'
 
 type Schemas = components['schemas']
@@ -1132,10 +1133,14 @@ async function reconcileStatusPageChildren(
   // Carry prior state children for any kind we are NOT reconciling, so they
   // remain tracked after this apply.
   const carriedState: Record<string, ChildStateEntry> = {}
+  // Accumulator for surviving children across both phases. We thread this
+  // through both happy + error paths so a partial component failure
+  // doesn't lose the groups we already created (and vice versa).
+  const accumulated: Record<string, ChildStateEntry> = {}
+  const errors: string[] = []
 
   // Phase 1: Groups — fetch if we will reconcile OR if components need the name→id map
   let existingGroups: Schemas['StatusPageComponentGroupDto'][] = []
-  let groupChildState: Record<string, ChildStateEntry> = {}
   if (reconcileGroups || reconcileComponents) {
     existingGroups = await fetchPaginated<Schemas['StatusPageComponentGroupDto']>(
       client, `/api/v1/status-pages/${pageId}/groups`,
@@ -1151,10 +1156,19 @@ async function reconcileStatusPageChildren(
 
     const desiredGroups = yaml.componentGroups ?? []
     const groupDiff = diffChildren(groupDef, desiredGroups, existingGroups, groupStateChildren)
-    const groupResult = await applyChildDiff(
-      groupDef, pageId, desiredGroups, groupDiff, existingGroups, groupStateChildren,
-    )
-    groupChildState = groupResult.childState
+    try {
+      const groupResult = await applyChildDiff(
+        groupDef, pageId, desiredGroups, groupDiff, existingGroups, groupStateChildren,
+      )
+      Object.assign(accumulated, groupResult.childState)
+    } catch (err) {
+      // Drain whatever PartialApplyError carried so siblings (and the
+      // component phase below) aren't punished for a peer's failure.
+      if (err instanceof PartialApplyError && err.partial.children) {
+        Object.assign(accumulated, err.partial.children)
+      }
+      errors.push(err instanceof Error ? err.message : String(err))
+    }
   } else {
     // Preserve any group entries from prior state
     for (const [key, entry] of Object.entries(stateChildren)) {
@@ -1162,18 +1176,23 @@ async function reconcileStatusPageChildren(
     }
   }
 
-  // Build group name → ID map (needed only if reconciling components)
+  // Build group name → ID map from whatever survived: existing API groups
+  // plus any newly-reconciled ones (including those that landed before a
+  // peer failure). Components that reference a group that did NOT survive
+  // will fail with a clearer error in their own phase.
   const groupNameToId = new Map<string, string>()
   for (const g of existingGroups) {
     groupNameToId.set(g.name ?? '', String(g.id))
   }
-  for (const [key, entry] of Object.entries(groupChildState)) {
-    const name = key.replace('groups.', '')
-    groupNameToId.set(name, entry.apiId)
+  for (const [key, entry] of Object.entries(accumulated)) {
+    if (key.startsWith('groups.')) {
+      groupNameToId.set(key.slice('groups.'.length), entry.apiId)
+    }
   }
 
-  // Phase 2: Components
-  let componentChildState: Record<string, ChildStateEntry> = {}
+  // Phase 2: Components — runs even if groups partially failed so the user
+  // gets maximum forward progress per deploy. Component creates that
+  // depended on a failed group will themselves fail and be surfaced.
   if (reconcileComponents) {
     const componentDef = makeComponentCollectionDef(client, refs, groupNameToId)
     const existingComponents = await fetchPaginated<Schemas['StatusPageComponentDto']>(
@@ -1187,17 +1206,32 @@ async function reconcileStatusPageChildren(
 
     const desiredComponents = yaml.components ?? []
     const componentDiff = diffChildren(componentDef, desiredComponents, existingComponents, componentStateChildren)
-    const componentResult = await applyChildDiff(
-      componentDef, pageId, desiredComponents, componentDiff, existingComponents, componentStateChildren,
-    )
-    componentChildState = componentResult.childState
+    try {
+      const componentResult = await applyChildDiff(
+        componentDef, pageId, desiredComponents, componentDiff, existingComponents, componentStateChildren,
+      )
+      Object.assign(accumulated, componentResult.childState)
+    } catch (err) {
+      if (err instanceof PartialApplyError && err.partial.children) {
+        Object.assign(accumulated, err.partial.children)
+      }
+      errors.push(err instanceof Error ? err.message : String(err))
+    }
   } else {
     for (const [key, entry] of Object.entries(stateChildren)) {
       if (key.startsWith('components.')) carriedState[key] = entry
     }
   }
 
-  return {...carriedState, ...groupChildState, ...componentChildState}
+  const finalChildren = {...carriedState, ...accumulated}
+  if (errors.length > 0) {
+    throw new PartialApplyError(
+      `status page children: ${errors.join('; ')}`,
+      {children: finalChildren},
+    )
+  }
+
+  return finalChildren
 }
 
 const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto'], StatusPageSnapshot>({
@@ -1248,17 +1282,46 @@ const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto']
     const resp = (await apiPost(client, '/api/v1/status-pages', toCreateStatusPageRequest(yaml))) as {data?: Schemas['StatusPageDto']}
     const pageId = resp.data?.id
     if (!pageId) return undefined
-    const children = await reconcileStatusPageChildren(yaml, pageId, refs, client, priorChildren ?? {})
-    return {id: pageId, children}
+    try {
+      const children = await reconcileStatusPageChildren(yaml, pageId, refs, client, priorChildren ?? {})
+      return {id: pageId, children}
+    } catch (err) {
+      // Re-throw as a parent-aware PartialApplyError so the applier can
+      // persist the parent id + surviving children (state.json) before
+      // recording the failure. Without this, the parent page is created
+      // API-side but absent from state — fixable on next deploy via API
+      // discovery, but identity-preserving renames lose their state pin.
+      if (err instanceof PartialApplyError) {
+        throw new PartialApplyError(
+          `status page "${yaml.slug}" created (id=${pageId}) but child reconciliation failed: ${err.message}`,
+          {id: pageId, children: err.partial.children ?? {}},
+        )
+      }
+      throw err
+    }
   },
   async applyUpdate(yaml, id, refs, client, priorChildren) {
     const body = toUpdateStatusPageRequest(yaml)
     await apiPut(client, `/api/v1/status-pages/${id}`, body)
-    let children = priorChildren ?? {}
-    if (yaml.componentGroups !== undefined || yaml.components !== undefined) {
-      children = await reconcileStatusPageChildren(yaml, id, refs, client, priorChildren ?? {})
+    if (yaml.componentGroups === undefined && yaml.components === undefined) {
+      return {children: priorChildren ?? {}}
     }
-    return {children}
+    try {
+      const children = await reconcileStatusPageChildren(yaml, id, refs, client, priorChildren ?? {})
+      return {children}
+    } catch (err) {
+      // Body PUT already landed; surface partial children so the applier
+      // updates state with whatever survived. The parent id is `existingId`
+      // on the caller side, so we still attach it here for symmetry with
+      // applyCreate.
+      if (err instanceof PartialApplyError) {
+        throw new PartialApplyError(
+          `status page "${yaml.slug}" body updated but child reconciliation failed: ${err.message}`,
+          {id, children: err.partial.children ?? priorChildren ?? {}},
+        )
+      }
+      throw err
+    }
   },
   deletePath: (id) => `/api/v1/status-pages/${id}`,
 })
