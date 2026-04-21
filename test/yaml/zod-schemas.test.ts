@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest'
-import {DevhelmConfigSchema, formatZodErrors, _ZOD_ENUMS} from '../../src/lib/yaml/zod-schemas.js'
+import {DevhelmConfigSchema, formatZodErrors, formatZodPath, _ZOD_ENUMS} from '../../src/lib/yaml/zod-schemas.js'
 import * as schema from '../../src/lib/yaml/schema.js'
 
 describe('DevhelmConfigSchema', () => {
@@ -591,5 +591,42 @@ describe('formatZodErrors', () => {
       const messages = formatZodErrors(result.error)
       expect(messages[0]).toMatch(/^\(root\):/)
     }
+  })
+
+  // Path format must match validator.ts (`monitors[0].config.url`) so users
+  // never see two competing notations for what is structurally the same
+  // location.  Without this, the structural Zod layer reported
+  // `monitors.0.config.url` while the cross-resource validator reported
+  // `monitors[0].config.url` — visible whenever both layers fire on one file.
+  it('renders array indices as [N] for parity with validator.ts', () => {
+    const result = DevhelmConfigSchema.safeParse({
+      monitors: [{name: 'X', type: 'HTTP', config: {}}],
+    })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const messages = formatZodErrors(result.error)
+      const joined = messages.join('\n')
+      expect(joined).toContain('monitors[0]')
+      expect(joined).not.toMatch(/monitors\.0\b/)
+    }
+  })
+})
+
+describe('formatZodPath', () => {
+  it('returns (root) for an empty path', () => {
+    expect(formatZodPath([])).toBe('(root)')
+  })
+
+  it('uses dotted notation for object fields', () => {
+    expect(formatZodPath(['monitors', 'config', 'url'])).toBe('monitors.config.url')
+  })
+
+  it('uses [N] notation for numeric indices', () => {
+    expect(formatZodPath(['monitors', 0, 'config', 'url'])).toBe('monitors[0].config.url')
+  })
+
+  it('does not insert a dot before [N]', () => {
+    expect(formatZodPath([0])).toBe('[0]')
+    expect(formatZodPath(['arr', 1, 2, 'k'])).toBe('arr[1][2].k')
   })
 })

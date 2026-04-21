@@ -192,7 +192,10 @@ describe('child-reconciler', () => {
         existingByKey: {A: 'id-1', B: 'id-2'},
       }
       await applyChildDiff(def, 'p-1', [{name: 'B'}, {name: 'A'}], diffResult, current)
-      expect(reorderFn).toHaveBeenCalledWith('p-1', ['id-2', 'id-1'])
+      expect(reorderFn).toHaveBeenCalledWith('p-1', [
+        {id: 'id-2', yaml: {name: 'B'}, index: 0},
+        {id: 'id-1', yaml: {name: 'A'}, index: 1},
+      ])
     })
 
     it('builds complete child state for state file', async () => {

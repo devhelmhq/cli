@@ -113,22 +113,31 @@ export function createApiClient(opts: {
 export type ApiClient = ReturnType<typeof createApiClient>
 
 /**
- * Unwrap an openapi-fetch response: returns the raw JSON body as `unknown`
- * on success, throws a typed `DevhelmApiError` (or `DevhelmAuthError` /
- * `DevhelmNotFoundError` for 401-403/404) on a non-2xx response, or a
- * `DevhelmTransportError` when the request never produced a response (DNS,
- * timeout, TLS, connection reset).
+ * Unwrap an openapi-fetch response. On a 2xx, returns whatever
+ * openapi-fetch decoded into `data` — typed as `TData` because the
+ * generic flows from the input promise's `data?: TData` field. On a
+ * non-2xx response, throws a typed `DevhelmApiError` (or
+ * `DevhelmAuthError` / `DevhelmNotFoundError` for 401–403 / 404). When
+ * the request never produced a response (DNS, timeout, TLS, connection
+ * reset) it throws `DevhelmTransportError`.
  *
- * Callers MUST validate the returned `unknown` through a Zod schema (use
- * `apiGetSingle` / `apiGetPage` / `apiGetCursorPage` from this module, or
- * roll their own with `parseSingle` / `parsePage` from
- * `response-validation.ts`). The previous `data as T` cast was a P5
- * violation that hid spec drift behind silent type-only assertions.
+ * Why the generic matters: without it, callers — especially the YAML
+ * apply handlers — were forced to wrap every result in
+ * `castEnvelope<{id?: string}>(...)` to recover the typed shape that
+ * openapi-fetch already inferred from the spec. Those casts were P5
+ * violations that hid spec drift behind silent type-only assertions.
+ * With the generic, the typed shape flows straight through and the
+ * handlers can read `.data?.id` directly.
+ *
+ * For loosely-typed paths (the dynamic-path helpers below) the input
+ * type is `unknown`, so the public surface still degrades safely to
+ * `unknown` and callers can apply a Zod schema via the `apiGetSingle`
+ * family of helpers.
  */
-export async function checkedFetch(
-  promise: Promise<{data?: unknown; error?: unknown; response: Response}>,
-): Promise<unknown> {
-  let result: {data?: unknown; error?: unknown; response: Response}
+export async function checkedFetch<TData>(
+  promise: Promise<{data?: TData; error?: unknown; response: Response}>,
+): Promise<TData | undefined> {
+  let result: {data?: TData; error?: unknown; response: Response}
   try {
     result = await promise
   } catch (cause) {

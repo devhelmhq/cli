@@ -482,9 +482,33 @@ export type DevhelmConfigZ = z.infer<typeof DevhelmConfigSchema>
 
 // ── Error formatting ─────────────────────────────────────────────────
 
+/**
+ * Render a Zod issue path in the same notation `validator.ts` emits
+ * (`monitors[0].config.url`) so users never see two competing path
+ * styles for what is structurally the same location. Without this, the
+ * structural Zod layer reports `monitors.0.config.url` and the
+ * cross-resource validator reports `monitors[0].config.url` — the
+ * inconsistency is visible whenever both layers fire on one file.
+ *
+ * Numeric segments → `[N]`; string segments → `.field` (with the
+ * leading `.` suppressed when it would precede `[`). The first segment
+ * never gets a leading dot.
+ */
+export function formatZodPath(path: ReadonlyArray<string | number>): string {
+  if (path.length === 0) return '(root)'
+  let out = ''
+  for (const seg of path) {
+    if (typeof seg === 'number') {
+      out += `[${seg}]`
+    } else if (out === '') {
+      out = seg
+    } else {
+      out += `.${seg}`
+    }
+  }
+  return out
+}
+
 export function formatZodErrors(error: z.ZodError): string[] {
-  return error.issues.map((issue) => {
-    const path = issue.path.length > 0 ? issue.path.join('.') : '(root)'
-    return `${path}: ${issue.message}`
-  })
+  return error.issues.map((issue) => `${formatZodPath(issue.path)}: ${issue.message}`)
 }
