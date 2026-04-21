@@ -1,6 +1,6 @@
 import {Command} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {apiPost} from '../../../lib/api-client.js'
+import {apiPost, unwrapData} from '../../../lib/api-client.js'
 import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesDomainsVerify extends Command {
@@ -15,7 +15,7 @@ export default class StatusPagesDomainsVerify extends Command {
   async run() {
     const {args, flags} = await this.parse(StatusPagesDomainsVerify)
     const client = buildClient(flags)
-    const resp = await apiPost<{data?: unknown}>(client, `/api/v1/status-pages/${args.id}/domains/${args['domain-id']}/verify`, {})
-    display(this, resp.data ?? resp, flags.output)
+    const resp = await apiPost(client, `/api/v1/status-pages/${args.id}/domains/${args['domain-id']}/verify`, {})
+    display(this, unwrapData(resp), flags.output)
   }
 }

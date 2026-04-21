@@ -1,7 +1,9 @@
 import createClient, {type Middleware} from 'openapi-fetch'
 import type {PathsWithMethod} from 'openapi-typescript-helpers'
+import type {ZodType} from 'zod'
 import type {paths, components} from './api.generated.js'
 import {AuthError, DevhelmError, EXIT_CODES} from './errors.js'
+import {parseSingle, parsePage, parseCursorPage, type Page, type CursorPage as ValidatedCursorPage} from './response-validation.js'
 
 export type {paths, components}
 
@@ -89,27 +91,26 @@ export function createApiClient(opts: {
 export type ApiClient = ReturnType<typeof createApiClient>
 
 /**
- * Unwrap an openapi-fetch response: returns `data` on success, throws a typed
- * DevhelmError on failure (AuthError for 401/403, NOT_FOUND for 404, API for others).
- * Every client.GET / POST / PUT / DELETE call should be wrapped with this.
+ * Unwrap an openapi-fetch response: returns the raw JSON body as `unknown`
+ * on success, throws a typed DevhelmError on failure (AuthError for 401/403,
+ * NOT_FOUND for 404, API for others).
  *
- * Trade-off: the returned `data` is cast as `T` with no runtime validation.
- * This avoids the cost of parsing every response through Zod, which matters
- * for high-frequency paths (list/get). The type safety relies on the OpenAPI
- * spec staying in sync with the server — compile-time only.
- *
- * For critical paths where a shape mismatch could cause silent misbehavior
- * (e.g. entitlement checks gating deploy), callers should add explicit Zod
- * validation after this call. See `response-schemas.ts` for those schemas.
+ * Callers MUST validate the returned `unknown` through a Zod schema (use
+ * `apiGetSingle` / `apiGetPage` / `apiGetCursorPage` from this module, or
+ * roll their own with `parseSingle` / `parsePage` from
+ * `response-validation.ts`). The previous `data as T` cast was a P5
+ * violation that hid spec drift behind silent type-only assertions.
  */
-export async function checkedFetch<T>(promise: Promise<{data?: T; error?: unknown; response: Response}>): Promise<T> {
+export async function checkedFetch(
+  promise: Promise<{data?: unknown; error?: unknown; response: Response}>,
+): Promise<unknown> {
   const {data, error, response} = await promise
   if (error || !response.ok) {
     const body = typeof error === 'object' && error !== null ? JSON.stringify(error) : String(error ?? 'Unknown error')
     const apiError = new ApiRequestError(response.status, response.statusText, body)
     throw apiError.toTypedError()
   }
-  return data as T
+  return data
 }
 
 // ── Dynamic-path helpers ────────────────────────────────────────────────
@@ -128,22 +129,78 @@ type PUTPath = PathsWithMethod<paths, 'put'>
 type PATCHPath = PathsWithMethod<paths, 'patch'>
 type DELETEPath = PathsWithMethod<paths, 'delete'>
 
-export function apiGet<T>(client: ApiClient, path: string, params?: object): Promise<T> {
-  return checkedFetch<T>(client.GET(path as GETPath, (params ? {params} : {}) as never))
+export function apiGet(client: ApiClient, path: string, params?: object): Promise<unknown> {
+  return checkedFetch(client.GET(path as GETPath, (params ? {params} : {}) as never))
 }
 
-export function apiPost<T>(client: ApiClient, path: string, body: object): Promise<T> {
-  return checkedFetch<T>(client.POST(path as POSTPath, {body} as never))
+export function apiPost(client: ApiClient, path: string, body?: object): Promise<unknown> {
+  return checkedFetch(client.POST(path as POSTPath, (body ? {body} : {}) as never))
 }
 
-export function apiPut<T>(client: ApiClient, path: string, body: object): Promise<T> {
-  return checkedFetch<T>(client.PUT(path as PUTPath, {body} as never))
+export function apiPut(client: ApiClient, path: string, body: object): Promise<unknown> {
+  return checkedFetch(client.PUT(path as PUTPath, {body} as never))
 }
 
-export function apiPatch<T>(client: ApiClient, path: string, body: object): Promise<T> {
-  return checkedFetch<T>(client.PATCH(path as PATCHPath, {body} as never))
+export function apiPatch(client: ApiClient, path: string, body: object): Promise<unknown> {
+  return checkedFetch(client.PATCH(path as PATCHPath, {body} as never))
 }
 
 export function apiDelete(client: ApiClient, path: string): Promise<unknown> {
   return checkedFetch(client.DELETE(path as DELETEPath, {params: {path: {}}} as never))
+}
+
+/**
+ * Best-effort `{data: ...}` envelope unwrap for callers that don't have a
+ * Zod schema yet and just pass the body to `display()` (which renders any
+ * shape). Returns `data` when the response is an object with that key,
+ * otherwise the response itself. Use `parseSingle` from
+ * `response-validation.ts` (or `apiGetSingle` here) when a schema is
+ * available — that path raises on unknown fields and gives typed output.
+ */
+export function unwrapData(resp: unknown): unknown {
+  if (resp && typeof resp === 'object' && 'data' in resp) {
+    return (resp as {data?: unknown}).data ?? resp
+  }
+  return resp
+}
+
+// ── Validated wrappers ─────────────────────────────────────────────────
+//
+// These are the recommended public helpers — pass the per-resource Zod
+// schema (typically `apiSchemas.<DtoName>`) and receive a typed value
+// where unknown response fields raise loudly (P1) and shape mismatches
+// throw a typed `ValidationError` with a path into the offending field.
+
+export async function apiGetSingle<T>(client: ApiClient, path: string, schema: ZodType<T>, params?: object): Promise<T> {
+  return parseSingle(schema, await apiGet(client, path, params), `GET ${path}`)
+}
+
+export async function apiPostSingle<T>(client: ApiClient, path: string, schema: ZodType<T>, body?: object): Promise<T> {
+  return parseSingle(schema, await apiPost(client, path, body), `POST ${path}`)
+}
+
+export async function apiPutSingle<T>(client: ApiClient, path: string, schema: ZodType<T>, body: object): Promise<T> {
+  return parseSingle(schema, await apiPut(client, path, body), `PUT ${path}`)
+}
+
+export async function apiPatchSingle<T>(client: ApiClient, path: string, schema: ZodType<T>, body: object): Promise<T> {
+  return parseSingle(schema, await apiPatch(client, path, body), `PATCH ${path}`)
+}
+
+export async function apiGetPage<T>(
+  client: ApiClient,
+  path: string,
+  schema: ZodType<T>,
+  params?: object,
+): Promise<Page<T>> {
+  return parsePage(schema, await apiGet(client, path, params), `GET ${path}`)
+}
+
+export async function apiGetCursorPage<T>(
+  client: ApiClient,
+  path: string,
+  schema: ZodType<T>,
+  params?: object,
+): Promise<ValidatedCursorPage<T>> {
+  return parseCursorPage(schema, await apiGet(client, path, params), `GET ${path}`)
 }

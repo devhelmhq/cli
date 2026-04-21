@@ -1,6 +1,6 @@
 import {Command, Args, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {apiGet} from '../../../lib/api-client.js'
+import {apiGet, unwrapData} from '../../../lib/api-client.js'
 
 export default class DataServicesUptime extends Command {
   static description = 'Get uptime data for a service'
@@ -20,7 +20,7 @@ export default class DataServicesUptime extends Command {
     const client = buildClient(flags)
     const query: Record<string, string> = {period: flags.period}
     if (flags.granularity) query.granularity = flags.granularity
-    const resp = await apiGet<{data?: unknown}>(client, `/api/v1/services/${args.slug}/uptime`, {query})
-    display(this, resp.data ?? resp, flags.output)
+    const resp = await apiGet(client, `/api/v1/services/${args.slug}/uptime`, {query})
+    display(this, unwrapData(resp), flags.output)
   }
 }

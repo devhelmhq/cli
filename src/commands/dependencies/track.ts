@@ -11,7 +11,9 @@ export default class DependenciesTrack extends Command {
   async run() {
     const {args, flags} = await this.parse(DependenciesTrack)
     const client = buildClient(flags)
-    const resp = await checkedFetch(client.POST('/api/v1/service-subscriptions/{slug}', {params: {path: {slug: args.slug}}}))
+    const resp = (await checkedFetch(
+      client.POST('/api/v1/service-subscriptions/{slug}', {params: {path: {slug: args.slug}}}),
+    )) as {data?: {name?: string}}
     this.log(`Now tracking '${resp.data?.name}' as a dependency.`)
   }
 }

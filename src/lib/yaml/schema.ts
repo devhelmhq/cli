@@ -15,6 +15,7 @@ import {
   TRIGGER_AGGREGATIONS, ALERT_SENSITIVITIES, HEALTH_THRESHOLD_TYPES,
   STATUS_PAGE_INCIDENT_MODES, STATUS_PAGE_COMPONENT_TYPES,
   COMPARISON_OPERATORS,
+  type MatchRuleTypes, type WebhookEventTypes,
 } from '../spec-facts.generated.js'
 
 type Schemas = components['schemas']
@@ -212,7 +213,7 @@ export interface YamlEscalationChain {
 // ── Match rules for notification policies ──────────────────────────────
 
 export interface YamlMatchRule {
-  type: string
+  type: MatchRuleTypes
   value?: string
   monitorNames?: string[]
   regions?: string[]
@@ -306,7 +307,7 @@ export interface YamlNotificationPolicy {
 
 export interface YamlWebhook {
   url: string
-  subscribedEvents: string[]
+  subscribedEvents: WebhookEventTypes[]
   description?: string
   enabled?: boolean
 }

@@ -1,6 +1,6 @@
 import {Command, Args} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {checkedFetch} from '../../../lib/api-client.js'
+import {checkedFetch, unwrapData} from '../../../lib/api-client.js'
 
 export default class DataServicesStatus extends Command {
   static description = 'Get the current status of a service'
@@ -12,6 +12,6 @@ export default class DataServicesStatus extends Command {
     const {args, flags} = await this.parse(DataServicesStatus)
     const client = buildClient(flags)
     const resp = await checkedFetch(client.GET('/api/v1/services/{slugOrId}', {params: {path: {slugOrId: args.slug}}}))
-    display(this, resp.data ?? resp, flags.output)
+    display(this, unwrapData(resp), flags.output)
   }
 }

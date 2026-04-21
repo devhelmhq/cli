@@ -1,6 +1,6 @@
 import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {apiPost} from '../../../lib/api-client.js'
+import {apiPost, unwrapData} from '../../../lib/api-client.js'
 import {SP_INCIDENT_STATUSES} from '../../../lib/spec-facts.generated.js'
 import {uuidArg} from '../../../lib/validators.js'
 
@@ -20,11 +20,11 @@ export default class StatusPagesIncidentsPostUpdate extends Command {
   async run() {
     const {args, flags} = await this.parse(StatusPagesIncidentsPostUpdate)
     const client = buildClient(flags)
-    const resp = await apiPost<{data?: unknown}>(
+    const resp = await apiPost(
       client,
       `/api/v1/status-pages/${args.id}/incidents/${args['incident-id']}/updates`,
       {body: flags.body, status: flags.status},
     )
-    display(this, resp.data ?? resp, flags.output)
+    display(this, unwrapData(resp), flags.output)
   }
 }

@@ -28,7 +28,8 @@ function extractSchemas(raw) {
     if (line.includes('@zodios/core')) continue;
     kept.push(line);
   }
-  return '// @ts-nocheck\n// Auto-generated Zod schemas from OpenAPI spec. DO NOT EDIT.\n' +
+  return '// Auto-generated Zod schemas from OpenAPI spec. DO NOT EDIT.\n' +
+    '/* eslint-disable */\n' +
     kept.join('\n') + '\n';
 }
 
@@ -81,6 +82,8 @@ function generateSpecFacts(spec) {
     SP_INCIDENT_STATUSES: enumsFrom('CreateStatusPageIncidentRequest', 'status'),
     AUTH_TYPES: enumsFrom('MonitorAuthDto', 'authType'),
     MANAGED_BY: enumsFrom('CreateMonitorRequest', 'managedBy'),
+    MATCH_RULE_TYPES: enumsFrom('MatchRule', 'type'),
+    WEBHOOK_EVENT_TYPES: enumsFrom('CreateWebhookEndpointRequest', 'subscribedEvents'),
     // ``operator`` is duplicated across StatusCodeAssertion, HeaderValueAssertion,
     // JsonPathAssertion, ResponseSizeAssertion, etc. — pull from one
     // representative schema. The validator and Zod layer share this single
@@ -96,11 +99,18 @@ function generateSpecFacts(spec) {
   ];
 
   for (const [name, values] of Object.entries(facts)) {
+    // If the spec dropped the underlying enum, fall back to an empty
+    // tuple instead of skipping the export. Skipping the export breaks
+    // every downstream consumer that imports the constant, even though
+    // the runtime semantics are clear: "no values are valid here". The
+    // empty tuple keeps types/imports compiling and lets Zod's
+    // `.enum([])` correctly reject all values at validation time.
+    const items = values && values.length > 0
+      ? values.map(v => `'${v}'`).join(', ')
+      : '';
     if (!values) {
-      lines.push(`// WARNING: ${name} — enum not found in spec`);
-      continue;
+      lines.push(`// NOTE: ${name} — enum missing from spec, exporting empty tuple`);
     }
-    const items = values.map(v => `'${v}'`).join(', ');
     lines.push(`export const ${name} = [${items}] as const`);
     const typeName = name.split('_').map(w => w[0] + w.slice(1).toLowerCase()).join('');
     lines.push(`export type ${typeName} = (typeof ${name})[number]`);
@@ -142,7 +152,14 @@ async function main() {
     openApiDoc: spec,
     distPath: OUTPUT_PATH,
     options: {
-      exportSchemas: true,
+      // Emit a top-level export for every named schema in the spec — without
+      // this, openapi-zod-client only exports schemas reused across multiple
+      // endpoints and inlines single-use response DTOs (MonitorDto,
+      // IncidentDto, …) into the endpoint definitions, which extractSchemas()
+      // then strips. Matches sdk-js so all surfaces share the same import
+      // pattern (`schemas.MonitorDto`) instead of forcing the CLI to
+      // hand-roll DTO Zod schemas that drift from the spec.
+      shouldExportAllSchemas: true,
       // Strict objects everywhere — generated `.passthrough()` calls erase
       // type narrowing in consumers (e.g. CLI YAML validators). Also
       // required so `z.union([...])` correctly rejects non-matching

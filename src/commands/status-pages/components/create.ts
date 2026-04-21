@@ -1,6 +1,6 @@
 import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {apiPost} from '../../../lib/api-client.js'
+import {apiPost, unwrapData} from '../../../lib/api-client.js'
 import {STATUS_PAGE_COMPONENT_TYPES} from '../../../lib/spec-facts.generated.js'
 import {uuidArg} from '../../../lib/validators.js'
 
@@ -34,7 +34,7 @@ export default class StatusPagesComponentsCreate extends Command {
     if (flags['exclude-from-overall'] !== undefined) body.excludeFromOverall = flags['exclude-from-overall']
     if (flags['show-uptime'] !== undefined) body.showUptime = flags['show-uptime']
     if (flags['start-date'] !== undefined) body.startDate = flags['start-date']
-    const resp = await apiPost<{data?: unknown}>(client, `/api/v1/status-pages/${args.id}/components`, body)
-    display(this, resp.data ?? resp, flags.output)
+    const resp = await apiPost(client, `/api/v1/status-pages/${args.id}/components`, body)
+    display(this, unwrapData(resp), flags.output)
   }
 }

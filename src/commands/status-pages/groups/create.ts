@@ -1,6 +1,6 @@
 import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {apiPost} from '../../../lib/api-client.js'
+import {apiPost, unwrapData} from '../../../lib/api-client.js'
 import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesGroupsCreate extends Command {
@@ -22,7 +22,7 @@ export default class StatusPagesGroupsCreate extends Command {
     if (flags.description) body.description = flags.description
     if (flags.collapsed !== undefined) body.collapsed = flags.collapsed
     if (flags['display-order'] !== undefined) body.displayOrder = flags['display-order']
-    const resp = await apiPost<{data?: unknown}>(client, `/api/v1/status-pages/${args.id}/groups`, body)
-    display(this, resp.data ?? resp, flags.output)
+    const resp = await apiPost(client, `/api/v1/status-pages/${args.id}/groups`, body)
+    display(this, unwrapData(resp), flags.output)
   }
 }

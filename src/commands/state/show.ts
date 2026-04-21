@@ -48,11 +48,8 @@ export default class StateShow extends Command {
     this.log(`\nResources (${entries.length}):`)
     for (const [address, entry] of entries) {
       this.log(`  ${address}  →  ${entry.apiId}`)
-      const childKeys = Object.keys(entry.children)
-      if (childKeys.length > 0) {
-        for (const ck of childKeys) {
-          this.log(`    ${ck}  →  ${entry.children[ck].apiId}`)
-        }
+      for (const [ck, child] of Object.entries(entry.children)) {
+        this.log(`    ${ck}  →  ${child.apiId}`)
       }
     }
   }

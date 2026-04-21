@@ -51,8 +51,21 @@ import {
 import {fetchPaginated} from '../typed-api.js'
 import {checkedFetch, apiPatch} from '../api-client.js'
 import {apiPost, apiPut, apiDelete as apiDeleteRaw} from '../api-client.js'
+
+/**
+ * Narrow the `unknown` body returned by `checkedFetch` to a `{data?: ...}`
+ * envelope when the caller only needs the inner id/key off the apply-create
+ * response. The runtime shape is whatever the server sent — these handlers
+ * stash the id in the YAML state file and surface a clear error later if
+ * it's missing. Switch individual call-sites to `apiPostSingle` + a Zod
+ * schema as response DTOs become Zod-generated.
+ */
+function castEnvelope<T>(resp: unknown): {data?: T} {
+  return resp as {data?: T}
+}
 import type {ChildCollectionDef} from './child-reconciler.js'
 import {diffChildren, applyChildDiff} from './child-reconciler.js'
+import {PartialApplyError} from './apply-error.js'
 import type {ChildStateEntry} from './state.js'
 
 type Schemas = components['schemas']
@@ -228,7 +241,7 @@ function nonNullStrings(arr: (string | null)[] | null | undefined): string[] {
   return (arr ?? []).filter((v): v is string => v !== null)
 }
 
-function sortedIds(ids: string[]): string[] {
+function sortedIds<T extends string>(ids: readonly T[]): T[] {
   return [...ids].sort()
 }
 
@@ -313,7 +326,7 @@ const tagHandler = defineHandler<YamlTag, Schemas['TagDto'], TagSnapshot>({
   fetchAll: (client) => fetchPaginated<Schemas['TagDto']>(client, '/api/v1/tags'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await checkedFetch(client.POST('/api/v1/tags', {body: toCreateTagRequest(yaml)}))
+    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/tags', {body: toCreateTagRequest(yaml)})))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
@@ -351,7 +364,7 @@ const environmentHandler = defineHandler<YamlEnvironment, Schemas['EnvironmentDt
   fetchAll: (client) => fetchPaginated<Schemas['EnvironmentDto']>(client, '/api/v1/environments'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await checkedFetch(client.POST('/api/v1/environments', {body: toCreateEnvironmentRequest(yaml)}))
+    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/environments', {body: toCreateEnvironmentRequest(yaml)})))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, refs, client) {
@@ -412,7 +425,7 @@ const secretHandler = defineHandler<YamlSecret, Schemas['SecretDto'], SecretSnap
   fetchAll: (client) => fetchPaginated<Schemas['SecretDto']>(client, '/api/v1/secrets'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await checkedFetch(client.POST('/api/v1/secrets', {body: toCreateSecretRequest(yaml)}))
+    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/secrets', {body: toCreateSecretRequest(yaml)})))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, _id, _refs, client) {
@@ -458,7 +471,7 @@ const alertChannelHandler = defineHandler<YamlAlertChannel, Schemas['AlertChanne
   fetchAll: (client) => fetchPaginated<Schemas['AlertChannelDto']>(client, '/api/v1/alert-channels'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await checkedFetch(client.POST('/api/v1/alert-channels', {body: toCreateAlertChannelRequest(yaml)}))
+    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/alert-channels', {body: toCreateAlertChannelRequest(yaml)})))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
@@ -507,7 +520,7 @@ const notificationPolicyHandler = defineHandler<YamlNotificationPolicy, Schemas[
   fetchAll: (client) => fetchPaginated<Schemas['NotificationPolicyDto']>(client, '/api/v1/notification-policies'),
 
   async applyCreate(yaml, refs, client) {
-    const resp = await checkedFetch(client.POST('/api/v1/notification-policies', {body: toCreateNotificationPolicyRequest(yaml, refs)}))
+    const resp = castEnvelope<{id?: string | number}>(await checkedFetch(client.POST('/api/v1/notification-policies', {body: toCreateNotificationPolicyRequest(yaml, refs)})))
     return resp.data?.id != null ? String(resp.data.id) : undefined
   },
   async applyUpdate(yaml, id, refs, client) {
@@ -540,14 +553,21 @@ const webhookHandler = defineHandler<YamlWebhook, Schemas['WebhookEndpointDto'],
   toCurrentSnapshot: (api) => ({
     url: api.url ?? null,
     description: api.description ?? null,
-    subscribedEvents: api.subscribedEvents ? sortedIds(api.subscribedEvents) : null,
+    // Cast: spec asymmetry — `CreateWebhookEndpointRequest.subscribedEvents`
+    // narrows items to the WEBHOOK_EVENT_TYPES enum, but the response DTO
+    // emits plain `string[]`. The API only ever returns valid event types
+    // (it's the same backing column as the request enum), so this cast is
+    // safe; remove once the OpenAPI spec adds the enum to the DTO too.
+    subscribedEvents: api.subscribedEvents
+      ? (sortedIds(api.subscribedEvents) as WebhookSnapshot['subscribedEvents'])
+      : null,
     enabled: api.enabled ?? null,
   }),
 
   fetchAll: (client) => fetchPaginated<Schemas['WebhookEndpointDto']>(client, '/api/v1/webhooks'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await checkedFetch(client.POST('/api/v1/webhooks', {body: toCreateWebhookRequest(yaml)}))
+    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/webhooks', {body: toCreateWebhookRequest(yaml)})))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
@@ -621,7 +641,7 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
   fetchAll: (client) => fetchPaginated<Schemas['ResourceGroupDto']>(client, '/api/v1/resource-groups'),
 
   async applyCreate(yaml, refs, client) {
-    const resp = await checkedFetch(client.POST('/api/v1/resource-groups', {body: toCreateResourceGroupRequest(yaml, refs)}))
+    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/resource-groups', {body: toCreateResourceGroupRequest(yaml, refs)})))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, refs, client) {
@@ -710,7 +730,7 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
   fetchAll: (client) => fetchPaginated<Schemas['MonitorDto']>(client, '/api/v1/monitors'),
 
   async applyCreate(yaml, refs, client) {
-    const resp = await checkedFetch(client.POST('/api/v1/monitors', {body: toCreateMonitorRequest(yaml, refs)}))
+    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/monitors', {body: toCreateMonitorRequest(yaml, refs)})))
     return resp.data?.id ?? undefined
   },
   async applyUpdate(yaml, id, refs, client) {
@@ -799,13 +819,13 @@ const dependencyHandler = defineHandler<YamlDependency, Schemas['ServiceSubscrip
   fetchAll: (client) => fetchPaginated<Schemas['ServiceSubscriptionDto']>(client, '/api/v1/service-subscriptions'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = await checkedFetch(client.POST('/api/v1/service-subscriptions/{slug}', {
+    const resp = castEnvelope<{subscriptionId?: string}>(await checkedFetch(client.POST('/api/v1/service-subscriptions/{slug}', {
       params: {path: {slug: yaml.service}},
       body: {
         alertSensitivity: yaml.alertSensitivity ?? null,
         componentId: yaml.component ?? null,
       },
-    }))
+    })))
     return resp.data?.subscriptionId ?? undefined
   },
   async applyUpdate(yaml, id, _refs, client) {
@@ -917,10 +937,10 @@ function makeGroupCollectionDef(
       collapsed: api.collapsed ?? true,
     }),
     async applyCreate(parentId, yaml, index) {
-      const resp = await apiPost<{data?: Schemas['StatusPageComponentGroupDto']}>(
+      const resp = (await apiPost(
         client, `/api/v1/status-pages/${parentId}/groups`,
         {name: yaml.name, description: yaml.description ?? null, displayOrder: index, collapsed: yaml.collapsed ?? true},
-      )
+      )) as {data?: Schemas['StatusPageComponentGroupDto']}
       return String(resp.data?.id ?? '')
     },
     async applyUpdate(parentId, childId, yaml, index) {
@@ -994,9 +1014,9 @@ function makeComponentCollectionDef(
       if (yaml.type === 'GROUP' && yaml.resourceGroup) {
         body.resourceGroupId = refs.resolve('resourceGroups', yaml.resourceGroup) ?? yaml.resourceGroup
       }
-      const resp = await apiPost<{data?: Schemas['StatusPageComponentDto']}>(
+      const resp = (await apiPost(
         client, `/api/v1/status-pages/${parentId}/components`, body,
-      )
+      )) as {data?: Schemas['StatusPageComponentDto']}
       return String(resp.data?.id ?? '')
     },
     async applyUpdate(parentId, childId, yaml, index) {
@@ -1113,10 +1133,14 @@ async function reconcileStatusPageChildren(
   // Carry prior state children for any kind we are NOT reconciling, so they
   // remain tracked after this apply.
   const carriedState: Record<string, ChildStateEntry> = {}
+  // Accumulator for surviving children across both phases. We thread this
+  // through both happy + error paths so a partial component failure
+  // doesn't lose the groups we already created (and vice versa).
+  const accumulated: Record<string, ChildStateEntry> = {}
+  const errors: string[] = []
 
   // Phase 1: Groups — fetch if we will reconcile OR if components need the name→id map
   let existingGroups: Schemas['StatusPageComponentGroupDto'][] = []
-  let groupChildState: Record<string, ChildStateEntry> = {}
   if (reconcileGroups || reconcileComponents) {
     existingGroups = await fetchPaginated<Schemas['StatusPageComponentGroupDto']>(
       client, `/api/v1/status-pages/${pageId}/groups`,
@@ -1132,10 +1156,19 @@ async function reconcileStatusPageChildren(
 
     const desiredGroups = yaml.componentGroups ?? []
     const groupDiff = diffChildren(groupDef, desiredGroups, existingGroups, groupStateChildren)
-    const groupResult = await applyChildDiff(
-      groupDef, pageId, desiredGroups, groupDiff, existingGroups, groupStateChildren,
-    )
-    groupChildState = groupResult.childState
+    try {
+      const groupResult = await applyChildDiff(
+        groupDef, pageId, desiredGroups, groupDiff, existingGroups, groupStateChildren,
+      )
+      Object.assign(accumulated, groupResult.childState)
+    } catch (err) {
+      // Drain whatever PartialApplyError carried so siblings (and the
+      // component phase below) aren't punished for a peer's failure.
+      if (err instanceof PartialApplyError && err.partial.children) {
+        Object.assign(accumulated, err.partial.children)
+      }
+      errors.push(err instanceof Error ? err.message : String(err))
+    }
   } else {
     // Preserve any group entries from prior state
     for (const [key, entry] of Object.entries(stateChildren)) {
@@ -1143,18 +1176,23 @@ async function reconcileStatusPageChildren(
     }
   }
 
-  // Build group name → ID map (needed only if reconciling components)
+  // Build group name → ID map from whatever survived: existing API groups
+  // plus any newly-reconciled ones (including those that landed before a
+  // peer failure). Components that reference a group that did NOT survive
+  // will fail with a clearer error in their own phase.
   const groupNameToId = new Map<string, string>()
   for (const g of existingGroups) {
     groupNameToId.set(g.name ?? '', String(g.id))
   }
-  for (const [key, entry] of Object.entries(groupChildState)) {
-    const name = key.replace('groups.', '')
-    groupNameToId.set(name, entry.apiId)
+  for (const [key, entry] of Object.entries(accumulated)) {
+    if (key.startsWith('groups.')) {
+      groupNameToId.set(key.slice('groups.'.length), entry.apiId)
+    }
   }
 
-  // Phase 2: Components
-  let componentChildState: Record<string, ChildStateEntry> = {}
+  // Phase 2: Components — runs even if groups partially failed so the user
+  // gets maximum forward progress per deploy. Component creates that
+  // depended on a failed group will themselves fail and be surfaced.
   if (reconcileComponents) {
     const componentDef = makeComponentCollectionDef(client, refs, groupNameToId)
     const existingComponents = await fetchPaginated<Schemas['StatusPageComponentDto']>(
@@ -1168,17 +1206,32 @@ async function reconcileStatusPageChildren(
 
     const desiredComponents = yaml.components ?? []
     const componentDiff = diffChildren(componentDef, desiredComponents, existingComponents, componentStateChildren)
-    const componentResult = await applyChildDiff(
-      componentDef, pageId, desiredComponents, componentDiff, existingComponents, componentStateChildren,
-    )
-    componentChildState = componentResult.childState
+    try {
+      const componentResult = await applyChildDiff(
+        componentDef, pageId, desiredComponents, componentDiff, existingComponents, componentStateChildren,
+      )
+      Object.assign(accumulated, componentResult.childState)
+    } catch (err) {
+      if (err instanceof PartialApplyError && err.partial.children) {
+        Object.assign(accumulated, err.partial.children)
+      }
+      errors.push(err instanceof Error ? err.message : String(err))
+    }
   } else {
     for (const [key, entry] of Object.entries(stateChildren)) {
       if (key.startsWith('components.')) carriedState[key] = entry
     }
   }
 
-  return {...carriedState, ...groupChildState, ...componentChildState}
+  const finalChildren = {...carriedState, ...accumulated}
+  if (errors.length > 0) {
+    throw new PartialApplyError(
+      `status page children: ${errors.join('; ')}`,
+      {children: finalChildren},
+    )
+  }
+
+  return finalChildren
 }
 
 const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto'], StatusPageSnapshot>({
@@ -1226,20 +1279,49 @@ const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto']
   fetchAll: (client) => fetchPaginated<Schemas['StatusPageDto']>(client, '/api/v1/status-pages'),
 
   async applyCreate(yaml, refs, client, priorChildren) {
-    const resp = await apiPost<{data?: Schemas['StatusPageDto']}>(client, '/api/v1/status-pages', toCreateStatusPageRequest(yaml))
+    const resp = (await apiPost(client, '/api/v1/status-pages', toCreateStatusPageRequest(yaml))) as {data?: Schemas['StatusPageDto']}
     const pageId = resp.data?.id
     if (!pageId) return undefined
-    const children = await reconcileStatusPageChildren(yaml, pageId, refs, client, priorChildren ?? {})
-    return {id: pageId, children}
+    try {
+      const children = await reconcileStatusPageChildren(yaml, pageId, refs, client, priorChildren ?? {})
+      return {id: pageId, children}
+    } catch (err) {
+      // Re-throw as a parent-aware PartialApplyError so the applier can
+      // persist the parent id + surviving children (state.json) before
+      // recording the failure. Without this, the parent page is created
+      // API-side but absent from state — fixable on next deploy via API
+      // discovery, but identity-preserving renames lose their state pin.
+      if (err instanceof PartialApplyError) {
+        throw new PartialApplyError(
+          `status page "${yaml.slug}" created (id=${pageId}) but child reconciliation failed: ${err.message}`,
+          {id: pageId, children: err.partial.children ?? {}},
+        )
+      }
+      throw err
+    }
   },
   async applyUpdate(yaml, id, refs, client, priorChildren) {
     const body = toUpdateStatusPageRequest(yaml)
     await apiPut(client, `/api/v1/status-pages/${id}`, body)
-    let children = priorChildren ?? {}
-    if (yaml.componentGroups !== undefined || yaml.components !== undefined) {
-      children = await reconcileStatusPageChildren(yaml, id, refs, client, priorChildren ?? {})
+    if (yaml.componentGroups === undefined && yaml.components === undefined) {
+      return {children: priorChildren ?? {}}
     }
-    return {children}
+    try {
+      const children = await reconcileStatusPageChildren(yaml, id, refs, client, priorChildren ?? {})
+      return {children}
+    } catch (err) {
+      // Body PUT already landed; surface partial children so the applier
+      // updates state with whatever survived. The parent id is `existingId`
+      // on the caller side, so we still attach it here for symmetry with
+      // applyCreate.
+      if (err instanceof PartialApplyError) {
+        throw new PartialApplyError(
+          `status page "${yaml.slug}" body updated but child reconciliation failed: ${err.message}`,
+          {id, children: err.partial.children ?? priorChildren ?? {}},
+        )
+      }
+      throw err
+    }
   },
   deletePath: (id) => `/api/v1/status-pages/${id}`,
 })

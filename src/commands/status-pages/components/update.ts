@@ -1,6 +1,6 @@
 import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {apiPut} from '../../../lib/api-client.js'
+import {apiPut, unwrapData} from '../../../lib/api-client.js'
 import {uuidArg} from '../../../lib/validators.js'
 
 export default class StatusPagesComponentsUpdate extends Command {
@@ -34,7 +34,7 @@ export default class StatusPagesComponentsUpdate extends Command {
     if (flags['exclude-from-overall'] !== undefined) body.excludeFromOverall = flags['exclude-from-overall']
     if (flags['show-uptime'] !== undefined) body.showUptime = flags['show-uptime']
     if (flags['start-date'] !== undefined) body.startDate = flags['start-date']
-    const resp = await apiPut<{data?: unknown}>(client, `/api/v1/status-pages/${args.id}/components/${args['component-id']}`, body)
-    display(this, resp.data ?? resp, flags.output)
+    const resp = await apiPut(client, `/api/v1/status-pages/${args.id}/components/${args['component-id']}`, body)
+    display(this, unwrapData(resp), flags.output)
   }
 }

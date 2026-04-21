@@ -16,7 +16,9 @@ export default class IncidentsResolve extends Command {
     const {args, flags} = await this.parse(IncidentsResolve)
     const client = buildClient(flags)
     const body = flags.message ? {body: flags.message} : undefined
-    const resp = await checkedFetch(client.POST('/api/v1/incidents/{id}/resolve', {params: {path: {id: args.id}}, body}))
+    const resp = (await checkedFetch(
+      client.POST('/api/v1/incidents/{id}/resolve', {params: {path: {id: args.id}}, body}),
+    )) as {data?: {incident?: {title?: string}}}
     this.log(`Incident '${resp.data?.incident?.title}' resolved.`)
   }
 }

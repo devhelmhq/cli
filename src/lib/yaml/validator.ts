@@ -48,8 +48,7 @@ export function validate(config: DevhelmConfig): ValidationResult {
 export function validatePlanRefs(config: DevhelmConfig, refs: ResolvedRefs): ValidationResult {
   const ctx = new ValidationContext()
 
-  for (let i = 0; i < (config.environments?.length ?? 0); i++) {
-    const env = config.environments![i]
+  for (const [i, env] of (config.environments ?? []).entries()) {
     if (!env.slug) continue
     const match = refs.get('environments', env.slug)
     if (!match || match.matchSource !== 'state') continue
@@ -159,8 +158,8 @@ function validateArray<T>(
     ctx.error(section, `"${section}" must be an array`)
     return
   }
-  for (let i = 0; i < items.length; i++) {
-    itemValidator(items[i], `${section}[${i}]`, ctx)
+  for (const [i, item] of items.entries()) {
+    itemValidator(item, `${section}[${i}]`, ctx)
   }
 }
 
@@ -242,15 +241,15 @@ function validateNotificationPolicy(policy: YamlNotificationPolicy, path: string
     if (!policy.escalation.steps || !Array.isArray(policy.escalation.steps) || policy.escalation.steps.length === 0) {
       ctx.error(`${path}.escalation.steps`, 'Escalation must have at least one step')
     } else {
-      for (let i = 0; i < policy.escalation.steps.length; i++) {
-        validateEscalationStep(policy.escalation.steps[i], `${path}.escalation.steps[${i}]`, ctx)
+      for (const [i, step] of policy.escalation.steps.entries()) {
+        validateEscalationStep(step, `${path}.escalation.steps[${i}]`, ctx)
       }
     }
   }
 
   if (policy.matchRules) {
-    for (let i = 0; i < policy.matchRules.length; i++) {
-      validateMatchRule(policy.matchRules[i], `${path}.matchRules[${i}]`, ctx)
+    for (const [i, rule] of policy.matchRules.entries()) {
+      validateMatchRule(rule, `${path}.matchRules[${i}]`, ctx)
     }
   }
 
@@ -361,8 +360,8 @@ function validateMonitor(monitor: YamlMonitor, path: string, ctx: ValidationCont
     }
   }
   if (monitor.assertions) {
-    for (let i = 0; i < monitor.assertions.length; i++) {
-      validateAssertionDef(monitor.assertions[i], `${path}.assertions[${i}]`, ctx)
+    for (const [i, assertion] of monitor.assertions.entries()) {
+      validateAssertionDef(assertion, `${path}.assertions[${i}]`, ctx)
     }
   }
 
@@ -467,8 +466,7 @@ function validateIncidentPolicy(policy: YamlIncidentPolicy, path: string, ctx: V
     return
   }
 
-  for (let i = 0; i < policy.triggerRules.length; i++) {
-    const rule = policy.triggerRules[i]
+  for (const [i, rule] of policy.triggerRules.entries()) {
     const rpath = `${path}.triggerRules[${i}]`
     if (!TRIGGER_RULE_TYPES.includes(rule.type)) {
       ctx.error(`${rpath}.type`, `Invalid trigger type. Must be one of: ${TRIGGER_RULE_TYPES.join(', ')}`)
@@ -527,14 +525,14 @@ function validateStatusPage(page: YamlStatusPage, path: string, ctx: ValidationC
 
   const groupNames = new Set<string>()
   if (page.componentGroups) {
-    for (let i = 0; i < page.componentGroups.length; i++) {
-      validateStatusPageComponentGroup(page.componentGroups[i], `${path}.componentGroups[${i}]`, ctx, groupNames)
+    for (const [i, group] of page.componentGroups.entries()) {
+      validateStatusPageComponentGroup(group, `${path}.componentGroups[${i}]`, ctx, groupNames)
     }
   }
 
   if (page.components) {
-    for (let i = 0; i < page.components.length; i++) {
-      validateStatusPageComponent(page.components[i], `${path}.components[${i}]`, ctx, groupNames)
+    for (const [i, component] of page.components.entries()) {
+      validateStatusPageComponent(component, `${path}.components[${i}]`, ctx, groupNames)
     }
   }
 }

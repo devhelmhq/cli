@@ -171,9 +171,9 @@ export async function fetchAllRefs(client: ApiClient, state?: DeployState): Prom
   if (state) {
     const apiIdIndex = buildApiIdIndex(state)
 
-    for (let i = 0; i < handlers.length; i++) {
-      const handler = handlers[i]
-      for (const item of results[i]) {
+    for (const [i, handler] of handlers.entries()) {
+      const items = results[i] ?? []
+      for (const item of items) {
         const apiId = handler.getApiId(item)
         const apiRefKey = handler.getApiRefKey(item)
 
@@ -191,9 +191,9 @@ export async function fetchAllRefs(client: ApiClient, state?: DeployState): Prom
       }
     }
   } else {
-    for (let i = 0; i < handlers.length; i++) {
-      const handler = handlers[i]
-      for (const item of results[i]) {
+    for (const [i, handler] of handlers.entries()) {
+      const items = results[i] ?? []
+      for (const item of items) {
         const refKey = handler.getApiRefKey(item)
         refs.set(handler.refType, refKey, {
           id: handler.getApiId(item),

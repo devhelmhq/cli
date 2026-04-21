@@ -58,6 +58,12 @@ export type AuthTypes = (typeof AUTH_TYPES)[number]
 export const MANAGED_BY = ['DASHBOARD', 'CLI', 'TERRAFORM'] as const
 export type ManagedBy = (typeof MANAGED_BY)[number]
 
+export const MATCH_RULE_TYPES = ['severity_gte', 'monitor_id_in', 'region_in', 'incident_status', 'monitor_type_in', 'service_id_in', 'resource_group_id_in', 'component_name_in'] as const
+export type MatchRuleTypes = (typeof MATCH_RULE_TYPES)[number]
+
+export const WEBHOOK_EVENT_TYPES = ['monitor.created', 'monitor.updated', 'monitor.deleted', 'incident.created', 'incident.resolved', 'incident.reopened', 'service.status_changed', 'service.component_changed', 'service.incident_created', 'service.incident_updated', 'service.incident_resolved'] as const
+export type WebhookEventTypes = (typeof WEBHOOK_EVENT_TYPES)[number]
+
 export const COMPARISON_OPERATORS = ['equals', 'contains', 'less_than', 'greater_than', 'matches', 'range'] as const
 export type ComparisonOperators = (typeof COMPARISON_OPERATORS)[number]
 

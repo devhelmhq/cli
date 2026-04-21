@@ -1,6 +1,6 @@
 import {Command, Flags} from '@oclif/core'
 import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {apiPost} from '../../../lib/api-client.js'
+import {apiPost, unwrapData} from '../../../lib/api-client.js'
 import {SP_INCIDENT_IMPACTS, SP_INCIDENT_STATUSES} from '../../../lib/spec-facts.generated.js'
 import {uuidArg} from '../../../lib/validators.js'
 
@@ -23,7 +23,7 @@ export default class StatusPagesIncidentsCreate extends Command {
     const body: Record<string, unknown> = {title: flags.title, impact: flags.impact, body: flags.body}
     if (flags.status) body.status = flags.status
     if (flags.scheduled) body.scheduled = flags.scheduled
-    const resp = await apiPost<{data?: unknown}>(client, `/api/v1/status-pages/${args.id}/incidents`, body)
-    display(this, resp.data ?? resp, flags.output)
+    const resp = await apiPost(client, `/api/v1/status-pages/${args.id}/incidents`, body)
+    display(this, unwrapData(resp), flags.output)
   }
 }

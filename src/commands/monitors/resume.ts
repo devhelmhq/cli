@@ -12,7 +12,9 @@ export default class MonitorsResume extends Command {
   async run() {
     const {args, flags} = await this.parse(MonitorsResume)
     const client = buildClient(flags)
-    const resp = await checkedFetch(client.POST('/api/v1/monitors/{id}/resume', {params: {path: {id: args.id}}}))
+    const resp = (await checkedFetch(
+      client.POST('/api/v1/monitors/{id}/resume', {params: {path: {id: args.id}}}),
+    )) as {data?: {name?: string}}
     this.log(`Monitor '${resp.data?.name}' resumed.`)
   }
 }
