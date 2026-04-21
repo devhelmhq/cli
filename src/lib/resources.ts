@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs'
 import {Flags} from '@oclif/core'
 import {z} from 'zod'
-import {ResourceConfig} from './crud-commands.js'
+import type {CreatableResource, ResourceConfig, UpdatableResource} from './crud-commands.js'
 import type {components} from './api.generated.js'
 import {schemas as apiSchemas} from './api-zod.generated.js'
 import {fieldDescriptions} from './descriptions.generated.js'
@@ -16,6 +16,13 @@ import {
   type WebhookEventTypes,
 } from './spec-facts.generated.js'
 import {STATUS_PAGE_VISIBILITIES} from './yaml/schema.js'
+
+/**
+ * Resources that expose both `create` and `update`. Almost every CRUD
+ * resource in the CLI is in this category — only INCIDENTS / API_KEYS
+ * (create-only) and DEPENDENCIES (read-only subscriptions) opt out.
+ */
+type FullResource<T> = CreatableResource<T> & UpdatableResource<T>
 
 // ── Description lookup from OpenAPI spec ───────────────────────────────
 function desc(schema: string, field: string, fallback?: string): string {
@@ -37,24 +44,23 @@ type WebhookEndpointDto = Schemas['WebhookEndpointDto']
 type ApiKeyDto = Schemas['ApiKeyDto']
 type ServiceSubscriptionDto = Schemas['ServiceSubscriptionDto']
 
-type MonitorType = Schemas['CreateMonitorRequest']['type']
-type HttpMethod = Schemas['HttpMonitorConfig']['method']
-type IncidentSeverity = Schemas['CreateManualIncidentRequest']['severity']
-
-type CreateMonitorRequest = Schemas['CreateMonitorRequest']
-type CreateManualIncidentRequest = Schemas['CreateManualIncidentRequest']
-type CreateAlertChannelRequest = Schemas['CreateAlertChannelRequest']
-type CreateNotificationPolicyRequest = Schemas['CreateNotificationPolicyRequest']
-type UpdateNotificationPolicyRequest = Schemas['UpdateNotificationPolicyRequest']
+// Imperative `bodyBuilder`s build `Record<string, unknown>` and lean on the
+// outer `apiSchemas.Create/Update*Request` Zod parse for shape enforcement,
+// so all request-DTO aliases were dropped — they were only used for `as`
+// casts that the runtime validation now backstops. The only request-DTO
+// alias retained is `CreateApiKeyRequest`, where the builder is small
+// enough that an explicit type adds clarity without inviting drift.
 type CreateApiKeyRequest = Schemas['CreateApiKeyRequest']
 
 // ── Resource definitions ───────────────────────────────────────────────
 
-export const MONITORS: ResourceConfig<MonitorDto> = {
+export const MONITORS: FullResource<MonitorDto> = {
   name: 'monitor',
   plural: 'monitors',
   apiPath: '/api/v1/monitors',
   responseSchema: apiSchemas.MonitorDto as z.ZodType<MonitorDto>,
+  createRequestSchema: apiSchemas.CreateMonitorRequest,
+  updateRequestSchema: apiSchemas.UpdateMonitorRequest,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -87,61 +93,68 @@ export const MONITORS: ResourceConfig<MonitorDto> = {
     method: Flags.string({description: desc('HttpMonitorConfig', 'method'), options: [...HTTP_METHODS]}),
     port: Flags.string({description: desc('TcpMonitorConfig', 'port', 'TCP port to connect to')}),
   },
+  // bodyBuilder returns a plain `Record<string, unknown>`; the outer
+  // `parseSchema(MONITORS.createRequestSchema, ...)` / `updateRequestSchema`
+  // call in the CRUD factory validates the discriminated union (HTTP / TCP /
+  // DNS / …) and rejects any wrong shape at runtime. Keeping the local
+  // type loose lets us drop the per-variant `as CreateMonitorRequest['config']`
+  // casts that used to paper over the OAS generator emitting
+  // `Record<string, never>` for the abstract `MonitorConfig` base class.
   bodyBuilder: (raw) => {
-    const monitorType = raw.type as MonitorType | undefined
-    if (monitorType) {
-      const body: CreateMonitorRequest = {
-        name: String(raw.name),
-        type: monitorType,
-        managedBy: 'CLI',
-        frequencySeconds: raw.frequency ? Number(raw.frequency) : 60,
-        config: buildMonitorConfig(monitorType, raw),
-      }
+    const body: Record<string, unknown> = {}
+    if (raw.name !== undefined) body.name = String(raw.name)
+    if (raw.type !== undefined) {
+      const monitorType = String(raw.type)
+      body.type = monitorType
+      body.managedBy = 'CLI'
+      body.frequencySeconds = raw.frequency ? Number(raw.frequency) : 60
+      body.config = buildMonitorConfig(monitorType, raw)
       if (raw.regions) {
         body.regions = String(raw.regions).split(',').map((s) => s.trim()).filter(Boolean)
       }
-      return body
-    }
-    const body: Record<string, unknown> = {}
-    if (raw.name !== undefined) body.name = raw.name
-    if (raw.frequency) body.frequencySeconds = Number(raw.frequency)
-    if (raw.url !== undefined || raw.method !== undefined) {
-      body.config = {url: raw.url, method: (raw.method as HttpMethod) || 'GET'}
+    } else {
+      if (raw.frequency) body.frequencySeconds = Number(raw.frequency)
+      if (raw.url !== undefined || raw.method !== undefined) {
+        body.config = {url: raw.url, method: raw.method ?? 'GET'}
+      }
     }
     return body
   },
 }
 
-/**
- * Generated config types extend `Record<string, never>` (OAS generator artifact for
- * abstract base class MonitorConfig), which prevents direct object literal assignment.
- * The single cast at the end is the narrowest workaround.
- */
-function buildMonitorConfig(type: MonitorType, raw: Record<string, unknown>): CreateMonitorRequest['config'] {
-  const method: HttpMethod = (raw.method as HttpMethod) || 'GET'
+// Returns the monitor's `config` payload as a plain object — the discriminated
+// union (HttpMonitorConfig | TcpMonitorConfig | …) is enforced by the outer
+// `apiSchemas.Create/UpdateMonitorRequest` Zod parse, so an unknown `type`
+// (e.g. spec drift) surfaces as a typed `ValidationError` with `config` in the
+// path instead of a confusing 400 from the API.
+function buildMonitorConfig(type: string, raw: Record<string, unknown>): object {
+  const method = raw.method !== undefined ? String(raw.method) : 'GET'
   switch (type) {
     case 'HTTP':
-      return {url: String(raw.url ?? ''), method} as CreateMonitorRequest['config']
+      return {url: String(raw.url ?? ''), method}
     case 'TCP':
-      return {host: String(raw.url ?? ''), port: raw.port ? Number(raw.port) : 443} as CreateMonitorRequest['config']
+      return {host: String(raw.url ?? ''), port: raw.port ? Number(raw.port) : 443}
     case 'DNS':
-      return {hostname: String(raw.url ?? '')} as CreateMonitorRequest['config']
+      return {hostname: String(raw.url ?? '')}
     case 'ICMP':
-      return {host: String(raw.url ?? '')} as CreateMonitorRequest['config']
+      return {host: String(raw.url ?? '')}
     case 'HEARTBEAT':
-      return {expectedInterval: 60, gracePeriod: 60} as CreateMonitorRequest['config']
+      return {expectedInterval: 60, gracePeriod: 60}
     case 'MCP_SERVER':
-      return {command: String(raw.url ?? '')} as CreateMonitorRequest['config']
+      return {command: String(raw.url ?? '')}
     default:
-      return {url: String(raw.url ?? ''), method: 'GET'} as CreateMonitorRequest['config']
+      // Unknown type → outer schema parse will reject with a clear error
+      // listing valid `type` enum values.
+      return {url: String(raw.url ?? ''), method: 'GET'}
   }
 }
 
-export const INCIDENTS: ResourceConfig<IncidentDto> = {
+export const INCIDENTS: CreatableResource<IncidentDto> = {
   name: 'incident',
   plural: 'incidents',
   apiPath: '/api/v1/incidents',
   responseSchema: apiSchemas.IncidentDto as z.ZodType<IncidentDto>,
+  createRequestSchema: apiSchemas.CreateManualIncidentRequest,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'TITLE', get: (r) => r.title ?? ''},
@@ -160,10 +173,13 @@ export const INCIDENTS: ResourceConfig<IncidentDto> = {
     'monitor-id': Flags.string({description: desc('CreateManualIncidentRequest', 'monitorId')}),
     body: Flags.string({description: desc('CreateManualIncidentRequest', 'body')}),
   },
+  // `severity` is coerced to string and validated against the
+  // `INCIDENT_SEVERITIES` enum by the outer
+  // `apiSchemas.CreateManualIncidentRequest` Zod parse.
   bodyBuilder: (raw) => {
-    const body: CreateManualIncidentRequest = {
+    const body: Record<string, unknown> = {
       title: String(raw.title),
-      severity: raw.severity as IncidentSeverity,
+      severity: String(raw.severity),
     }
     if (raw['monitor-id'] !== undefined) body.monitorId = String(raw['monitor-id'])
     if (raw.body !== undefined) body.body = String(raw.body)
@@ -171,11 +187,13 @@ export const INCIDENTS: ResourceConfig<IncidentDto> = {
   },
 }
 
-export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
+export const ALERT_CHANNELS: FullResource<AlertChannelDto> = {
   name: 'alert channel',
   plural: 'alert-channels',
   apiPath: '/api/v1/alert-channels',
   responseSchema: apiSchemas.AlertChannelDto as z.ZodType<AlertChannelDto>,
+  createRequestSchema: apiSchemas.CreateAlertChannelRequest,
+  updateRequestSchema: apiSchemas.UpdateAlertChannelRequest,
   columns: [
     {header: 'ID', get: (r) => r.id},
     {header: 'NAME', get: (r) => r.name},
@@ -199,21 +217,21 @@ export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
     config: Flags.string({description: 'Channel-specific configuration as JSON'}),
     'webhook-url': urlFlag({description: desc('SlackChannelConfig', 'webhookUrl', 'Slack/Discord/Teams webhook URL')}),
   },
+  // bodyBuilder produces a plain object; the outer
+  // `apiSchemas.Create/UpdateAlertChannelRequest` Zod parse validates the
+  // `config` discriminated union (one of seven channelType variants) and
+  // surfaces shape errors with a path into the offending field.
   bodyBuilder: (raw) => {
-    let config: CreateAlertChannelRequest['config'] | undefined
-    if (raw.config) {
-      config = parseAlertChannelConfigFlag(String(raw.config))
-    } else {
-      const channelType = String(raw.type || 'slack').toLowerCase()
-      if (raw['webhook-url'] !== undefined) {
-        config = {channelType, webhookUrl: String(raw['webhook-url'])} as CreateAlertChannelRequest['config']
-      } else {
-        config = {channelType} as CreateAlertChannelRequest['config']
-      }
-    }
-    const body: Partial<CreateAlertChannelRequest> = {}
+    const body: Record<string, unknown> = {}
     if (raw.name !== undefined) body.name = String(raw.name)
-    if (config !== undefined) body.config = config
+    if (raw.config) {
+      body.config = parseAlertChannelConfigFlag(String(raw.config))
+    } else if (raw['webhook-url'] !== undefined || raw.type !== undefined) {
+      const channelType = String(raw.type || 'slack').toLowerCase()
+      body.config = raw['webhook-url'] !== undefined
+        ? {channelType, webhookUrl: String(raw['webhook-url'])}
+        : {channelType}
+    }
     return body
   },
 }
@@ -222,7 +240,12 @@ export const ALERT_CHANNELS: ResourceConfig<AlertChannelDto> = {
 // the OpenAPI spec. Throws with a clear message if the JSON is malformed,
 // the discriminator is missing, or the payload doesn't match the expected
 // shape — so users see the error here rather than a generic API 400.
-function parseAlertChannelConfigFlag(raw: string): CreateAlertChannelRequest['config'] {
+//
+// Returns `object`: the precise per-variant type (Slack / Discord / …)
+// would force a cast at every call site. The outer
+// `Create/UpdateAlertChannelRequest` Zod parse re-validates the union as a
+// safety net, so structural mistakes always surface with a typed error.
+function parseAlertChannelConfigFlag(raw: string): object {
   let parsed: unknown
   try {
     parsed = JSON.parse(raw)
@@ -257,7 +280,9 @@ function parseAlertChannelConfigFlag(raw: string): CreateAlertChannelRequest['co
     throw new Error(`Invalid --config payload for channelType "${channelType}": ${issues}`)
   }
 
-  return result.data as CreateAlertChannelRequest['config']
+  // result.data is the inferred Zod output (a specific channel-config record);
+  // returning it as `object` lets the caller drop the per-variant cast.
+  return result.data as object
 }
 
 // Discriminated by `channelType` to match the API's AlertChannelConfig union.
@@ -271,11 +296,13 @@ const ALERT_CHANNEL_CONFIG_SCHEMAS: Record<string, z.ZodType> = {
   webhook: apiSchemas.WebhookChannelConfig,
 }
 
-export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
+export const NOTIFICATION_POLICIES: FullResource<NotificationPolicyDto> = {
   name: 'notification policy',
   plural: 'notification-policies',
   apiPath: '/api/v1/notification-policies',
   responseSchema: apiSchemas.NotificationPolicyDto as z.ZodType<NotificationPolicyDto>,
+  createRequestSchema: apiSchemas.CreateNotificationPolicyRequest,
+  updateRequestSchema: apiSchemas.UpdateNotificationPolicyRequest,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -292,23 +319,26 @@ export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
     'channel-ids': Flags.string({description: desc('EscalationStep', 'channelIds', 'Comma-separated alert channel IDs')}),
     enabled: Flags.boolean({description: desc('UpdateNotificationPolicyRequest', 'enabled'), allowNo: true}),
   },
+  // The notification policy body has nested escalation/match-rule shapes;
+  // building as `Record<string, unknown>` keeps this builder cast-free and
+  // hands shape enforcement to the outer
+  // `apiSchemas.Create/UpdateNotificationPolicyRequest` parse.
   bodyBuilder: (raw) => {
     const channelIds = raw['channel-ids']
       ? String(raw['channel-ids']).split(',').map((s) => s.trim()).filter(Boolean)
       : []
-    const body: CreateNotificationPolicyRequest = {
+    return {
       name: String(raw.name),
       matchRules: [],
       escalation: {steps: [{channelIds, delayMinutes: 0}]},
-      enabled: (raw.enabled as boolean) ?? true,
+      enabled: raw.enabled === undefined ? true : Boolean(raw.enabled),
       priority: 0,
     }
-    return body
   },
   updateBodyBuilder: (raw) => {
-    const body: Partial<UpdateNotificationPolicyRequest> = {}
+    const body: Record<string, unknown> = {}
     if (raw.name !== undefined) body.name = String(raw.name)
-    if (raw.enabled !== undefined) body.enabled = raw.enabled as boolean
+    if (raw.enabled !== undefined) body.enabled = Boolean(raw.enabled)
     if (raw['channel-ids'] !== undefined) {
       const channelIds = String(raw['channel-ids']).split(',').map((s) => s.trim()).filter(Boolean)
       body.escalation = {steps: [{channelIds, delayMinutes: 0}]}
@@ -317,12 +347,14 @@ export const NOTIFICATION_POLICIES: ResourceConfig<NotificationPolicyDto> = {
   },
 }
 
-export const ENVIRONMENTS: ResourceConfig<EnvironmentDto> = {
+export const ENVIRONMENTS: FullResource<EnvironmentDto> = {
   name: 'environment',
   plural: 'environments',
   apiPath: '/api/v1/environments',
   idField: 'slug',
   responseSchema: apiSchemas.EnvironmentDto as z.ZodType<EnvironmentDto>,
+  createRequestSchema: apiSchemas.CreateEnvironmentRequest,
+  updateRequestSchema: apiSchemas.UpdateEnvironmentRequest,
   columns: [
     {header: 'SLUG', get: (r) => r.slug ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -332,18 +364,35 @@ export const ENVIRONMENTS: ResourceConfig<EnvironmentDto> = {
   createFlags: {
     name: Flags.string({description: desc('CreateEnvironmentRequest', 'name'), required: true}),
     slug: Flags.string({description: desc('CreateEnvironmentRequest', 'slug'), required: true}),
+    default: Flags.boolean({description: desc('CreateEnvironmentRequest', 'isDefault'), default: false, allowNo: true}),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateEnvironmentRequest', 'name')}),
+    default: Flags.boolean({description: desc('UpdateEnvironmentRequest', 'isDefault'), allowNo: true}),
+  },
+  bodyBuilder: (raw) => {
+    // CreateEnvironmentRequest requires `isDefault` (strict, not nullish),
+    // so the create flag defaults to `false`. Only include set fields here
+    // so the same builder works for update via .partial().
+    const body: Record<string, unknown> = {}
+    if (raw.name !== undefined) body.name = String(raw.name)
+    if (raw.slug !== undefined) body.slug = String(raw.slug)
+    if (raw.default !== undefined) body.isDefault = Boolean(raw.default)
+    return body
   },
 }
 
-export const SECRETS: ResourceConfig<SecretDto> = {
+export const SECRETS: FullResource<SecretDto> = {
   name: 'secret',
   plural: 'secrets',
   apiPath: '/api/v1/secrets',
   idField: 'key',
   responseSchema: apiSchemas.SecretDto as z.ZodType<SecretDto>,
+  // CreateSecretRequest is `{key, value}.strict()` and UpdateSecretRequest is
+  // `{value}.strict()`. Distinct shapes mean we need separate builders so
+  // strict validation accepts each path's body.
+  createRequestSchema: apiSchemas.CreateSecretRequest,
+  updateRequestSchema: apiSchemas.UpdateSecretRequest,
   columns: [
     {header: 'KEY', get: (r) => r.key ?? ''},
     {header: 'CREATED', get: (r) => r.createdAt ?? ''},
@@ -352,18 +401,21 @@ export const SECRETS: ResourceConfig<SecretDto> = {
   createFlags: {
     key: Flags.string({description: desc('CreateSecretRequest', 'key'), required: true}),
     value: Flags.string({description: desc('CreateSecretRequest', 'value'), required: true}),
-    environment: Flags.string({description: 'Environment slug to scope this secret to'}),
   },
   updateFlags: {
     value: Flags.string({description: desc('UpdateSecretRequest', 'value'), required: true}),
   },
+  bodyBuilder: (raw) => ({key: String(raw.key), value: String(raw.value)}),
+  updateBodyBuilder: (raw) => ({value: String(raw.value)}),
 }
 
-export const TAGS: ResourceConfig<TagDto> = {
+export const TAGS: FullResource<TagDto> = {
   name: 'tag',
   plural: 'tags',
   apiPath: '/api/v1/tags',
   responseSchema: apiSchemas.TagDto as z.ZodType<TagDto>,
+  createRequestSchema: apiSchemas.CreateTagRequest,
+  updateRequestSchema: apiSchemas.UpdateTagRequest,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -377,13 +429,21 @@ export const TAGS: ResourceConfig<TagDto> = {
     name: Flags.string({description: desc('UpdateTagRequest', 'name')}),
     color: Flags.string({description: desc('UpdateTagRequest', 'color')}),
   },
+  bodyBuilder: (raw) => {
+    const body: Record<string, unknown> = {}
+    if (raw.name !== undefined) body.name = String(raw.name)
+    if (raw.color !== undefined) body.color = String(raw.color)
+    return body
+  },
 }
 
-export const RESOURCE_GROUPS: ResourceConfig<ResourceGroupDto> = {
+export const RESOURCE_GROUPS: FullResource<ResourceGroupDto> = {
   name: 'resource group',
   plural: 'resource-groups',
   apiPath: '/api/v1/resource-groups',
   responseSchema: apiSchemas.ResourceGroupDto as z.ZodType<ResourceGroupDto>,
+  createRequestSchema: apiSchemas.CreateResourceGroupRequest,
+  updateRequestSchema: apiSchemas.UpdateResourceGroupRequest,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -395,16 +455,27 @@ export const RESOURCE_GROUPS: ResourceConfig<ResourceGroupDto> = {
     description: Flags.string({description: desc('CreateResourceGroupRequest', 'description')}),
   },
   updateFlags: {
-    name: Flags.string({description: desc('UpdateResourceGroupRequest', 'name')}),
+    // UpdateResourceGroupRequest requires `name` (no `.partial()`); the rest
+    // are nullish so we still treat them as optional and only include set
+    // ones in the body.
+    name: Flags.string({description: desc('UpdateResourceGroupRequest', 'name'), required: true}),
     description: Flags.string({description: desc('UpdateResourceGroupRequest', 'description')}),
+  },
+  bodyBuilder: (raw) => {
+    const body: Record<string, unknown> = {}
+    if (raw.name !== undefined) body.name = String(raw.name)
+    if (raw.description !== undefined) body.description = String(raw.description)
+    return body
   },
 }
 
-export const WEBHOOKS: ResourceConfig<WebhookEndpointDto> = {
+export const WEBHOOKS: FullResource<WebhookEndpointDto> = {
   name: 'webhook',
   plural: 'webhooks',
   apiPath: '/api/v1/webhooks',
   responseSchema: apiSchemas.WebhookEndpointDto as z.ZodType<WebhookEndpointDto>,
+  createRequestSchema: apiSchemas.CreateWebhookEndpointRequest,
+  updateRequestSchema: apiSchemas.UpdateWebhookEndpointRequest,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'URL', get: (r) => r.url ?? ''},
@@ -448,12 +519,13 @@ function parseWebhookEvents(raw: string): WebhookEventTypes[] {
   return parts as WebhookEventTypes[]
 }
 
-export const API_KEYS: ResourceConfig<ApiKeyDto> = {
+export const API_KEYS: CreatableResource<ApiKeyDto> = {
   name: 'API key',
   plural: 'api-keys',
   apiPath: '/api/v1/api-keys',
   validateIdAsUuid: false,
   responseSchema: apiSchemas.ApiKeyDto as z.ZodType<ApiKeyDto>,
+  createRequestSchema: apiSchemas.CreateApiKeyRequest,
   columns: [
     {header: 'ID', get: (r) => String(r.id ?? '')},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -487,11 +559,13 @@ export const DEPENDENCIES: ResourceConfig<ServiceSubscriptionDto> = {
   ],
 }
 
-export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
+export const STATUS_PAGES: FullResource<Schemas['StatusPageDto']> = {
   name: 'status page',
   plural: 'status-pages',
   apiPath: '/api/v1/status-pages',
   responseSchema: apiSchemas.StatusPageDto as z.ZodType<Schemas['StatusPageDto']>,
+  createRequestSchema: apiSchemas.CreateStatusPageRequest,
+  updateRequestSchema: apiSchemas.UpdateStatusPageRequest,
   columns: [
     {header: 'ID', get: (r) => r.id ?? ''},
     {header: 'NAME', get: (r) => r.name ?? ''},
@@ -542,7 +616,12 @@ export const STATUS_PAGES: ResourceConfig<Schemas['StatusPageDto']> = {
 // is `"type": "module"` and CommonJS `require` is undefined in that context.
 // `readFileSync` is in the always-resolved Node core, so the import cost is
 // effectively zero — it's already loaded before the CLI's top-level code runs.
-function loadBrandingFile(path: string): components['schemas']['StatusPageBranding'] {
+// Returns the parsed branding object as plain `object`. The CLI's outer
+// `apiSchemas.Create/UpdateStatusPageRequest` Zod parse re-checks this when
+// the branding lands in the request body — combined with `BrandingFileSchema`
+// here, that gives users a per-field error before the API is hit AND blocks
+// any drift in `StatusPageBranding` from sneaking through.
+function loadBrandingFile(path: string): object {
   const raw = readFileSync(path, 'utf8')
   let parsed: unknown
   try {
@@ -559,7 +638,7 @@ function loadBrandingFile(path: string): components['schemas']['StatusPageBrandi
       .join('; ')
     throw new Error(`Invalid branding file "${path}": ${issues}`)
   }
-  return result.data as components['schemas']['StatusPageBranding']
+  return result.data
 }
 
 // Mirrors the API's StatusPageBranding record (see api-zod.generated.ts).
