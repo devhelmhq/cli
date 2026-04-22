@@ -145,7 +145,7 @@ interface FakeStatusPageGroup {
   name: string
   description: string | null
   displayOrder: number
-  collapsed: boolean
+  defaultOpen: boolean
 }
 
 interface FakeStatusPageComponent {
@@ -320,11 +320,11 @@ class FakeApi {
     const pageGroupsMatch = path.match(/^\/api\/v1\/status-pages\/([^/]+)\/groups$/)
     if (pageGroupsMatch) {
       const pageId = pageGroupsMatch[1]
-      const reqBody = body as {name: string; description?: string | null; displayOrder: number; collapsed?: boolean}
+      const reqBody = body as {name: string; description?: string | null; displayOrder: number; defaultOpen?: boolean}
       const id = this.nextId('spg')
       const dto: FakeStatusPageGroup = {
         id, name: reqBody.name, description: reqBody.description ?? null,
-        displayOrder: reqBody.displayOrder, collapsed: reqBody.collapsed ?? true,
+        displayOrder: reqBody.displayOrder, defaultOpen: reqBody.defaultOpen ?? true,
       }
       this.statusPageGroups.get(pageId)!.set(id, dto)
       return {data: dto}
@@ -372,11 +372,11 @@ class FakeApi {
     if (groupPut) {
       const group = this.statusPageGroups.get(groupPut[1])?.get(groupPut[2])
       if (!group) throw new Error(`fake api: group ${groupPut[2]} not found`)
-      const reqBody = body as {name?: string; description?: string | null; displayOrder?: number; collapsed?: boolean}
+      const reqBody = body as {name?: string; description?: string | null; displayOrder?: number; defaultOpen?: boolean}
       if (reqBody.name !== undefined) group.name = reqBody.name
       if (reqBody.description !== undefined) group.description = reqBody.description ?? null
       if (reqBody.displayOrder !== undefined) group.displayOrder = reqBody.displayOrder
-      if (reqBody.collapsed !== undefined) group.collapsed = reqBody.collapsed
+      if (reqBody.defaultOpen !== undefined) group.defaultOpen = reqBody.defaultOpen
       return {data: group}
     }
     const compPut = path.match(/^\/api\/v1\/status-pages\/([^/]+)\/components\/([^/]+)$/)

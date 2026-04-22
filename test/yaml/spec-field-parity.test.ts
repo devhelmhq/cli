@@ -257,7 +257,7 @@ const SNAPSHOT_COMPONENT_DTO_ONLY = [
   'displayOrder', 'pageOrder', 'currentStatus', 'createdAt', 'updatedAt',
 ]
 
-const SNAPSHOT_GROUP_FIELDS = ['name', 'description', 'collapsed']
+const SNAPSHOT_GROUP_FIELDS = ['name', 'description', 'defaultOpen']
 
 const SNAPSHOT_GROUP_DTO_ONLY = [
   'id', 'statusPageId', 'displayOrder', 'pageOrder',
