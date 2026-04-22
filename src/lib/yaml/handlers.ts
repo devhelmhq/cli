@@ -53,15 +53,19 @@ import {checkedFetch, apiPatch} from '../api-client.js'
 import {apiPost, apiPut, apiDelete as apiDeleteRaw} from '../api-client.js'
 
 /**
- * Narrow the `unknown` body returned by `checkedFetch` to a `{data?: ...}`
- * envelope when the caller only needs the inner id/key off the apply-create
- * response. The runtime shape is whatever the server sent — these handlers
- * stash the id in the YAML state file and surface a clear error later if
- * it's missing. Switch individual call-sites to `apiPostSingle` + a Zod
- * schema as response DTOs become Zod-generated.
+ * Coerce a freshly-created resource id to a string. The OpenAPI spec
+ * types most ids as `string` (UUID), but the notification-policy create
+ * response returns `number`, so the typed `.data.id` we read off
+ * `checkedFetch` can be either. Stashing it in the YAML state file is
+ * always string-shaped, hence the conversion here.
+ *
+ * Returns `undefined` when the response was 2xx but had no id at all —
+ * the applier records that as a failure ("Create succeeded but API
+ * returned no resource ID") so we don't lose the partial outcome.
  */
-function castEnvelope<T>(resp: unknown): {data?: T} {
-  return resp as {data?: T}
+function idToString(id: string | number | null | undefined): string | undefined {
+  if (id === null || id === undefined) return undefined
+  return typeof id === 'string' ? id : String(id)
 }
 import type {ChildCollectionDef} from './child-reconciler.js'
 import {diffChildren, applyChildDiff} from './child-reconciler.js'
@@ -326,8 +330,8 @@ const tagHandler = defineHandler<YamlTag, Schemas['TagDto'], TagSnapshot>({
   fetchAll: (client) => fetchPaginated<Schemas['TagDto']>(client, '/api/v1/tags'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/tags', {body: toCreateTagRequest(yaml)})))
-    return resp.data?.id ?? undefined
+    const resp = await checkedFetch(client.POST('/api/v1/tags', {body: toCreateTagRequest(yaml)}))
+    return idToString(resp?.data?.id)
   },
   async applyUpdate(yaml, id, _refs, client) {
     const body = toCreateTagRequest(yaml) as Schemas['UpdateTagRequest']
@@ -364,8 +368,8 @@ const environmentHandler = defineHandler<YamlEnvironment, Schemas['EnvironmentDt
   fetchAll: (client) => fetchPaginated<Schemas['EnvironmentDto']>(client, '/api/v1/environments'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/environments', {body: toCreateEnvironmentRequest(yaml)})))
-    return resp.data?.id ?? undefined
+    const resp = await checkedFetch(client.POST('/api/v1/environments', {body: toCreateEnvironmentRequest(yaml)}))
+    return idToString(resp?.data?.id)
   },
   async applyUpdate(yaml, id, refs, client) {
     // The environment API uses slug as the path key and does not support
@@ -425,8 +429,8 @@ const secretHandler = defineHandler<YamlSecret, Schemas['SecretDto'], SecretSnap
   fetchAll: (client) => fetchPaginated<Schemas['SecretDto']>(client, '/api/v1/secrets'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/secrets', {body: toCreateSecretRequest(yaml)})))
-    return resp.data?.id ?? undefined
+    const resp = await checkedFetch(client.POST('/api/v1/secrets', {body: toCreateSecretRequest(yaml)}))
+    return idToString(resp?.data?.id)
   },
   async applyUpdate(yaml, _id, _refs, client) {
     await checkedFetch(client.PUT('/api/v1/secrets/{key}', {params: {path: {key: yaml.key}}, body: {value: yaml.value}}))
@@ -471,8 +475,8 @@ const alertChannelHandler = defineHandler<YamlAlertChannel, Schemas['AlertChanne
   fetchAll: (client) => fetchPaginated<Schemas['AlertChannelDto']>(client, '/api/v1/alert-channels'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/alert-channels', {body: toCreateAlertChannelRequest(yaml)})))
-    return resp.data?.id ?? undefined
+    const resp = await checkedFetch(client.POST('/api/v1/alert-channels', {body: toCreateAlertChannelRequest(yaml)}))
+    return idToString(resp?.data?.id)
   },
   async applyUpdate(yaml, id, _refs, client) {
     await checkedFetch(client.PUT('/api/v1/alert-channels/{id}', {params: {path: {id}}, body: toCreateAlertChannelRequest(yaml)}))
@@ -520,8 +524,8 @@ const notificationPolicyHandler = defineHandler<YamlNotificationPolicy, Schemas[
   fetchAll: (client) => fetchPaginated<Schemas['NotificationPolicyDto']>(client, '/api/v1/notification-policies'),
 
   async applyCreate(yaml, refs, client) {
-    const resp = castEnvelope<{id?: string | number}>(await checkedFetch(client.POST('/api/v1/notification-policies', {body: toCreateNotificationPolicyRequest(yaml, refs)})))
-    return resp.data?.id != null ? String(resp.data.id) : undefined
+    const resp = await checkedFetch(client.POST('/api/v1/notification-policies', {body: toCreateNotificationPolicyRequest(yaml, refs)}))
+    return idToString(resp?.data?.id)
   },
   async applyUpdate(yaml, id, refs, client) {
     const body = toCreateNotificationPolicyRequest(yaml, refs) as Schemas['UpdateNotificationPolicyRequest']
@@ -567,8 +571,8 @@ const webhookHandler = defineHandler<YamlWebhook, Schemas['WebhookEndpointDto'],
   fetchAll: (client) => fetchPaginated<Schemas['WebhookEndpointDto']>(client, '/api/v1/webhooks'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/webhooks', {body: toCreateWebhookRequest(yaml)})))
-    return resp.data?.id ?? undefined
+    const resp = await checkedFetch(client.POST('/api/v1/webhooks', {body: toCreateWebhookRequest(yaml)}))
+    return idToString(resp?.data?.id)
   },
   async applyUpdate(yaml, id, _refs, client) {
     const body = {
@@ -641,8 +645,8 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
   fetchAll: (client) => fetchPaginated<Schemas['ResourceGroupDto']>(client, '/api/v1/resource-groups'),
 
   async applyCreate(yaml, refs, client) {
-    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/resource-groups', {body: toCreateResourceGroupRequest(yaml, refs)})))
-    return resp.data?.id ?? undefined
+    const resp = await checkedFetch(client.POST('/api/v1/resource-groups', {body: toCreateResourceGroupRequest(yaml, refs)}))
+    return idToString(resp?.data?.id)
   },
   async applyUpdate(yaml, id, refs, client) {
     await checkedFetch(client.PUT('/api/v1/resource-groups/{id}', {params: {path: {id}}, body: toCreateResourceGroupRequest(yaml, refs)}))
@@ -730,8 +734,8 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
   fetchAll: (client) => fetchPaginated<Schemas['MonitorDto']>(client, '/api/v1/monitors'),
 
   async applyCreate(yaml, refs, client) {
-    const resp = castEnvelope<{id?: string}>(await checkedFetch(client.POST('/api/v1/monitors', {body: toCreateMonitorRequest(yaml, refs)})))
-    return resp.data?.id ?? undefined
+    const resp = await checkedFetch(client.POST('/api/v1/monitors', {body: toCreateMonitorRequest(yaml, refs)}))
+    return idToString(resp?.data?.id)
   },
   async applyUpdate(yaml, id, refs, client) {
     // YAML `auth: null` / `environment: null` signals an explicit clear,
@@ -819,14 +823,14 @@ const dependencyHandler = defineHandler<YamlDependency, Schemas['ServiceSubscrip
   fetchAll: (client) => fetchPaginated<Schemas['ServiceSubscriptionDto']>(client, '/api/v1/service-subscriptions'),
 
   async applyCreate(yaml, _refs, client) {
-    const resp = castEnvelope<{subscriptionId?: string}>(await checkedFetch(client.POST('/api/v1/service-subscriptions/{slug}', {
+    const resp = await checkedFetch(client.POST('/api/v1/service-subscriptions/{slug}', {
       params: {path: {slug: yaml.service}},
       body: {
         alertSensitivity: yaml.alertSensitivity ?? null,
         componentId: yaml.component ?? null,
       },
-    })))
-    return resp.data?.subscriptionId ?? undefined
+    }))
+    return idToString(resp?.data?.subscriptionId)
   },
   async applyUpdate(yaml, id, _refs, client) {
     if (yaml.alertSensitivity !== undefined) {
@@ -1037,8 +1041,16 @@ function makeComponentCollectionDef(
     async applyDelete(parentId, childId) {
       await apiDeleteRaw(client, `/api/v1/status-pages/${parentId}/components/${childId}`)
     },
-    async applyReorder(parentId, orderedIds) {
-      const positions = orderedIds.map((id, i) => ({componentId: id, displayOrder: i, groupId: null}))
+    async applyReorder(parentId, ordered) {
+      // The reorder endpoint replaces both displayOrder AND groupId on every
+      // listed component. If we sent groupId: null for everything, we'd
+      // silently move every grouped component back to "ungrouped" on every
+      // deploy that triggered a reorder. Resolve groupId from the YAML's
+      // group name so reorder preserves group assignments.
+      const positions = ordered.map(({id, yaml, index}) => {
+        const groupId = yaml.group ? (groupNameToId.get(yaml.group) ?? null) : null
+        return {componentId: id, displayOrder: index, groupId}
+      })
       await apiPut(client, `/api/v1/status-pages/${parentId}/components/reorder`, {positions})
     },
   }

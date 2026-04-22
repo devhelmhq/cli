@@ -1467,7 +1467,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get a single service by slug or UUID with current status, components, and recent incidents */
+        /**
+         * Get a single service by slug or UUID with current status, components, and recent incidents
+         * @description When ``summary=true``, the inline ``components`` list is trimmed to groups + showcase leaves + currently-impacted leaves + ungrouped leaves, and a ``componentsSummary`` block is added with the trimmed counts. Powers SSR for vendors with hundreds of components (Snowflake, Cloudflare, DigitalOcean) without OOM-ing the renderer. Default false for full back-compat.
+         */
         get: operations["getService"];
         put?: never;
         post?: never;
@@ -1484,7 +1487,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List active components for a service with current status and inline uptime */
+        /**
+         * List active components for a service with current status and inline uptime
+         * @description When ``groupId`` is supplied, only direct children of that group are returned — used by the pSEO renderer to lazy-load the leaves under a group that summary mode trimmed. Without ``groupId`` the response includes every active component for the service.
+         */
         get: operations["getComponents"];
         put?: never;
         post?: never;
@@ -2852,6 +2858,22 @@ export interface components {
              */
             groupId?: string | null;
         };
+        ComponentsSummaryDto: {
+            /**
+             * Format: int32
+             * @description Total active components for this service across all groups
+             */
+            totalCount: number;
+            /**
+             * Format: int32
+             * @description Number of components actually returned in the inline ``components`` list
+             */
+            includedCount: number;
+            /** @description Per-group active leaf count, keyed by group component id (UUID stringified). Empty when the service has no groups; lets the UI render "show all N" affordances without a second round trip */
+            groupComponentCounts: {
+                [key: string]: number;
+            };
+        };
         /** @description Current status of each active component */
         ComponentStatusDto: {
             /** @description Component UUID */
@@ -2969,8 +2991,8 @@ export interface components {
             variables?: {
                 [key: string]: string | null;
             } | null;
-            /** @description Whether this is the default environment for new monitors */
-            isDefault: boolean;
+            /** @description Whether this is the default environment for new monitors (default: false) */
+            isDefault?: boolean | null;
         };
         /** @description Invite a new member to the organization by email */
         CreateInviteRequest: {
@@ -3264,7 +3286,7 @@ export interface components {
             url: string;
             /** @description Optional human-readable description */
             description?: string | null;
-            /** @description Event types to deliver, e.g. monitor.created, incident.resolved */
+            /** @description Event types to deliver */
             subscribedEvents: ("monitor.created" | "monitor.updated" | "monitor.deleted" | "incident.created" | "incident.resolved" | "incident.reopened" | "service.status_changed" | "service.component_changed" | "service.incident_created" | "service.incident_updated" | "service.incident_resolved")[];
         };
         /** @description Create a new workspace within the organization */
@@ -3650,8 +3672,10 @@ export interface components {
          * @description Uniform error envelope returned for every non-2xx response
          * @example {
          *       "status": 404,
+         *       "code": "NOT_FOUND",
          *       "message": "Monitor not found",
-         *       "timestamp": 1737302400000
+         *       "timestamp": 1737302400000,
+         *       "requestId": "5b6f7a8c-1234-4d5e-9f0a-1b2c3d4e5f6a"
          *     }
          */
         ErrorResponse: {
@@ -3661,6 +3685,11 @@ export interface components {
              * @example 404
              */
             status: number;
+            /**
+             * @description Coarse machine-readable error category (e.g. NOT_FOUND, RATE_LIMITED); stable per status
+             * @example NOT_FOUND
+             */
+            code: string;
             /**
              * @description Human-readable error message; safe to surface to end users
              * @example Monitor not found
@@ -3672,6 +3701,11 @@ export interface components {
              * @example 1737302400000
              */
             timestamp: number;
+            /**
+             * @description Opaque per-request id; same value as the X-Request-Id response header. Use in support tickets.
+             * @example 5b6f7a8c-1234-4d5e-9f0a-1b2c3d4e5f6a
+             */
+            requestId?: string | null;
         };
         /** @description Escalation chain defining which channels to notify; null preserves current */
         EscalationChain: {
@@ -4410,10 +4444,10 @@ export interface components {
         /** @description Match rules to evaluate (all must pass; omit or empty for catch-all) */
         MatchRule: {
             /**
-             * @description Rule type, e.g. severity_gte, monitor_id_in, region_in
+             * @description Rule type used to evaluate incidents and status events
              * @enum {string}
              */
-            type: "severity_gte" | "monitor_id_in" | "region_in" | "incident_status" | "monitor_type_in" | "service_id_in" | "resource_group_id_in" | "component_name_in";
+            type: "severity_gte" | "monitor_id_in" | "region_in" | "incident_status" | "monitor_type_in" | "service_id_in" | "resource_group_id_in" | "component_name_in" | "monitor_tag_in";
             /** @description Comparison value for single-value rules like severity_gte */
             value?: string | null;
             /** @description Monitor UUIDs to match for monitor_id_in rules */
@@ -5571,6 +5605,7 @@ export interface components {
             currentStatus?: components["schemas"]["ServiceStatusDto"] | null;
             recentIncidents: components["schemas"]["ServiceIncidentDto"][];
             components: components["schemas"]["ServiceComponentDto"][];
+            componentsSummary?: components["schemas"]["ComponentsSummaryDto"] | null;
             uptime?: components["schemas"]["ComponentUptimeSummaryDto"] | null;
             activeMaintenances: components["schemas"]["ScheduledMaintenanceDto"][];
             dataCompleteness: string;
@@ -15513,7 +15548,7 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
                 "application/json": components["schemas"]["TestNotificationPolicyRequest"];
             };
@@ -17876,7 +17911,10 @@ export interface operations {
     };
     getService: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Return a curated subset of components (groups + showcase + impacted + ungrouped) and a componentsSummary block; default false */
+                summary?: boolean;
+            };
             header?: never;
             path: {
                 slugOrId: string;
@@ -17970,7 +18008,10 @@ export interface operations {
     };
     getComponents: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Restrict result to direct children of this group component id */
+                groupId?: string;
+            };
             header?: never;
             path: {
                 slugOrId: string;

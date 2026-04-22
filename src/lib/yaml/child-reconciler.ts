@@ -50,8 +50,14 @@ export interface ChildCollectionDef<TYaml = unknown, TApi = unknown> {
   /** Delete a child */
   applyDelete(parentId: string, childId: string): Promise<void>
 
-  /** Optional: batch reorder after individual mutations */
-  applyReorder?(parentId: string, orderedIds: string[]): Promise<void>
+  /**
+   * Optional: batch reorder after individual mutations. Receives both the
+   * ordered API IDs and the corresponding desired YAML so handlers can
+   * preserve other per-row attributes (e.g. component groupId) instead of
+   * losing them when the server treats the reorder payload as a full
+   * upsert.
+   */
+  applyReorder?(parentId: string, ordered: Array<{id: string; yaml: TYaml; index: number}>): Promise<void>
 }
 
 export interface ChildChange {
@@ -259,15 +265,15 @@ export async function applyChildDiff<TYaml, TApi>(
   // incomplete, so a partial reorder could move surviving children to wrong
   // positions. Re-run handles ordering once everything is in place.
   if (diffResult.reorder && def.applyReorder && errors.length === 0) {
-    const orderedIds: string[] = []
-    for (const yaml of desiredYaml) {
+    const ordered: Array<{id: string; yaml: TYaml; index: number}> = []
+    for (const [index, yaml] of desiredYaml.entries()) {
       const key = def.identityKey(yaml)
       const id = newIds.get(key) ?? existingByKey[key]
-      if (id) orderedIds.push(id)
+      if (id) ordered.push({id, yaml, index})
     }
-    if (orderedIds.length > 0) {
+    if (ordered.length > 0) {
       try {
-        await def.applyReorder(parentId, orderedIds)
+        await def.applyReorder(parentId, ordered)
       } catch (err) {
         errors.push(`reorder ${def.name}: ${errorMessage(err)}`)
       }

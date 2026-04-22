@@ -1,7 +1,7 @@
 import {Command, Flags} from '@oclif/core'
 import {createApiClient, type ApiClient} from './api-client.js'
 import {resolveToken, resolveApiUrl} from './auth.js'
-import {AuthError} from './errors.js'
+import {DevhelmValidationError} from './errors.js'
 import {formatOutput, OutputFormat, ColumnDef} from './output.js'
 import {urlFlag} from './validators.js'
 
@@ -23,7 +23,11 @@ export function buildClient(flags: {
   verbose?: boolean
 }): ApiClient {
   const token = flags['api-token'] || resolveToken()
-  if (!token) throw new AuthError()
+  if (!token) {
+    throw new DevhelmValidationError(
+      'Not authenticated. Run `devhelm auth login` first, or set DEVHELM_API_TOKEN.',
+    )
+  }
 
   const baseUrl = flags['api-url'] || resolveApiUrl()
 

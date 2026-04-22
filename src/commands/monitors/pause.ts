@@ -12,9 +12,9 @@ export default class MonitorsPause extends Command {
   async run() {
     const {args, flags} = await this.parse(MonitorsPause)
     const client = buildClient(flags)
-    const resp = (await checkedFetch(
+    const resp = await checkedFetch(
       client.POST('/api/v1/monitors/{id}/pause', {params: {path: {id: args.id}}}),
-    )) as {data?: {name?: string}}
-    this.log(`Monitor '${resp.data?.name}' paused.`)
+    )
+    this.log(`Monitor '${resp?.data?.name ?? args.id}' paused.`)
   }
 }

@@ -1,6 +1,7 @@
 import {Command, Flags} from '@oclif/core'
 import {createApiClient, apiDelete} from '../../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
+import {DevhelmApiError, EXIT_CODES} from '../../lib/errors.js'
 import {urlFlag} from '../../lib/validators.js'
 
 export default class DeployForceUnlock extends Command {
@@ -40,7 +41,10 @@ export default class DeployForceUnlock extends Command {
 
     const token = flags['api-token'] ?? resolveToken()
     if (!token) {
-      this.error('No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.', {exit: 1})
+      this.error(
+        'No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.',
+        {exit: EXIT_CODES.VALIDATION},
+      )
     }
 
     const client = createApiClient({
@@ -53,12 +57,15 @@ export default class DeployForceUnlock extends Command {
       await apiDelete(client, '/api/v1/deploy/lock/force')
       this.log('Deploy lock released.')
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      if (msg.includes('404') || msg.includes('Not Found')) {
+      // Branch on the typed error rather than substring-matching the message:
+      // the canonical DevhelmApiError carries a real HTTP status, so 404
+      // ("no lock to release") is unambiguous and we exit successfully.
+      if (err instanceof DevhelmApiError && err.status === 404) {
         this.log('No active deploy lock found.')
         return
       }
-      this.error(`Failed to release lock: ${msg}`, {exit: 1})
+      const msg = err instanceof Error ? err.message : String(err)
+      this.error(`Failed to release lock: ${msg}`, {exit: EXIT_CODES.API})
     }
   }
 }

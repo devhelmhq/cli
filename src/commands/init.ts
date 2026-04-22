@@ -1,5 +1,6 @@
 import {Command, Flags} from '@oclif/core'
 import {existsSync, writeFileSync} from 'node:fs'
+import {EXIT_CODES} from '../lib/errors.js'
 
 const TEMPLATE = `# devhelm.yml — DevHelm monitoring-as-code configuration
 # Docs: https://docs.devhelm.io/cli/configuration
@@ -127,13 +128,21 @@ export default class Init extends Command {
     const {flags} = await this.parse(Init)
 
     if (existsSync(flags.path) && !flags.force) {
-      this.error(`${flags.path} already exists. Use --force to overwrite.`, {exit: 1})
+      this.error(
+        `${flags.path} already exists. Use --force to overwrite.`,
+        {exit: EXIT_CODES.VALIDATION},
+      )
     }
 
     try {
       writeFileSync(flags.path, TEMPLATE)
     } catch (err) {
-      this.error(`Failed to write ${flags.path}: ${err instanceof Error ? err.message : String(err)}`, {exit: 1})
+      // Filesystem failure (read-only FS, no perms, disk full) — leave at the
+      // generic exit code; this isn't a config validation issue.
+      this.error(
+        `Failed to write ${flags.path}: ${err instanceof Error ? err.message : String(err)}`,
+        {exit: EXIT_CODES.GENERAL},
+      )
     }
     this.log(`Created ${flags.path}`)
     this.log('Edit the file, then run "devhelm validate" to check it.')

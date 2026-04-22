@@ -12,9 +12,9 @@ export default class AlertChannelsTest extends Command {
   async run() {
     const {args, flags} = await this.parse(AlertChannelsTest)
     const client = buildClient(flags)
-    const resp = (await checkedFetch(
+    const resp = await checkedFetch(
       client.POST('/api/v1/alert-channels/{id}/test', {params: {path: {id: args.id}}}),
-    )) as {data?: {success?: boolean}}
-    this.log(resp.data?.success ? 'Test notification sent successfully.' : 'Test notification failed.')
+    )
+    this.log(resp?.data?.success ? 'Test notification sent successfully.' : 'Test notification failed.')
   }
 }

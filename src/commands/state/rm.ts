@@ -1,4 +1,5 @@
 import {Command, Args} from '@oclif/core'
+import {EXIT_CODES} from '../../lib/errors.js'
 import {readState, writeState, removeStateEntry, StateFileCorruptError} from '../../lib/yaml/state.js'
 
 export default class StateRm extends Command {
@@ -23,18 +24,18 @@ export default class StateRm extends Command {
       state = readState()
     } catch (err) {
       if (err instanceof StateFileCorruptError) {
-        this.error(err.message, {exit: 1})
+        this.error(err.message, {exit: EXIT_CODES.VALIDATION})
       }
       throw err
     }
 
     if (!state) {
-      this.error('No state file found.', {exit: 1})
+      this.error('No state file found.', {exit: EXIT_CODES.VALIDATION})
     }
 
     const removed = removeStateEntry(state, args.address)
     if (!removed) {
-      this.error(`Address "${args.address}" not found in state.`, {exit: 1})
+      this.error(`Address "${args.address}" not found in state.`, {exit: EXIT_CODES.VALIDATION})
     }
 
     writeState(state)

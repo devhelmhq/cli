@@ -54,7 +54,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "name": "Human-readable environment name",
     "slug": "URL-safe identifier (lowercase alphanumeric, hyphens, underscores)",
     "variables": "Initial key-value variable pairs for this environment",
-    "isDefault": "Whether this is the default environment for new monitors"
+    "isDefault": "Whether this is the default environment for new monitors (default: false)"
   },
   "UpdateEnvironmentRequest": {
     "name": "New environment name; null preserves current",
@@ -107,7 +107,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   "CreateWebhookEndpointRequest": {
     "url": "HTTPS endpoint that receives webhook event payloads",
     "description": "Optional human-readable description",
-    "subscribedEvents": "Event types to deliver, e.g. monitor.created, incident.resolved"
+    "subscribedEvents": "Event types to deliver"
   },
   "UpdateWebhookEndpointRequest": {
     "url": "New webhook URL; null preserves current",
@@ -206,7 +206,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "repeatIntervalSeconds": "Repeat notification interval in seconds until acknowledged"
   },
   "MatchRule": {
-    "type": "Rule type, e.g. severity_gte, monitor_id_in, region_in",
+    "type": "Rule type used to evaluate incidents and status events",
     "value": "Comparison value for single-value rules like severity_gte",
     "monitorIds": "Monitor UUIDs to match for monitor_id_in rules",
     "regions": "Region codes to match for region_in rules",

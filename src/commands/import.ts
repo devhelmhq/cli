@@ -9,6 +9,7 @@ import {fetchPaginated} from '../lib/typed-api.js'
 import {readState, writeState, emptyState, upsertStateEntry, resourceAddress, StateFileCorruptError} from '../lib/yaml/state.js'
 import type {ChildStateEntry} from '../lib/yaml/state.js'
 import type {HandledResourceType} from '../lib/yaml/types.js'
+import {EXIT_CODES} from '../lib/errors.js'
 
 type Schemas = components['schemas']
 
@@ -47,14 +48,20 @@ export default class Import extends Command {
     const {args, flags} = await this.parse(Import)
 
     if (!VALID_TYPES.includes(args.type as typeof VALID_TYPES[number])) {
-      this.error(`Unknown resource type "${args.type}". Valid types: ${VALID_TYPES.join(', ')}`, {exit: 1})
+      this.error(
+        `Unknown resource type "${args.type}". Valid types: ${VALID_TYPES.join(', ')}`,
+        {exit: EXIT_CODES.VALIDATION},
+      )
     }
 
     const resourceType = args.type as HandledResourceType
 
     const token = flags['api-token'] ?? resolveToken()
     if (!token) {
-      this.error('No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.', {exit: 1})
+      this.error(
+        'No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.',
+        {exit: EXIT_CODES.VALIDATION},
+      )
     }
 
     const client = createApiClient({
@@ -65,7 +72,7 @@ export default class Import extends Command {
 
     const handler = allHandlers().find((h) => h.resourceType === resourceType)
     if (!handler) {
-      this.error(`No handler for resource type "${resourceType}"`, {exit: 1})
+      this.error(`No handler for resource type "${resourceType}"`, {exit: EXIT_CODES.VALIDATION})
     }
 
     this.log(`Fetching ${resourceType} resources...`)
@@ -79,7 +86,7 @@ export default class Import extends Command {
         (available.length > 0
           ? `Available: ${available.join(', ')}`
           : 'No resources of this type exist.'),
-        {exit: 1},
+        {exit: EXIT_CODES.VALIDATION},
       )
     }
 
@@ -88,7 +95,7 @@ export default class Import extends Command {
       state = readState() ?? emptyState()
     } catch (err) {
       if (err instanceof StateFileCorruptError) {
-        this.error(err.message, {exit: 1})
+        this.error(err.message, {exit: EXIT_CODES.VALIDATION})
       }
       throw err
     }

@@ -12,8 +12,10 @@ const pageable = z
 const ErrorResponse = z
   .object({
     status: z.number().int(),
+    code: z.string(),
     message: z.string(),
     timestamp: z.number().int(),
+    requestId: z.string().nullish(),
   })
   .strict();
 const DiscordChannelConfig = z
@@ -126,7 +128,7 @@ const CreateEnvironmentRequest = z
       .max(100)
       .regex(/^[a-z0-9][a-z0-9_-]*$/),
     variables: z.record(z.string().nullable()).nullish(),
-    isDefault: z.boolean(),
+    isDefault: z.boolean().nullish(),
   })
   .strict();
 const UpdateEnvironmentRequest = z
@@ -805,6 +807,7 @@ const MatchRule = z
       "service_id_in",
       "resource_group_id_in",
       "component_name_in",
+      "monitor_tag_in",
     ]),
     value: z.string().nullish(),
     monitorIds: z.array(z.string().uuid()).nullish(),
@@ -1610,6 +1613,13 @@ const ComponentImpact = z
     uptimePercentage: z.number(),
     partialOutageSeconds: z.number().int(),
     majorOutageSeconds: z.number().int(),
+  })
+  .strict();
+const ComponentsSummaryDto = z
+  .object({
+    totalCount: z.number().int(),
+    includedCount: z.number().int(),
+    groupComponentCounts: z.record(z.number().int()),
   })
   .strict();
 const ComponentStatusDto = z
@@ -2432,6 +2442,7 @@ const ServiceDetailDto = z
     currentStatus: ServiceStatusDto.nullish(),
     recentIncidents: z.array(ServiceIncidentDto),
     components: z.array(ServiceComponentDto),
+    componentsSummary: ComponentsSummaryDto.nullish(),
     uptime: ComponentUptimeSummaryDto.nullish(),
     activeMaintenances: z.array(ScheduledMaintenanceDto),
     dataCompleteness: z.string(),
@@ -3372,6 +3383,7 @@ export const schemas = {
   CheckResultDetailsDto,
   CheckResultDto,
   ComponentImpact,
+  ComponentsSummaryDto,
   ComponentStatusDto,
   ComponentUptimeSummaryDto,
   CursorPageCheckResultDto,
