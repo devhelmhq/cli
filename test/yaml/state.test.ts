@@ -1,16 +1,16 @@
 import {describe, it, expect, beforeEach, afterEach} from 'vitest'
-import {mkdirSync, rmSync, existsSync, writeFileSync} from 'node:fs'
+import {mkdirSync, rmSync, existsSync, writeFileSync, readFileSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
 import {
-  readState, writeState, buildStateV2, emptyState, StateFileCorruptError,
+  readState, writeState, buildState, buildStateV2, emptyState, StateFileCorruptError,
   upsertStateEntry, removeStateEntry, lookupByAddress,
   lookupByApiId, processMovedBlocks, resourceAddress,
-  parseAddress, migrateV1, buildState,
+  parseAddress, migrateV1, migrateV2,
 } from '../../src/lib/yaml/state.js'
 import type {DeployStateV1} from '../../src/lib/yaml/state.js'
 
-describe('state v2', () => {
+describe('state v3', () => {
   let tmpDir: string
 
   beforeEach(() => {
@@ -28,8 +28,8 @@ describe('state v2', () => {
     expect(readState(tmpDir)).toBeUndefined()
   })
 
-  it('writes and reads v2 state', () => {
-    const state = buildStateV2([
+  it('writes and reads v3 state', () => {
+    const state = buildState([
       {resourceType: 'monitor', refKey: 'API', apiId: 'mon-1'},
     ])
     writeState(state, tmpDir)
@@ -37,10 +37,19 @@ describe('state v2', () => {
 
     const loaded = readState(tmpDir)
     expect(loaded).toBeDefined()
-    expect(loaded!.version).toBe('2')
+    expect(loaded!.version).toBe('3')
     expect(loaded!.serial).toBe(1)
     expect(loaded!.resources['monitors.API']).toBeDefined()
     expect(loaded!.resources['monitors.API'].apiId).toBe('mon-1')
+  })
+
+  it('does NOT persist `attributes` on disk (v3 is identity-only)', () => {
+    const state = buildState([
+      {resourceType: 'monitor', refKey: 'API', apiId: 'mon-1'},
+    ])
+    writeState(state, tmpDir)
+    const raw = readFileSync(join(tmpDir, '.devhelm', 'state.json'), 'utf8')
+    expect(raw).not.toContain('attributes')
   })
 
   it('creates .devhelm directory if missing', () => {
@@ -70,10 +79,10 @@ describe('state v2', () => {
   })
 
   it('overwrites previous state on write', () => {
-    const s1 = buildStateV2([{resourceType: 'tag', refKey: 'A', apiId: 't-1'}])
+    const s1 = buildState([{resourceType: 'tag', refKey: 'A', apiId: 't-1'}])
     writeState(s1, tmpDir)
 
-    const s2 = buildStateV2([
+    const s2 = buildState([
       {resourceType: 'tag', refKey: 'A', apiId: 't-1'},
       {resourceType: 'monitor', refKey: 'B', apiId: 'm-1'},
     ])
@@ -85,14 +94,20 @@ describe('state v2', () => {
 
   // ── Serial increment ──────────────────────────────────────────────
 
-  it('buildStateV2 increments serial from previous', () => {
-    const s = buildStateV2([], 5)
+  it('buildState increments serial from previous', () => {
+    const s = buildState([], 5)
     expect(s.serial).toBe(6)
   })
 
-  it('buildStateV2 defaults serial to 1 when no previous', () => {
-    const s = buildStateV2([])
+  it('buildState defaults serial to 1 when no previous', () => {
+    const s = buildState([])
     expect(s.serial).toBe(1)
+  })
+
+  it('buildStateV2 alias still works (deprecated shim)', () => {
+    const s = buildStateV2([{resourceType: 'tag', refKey: 'X', apiId: 't-1'}])
+    expect(s.version).toBe('3')
+    expect(s.resources['tags.X'].apiId).toBe('t-1')
   })
 
   // ── Address helpers ───────────────────────────────────────────────
@@ -124,7 +139,7 @@ describe('state v2', () => {
 
   it('upsertStateEntry adds a new entry and increments serial', () => {
     const state = emptyState()
-    upsertStateEntry(state, 'monitor', 'API', 'uuid-1', {name: 'API'})
+    upsertStateEntry(state, 'monitor', 'API', 'uuid-1')
     expect(state.resources['monitors.API']).toBeDefined()
     expect(state.resources['monitors.API'].apiId).toBe('uuid-1')
     expect(state.serial).toBe(1)
@@ -132,16 +147,16 @@ describe('state v2', () => {
 
   it('upsertStateEntry overwrites existing entry', () => {
     const state = emptyState()
-    upsertStateEntry(state, 'monitor', 'API', 'uuid-1', {name: 'API'})
-    upsertStateEntry(state, 'monitor', 'API', 'uuid-1', {name: 'API', url: 'https://new.com'})
-    expect(state.resources['monitors.API'].attributes).toEqual({name: 'API', url: 'https://new.com'})
+    upsertStateEntry(state, 'monitor', 'API', 'uuid-1')
+    upsertStateEntry(state, 'monitor', 'API', 'uuid-2')
+    expect(state.resources['monitors.API'].apiId).toBe('uuid-2')
     expect(state.serial).toBe(2)
   })
 
   it('upsertStateEntry with children', () => {
     const state = emptyState()
-    upsertStateEntry(state, 'statusPage', 'devhelm', 'sp-1', {name: 'DevHelm'}, {
-      'groups.Platform': {apiId: 'g-1', attributes: {name: 'Platform'}},
+    upsertStateEntry(state, 'statusPage', 'devhelm', 'sp-1', {
+      'groups.Platform': {apiId: 'g-1'},
     })
     const entry = state.resources['statusPages.devhelm']
     expect(entry.children['groups.Platform'].apiId).toBe('g-1')
@@ -163,7 +178,7 @@ describe('state v2', () => {
   // ── Lookup helpers ────────────────────────────────────────────────
 
   it('lookupByAddress finds entry', () => {
-    const state = buildStateV2([{resourceType: 'monitor', refKey: 'API', apiId: 'uuid-1'}])
+    const state = buildState([{resourceType: 'monitor', refKey: 'API', apiId: 'uuid-1'}])
     expect(lookupByAddress(state, 'monitors.API')?.apiId).toBe('uuid-1')
   })
 
@@ -173,7 +188,7 @@ describe('state v2', () => {
   })
 
   it('lookupByApiId finds entry across resource types', () => {
-    const state = buildStateV2([
+    const state = buildState([
       {resourceType: 'monitor', refKey: 'API', apiId: 'uuid-1'},
       {resourceType: 'tag', refKey: 'prod', apiId: 'uuid-2'},
     ])
@@ -234,17 +249,17 @@ describe('state v2', () => {
 
   it('processMovedBlocks preserves children through rename', () => {
     const state = emptyState()
-    upsertStateEntry(state, 'statusPage', 'old-slug', 'sp-1', {name: 'Old'}, {
-      'groups.Platform': {apiId: 'g-1', attributes: {name: 'Platform'}},
+    upsertStateEntry(state, 'statusPage', 'old-slug', 'sp-1', {
+      'groups.Platform': {apiId: 'g-1'},
     })
     processMovedBlocks(state, [{from: 'statusPages.old-slug', to: 'statusPages.new-slug'}])
     const moved = state.resources['statusPages.new-slug']
     expect(moved.children['groups.Platform'].apiId).toBe('g-1')
   })
 
-  // ── V1 → V2 migration ────────────────────────────────────────────
+  // ── V1 → V3 migration ────────────────────────────────────────────
 
-  it('migrateV1 converts to v2 format', () => {
+  it('migrateV1 converts to v3 format', () => {
     const v1: DeployStateV1 = {
       version: '1',
       lastDeployedAt: '2025-01-01T00:00:00Z',
@@ -253,14 +268,14 @@ describe('state v2', () => {
         {resourceType: 'tag', refKey: 'prod', id: 'tag-1', createdAt: '2025-01-01'},
       ],
     }
-    const v2 = migrateV1(v1)
-    expect(v2.version).toBe('2')
-    expect(v2.serial).toBe(1)
-    expect(v2.resources['monitors.API']).toBeDefined()
-    expect(v2.resources['monitors.API'].apiId).toBe('mon-1')
-    expect(v2.resources['monitors.API'].attributes).toEqual({name: 'API', _migrated: true})
-    expect(v2.resources['tags.prod']).toBeDefined()
-    expect(v2.resources['tags.prod'].apiId).toBe('tag-1')
+    const v3 = migrateV1(v1)
+    expect(v3.version).toBe('3')
+    expect(v3.serial).toBe(1)
+    expect(v3.resources['monitors.API']).toBeDefined()
+    expect(v3.resources['monitors.API'].apiId).toBe('mon-1')
+    expect(v3.resources['monitors.API']).not.toHaveProperty('attributes')
+    expect(v3.resources['tags.prod']).toBeDefined()
+    expect(v3.resources['tags.prod'].apiId).toBe('tag-1')
   })
 
   it('readState auto-migrates v1 on disk', () => {
@@ -276,34 +291,75 @@ describe('state v2', () => {
     writeFileSync(join(dir, 'state.json'), JSON.stringify(v1))
 
     const loaded = readState(tmpDir)!
-    expect(loaded.version).toBe('2')
+    expect(loaded.version).toBe('3')
     expect(loaded.serial).toBe(1)
     expect(loaded.resources['monitors.API'].apiId).toBe('mon-1')
   })
 
   it('migrateV1 handles empty resources array', () => {
     const v1: DeployStateV1 = {version: '1', lastDeployedAt: '2025-01-01T00:00:00Z', resources: []}
-    const v2 = migrateV1(v1)
-    expect(v2.version).toBe('2')
-    expect(Object.keys(v2.resources)).toHaveLength(0)
+    const v3 = migrateV1(v1)
+    expect(v3.version).toBe('3')
+    expect(Object.keys(v3.resources)).toHaveLength(0)
   })
 
-  // ── Backward-compat buildState shim ───────────────────────────────
+  // ── V2 → V3 migration ────────────────────────────────────────────
 
-  it('buildState (compat shim) creates v2 state from v1 entries', () => {
-    const state = buildState([
-      {resourceType: 'monitor', refKey: 'API', id: 'mon-1', createdAt: '2025-01-01'},
-    ])
-    expect(state.version).toBe('2')
-    expect(state.resources['monitors.API']).toBeDefined()
-    expect(state.resources['monitors.API'].apiId).toBe('mon-1')
+  it('migrateV2 strips parent and child attributes', () => {
+    const v2 = {
+      version: '2' as const,
+      serial: 7,
+      lastDeployedAt: '2025-04-22T00:00:00Z',
+      resources: {
+        'statusPages.devhelm': {
+          apiId: 'sp-1',
+          resourceType: 'statusPage',
+          attributes: {name: 'DevHelm', slug: 'devhelm'},
+          children: {
+            'groups.Platform': {apiId: 'g-1', attributes: {name: 'Platform', defaultOpen: true}},
+            'components.API': {apiId: 'c-1', attributes: {name: 'API'}},
+          },
+        },
+      },
+    }
+    const v3 = migrateV2(v2)
+    expect(v3.version).toBe('3')
+    expect(v3.serial).toBe(7)
+    expect(v3.resources['statusPages.devhelm'].apiId).toBe('sp-1')
+    expect(v3.resources['statusPages.devhelm']).not.toHaveProperty('attributes')
+    expect(v3.resources['statusPages.devhelm'].children['groups.Platform'].apiId).toBe('g-1')
+    expect(v3.resources['statusPages.devhelm'].children['groups.Platform']).not.toHaveProperty('attributes')
+    expect(v3.resources['statusPages.devhelm'].children['components.API'].apiId).toBe('c-1')
+  })
+
+  it('readState auto-migrates v2 on disk silently', () => {
+    const v2 = {
+      version: '2',
+      serial: 3,
+      lastDeployedAt: '2025-04-22T00:00:00Z',
+      resources: {
+        'monitors.API': {
+          apiId: 'mon-1', resourceType: 'monitor',
+          attributes: {name: 'API', frequencySeconds: 60},
+          children: {},
+        },
+      },
+    }
+    const dir = join(tmpDir, '.devhelm')
+    mkdirSync(dir, {recursive: true})
+    writeFileSync(join(dir, 'state.json'), JSON.stringify(v2))
+
+    const loaded = readState(tmpDir)!
+    expect(loaded.version).toBe('3')
+    expect(loaded.serial).toBe(3)
+    expect(loaded.resources['monitors.API'].apiId).toBe('mon-1')
   })
 
   // ── emptyState ────────────────────────────────────────────────────
 
-  it('emptyState creates valid empty v2 state', () => {
+  it('emptyState creates valid empty v3 state', () => {
     const state = emptyState()
-    expect(state.version).toBe('2')
+    expect(state.version).toBe('3')
     expect(state.serial).toBe(0)
     expect(Object.keys(state.resources)).toHaveLength(0)
     expect(state.lastDeployedAt).toBeTruthy()
@@ -311,24 +367,23 @@ describe('state v2', () => {
 
   // ── Round-trip ────────────────────────────────────────────────────
 
-  it('full write/read round-trip preserves all data', () => {
-    const state = buildStateV2([
+  it('full write/read round-trip preserves identity (no attributes expected in v3)', () => {
+    const state = buildState([
       {
         resourceType: 'statusPage', refKey: 'devhelm', apiId: 'sp-1',
-        attributes: {name: 'DevHelm', slug: 'devhelm'},
         children: {
-          'groups.Platform': {apiId: 'g-1', attributes: {name: 'Platform'}},
-          'components.API': {apiId: 'c-1', attributes: {name: 'API'}},
+          'groups.Platform': {apiId: 'g-1'},
+          'components.API': {apiId: 'c-1'},
         },
       },
-      {resourceType: 'monitor', refKey: 'API', apiId: 'mon-1', attributes: {name: 'API', type: 'HTTP'}},
+      {resourceType: 'monitor', refKey: 'API', apiId: 'mon-1'},
     ])
     writeState(state, tmpDir)
 
     const loaded = readState(tmpDir)!
-    expect(loaded.version).toBe('2')
+    expect(loaded.version).toBe('3')
     expect(loaded.serial).toBe(1)
     expect(loaded.resources['statusPages.devhelm'].children['groups.Platform'].apiId).toBe('g-1')
-    expect(loaded.resources['monitors.API'].attributes).toEqual({name: 'API', type: 'HTTP'})
+    expect(loaded.resources['monitors.API'].apiId).toBe('mon-1')
   })
 })

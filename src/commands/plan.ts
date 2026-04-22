@@ -3,7 +3,7 @@ import {createApiClient} from '../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../lib/auth.js'
 import {EXIT_CODES} from '../lib/errors.js'
 import {urlFlag} from '../lib/validators.js'
-import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, formatPlan, changesetToJson, readState, emptyState, previewMovedBlocks, StateFileCorruptError} from '../lib/yaml/index.js'
+import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, prefetchChildSnapshots, formatPlan, changesetToJson, readState, emptyState, previewMovedBlocks, StateFileCorruptError} from '../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../lib/yaml/entitlements.js'
 
 export default class Plan extends Command {
@@ -126,10 +126,12 @@ export default class Plan extends Command {
       this.error('Fix validation errors first', {exit: EXIT_CODES.VALIDATION})
     }
 
-    const changeset = diff(
+    const currentChildren = await prefetchChildSnapshots(config, refs, client)
+    const changeset = await diff(
       config, refs,
       {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']},
       currentState,
+      currentChildren,
     )
 
     const entitlementCheck = await checkEntitlements(client, changeset)

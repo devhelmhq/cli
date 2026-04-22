@@ -96,6 +96,19 @@ export interface ApplyOutcome {
   children?: Record<string, ChildStateEntry>
 }
 
+/**
+ * Live snapshot of a child resource fetched from the API at plan time.
+ *
+ * The differ feeds these to `hasChildChanges` so child drift is detected
+ * against the API truth, not against `state.json` (which v3 no longer
+ * stores attributes for — see RFC 0001). `apiId` is preserved alongside
+ * the snapshot to keep state-aware rename matching working.
+ */
+export interface CurrentChildEntry {
+  apiId: string
+  snapshot: Record<string, unknown>
+}
+
 export interface ResourceHandler<TYaml = unknown, TApiDto = unknown> {
   readonly resourceType: HandledResourceType
   readonly refType: RefType
@@ -115,15 +128,25 @@ export interface ResourceHandler<TYaml = unknown, TApiDto = unknown> {
    * only the children differ — without it, statusPageHandler.hasChanged
    * would compare parent fields only and miss "user added a new component".
    *
-   * Compares YAML's children against the prior-state child snapshots that
-   * `applyChildDiff` wrote on the previous deploy. This is sync — no API
-   * fetch needed — because state already carries the last-deployed snapshot.
-   *
-   * Returns false (no children changed) when the handler doesn't manage
-   * children, or when `priorChildren` is empty AND the YAML has no children
-   * declared (first-time deploy path is fully handled by applyCreate).
+   * **v3 contract**: `currentChildren` is fetched live from the API by the
+   * differ via `fetchChildSnapshots` immediately before this is called.
+   * That means cross-environment drift (e.g. a deploy from machine A
+   * followed by a plan from machine B with no `state pull`) is detected
+   * correctly without relying on `state.json`'s attributes.
    */
-  hasChildChanges?(yaml: TYaml, priorChildren: Record<string, ChildStateEntry>): boolean
+  hasChildChanges?(yaml: TYaml, currentChildren: Record<string, CurrentChildEntry>): boolean
+
+  /**
+   * Fetch live child snapshots for a parent. Required if `hasChildChanges`
+   * is implemented. Called by the differ in parallel for every parent that
+   * already exists in the API. The returned map is keyed `<collection>.<name>`
+   * (e.g. `groups.Platform`) for parity with the apply path's state keys.
+   */
+  fetchChildSnapshots?(
+    parentApiId: string,
+    client: ApiClient,
+    refs: ResolvedRefs,
+  ): Promise<Record<string, CurrentChildEntry>>
 
   fetchAll(client: ApiClient): Promise<TApiDto[]>
   applyCreate(
@@ -159,8 +182,15 @@ interface HandlerDef<TYaml, TApiDto, TSnapshot> {
   toDesiredSnapshot(yaml: TYaml, api: TApiDto, refs: ResolvedRefs): TSnapshot
   toCurrentSnapshot(api: TApiDto): TSnapshot
 
-  /** Optional: report drift inside child collections using prior state. */
-  hasChildChanges?(yaml: TYaml, priorChildren: Record<string, ChildStateEntry>): boolean
+  /** Optional: report drift inside child collections using live API data. */
+  hasChildChanges?(yaml: TYaml, currentChildren: Record<string, CurrentChildEntry>): boolean
+
+  /** Optional: fetch child snapshots from the API for plan-time diffing. */
+  fetchChildSnapshots?(
+    parentApiId: string,
+    client: ApiClient,
+    refs: ResolvedRefs,
+  ): Promise<Record<string, CurrentChildEntry>>
 
   fetchAll(client: ApiClient): Promise<TApiDto[]>
   applyCreate(
@@ -212,6 +242,7 @@ function defineHandler<TYaml, TApiDto, TSnapshot>(
     },
 
     hasChildChanges: h.hasChildChanges,
+    fetchChildSnapshots: h.fetchChildSnapshots,
 
     computeAttributeDiffs(yaml: TYaml, api: TApiDto, refs: ResolvedRefs) {
       const desired = h.toDesiredSnapshot(yaml, api, refs) as Record<string, unknown>
@@ -926,6 +957,73 @@ export function statusPageComponentDesiredSnapshot(
   }
 }
 
+/**
+ * Translate an API group DTO into the snapshot shape used by the diff
+ * comparator. This is the single source of truth for "what attributes
+ * matter on a group" — both the deploy-time collection def and `state pull`
+ * share this so they cannot drift apart.
+ *
+ * Any new field that should participate in drift detection must be added
+ * here AND in `statusPageGroupDesiredSnapshot` (the YAML-side mirror); the
+ * shapes must stay structurally identical.
+ */
+export function statusPageGroupCurrentSnapshot(
+  api: Schemas['StatusPageComponentGroupDto'],
+): Record<string, unknown> {
+  return {
+    name: api.name ?? '',
+    description: api.description ?? null,
+    defaultOpen: api.defaultOpen ?? true,
+  }
+}
+
+/**
+ * Translate an API component DTO into the snapshot shape used by the diff
+ * comparator. Reverse-resolves `groupId` / `monitorId` / `resourceGroupId`
+ * to the human-readable names used in YAML so desired/current snapshots
+ * compare as plain strings.
+ *
+ * Same drift-detection rules as `statusPageGroupCurrentSnapshot`: every
+ * field added here must be mirrored in `statusPageComponentDesiredSnapshot`.
+ */
+export function statusPageComponentCurrentSnapshot(
+  api: Schemas['StatusPageComponentDto'],
+  groupNameToId: Map<string, string>,
+  refs: ResolvedRefs,
+): Record<string, unknown> {
+  let groupName: string | null = null
+  if (api.groupId) {
+    for (const [name, id] of groupNameToId) {
+      if (id === api.groupId) {groupName = name; break}
+    }
+  }
+  let monitorName: string | null = null
+  if (api.monitorId) {
+    for (const entry of refs.allEntries('monitors')) {
+      if (entry.id === api.monitorId) {monitorName = entry.refKey; break}
+    }
+  }
+  let resourceGroupName: string | null = null
+  if (api.resourceGroupId) {
+    for (const entry of refs.allEntries('resourceGroups')) {
+      if (entry.id === String(api.resourceGroupId)) {resourceGroupName = entry.refKey; break}
+    }
+  }
+  return {
+    name: api.name ?? '',
+    description: api.description ?? null,
+    type: api.type ?? 'STATIC',
+    showUptime: api.showUptime ?? true,
+    excludeFromOverall: api.excludeFromOverall ?? false,
+    // API returns an OffsetDateTime (startOfDay UTC); slice back to YYYY-MM-DD
+    // so desired/current snapshots compare as strings.
+    startDate: api.startDate ? api.startDate.slice(0, 10) : null,
+    group: groupName,
+    monitor: monitorName,
+    resourceGroup: resourceGroupName,
+  }
+}
+
 function makeGroupCollectionDef(
   client: ApiClient,
 ): ChildCollectionDef<YamlStatusPageComponentGroup, Schemas['StatusPageComponentGroupDto']> {
@@ -935,11 +1033,7 @@ function makeGroupCollectionDef(
     apiIdentityKey: (api) => api.name ?? '',
     apiId: (api) => String(api.id),
     toDesiredSnapshot: statusPageGroupDesiredSnapshot,
-    toCurrentSnapshot: (api) => ({
-      name: api.name ?? '',
-      description: api.description ?? null,
-      defaultOpen: api.defaultOpen ?? true,
-    }),
+    toCurrentSnapshot: statusPageGroupCurrentSnapshot,
     async applyCreate(parentId, yaml, index) {
       const resp = (await apiPost(
         client, `/api/v1/status-pages/${parentId}/groups`,
@@ -969,40 +1063,7 @@ function makeComponentCollectionDef(
     apiIdentityKey: (api) => api.name ?? '',
     apiId: (api) => String(api.id),
     toDesiredSnapshot: statusPageComponentDesiredSnapshot,
-    toCurrentSnapshot: (api) => {
-      // Reverse-resolve groupId/monitorId/resourceGroupId to names for comparison
-      let groupName: string | null = null
-      if (api.groupId) {
-        for (const [name, id] of groupNameToId) {
-          if (id === api.groupId) {groupName = name; break}
-        }
-      }
-      let monitorName: string | null = null
-      if (api.monitorId) {
-        for (const entry of refs.allEntries('monitors')) {
-          if (entry.id === api.monitorId) {monitorName = entry.refKey; break}
-        }
-      }
-      let resourceGroupName: string | null = null
-      if (api.resourceGroupId) {
-        for (const entry of refs.allEntries('resourceGroups')) {
-          if (entry.id === String(api.resourceGroupId)) {resourceGroupName = entry.refKey; break}
-        }
-      }
-      return {
-        name: api.name ?? '',
-        description: api.description ?? null,
-        type: api.type ?? 'STATIC',
-        showUptime: api.showUptime ?? true,
-        excludeFromOverall: api.excludeFromOverall ?? false,
-        // API returns an OffsetDateTime (startOfDay UTC); slice back to YYYY-MM-DD
-        // so desired/current snapshots compare as strings.
-        startDate: api.startDate ? api.startDate.slice(0, 10) : null,
-        group: groupName,
-        monitor: monitorName,
-        resourceGroup: resourceGroupName,
-      }
-    },
+    toCurrentSnapshot: (api) => statusPageComponentCurrentSnapshot(api, groupNameToId, refs),
     async applyCreate(parentId, yaml, index) {
       const body: Record<string, unknown> = {
         name: yaml.name, type: yaml.type,
@@ -1057,40 +1118,40 @@ function makeComponentCollectionDef(
 }
 
 /**
- * Sync drift detection for status-page child collections.
+ * Drift detection for status-page child collections (groups + components).
  *
- * Compares the YAML's components/groups against the snapshots stored in the
- * prior `state.json` (written by `applyChildDiff` on the previous deploy).
- * Returns true if any child was added, removed, renamed, or had any of its
- * tracked attributes change.
+ * **v3 contract**: `currentChildren` is fetched live from the API by the
+ * differ via `fetchStatusPageChildSnapshots` *before* this is called. Why
+ * we no longer use prior state for the diff baseline:
  *
- * Why prior state, not the API:
- *   - hasChanged is sync; fetching live API children would require turning
- *     the entire diff phase async or pre-fetching every status page's
- *     children up-front (slow).
- *   - The prior state IS what we last applied, so a diff of (yaml vs prior
- *     state) is a complete representation of "user-driven change". External
- *     drift introduced directly via the API on a child is the concern of
- *     Tier D (drift recovery) — covered separately and would require an API
- *     fetch by design.
+ *   - State drift across environments: a deploy from machine A followed
+ *     by a plan from machine B (no `state pull`) would compare YAML
+ *     against B's empty state and conclude "everything must be created"
+ *     — a false positive at best, duplicate-creates at worst.
+ *   - State drift across versions: a CLI release that changes the
+ *     desired-snapshot shape (e.g. the `defaultOpen` rename in v0.4.0)
+ *     would diff every existing parent on every machine until a fresh
+ *     deploy rewrote state. Live API as baseline keeps both sides on
+ *     the same shape forever. See RFC 0001 for the full incident log.
  *
- * Special cases:
- *   - Empty prior state + no YAML children → no change (handler will still
- *     get applyCreate which seeds children).
- *   - YAML omits `components` / `componentGroups` → that collection is left
- *     alone by `reconcileStatusPageChildren`, so it never reports drift here.
+ * Special cases (unchanged):
+ *   - Empty current state + no YAML children → no change (applyCreate
+ *     handles the first-time path).
+ *   - YAML omits `components` / `componentGroups` → that collection is
+ *     left alone by `reconcileStatusPageChildren`, so it never reports
+ *     drift here.
  */
 function hasStatusPageChildChanges(
   yaml: YamlStatusPage,
-  priorChildren: Record<string, ChildStateEntry>,
+  currentChildren: Record<string, CurrentChildEntry>,
 ): boolean {
   if (yaml.componentGroups !== undefined) {
-    if (childCollectionDiffers(yaml.componentGroups, priorChildren, 'groups.', statusPageGroupDesiredSnapshot)) {
+    if (childCollectionDiffers(yaml.componentGroups, currentChildren, 'groups.', statusPageGroupDesiredSnapshot)) {
       return true
     }
   }
   if (yaml.components !== undefined) {
-    if (childCollectionDiffers(yaml.components, priorChildren, 'components.', statusPageComponentDesiredSnapshot)) {
+    if (childCollectionDiffers(yaml.components, currentChildren, 'components.', statusPageComponentDesiredSnapshot)) {
       return true
     }
   }
@@ -1099,24 +1160,74 @@ function hasStatusPageChildChanges(
 
 function childCollectionDiffers<T extends {name: string}>(
   desired: T[],
-  priorChildren: Record<string, ChildStateEntry>,
+  currentChildren: Record<string, CurrentChildEntry>,
   prefix: string,
   toSnapshot: (yaml: T) => Record<string, unknown>,
 ): boolean {
-  const priorKeys = new Set(
-    Object.keys(priorChildren).filter((k) => k.startsWith(prefix)).map((k) => k.slice(prefix.length)),
+  const currentKeys = new Set(
+    Object.keys(currentChildren).filter((k) => k.startsWith(prefix)).map((k) => k.slice(prefix.length)),
   )
   const desiredKeys = new Set(desired.map((c) => c.name))
 
-  for (const k of desiredKeys) if (!priorKeys.has(k)) return true
-  for (const k of priorKeys) if (!desiredKeys.has(k)) return true
+  for (const k of desiredKeys) if (!currentKeys.has(k)) return true
+  for (const k of currentKeys) if (!desiredKeys.has(k)) return true
 
   for (const item of desired) {
-    const prior = priorChildren[`${prefix}${item.name}`]
-    if (!prior) return true
-    if (!isEqual(toSnapshot(item), prior.attributes)) return true
+    const current = currentChildren[`${prefix}${item.name}`]
+    if (!current) return true
+    if (!isEqual(toSnapshot(item), current.snapshot)) return true
   }
   return false
+}
+
+/**
+ * Live-fetch status page children + project them into snapshots that
+ * `hasStatusPageChildChanges` can diff against. Used at plan time only;
+ * the deploy path's `reconcileStatusPageChildren` already does its own
+ * (richer) live fetch internally.
+ *
+ * Component snapshots depend on the group name → id map (so the YAML's
+ * `group: "Platform"` can be resolved against the API's numeric groupId);
+ * we build that map from the just-fetched groups before snapshotting
+ * components.
+ */
+async function fetchStatusPageChildSnapshots(
+  pageId: string,
+  client: ApiClient,
+  refs: ResolvedRefs,
+): Promise<Record<string, CurrentChildEntry>> {
+  const [groups, components] = await Promise.all([
+    fetchPaginated<Schemas['StatusPageComponentGroupDto']>(
+      client, `/api/v1/status-pages/${pageId}/groups`,
+    ),
+    fetchPaginated<Schemas['StatusPageComponentDto']>(
+      client, `/api/v1/status-pages/${pageId}/components`,
+    ),
+  ])
+
+  const out: Record<string, CurrentChildEntry> = {}
+  const groupNameToId = new Map<string, string>()
+
+  for (const g of groups) {
+    const name = g.name ?? ''
+    if (!name) continue
+    groupNameToId.set(name, String(g.id ?? ''))
+    out[`groups.${name}`] = {
+      apiId: String(g.id ?? ''),
+      snapshot: statusPageGroupCurrentSnapshot(g),
+    }
+  }
+
+  for (const c of components) {
+    const name = c.name ?? ''
+    if (!name) continue
+    out[`components.${name}`] = {
+      apiId: String(c.id ?? ''),
+      snapshot: statusPageComponentCurrentSnapshot(c, groupNameToId, refs),
+    }
+  }
+
+  return out
 }
 
 /**
@@ -1284,8 +1395,15 @@ const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto']
   // hasChanged compares parent fields only, returns false, applyUpdate never
   // runs, and reconcileStatusPageChildren never gets a chance to create the
   // newly-added component (root cause of BDD scenario C2 failing pre-fix).
-  hasChildChanges(yaml, priorChildren) {
-    return hasStatusPageChildChanges(yaml, priorChildren)
+  //
+  // The differ pre-fetches `currentChildren` via `fetchChildSnapshots`
+  // below before invoking us; see RFC 0001.
+  hasChildChanges(yaml, currentChildren) {
+    return hasStatusPageChildChanges(yaml, currentChildren)
+  },
+
+  fetchChildSnapshots(parentApiId, client, refs) {
+    return fetchStatusPageChildSnapshots(parentApiId, client, refs)
   },
 
   fetchAll: (client) => fetchPaginated<Schemas['StatusPageDto']>(client, '/api/v1/status-pages'),

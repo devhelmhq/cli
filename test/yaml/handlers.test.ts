@@ -6,9 +6,18 @@
  *   3. fetchAll, getRefKey, getApiRefKey, getApiId, deletePath return expected values
  */
 import {describe, it, expect} from 'vitest'
-import {HANDLER_MAP, getHandler, allHandlers} from '../../src/lib/yaml/handlers.js'
+import {
+  HANDLER_MAP,
+  getHandler,
+  allHandlers,
+  statusPageGroupDesiredSnapshot,
+  statusPageGroupCurrentSnapshot,
+  statusPageComponentDesiredSnapshot,
+  statusPageComponentCurrentSnapshot,
+} from '../../src/lib/yaml/handlers.js'
 import type {HandledResourceType} from '../../src/lib/yaml/types.js'
 import {YAML_SECTION_KEYS} from '../../src/lib/yaml/schema.js'
+import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
 
 const ALL_HANDLED_TYPES: HandledResourceType[] = [
   'tag', 'environment', 'secret', 'alertChannel',
@@ -130,5 +139,106 @@ describe('handler deletePath', () => {
     ['statusPage', '/api/v1/status-pages/id-1'],
   ] as const)('%s → %s', (type, expectedPath) => {
     expect(getHandler(type).deletePath('id-1', 'ref-1')).toBe(expectedPath)
+  })
+})
+
+// ── Snapshot parity (regression) ────────────────────────────────────────
+//
+// The YAML-side `*DesiredSnapshot` and the API-side `*CurrentSnapshot`
+// MUST produce structurally identical objects when given equivalent
+// inputs — otherwise `state pull` will write snapshots that don't match
+// what the next deploy compares against, producing phantom diffs (or, as
+// happened with `defaultOpen`, missing real drift entirely because the
+// pulled snapshots only had `{name}` and the diff sub-object check
+// triggered on EVERY field instead of just the changed ones).
+//
+// These tests guard against silent divergence: if anyone adds a field to
+// one snapshot helper but not the other, this test fails first and loud.
+describe('status-page child snapshot parity', () => {
+  it('group: desired and current snapshots have identical key sets', () => {
+    const yamlSnap = statusPageGroupDesiredSnapshot({name: 'Platform'})
+    const apiSnap = statusPageGroupCurrentSnapshot({
+      id: 'g-1', name: 'Platform', description: null, displayOrder: 0, defaultOpen: true,
+    })
+    expect(Object.keys(apiSnap).sort()).toEqual(Object.keys(yamlSnap).sort())
+  })
+
+  it('group: equivalent yaml + api inputs produce equal snapshots', () => {
+    const yamlSnap = statusPageGroupDesiredSnapshot({
+      name: 'Platform', description: 'Core infra', defaultOpen: false,
+    })
+    const apiSnap = statusPageGroupCurrentSnapshot({
+      id: 'g-1', name: 'Platform', description: 'Core infra',
+      displayOrder: 0, defaultOpen: false,
+    })
+    expect(apiSnap).toEqual(yamlSnap)
+  })
+
+  it('group: defaults align (defaultOpen=true, description=null)', () => {
+    const yamlSnap = statusPageGroupDesiredSnapshot({name: 'Bare'})
+    const apiSnap = statusPageGroupCurrentSnapshot({
+      id: 'g-1', name: 'Bare', displayOrder: 0,
+      // Both null and missing should normalize the same way:
+      description: null, defaultOpen: true,
+    })
+    expect(apiSnap).toEqual(yamlSnap)
+    expect(yamlSnap.defaultOpen).toBe(true)
+    expect(yamlSnap.description).toBeNull()
+  })
+
+  it('component: desired and current snapshots have identical key sets', () => {
+    const yamlSnap = statusPageComponentDesiredSnapshot({
+      name: 'API', type: 'MONITOR', monitor: 'api',
+    })
+    const apiSnap = statusPageComponentCurrentSnapshot(
+      {id: 'c-1', name: 'API', type: 'MONITOR'},
+      new Map(),
+      new ResolvedRefs(),
+    )
+    expect(Object.keys(apiSnap).sort()).toEqual(Object.keys(yamlSnap).sort())
+  })
+
+  it('component: equivalent inputs (with group/monitor refs) produce equal snapshots', () => {
+    const refs = new ResolvedRefs()
+    refs.set('monitors', 'api-monitor', {refKey: 'api-monitor', id: 'mon-uuid-1'})
+    const groupNameToId = new Map([['Platform', 'g-uuid-1']])
+
+    const yamlSnap = statusPageComponentDesiredSnapshot({
+      name: 'API',
+      type: 'MONITOR',
+      description: 'Public REST',
+      showUptime: true,
+      excludeFromOverall: false,
+      startDate: '2025-01-15',
+      group: 'Platform',
+      monitor: 'api-monitor',
+    })
+    const apiSnap = statusPageComponentCurrentSnapshot(
+      {
+        id: 'c-1',
+        name: 'API',
+        type: 'MONITOR',
+        description: 'Public REST',
+        showUptime: true,
+        excludeFromOverall: false,
+        // API returns ISO timestamp at start-of-day UTC; helper slices to YYYY-MM-DD
+        startDate: '2025-01-15T00:00:00Z',
+        groupId: 'g-uuid-1',
+        monitorId: 'mon-uuid-1',
+      },
+      groupNameToId,
+      refs,
+    )
+    expect(apiSnap).toEqual(yamlSnap)
+  })
+
+  it('component: unknown groupId/monitorId reverse-resolve to null (drift surfaces)', () => {
+    const apiSnap = statusPageComponentCurrentSnapshot(
+      {id: 'c-1', name: 'API', type: 'MONITOR', groupId: 'unknown-group', monitorId: 'unknown-mon'},
+      new Map(),
+      new ResolvedRefs(),
+    )
+    expect(apiSnap.group).toBeNull()
+    expect(apiSnap.monitor).toBeNull()
   })
 })

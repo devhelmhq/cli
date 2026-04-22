@@ -1,10 +1,20 @@
 /**
- * State file v2 for tracking resources managed by `devhelm deploy`.
+ * State file v3 for tracking resources managed by `devhelm deploy`.
  *
- * The state file is the primary identity source: it maps resource addresses
- * (e.g. "monitors.API") to API UUIDs. This enables rename detection via
- * `moved` blocks, drift detection via `lastDeployedAttributes`, and child
- * resource tracking for status pages and resource groups.
+ * **Identity-only store.** The state file is the *primary identity source*:
+ * it maps resource addresses (e.g. `monitors.API`) to API UUIDs and tracks
+ * the parent → child UUID hierarchy for status pages. Nothing else.
+ *
+ * Rationale (see `docs/rfcs/0001-state-as-identity-only.md`): earlier
+ * versions also stored a snapshot of last-deployed attributes for drift
+ * detection. That stale snapshot caused multiple incidents — most
+ * recently the `defaultOpen` cross-environment drift on April 2026 — by
+ * acting as the diff baseline instead of the live API. v3 removes the
+ * snapshot, and `devhelm plan` always re-reads attributes from the API.
+ *
+ * The historical v1 (flat array, no children) and v2 (with attributes)
+ * formats are silently migrated by the reader on first load; nothing
+ * downstream sees them.
  *
  * State file: .devhelm/state.json (gitignored by convention)
  */
@@ -13,28 +23,47 @@ import {join, dirname} from 'node:path'
 import {z} from 'zod'
 import type {ResourceType} from './types.js'
 
-// ── V2 types ─────────────────────────────────────────────────────────────
+// ── V3 types (current) ───────────────────────────────────────────────────
 
 export interface ChildStateEntry {
   apiId: string
-  attributes: Record<string, unknown>
 }
 
 export interface StateEntry {
   apiId: string
   resourceType: ResourceType
-  attributes: Record<string, unknown>
   children: Record<string, ChildStateEntry>
 }
 
-export interface DeployStateV2 {
-  version: '2'
+export interface DeployStateV3 {
+  version: '3'
   serial: number
   lastDeployedAt: string
   resources: Record<string, StateEntry>
 }
 
-// ── V1 types (for migration) ─────────────────────────────────────────────
+// ── V2 types (for migration only) ────────────────────────────────────────
+
+interface ChildStateEntryV2 {
+  apiId: string
+  attributes: Record<string, unknown>
+}
+
+interface StateEntryV2 {
+  apiId: string
+  resourceType: string
+  attributes: Record<string, unknown>
+  children: Record<string, ChildStateEntryV2>
+}
+
+interface DeployStateV2 {
+  version: '2'
+  serial: number
+  lastDeployedAt: string
+  resources: Record<string, StateEntryV2>
+}
+
+// ── V1 types (for migration only) ────────────────────────────────────────
 
 export interface StateEntryV1 {
   resourceType: string
@@ -49,27 +78,46 @@ export interface DeployStateV1 {
   resources: StateEntryV1[]
 }
 
-export type DeployState = DeployStateV2
+export type DeployState = DeployStateV3
 
 // ── Zod schemas for state file validation ────────────────────────────────
 
-const ChildStateEntrySchema = z.object({
+const ChildStateEntryV3Schema = z.object({
   apiId: z.string(),
-  attributes: z.record(z.unknown()),
 })
 
-const StateEntrySchema = z.object({
+const StateEntryV3Schema = z.object({
   apiId: z.string(),
   resourceType: z.string(),
-  attributes: z.record(z.unknown()),
-  children: z.record(ChildStateEntrySchema),
+  children: z.record(ChildStateEntryV3Schema),
+})
+
+const DeployStateV3Schema = z.object({
+  version: z.literal('3'),
+  serial: z.number(),
+  lastDeployedAt: z.string(),
+  resources: z.record(StateEntryV3Schema),
+})
+
+// V2 schema is permissive — we only need it to validate enough of the shape
+// to safely strip out the `attributes` fields during migration.
+const ChildStateEntryV2Schema = z.object({
+  apiId: z.string(),
+  attributes: z.record(z.unknown()).optional(),
+})
+
+const StateEntryV2Schema = z.object({
+  apiId: z.string(),
+  resourceType: z.string(),
+  attributes: z.record(z.unknown()).optional(),
+  children: z.record(ChildStateEntryV2Schema).optional(),
 })
 
 const DeployStateV2Schema = z.object({
   version: z.literal('2'),
   serial: z.number(),
   lastDeployedAt: z.string(),
-  resources: z.record(StateEntrySchema),
+  resources: z.record(StateEntryV2Schema),
 })
 
 const StateEntryV1Schema = z.object({
@@ -89,7 +137,7 @@ const DeployStateV1Schema = z.object({
 
 const STATE_DIR = '.devhelm'
 const STATE_FILE = 'state.json'
-export const STATE_VERSION = '2'
+export const STATE_VERSION = '3'
 
 // Resource type → plural section key for address construction
 const SECTION_NAMES: Record<string, string> = {
@@ -212,12 +260,21 @@ export function readState(cwd: string = process.cwd()): DeployState | undefined 
     return migrateV1(v1.data as DeployStateV1)
   }
 
-  const v2 = DeployStateV2Schema.safeParse(raw)
-  if (!v2.success) {
-    const issues = v2.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')
-    throw new StateFileCorruptError(path, new Error(`invalid v2 state: ${issues}`))
+  if (obj.version === '2') {
+    const v2 = DeployStateV2Schema.safeParse(raw)
+    if (!v2.success) {
+      const issues = v2.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')
+      throw new StateFileCorruptError(path, new Error(`invalid v2 state: ${issues}`))
+    }
+    return migrateV2(v2.data as DeployStateV2)
   }
-  return v2.data as DeployState
+
+  const v3 = DeployStateV3Schema.safeParse(raw)
+  if (!v3.success) {
+    const issues = v3.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')
+    throw new StateFileCorruptError(path, new Error(`invalid v3 state: ${issues}`))
+  }
+  return v3.data as DeployState
 }
 
 export function writeState(state: DeployState, cwd: string = process.cwd()): void {
@@ -233,7 +290,7 @@ export function writeState(state: DeployState, cwd: string = process.cwd()): voi
 
 export function emptyState(): DeployState {
   return {
-    version: '2',
+    version: '3',
     serial: 0,
     lastDeployedAt: new Date().toISOString(),
     resources: {},
@@ -243,13 +300,16 @@ export function emptyState(): DeployState {
 /**
  * Create a new state snapshot with incremented serial.
  * Merges provided entries into a fresh resource map.
+ *
+ * Note: callers may still pass `attributes` for backwards compatibility
+ * with the v2 applier signatures during the transition; they are dropped
+ * silently. See RFC 0001 for why state no longer stores attributes.
  */
-export function buildStateV2(
+export function buildState(
   entries: Array<{
     resourceType: ResourceType
     refKey: string
     apiId: string
-    attributes?: Record<string, unknown>
     children?: Record<string, ChildStateEntry>
   }>,
   previousSerial: number = 0,
@@ -260,17 +320,22 @@ export function buildStateV2(
     resources[addr] = {
       apiId: e.apiId,
       resourceType: e.resourceType,
-      attributes: e.attributes ?? {},
       children: e.children ?? {},
     }
   }
   return {
-    version: '2',
+    version: '3',
     serial: previousSerial + 1,
     lastDeployedAt: new Date().toISOString(),
     resources,
   }
 }
+
+/**
+ * @deprecated Use `buildState`. Retained for one release so out-of-tree
+ * callers (none known) keep building. Drops `attributes` on the floor.
+ */
+export const buildStateV2 = buildState
 
 /**
  * Mutate state: set or update a single resource entry.
@@ -281,11 +346,10 @@ export function upsertStateEntry(
   resourceType: ResourceType,
   refKey: string,
   apiId: string,
-  attributes: Record<string, unknown> = {},
   children: Record<string, ChildStateEntry> = {},
 ): void {
   const addr = resourceAddress(resourceType, refKey)
-  state.resources[addr] = {apiId, resourceType, attributes, children}
+  state.resources[addr] = {apiId, resourceType, children}
   state.serial++
   state.lastDeployedAt = new Date().toISOString()
 }
@@ -396,12 +460,8 @@ export function previewMovedBlocks(
         addr,
         {
           ...entry,
-          attributes: {...entry.attributes},
           children: Object.fromEntries(
-            Object.entries(entry.children ?? {}).map(([k, v]) => [
-              k,
-              {...v, attributes: {...v.attributes}},
-            ]),
+            Object.entries(entry.children ?? {}).map(([k, v]) => [k, {...v}]),
           ),
         },
       ]),
@@ -411,25 +471,14 @@ export function previewMovedBlocks(
   return {state: cloned, warnings}
 }
 
-// ── V1 → V2 migration ───────────────────────────────────────────────────
+// ── Legacy → V3 migration ────────────────────────────────────────────────
 
 /**
- * Migrate a v1 state file (flat array, no attributes/children) to v2.
+ * Migrate a v1 state file (flat array, no children) to v3.
  *
- * **Synthetic attributes.** v1 stored only the API id and refKey, so we
- * cannot reconstruct real attributes here. We seed a placeholder
- * `attributes: {name: refKey, _migrated: true}` for two reasons:
- *
- *   1. Some resource types (webhooks, secrets, environments) don't even
- *      have a `name` field — their refKey is `url`/`key`/`slug`. The
- *      placeholder is *not* used by the diffing engine (snapshots are
- *      always rebuilt from the YAML + API DTO via the handler), only as
- *      filler until the next deploy overwrites it via `buildStateV2`.
- *   2. The `_migrated: true` marker makes it trivial to spot a state file
- *      that has not yet been re-written post-upgrade, both in tooling and
- *      by humans inspecting `.devhelm/state.json`.
- *
- * The serial is reset to 1 because v1 didn't track serials.
+ * v1 stored only `(resourceType, refKey, id)` per entry, which is exactly
+ * what v3 needs at the parent level — no attributes to drop, no children
+ * to migrate. The serial is reset to 1 because v1 didn't track serials.
  */
 export function migrateV1(v1: DeployStateV1): DeployState {
   const resources: Record<string, StateEntry> = {}
@@ -438,33 +487,45 @@ export function migrateV1(v1: DeployStateV1): DeployState {
     resources[addr] = {
       apiId: entry.id,
       resourceType: entry.resourceType as ResourceType,
-      attributes: {name: entry.refKey, _migrated: true},
       children: {},
     }
   }
   return {
-    version: '2',
+    version: '3',
     serial: 1,
     lastDeployedAt: v1.lastDeployedAt ?? new Date().toISOString(),
     resources,
   }
 }
 
-// ── Backward-compat shim ─────────────────────────────────────────────────
+// ── V2 → V3 migration ────────────────────────────────────────────────────
 
 /**
- * @deprecated Use buildStateV2. Kept for backward compat with deploy command
- * until it's fully migrated to v2 state writes.
+ * Migrate a v2 state file to v3 by stripping the now-unused `attributes`
+ * fields at both the parent and child level. Identity (apiId, resourceType,
+ * children's apiId) is preserved verbatim, so renames and child tracking
+ * keep working without any user action.
+ *
+ * The migration runs silently on first read; the next `deploy` or `state pull`
+ * persists the v3 shape, and the v2 file is gone.
  */
-export function buildState(
-  entries: Array<{resourceType: string; refKey: string; id: string; createdAt: string}>,
-): DeployState {
-  return buildStateV2(
-    entries.map((e) => ({
-      resourceType: e.resourceType as ResourceType,
-      refKey: e.refKey,
-      apiId: e.id,
-      attributes: {name: e.refKey},
-    })),
-  )
+export function migrateV2(v2: DeployStateV2): DeployState {
+  const resources: Record<string, StateEntry> = {}
+  for (const [addr, entry] of Object.entries(v2.resources)) {
+    const children: Record<string, ChildStateEntry> = {}
+    for (const [key, child] of Object.entries(entry.children ?? {})) {
+      children[key] = {apiId: child.apiId}
+    }
+    resources[addr] = {
+      apiId: entry.apiId,
+      resourceType: entry.resourceType as ResourceType,
+      children,
+    }
+  }
+  return {
+    version: '3',
+    serial: v2.serial,
+    lastDeployedAt: v2.lastDeployedAt,
+    resources,
+  }
 }

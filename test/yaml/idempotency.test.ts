@@ -13,7 +13,7 @@ function buildRefs(entries: Array<{type: Parameters<ResolvedRefs['set']>[0]; key
 }
 
 describe('idempotency', () => {
-  it('same YAML + same API state for tags → zero changes', () => {
+  it('same YAML + same API state for tags → zero changes', async () => {
     const config: DevhelmConfig = {
       tags: [{name: 'prod', color: '#EF4444'}, {name: 'staging', color: '#3B82F6'}],
     }
@@ -21,25 +21,25 @@ describe('idempotency', () => {
       {type: 'tags', key: 'prod', id: 't1', raw: {name: 'prod', color: '#EF4444'}},
       {type: 'tags', key: 'staging', id: 't2', raw: {name: 'staging', color: '#3B82F6'}},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(0)
     expect(cs.deletes).toHaveLength(0)
   })
 
-  it('same YAML + same API state for environments → zero changes', () => {
+  it('same YAML + same API state for environments → zero changes', async () => {
     const config: DevhelmConfig = {
       environments: [{name: 'Production', slug: 'production', isDefault: true}],
     }
     const refs = buildRefs([
       {type: 'environments', key: 'production', id: 'e1', raw: {name: 'Production', slug: 'production', isDefault: true}},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(0)
   })
 
-  it('same YAML + same API state for secrets (hash match) → zero changes', () => {
+  it('same YAML + same API state for secrets (hash match) → zero changes', async () => {
     const secretValue = 'super-secret-123'
     const config: DevhelmConfig = {
       secrets: [{key: 'API_KEY', value: secretValue}],
@@ -47,25 +47,25 @@ describe('idempotency', () => {
     const refs = buildRefs([
       {type: 'secrets', key: 'API_KEY', id: 's1', raw: {key: 'API_KEY', valueHash: sha256Hex(secretValue)}},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(0)
   })
 
-  it('changed secret value (different hash) → one update', () => {
+  it('changed secret value (different hash) → one update', async () => {
     const config: DevhelmConfig = {
       secrets: [{key: 'API_KEY', value: 'new-secret-456'}],
     }
     const refs = buildRefs([
       {type: 'secrets', key: 'API_KEY', id: 's1', raw: {key: 'API_KEY', valueHash: sha256Hex('old-secret-123')}},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(1)
     expect(cs.updates[0].refKey).toBe('API_KEY')
   })
 
-  it('same YAML + same API state for alert channels (hash match) → zero changes', () => {
+  it('same YAML + same API state for alert channels (hash match) → zero changes', async () => {
     const channelConfig = {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/test'}
     const configHash = sha256Hex(stableStringify(channelConfig))
 
@@ -80,12 +80,12 @@ describe('idempotency', () => {
         name: 'Slack Alerts', channelType: 'slack', configHash,
       }},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(0)
   })
 
-  it('alert channel config change (different hash) → one update', () => {
+  it('alert channel config change (different hash) → one update', async () => {
     const oldConfig = {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/old'}
     const oldHash = sha256Hex(stableStringify(oldConfig))
 
@@ -100,13 +100,13 @@ describe('idempotency', () => {
         name: 'Slack Alerts', channelType: 'slack', configHash: oldHash,
       }},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(1)
     expect(cs.updates[0].refKey).toBe('Slack Alerts')
   })
 
-  it('YAML tags: [] + API monitor with no tags → zero changes (regression)', () => {
+  it('YAML tags: [] + API monitor with no tags → zero changes (regression)', async () => {
     // apiTagsToSnapshot used to return {tagIds: null, newTags: []}, while
     // the desired snapshot built from `tags: []` produced {tagIds: [], ...},
     // causing a perpetual update on every plan.
@@ -125,12 +125,12 @@ describe('idempotency', () => {
         alertChannelIds: null, tags: null,
       }, managedBy: 'CLI'},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(0)
   })
 
-  it('adding one monitor to existing set → only that monitor in creates', () => {
+  it('adding one monitor to existing set → only that monitor in creates', async () => {
     const config: DevhelmConfig = {
       monitors: [
         {name: 'API', type: 'HTTP', config: {url: 'https://api.example.com', method: 'GET'}},
@@ -145,13 +145,13 @@ describe('idempotency', () => {
         alertChannelIds: null, tagIds: null,
       }, managedBy: 'CLI'},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(1)
     expect(cs.creates[0].refKey).toBe('Web')
     expect(cs.updates).toHaveLength(0)
   })
 
-  it('removing one monitor → that monitor in deletes (with prune)', () => {
+  it('removing one monitor → that monitor in deletes (with prune)', async () => {
     const config: DevhelmConfig = {
       monitors: [
         {name: 'API', type: 'HTTP', config: {url: 'https://api.example.com', method: 'GET'}},
@@ -169,13 +169,13 @@ describe('idempotency', () => {
         managedBy: 'CLI',
       }, managedBy: 'CLI'},
     ])
-    const cs = diff(config, refs, {prune: true})
+    const cs = await diff(config, refs, {prune: true})
     expect(cs.deletes).toHaveLength(1)
     expect(cs.deletes[0].refKey).toBe('Web')
     expect(cs.creates).toHaveLength(0)
   })
 
-  it('same webhooks → zero changes', () => {
+  it('same webhooks → zero changes', async () => {
     const config: DevhelmConfig = {
       webhooks: [{url: 'https://example.com/webhook', subscribedEvents: ['monitor.down', 'monitor.up']}],
     }
@@ -185,12 +185,12 @@ describe('idempotency', () => {
         description: null, enabled: true,
       }},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(0)
   })
 
-  it('same resource groups → zero changes', () => {
+  it('same resource groups → zero changes', async () => {
     const config: DevhelmConfig = {
       resourceGroups: [{name: 'Backend', description: 'Backend services'}],
     }
@@ -204,12 +204,12 @@ describe('idempotency', () => {
         recoveryCooldownMinutes: null,
       }},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(0)
   })
 
-  it('same dependencies → zero changes', () => {
+  it('same dependencies → zero changes', async () => {
     const config: DevhelmConfig = {
       dependencies: [{service: 'aws-ec2', alertSensitivity: 'ALL'}],
     }
@@ -218,12 +218,12 @@ describe('idempotency', () => {
         slug: 'aws-ec2', alertSensitivity: 'ALL', componentId: null,
       }},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(0)
   })
 
-  it('full stack config unchanged → zero changes across all resource types', () => {
+  it('full stack config unchanged → zero changes across all resource types', async () => {
     const secretValue = 'my-api-token'
     const channelConfig = {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/test'}
     const channelHash = sha256Hex(stableStringify(channelConfig))
@@ -256,13 +256,13 @@ describe('idempotency', () => {
       }, managedBy: 'CLI'},
     ])
 
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.creates).toHaveLength(0)
     expect(cs.updates).toHaveLength(0)
     expect(cs.deletes).toHaveLength(0)
   })
 
-  it('monitor with API-expanded null config fields → zero changes (snapshot null-strip)', () => {
+  it('monitor with API-expanded null config fields → zero changes (snapshot null-strip)', async () => {
     // Regression for the A1 BDD failure: API echoes back JSONB monitor
     // configs with every optional HttpMonitorConfig field expanded to null
     // (customHeaders, requestBody, contentType, verifyTls). The user's YAML
@@ -285,11 +285,11 @@ describe('idempotency', () => {
         incidentPolicy: null, alertChannelIds: null, tagIds: null,
       }, managedBy: 'CLI'},
     ])
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.updates.filter(c => c.resourceType === 'monitor')).toHaveLength(0)
   })
 
-  it('notification policy with matching escalation → zero changes', () => {
+  it('notification policy with matching escalation → zero changes', async () => {
     const refs = buildRefs([
       {type: 'alertChannels', key: 'Slack', id: 'ac-1', raw: {name: 'Slack', channelType: 'slack'}},
       {type: 'notificationPolicies', key: 'Default', id: 'np1', raw: {
@@ -311,7 +311,7 @@ describe('idempotency', () => {
         escalation: {steps: [{channels: ['Slack'], delayMinutes: 0}]},
       }],
     }
-    const cs = diff(config, refs)
+    const cs = await diff(config, refs)
     expect(cs.updates.filter(c => c.resourceType === 'notificationPolicy')).toHaveLength(0)
   })
 })

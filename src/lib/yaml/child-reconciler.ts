@@ -220,9 +220,7 @@ export async function applyChildDiff<TYaml, TApi>(
       errors.push(`delete ${def.name}.${del.key}: ${errorMessage(err)}`)
       // Carry the orphan forward in state so the next diff still sees it
       // (its YAML key is gone, so the next run re-queues the delete).
-      // Empty attributes keep `hasChildChanges` indifferent — the diff
-      // logic decides delete vs update from YAML presence, not attrs.
-      childState[`${def.name}.${del.key}`] = {apiId: del.childId, attributes: {}}
+      childState[`${def.name}.${del.key}`] = {apiId: del.childId}
     }
   }
 
@@ -249,14 +247,12 @@ export async function applyChildDiff<TYaml, TApi>(
       changes.push({action: 'update', childKey: update.key, childId: update.childId})
     } catch (err) {
       errors.push(`update ${def.name}.${update.key}: ${errorMessage(err)}`)
-      // Record the apiId with empty attributes so the next diff sees the
-      // child as still drifted (desired snapshot ≠ stored {}) and retries
-      // the update. Critically, we do NOT store the desired snapshot here
-      // — that would mark the child as in-sync and the retry would never
-      // happen.
-      childState[`${def.name}.${update.key}`] = {
-        apiId: update.childId, attributes: {},
-      }
+      // Record the apiId so the next deploy still owns the child via state
+      // for state-aware rename matching. Drift retry no longer relies on
+      // state attributes (those are gone in v3); the next plan re-fetches
+      // live API children and will see the desired snapshot ≠ current and
+      // re-queue the update.
+      childState[`${def.name}.${update.key}`] = {apiId: update.childId}
       failedKeys.add(update.key)
     }
   }
@@ -283,7 +279,7 @@ export async function applyChildDiff<TYaml, TApi>(
   // Build child state for every desired child whose identity is known.
   // - Skipped: failed creates (no apiId yet — re-run retries as create)
   // - Skipped: keys already populated above (failed updates/deletes) so we
-  //   don't overwrite their attributes-empty marker with the desired snap.
+  //   keep the failed-marker apiId entry intact.
   // Renamed children survive because `existingByKey` was populated by
   // state-aware matching in diff.
   for (const yaml of desiredYaml) {
@@ -293,10 +289,7 @@ export async function applyChildDiff<TYaml, TApi>(
     if (childState[stateKey] !== undefined) continue
     const apiId = newIds.get(key) ?? existingByKey[key]
     if (apiId) {
-      childState[stateKey] = {
-        apiId,
-        attributes: def.toDesiredSnapshot(yaml),
-      }
+      childState[stateKey] = {apiId}
     }
   }
 

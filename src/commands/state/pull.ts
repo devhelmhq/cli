@@ -7,7 +7,7 @@ import {urlFlag} from '../../lib/validators.js'
 import {fetchAllRefs} from '../../lib/yaml/resolver.js'
 import {allHandlers} from '../../lib/yaml/handlers.js'
 import {fetchPaginated} from '../../lib/typed-api.js'
-import {writeState, buildStateV2, readState, StateFileCorruptError} from '../../lib/yaml/state.js'
+import {writeState, buildState, readState, StateFileCorruptError} from '../../lib/yaml/state.js'
 import type {ChildStateEntry} from '../../lib/yaml/state.js'
 
 type Schemas = components['schemas']
@@ -49,10 +49,9 @@ export default class StatePull extends Command {
     const handlers = allHandlers()
 
     const entries: Array<{
-      resourceType: Parameters<typeof buildStateV2>[0][number]['resourceType']
+      resourceType: Parameters<typeof buildState>[0][number]['resourceType']
       refKey: string
       apiId: string
-      attributes: Record<string, unknown>
       children?: Record<string, ChildStateEntry>
     }> = []
 
@@ -66,7 +65,6 @@ export default class StatePull extends Command {
           resourceType: handler.resourceType,
           refKey: entry.refKey,
           apiId: entry.id,
-          attributes: {name: entry.refKey},
           children,
         })
       }
@@ -83,7 +81,7 @@ export default class StatePull extends Command {
         throw err
       }
     }
-    const state = buildStateV2(entries, prevState?.serial ?? 0)
+    const state = buildState(entries, prevState?.serial ?? 0)
 
     if (flags['dry-run']) {
       this.log(`\nWould write ${entries.length} resources to state:`)
@@ -99,9 +97,15 @@ export default class StatePull extends Command {
   }
 
   /**
-   * Fetch groups and components for a status page and flatten them into the
-   * `children` shape used by StateEntry. Keys are `groups.<name>` /
-   * `components.<name>` to match the child-reconciler's identity scheme.
+   * Fetch identity (id only) for groups and components belonging to a
+   * status page and flatten them into the `children` shape used by
+   * StateEntry. Keys are `groups.<name>` / `components.<name>` so the
+   * child-reconciler's state-aware rename matching keeps working after
+   * a pull.
+   *
+   * As of state v3 (RFC 0001), only the apiId is stored. Attributes are
+   * always re-fetched from the API at plan time, so there is nothing to
+   * snapshot here — pull becomes purely an identity-recovery operation.
    */
   private async pullStatusPageChildren(
     client: ReturnType<typeof createApiClient>,
@@ -115,7 +119,7 @@ export default class StatePull extends Command {
       for (const g of groups) {
         const name = g.name ?? ''
         if (!name) continue
-        children[`groups.${name}`] = {apiId: String(g.id ?? ''), attributes: {name}}
+        children[`groups.${name}`] = {apiId: String(g.id ?? '')}
       }
       const components = await fetchPaginated<Schemas['StatusPageComponentDto']>(
         client, `/api/v1/status-pages/${pageId}/components`,
@@ -123,7 +127,7 @@ export default class StatePull extends Command {
       for (const c of components) {
         const name = c.name ?? ''
         if (!name) continue
-        children[`components.${name}`] = {apiId: String(c.id ?? ''), attributes: {name}}
+        children[`components.${name}`] = {apiId: String(c.id ?? '')}
       }
     } catch (err) {
       this.warn(`Failed to fetch children for status page ${pageId}: ${err instanceof Error ? err.message : String(err)}`)

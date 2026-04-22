@@ -17,7 +17,6 @@ export interface AppliedStateEntry {
   resourceType: ResourceType
   refKey: string
   apiId: string
-  attributes: Record<string, unknown>
   children: Record<string, ChildStateEntry>
 }
 
@@ -89,7 +88,6 @@ export async function apply(
           resourceType: change.resourceType as ResourceType,
           refKey: change.refKey,
           apiId: id,
-          attributes: {name: change.refKey},
           children: outcome?.children ?? {},
         })
         succeeded.push({action: 'create', resourceType: change.resourceType, refKey: change.refKey, id})
@@ -118,7 +116,6 @@ export async function apply(
           resourceType: change.resourceType as ResourceType,
           refKey: change.refKey,
           apiId: err.partial.id,
-          attributes: {name: change.refKey},
           children: err.partial.children ?? {},
         })
       }
@@ -141,7 +138,6 @@ export async function apply(
           resourceType: change.resourceType as ResourceType,
           refKey: change.refKey,
           apiId: change.existingId,
-          attributes: {name: change.refKey},
           children: outcome.children ?? priorChildren,
         })
       }
@@ -155,7 +151,6 @@ export async function apply(
           resourceType: change.resourceType as ResourceType,
           refKey: change.refKey,
           apiId: change.existingId,
-          attributes: {name: change.refKey},
           children: err.partial.children ?? priorChildren,
         })
       }

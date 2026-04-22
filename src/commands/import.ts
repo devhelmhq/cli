@@ -111,7 +111,7 @@ export default class Import extends Command {
       children = await this.fetchStatusPageChildren(client, entry.id)
     }
 
-    upsertStateEntry(state, resourceType, args.name, entry.id, {name: args.name}, children)
+    upsertStateEntry(state, resourceType, args.name, entry.id, children)
     writeState(state)
 
     const childCount = Object.keys(children).length
@@ -131,7 +131,7 @@ export default class Import extends Command {
       for (const g of groups) {
         const name = g.name ?? ''
         if (!name) continue
-        children[`groups.${name}`] = {apiId: String(g.id ?? ''), attributes: {name}}
+        children[`groups.${name}`] = {apiId: String(g.id ?? '')}
       }
       const components = await fetchPaginated<Schemas['StatusPageComponentDto']>(
         client, `/api/v1/status-pages/${pageId}/components`,
@@ -139,7 +139,7 @@ export default class Import extends Command {
       for (const c of components) {
         const name = c.name ?? ''
         if (!name) continue
-        children[`components.${name}`] = {apiId: String(c.id ?? ''), attributes: {name}}
+        children[`components.${name}`] = {apiId: String(c.id ?? '')}
       }
     } catch (err) {
       this.warn(`Failed to fetch status page children: ${err instanceof Error ? err.message : String(err)}`)

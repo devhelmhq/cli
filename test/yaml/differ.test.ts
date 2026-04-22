@@ -9,7 +9,7 @@ function emptyRefs(): ResolvedRefs {
 
 describe('differ', () => {
   describe('diff', () => {
-    it('detects creates for new resources', () => {
+    it('detects creates for new resources', async () => {
       const config: DevhelmConfig = {
         tags: [{name: 'production', color: '#EF4444'}],
         monitors: [{
@@ -17,35 +17,35 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, emptyRefs())
+      const changeset = await diff(config, emptyRefs())
       expect(changeset.creates).toHaveLength(2)
       expect(changeset.creates[0].resourceType).toBe('tag')
       expect(changeset.creates[1].resourceType).toBe('monitor')
     })
 
-    it('detects updates when field changed', () => {
+    it('detects updates when field changed', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'production', {id: 'tag-1', refKey: 'production', raw: {name: 'production', color: '#000000'}})
       const config: DevhelmConfig = {
         tags: [{name: 'production', color: '#EF4444'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
       expect(changeset.updates[0].existingId).toBe('tag-1')
       expect(changeset.creates).toHaveLength(0)
     })
 
-    it('skips update when tag unchanged', () => {
+    it('skips update when tag unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'production', {id: 'tag-1', refKey: 'production', raw: {name: 'production', color: '#EF4444'}})
       const config: DevhelmConfig = {
         tags: [{name: 'production', color: '#EF4444'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('skips update when monitor unchanged', () => {
+    it('skips update when monitor unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'API', {id: 'mon-1', refKey: 'API', raw: {
         name: 'API', type: 'HTTP', enabled: true, frequencySeconds: 60,
@@ -59,11 +59,11 @@ describe('differ', () => {
           config: {url: 'https://api.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('detects update when monitor frequency changed', () => {
+    it('detects update when monitor frequency changed', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'API', {id: 'mon-1', refKey: 'API', raw: {
         name: 'API', type: 'HTTP', frequencySeconds: 60,
@@ -75,11 +75,11 @@ describe('differ', () => {
           config: {url: 'https://api.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('detects update when monitor config changed', () => {
+    it('detects update when monitor config changed', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'API', {id: 'mon-1', refKey: 'API', raw: {
         name: 'API', type: 'HTTP',
@@ -91,11 +91,11 @@ describe('differ', () => {
           config: {url: 'https://api.com/v2', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('detects update when monitor regions changed', () => {
+    it('detects update when monitor regions changed', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'API', {id: 'mon-1', refKey: 'API', raw: {
         name: 'API', type: 'HTTP', regions: ['us-east'],
@@ -107,11 +107,11 @@ describe('differ', () => {
           config: {url: 'https://api.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when webhook unchanged', () => {
+    it('skips update when webhook unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('webhooks', 'https://hooks.com/x', {id: 'wh-1', refKey: 'https://hooks.com/x', raw: {
         url: 'https://hooks.com/x', subscribedEvents: ['monitor.down', 'monitor.recovered'], description: 'test', enabled: true,
@@ -119,11 +119,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         webhooks: [{url: 'https://hooks.com/x', subscribedEvents: ['monitor.down', 'monitor.recovered'], description: 'test'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('detects update when webhook events changed', () => {
+    it('detects update when webhook events changed', async () => {
       const refs = new ResolvedRefs()
       refs.set('webhooks', 'https://hooks.com/x', {id: 'wh-1', refKey: 'https://hooks.com/x', raw: {
         url: 'https://hooks.com/x', subscribedEvents: ['monitor.down'],
@@ -131,11 +131,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         webhooks: [{url: 'https://hooks.com/x', subscribedEvents: ['monitor.down', 'incident.created']}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when environment unchanged', () => {
+    it('skips update when environment unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('environments', 'production', {id: 'env-1', refKey: 'production', raw: {
         name: 'Production', slug: 'production', isDefault: true,
@@ -143,21 +143,21 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         environments: [{name: 'Production', slug: 'production', isDefault: true}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('always updates secrets (value not visible in API)', () => {
+    it('always updates secrets (value not visible in API)', async () => {
       const refs = new ResolvedRefs()
       refs.set('secrets', 'api-key', {id: 'sec-1', refKey: 'api-key', raw: {key: 'api-key'}})
       const config: DevhelmConfig = {
         secrets: [{key: 'api-key', value: 'same-or-different'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when dependency unchanged', () => {
+    it('skips update when dependency unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('dependencies', 'github', {id: 'dep-1', refKey: 'github', raw: {
         slug: 'github', alertSensitivity: 'INCIDENTS_ONLY',
@@ -165,11 +165,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         dependencies: [{service: 'github', alertSensitivity: 'INCIDENTS_ONLY'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('detects update when dependency alertSensitivity changed', () => {
+    it('detects update when dependency alertSensitivity changed', async () => {
       const refs = new ResolvedRefs()
       refs.set('dependencies', 'github', {id: 'dep-1', refKey: 'github', raw: {
         slug: 'github', alertSensitivity: 'INCIDENTS_ONLY',
@@ -177,11 +177,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         dependencies: [{service: 'github', alertSensitivity: 'ALL'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when resource group unchanged', () => {
+    it('skips update when resource group unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('resourceGroups', 'API', {id: 'rg-1', refKey: 'API', raw: {
         name: 'API', description: 'API services', defaultFrequency: 30,
@@ -189,117 +189,117 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         resourceGroups: [{name: 'API', description: 'API services', defaultFrequency: 30}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('detects no changes for empty config sections', () => {
+    it('detects no changes for empty config sections', async () => {
       const config: DevhelmConfig = {}
-      const changeset = diff(config, emptyRefs())
+      const changeset = await diff(config, emptyRefs())
       expect(changeset.creates).toHaveLength(0)
       expect(changeset.updates).toHaveLength(0)
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('detects deletes with prune=true', () => {
+    it('detects deletes with prune=true', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'old-monitor', {
         id: 'mon-1', refKey: 'old-monitor', managedBy: 'CLI', raw: {managedBy: 'CLI'},
       })
       const config: DevhelmConfig = {monitors: []}
-      const changeset = diff(config, refs, {prune: true})
+      const changeset = await diff(config, refs, {prune: true})
       expect(changeset.deletes).toHaveLength(1)
       expect(changeset.deletes[0].refKey).toBe('old-monitor')
     })
 
-    it('skips non-CLI monitors during prune', () => {
+    it('skips non-CLI monitors during prune', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'dashboard-monitor', {
         id: 'mon-1', refKey: 'dashboard-monitor', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'},
       })
       const config: DevhelmConfig = {monitors: []}
-      const changeset = diff(config, refs, {prune: true})
+      const changeset = await diff(config, refs, {prune: true})
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('pruneAll deletes non-CLI monitors', () => {
+    it('pruneAll deletes non-CLI monitors', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'dashboard-monitor', {
         id: 'mon-1', refKey: 'dashboard-monitor', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'},
       })
       const config: DevhelmConfig = {monitors: []}
-      const changeset = diff(config, refs, {prune: true, pruneAll: true})
+      const changeset = await diff(config, refs, {prune: true, pruneAll: true})
       expect(changeset.deletes).toHaveLength(1)
       expect(changeset.deletes[0].refKey).toBe('dashboard-monitor')
     })
 
-    it('pruneAll deletes monitors with no managedBy', () => {
+    it('pruneAll deletes monitors with no managedBy', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'orphan', {
         id: 'mon-1', refKey: 'orphan', raw: {},
       })
       const config: DevhelmConfig = {monitors: []}
-      const changeset = diff(config, refs, {prune: true, pruneAll: true})
+      const changeset = await diff(config, refs, {prune: true, pruneAll: true})
       expect(changeset.deletes).toHaveLength(1)
     })
 
-    it('prune: omitted section (undefined) does not delete', () => {
+    it('prune: omitted section (undefined) does not delete', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})
       const config: DevhelmConfig = {}
-      const changeset = diff(config, refs, {prune: true})
+      const changeset = await diff(config, refs, {prune: true})
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('prune: empty array deletes all existing', () => {
+    it('prune: empty array deletes all existing', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})
       const config: DevhelmConfig = {tags: []}
-      const changeset = diff(config, refs, {prune: true})
+      const changeset = await diff(config, refs, {prune: true})
       expect(changeset.deletes).toHaveLength(1)
     })
 
-    it('does not delete without prune flag', () => {
+    it('does not delete without prune flag', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'old', {id: 'mon-1', refKey: 'old', managedBy: 'CLI', raw: {}})
       const config: DevhelmConfig = {monitors: []}
-      const changeset = diff(config, refs, {prune: false})
+      const changeset = await diff(config, refs, {prune: false})
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('creates in dependency order', () => {
+    it('creates in dependency order', async () => {
       const config: DevhelmConfig = {
         monitors: [{name: 'M', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}}],
         tags: [{name: 'T'}],
         alertChannels: [{name: 'C', config: {channelType: 'slack', webhookUrl: 'url'}}],
       }
-      const changeset = diff(config, emptyRefs())
+      const changeset = await diff(config, emptyRefs())
       const types = changeset.creates.map((c) => c.resourceType)
       expect(types.indexOf('tag')).toBeLessThan(types.indexOf('alertChannel'))
       expect(types.indexOf('alertChannel')).toBeLessThan(types.indexOf('monitor'))
     })
 
-    it('deletes in reverse dependency order', () => {
+    it('deletes in reverse dependency order', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {}})
       refs.set('monitors', 'M', {id: '2', refKey: 'M', managedBy: 'CLI', raw: {}})
       const config: DevhelmConfig = {tags: [], monitors: []}
-      const changeset = diff(config, refs, {prune: true})
+      const changeset = await diff(config, refs, {prune: true})
       const types = changeset.deletes.map((c) => c.resourceType)
       expect(types.indexOf('monitor')).toBeLessThan(types.indexOf('tag'))
     })
 
-    it('detects group memberships', () => {
+    it('detects group memberships', async () => {
       const config: DevhelmConfig = {
         monitors: [{name: 'M', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}}],
         resourceGroups: [{name: 'G', monitors: ['M']}],
       }
-      const changeset = diff(config, emptyRefs())
+      const changeset = await diff(config, emptyRefs())
       expect(changeset.memberships).toHaveLength(1)
       expect(changeset.memberships[0].refKey).toBe('G → M')
     })
 
-    it('handles all resource types', () => {
+    it('handles all resource types', async () => {
       const config: DevhelmConfig = {
         tags: [{name: 'T'}],
         environments: [{name: 'E', slug: 'e'}],
@@ -317,13 +317,13 @@ describe('differ', () => {
           components: [{name: 'API', type: 'STATIC'}],
         }],
       }
-      const changeset = diff(config, emptyRefs())
+      const changeset = await diff(config, emptyRefs())
       expect(changeset.creates).toHaveLength(10)
       const types = changeset.creates.map((c) => c.resourceType)
       expect(types).toContain('statusPage')
     })
 
-    it('detects update when status page name changes', () => {
+    it('detects update when status page name changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('statusPages', 'public', {id: 'sp-1', refKey: 'public', raw: {
         id: 'sp-1', name: 'Old Name', slug: 'public',
@@ -339,7 +339,7 @@ describe('differ', () => {
           components: [],
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
       expect(changeset.updates[0].refKey).toBe('public')
     })
@@ -350,7 +350,7 @@ describe('differ', () => {
     // handler.toDesiredSnapshot / toCurrentSnapshot under the hood, so a
     // diff() round-trip is the cheapest way to assert end-to-end behavior.
 
-    it('detects update when status page branding fields change', () => {
+    it('detects update when status page branding fields change', async () => {
       const refs = new ResolvedRefs()
       refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
         id: 'sp-1', name: 'P', slug: 'sp',
@@ -363,12 +363,12 @@ describe('differ', () => {
           branding: {brandColor: '#FF0000', theme: 'dark'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
       expect(changeset.updates[0].refKey).toBe('sp')
     })
 
-    it('does NOT update status page when YAML omits branding (preserve current)', () => {
+    it('does NOT update status page when YAML omits branding (preserve current)', async () => {
       const refs = new ResolvedRefs()
       refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
         id: 'sp-1', name: 'P', slug: 'sp',
@@ -379,11 +379,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         statusPages: [{name: 'P', slug: 'sp'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('detects update when YAML branding shrinks vs API (hidePoweredBy default)', () => {
+    it('detects update when YAML branding shrinks vs API (hidePoweredBy default)', async () => {
       // YAML has only brandColor; toBrandingRequest fills the rest with
       // null/false defaults, so diff against an API with theme=dark must fire.
       const refs = new ResolvedRefs()
@@ -398,31 +398,49 @@ describe('differ', () => {
           branding: {brandColor: '#FF0000'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    // ── Child-collection drift detection (was: known LIMITATION; now FIXED) ──
+    // ── Child-collection drift detection (RFC 0001 / Issue C) ─────────────
     //
     // statusPageHandler.hasChildChanges compares yaml.components /
-    // componentGroups against priorState child snapshots so a YAML edit that
-    // only touches a child attribute (or adds/removes a child) surfaces as a
-    // page-level update in `devhelm plan` — even if the page's own fields
-    // are byte-identical.
+    // componentGroups against the **live API** child snapshots that the
+    // differ pre-fetches via `prefetchChildSnapshots`. State is no longer
+    // consulted as a diff baseline — the live API is the source of truth.
     //
-    // The conservative no-prior-state path: when the page exists in API but
-    // priorChildren is empty (fresh state, post-import, etc.) the differ
-    // queues an update so reconcileStatusPageChildren runs and inspects the
-    // live children for itself. Prevents silent under-reporting on imports.
+    // In production, plan/deploy call `prefetchChildSnapshots(config, refs,
+    // client)` and pass the result as the 5th `diff()` arg. Tests inject
+    // the same `ChildSnapshotMap` directly to avoid spinning up an HTTP
+    // mock; the snapshot shape mirrors `statusPageComponentCurrentSnapshot`
+    // (name, description, type, showUptime, excludeFromOverall, startDate,
+    // group, monitor, resourceGroup).
 
-    it('FIXED: component added in YAML is detected as page-level update', () => {
+    function makeStatusPageRefs() {
       const refs = new ResolvedRefs()
       refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
         id: 'sp-1', name: 'P', slug: 'sp',
         branding: {},
         componentGroups: [],
-        components: [{id: 'c-1', name: 'API', type: 'STATIC', showUptime: true}],
+        components: [],
       }})
+      return refs
+    }
+
+    function makeChildren(snapshot: Record<string, unknown>): Map<string, Record<string, {apiId: string; snapshot: Record<string, unknown>}>> {
+      return new Map([['statusPages.sp', {
+        'components.API': {apiId: 'c-1', snapshot},
+      }]])
+    }
+
+    const baseApiComponent = {
+      name: 'API', description: null, type: 'STATIC', showUptime: true,
+      excludeFromOverall: false, startDate: null, group: null,
+      monitor: null, resourceGroup: null,
+    }
+
+    it('FIXED: component added in YAML is detected as page-level update', async () => {
+      const refs = makeStatusPageRefs()
       const config: DevhelmConfig = {
         statusPages: [{
           name: 'P', slug: 'sp',
@@ -432,143 +450,65 @@ describe('differ', () => {
           ],
         }],
       }
-      const priorState = {
-        version: '2' as const, serial: 1, lastDeployedAt: '2024-01-01T00:00:00Z',
-        resources: {
-          'statusPages.sp': {
-            apiId: 'sp-1', resourceType: 'statusPage' as const,
-            attributes: {name: 'P'},
-            children: {
-              'components.API': {apiId: 'c-1', attributes: {
-                name: 'API', description: null, type: 'STATIC', showUptime: true,
-                excludeFromOverall: false, startDate: null, group: null,
-                monitor: null, resourceGroup: null,
-              }},
-            },
-          },
-        },
-      }
-      const changeset = diff(config, refs, {}, priorState)
+      const currentChildren = makeChildren(baseApiComponent)
+      const changeset = await diff(config, refs, {}, undefined, currentChildren)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('FIXED: component excludeFromOverall change is detected via prior state', () => {
-      const refs = new ResolvedRefs()
-      refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
-        id: 'sp-1', name: 'P', slug: 'sp',
-        branding: {},
-        componentGroups: [],
-        components: [{id: 'c-1', name: 'API', type: 'STATIC', excludeFromOverall: false, showUptime: true}],
-      }})
+    it('FIXED: component excludeFromOverall change is detected via live API snapshot', async () => {
+      const refs = makeStatusPageRefs()
       const config: DevhelmConfig = {
         statusPages: [{
           name: 'P', slug: 'sp',
           components: [{name: 'API', type: 'STATIC', excludeFromOverall: true}],
         }],
       }
-      const priorState = {
-        version: '2' as const, serial: 1, lastDeployedAt: '2024-01-01T00:00:00Z',
-        resources: {
-          'statusPages.sp': {
-            apiId: 'sp-1', resourceType: 'statusPage' as const,
-            attributes: {name: 'P'},
-            children: {
-              'components.API': {apiId: 'c-1', attributes: {
-                name: 'API', description: null, type: 'STATIC', showUptime: true,
-                excludeFromOverall: false, startDate: null, group: null,
-                monitor: null, resourceGroup: null,
-              }},
-            },
-          },
-        },
-      }
-      const changeset = diff(config, refs, {}, priorState)
+      const currentChildren = makeChildren({...baseApiComponent, excludeFromOverall: false})
+      const changeset = await diff(config, refs, {}, undefined, currentChildren)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('FIXED: component startDate change is detected via prior state', () => {
-      const refs = new ResolvedRefs()
-      refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
-        id: 'sp-1', name: 'P', slug: 'sp',
-        branding: {},
-        componentGroups: [],
-        components: [{id: 'c-1', name: 'API', type: 'STATIC', startDate: '2024-01-01T00:00:00Z', showUptime: true}],
-      }})
+    it('FIXED: component startDate change is detected via live API snapshot', async () => {
+      const refs = makeStatusPageRefs()
       const config: DevhelmConfig = {
         statusPages: [{
           name: 'P', slug: 'sp',
           components: [{name: 'API', type: 'STATIC', startDate: '2024-06-01'}],
         }],
       }
-      const priorState = {
-        version: '2' as const, serial: 1, lastDeployedAt: '2024-01-01T00:00:00Z',
-        resources: {
-          'statusPages.sp': {
-            apiId: 'sp-1', resourceType: 'statusPage' as const,
-            attributes: {name: 'P'},
-            children: {
-              'components.API': {apiId: 'c-1', attributes: {
-                name: 'API', description: null, type: 'STATIC', showUptime: true,
-                excludeFromOverall: false, startDate: '2024-01-01', group: null,
-                monitor: null, resourceGroup: null,
-              }},
-            },
-          },
-        },
-      }
-      const changeset = diff(config, refs, {}, priorState)
+      const currentChildren = makeChildren({...baseApiComponent, startDate: '2024-01-01'})
+      const changeset = await diff(config, refs, {}, undefined, currentChildren)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('child-collection diff: clean prior state → no spurious update', () => {
-      const refs = new ResolvedRefs()
-      refs.set('statusPages', 'sp', {id: 'sp-1', refKey: 'sp', raw: {
-        id: 'sp-1', name: 'P', slug: 'sp',
-        branding: {},
-        componentGroups: [],
-        components: [{id: 'c-1', name: 'API', type: 'STATIC', showUptime: true}],
-      }})
+    it('child-collection diff: live API snapshot matches YAML → no spurious update', async () => {
+      const refs = makeStatusPageRefs()
       const config: DevhelmConfig = {
         statusPages: [{
           name: 'P', slug: 'sp',
           components: [{name: 'API', type: 'STATIC'}],
         }],
       }
-      const priorState = {
-        version: '2' as const, serial: 1, lastDeployedAt: '2024-01-01T00:00:00Z',
-        resources: {
-          'statusPages.sp': {
-            apiId: 'sp-1', resourceType: 'statusPage' as const,
-            attributes: {name: 'P'},
-            children: {
-              'components.API': {apiId: 'c-1', attributes: {
-                name: 'API', description: null, type: 'STATIC', showUptime: true,
-                excludeFromOverall: false, startDate: null, group: null,
-                monitor: null, resourceGroup: null,
-              }},
-            },
-          },
-        },
-      }
-      const changeset = diff(config, refs, {}, priorState)
+      const currentChildren = makeChildren(baseApiComponent)
+      const changeset = await diff(config, refs, {}, undefined, currentChildren)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('status page appears in handles all resource types in create ordering', () => {
+    it('status page appears in handles all resource types in create ordering', async () => {
       const config: DevhelmConfig = {
         statusPages: [{
           name: 'SP', slug: 'sp', branding: {}, components: [],
         }],
         monitors: [{name: 'M', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}}],
       }
-      const changeset = diff(config, emptyRefs())
+      const changeset = await diff(config, emptyRefs())
       const types = changeset.creates.map((c) => c.resourceType)
       // Status pages reference monitors through components → monitors must be
       // created before status pages in the default ordering.
       expect(types.indexOf('monitor')).toBeLessThan(types.indexOf('statusPage'))
     })
 
-    it('monitor regions order does not matter', () => {
+    it('monitor regions order does not matter', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'API', {id: 'mon-1', refKey: 'API', raw: {
         name: 'API', type: 'HTTP', regions: ['eu-west', 'us-east'],
@@ -580,11 +520,11 @@ describe('differ', () => {
           config: {url: 'https://api.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('webhook events order does not matter', () => {
+    it('webhook events order does not matter', async () => {
       const refs = new ResolvedRefs()
       refs.set('webhooks', 'https://x.com', {id: 'wh-1', refKey: 'https://x.com', raw: {
         url: 'https://x.com', subscribedEvents: ['b', 'a'], enabled: true,
@@ -592,11 +532,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         webhooks: [{url: 'https://x.com', subscribedEvents: ['a', 'b']}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('always updates alert channels (discriminated union config)', () => {
+    it('always updates alert channels (discriminated union config)', async () => {
       const refs = new ResolvedRefs()
       refs.set('alertChannels', 'slack-ops', {id: 'ch-1', refKey: 'slack-ops', raw: {
         id: 'ch-1', name: 'slack-ops', channelType: 'slack',
@@ -605,11 +545,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         alertChannels: [{name: 'slack-ops', config: {channelType: 'slack', webhookUrl: 'https://hooks.slack.com/test'}}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('detects update when notification policy escalation changes', () => {
+    it('detects update when notification policy escalation changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('alertChannels', 'ch', {id: 'ch-1', refKey: 'ch', raw: {name: 'ch'}})
       refs.set('notificationPolicies', 'critical', {id: 'np-1', refKey: 'critical', raw: {
@@ -619,11 +559,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         notificationPolicies: [{name: 'critical', enabled: true, priority: 0, escalation: {steps: [{channels: ['ch']}]}}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('mixed: only changed resources appear as updates', () => {
+    it('mixed: only changed resources appear as updates', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'unchanged', {id: 'tag-1', refKey: 'unchanged', raw: {name: 'unchanged', color: '#FF0000'}})
       refs.set('tags', 'changed', {id: 'tag-2', refKey: 'changed', raw: {name: 'changed', color: '#000000'}})
@@ -638,14 +578,14 @@ describe('differ', () => {
         ],
         webhooks: [{url: 'https://same.com', subscribedEvents: ['a'], description: 'same'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.creates).toHaveLength(1)
       expect(changeset.creates[0].refKey).toBe('brand-new')
       expect(changeset.updates).toHaveLength(1)
       expect(changeset.updates[0].refKey).toBe('changed')
     })
 
-    it('detects update when monitor enabled toggled', () => {
+    it('detects update when monitor enabled toggled', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
         name: 'M', type: 'HTTP', enabled: true,
@@ -657,11 +597,11 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('detects update when environment variables change', () => {
+    it('detects update when environment variables change', async () => {
       const refs = new ResolvedRefs()
       refs.set('environments', 'prod', {id: 'env-1', refKey: 'prod', raw: {
         name: 'Prod', slug: 'prod', variables: {A: '1'},
@@ -669,11 +609,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         environments: [{name: 'Prod', slug: 'prod', variables: {A: '1', B: '2'}}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when environment variables same', () => {
+    it('skips update when environment variables same', async () => {
       const refs = new ResolvedRefs()
       refs.set('environments', 'prod', {id: 'env-1', refKey: 'prod', raw: {
         name: 'Prod', slug: 'prod', variables: {A: '1', B: '2'},
@@ -681,11 +621,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         environments: [{name: 'Prod', slug: 'prod', variables: {B: '2', A: '1'}}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('detects update when resource group health threshold changes', () => {
+    it('detects update when resource group health threshold changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('resourceGroups', 'G', {id: 'rg-1', refKey: 'G', raw: {
         name: 'G', healthThresholdType: 'PERCENTAGE', healthThresholdValue: 80,
@@ -693,11 +633,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         resourceGroups: [{name: 'G', healthThresholdType: 'PERCENTAGE', healthThresholdValue: 50}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('detects update when resource group suppressMemberAlerts changes', () => {
+    it('detects update when resource group suppressMemberAlerts changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('resourceGroups', 'G', {id: 'rg-1', refKey: 'G', raw: {
         name: 'G', suppressMemberAlerts: false,
@@ -705,21 +645,21 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         resourceGroups: [{name: 'G', suppressMemberAlerts: true}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('tag without color ignores API color (undefined not compared)', () => {
+    it('tag without color ignores API color (undefined not compared)', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'T', {id: 'tag-1', refKey: 'T', raw: {name: 'T', color: '#FF0000'}})
       const config: DevhelmConfig = {
         tags: [{name: 'T'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('config key ordering does not trigger false update', () => {
+    it('config key ordering does not trigger false update', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
         name: 'M', type: 'HTTP',
@@ -731,11 +671,11 @@ describe('differ', () => {
           config: {url: 'https://api.com', method: 'GET', headers: {b: '2', a: '1'}},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('monitor without frequency set ignores API frequencySeconds', () => {
+    it('monitor without frequency set ignores API frequencySeconds', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
         name: 'M', type: 'HTTP', frequencySeconds: 60,
@@ -744,11 +684,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         monitors: [{name: 'M', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('monitor without regions set ignores API regions', () => {
+    it('monitor without regions set ignores API regions', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
         name: 'M', type: 'HTTP', regions: ['us-east', 'eu-west'],
@@ -757,13 +697,13 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         monitors: [{name: 'M', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
     // ── Monitor tags: YAML uses names, API returns TagDto[] ──────────
 
-    it('detects update when monitor tags change', () => {
+    it('detects update when monitor tags change', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'a', {id: 'tag-a', refKey: 'a', raw: {id: 'tag-a', name: 'a'}})
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
@@ -777,11 +717,11 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when monitor tags unchanged', () => {
+    it('skips update when monitor tags unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'a', {id: 'tag-a', refKey: 'a', raw: {id: 'tag-a', name: 'a'}})
       refs.set('tags', 'b', {id: 'tag-b', refKey: 'b', raw: {id: 'tag-b', name: 'b'}})
@@ -796,11 +736,11 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('monitor without tags set ignores API tags', () => {
+    it('monitor without tags set ignores API tags', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
         name: 'M', type: 'HTTP',
@@ -810,13 +750,13 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         monitors: [{name: 'M', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
     // ── Monitor alertChannels: YAML names → API alertChannelIds (UUIDs) ──
 
-    it('detects update when monitor alertChannels change', () => {
+    it('detects update when monitor alertChannels change', async () => {
       const refs = new ResolvedRefs()
       refs.set('alertChannels', 'ch1', {id: 'ch-uuid-1', refKey: 'ch1', raw: {id: 'ch-uuid-1', name: 'ch1'}})
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
@@ -829,11 +769,11 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when monitor alertChannels unchanged', () => {
+    it('skips update when monitor alertChannels unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('alertChannels', 'ch1', {id: 'ch-uuid-1', refKey: 'ch1', raw: {}})
       refs.set('alertChannels', 'ch2', {id: 'ch-uuid-2', refKey: 'ch2', raw: {}})
@@ -847,13 +787,13 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
     // ── Monitor environment: YAML slug → API Summary { id, name, slug } ──
 
-    it('detects update when monitor environment changes', () => {
+    it('detects update when monitor environment changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('environments', 'prod', {id: 'env-prod', refKey: 'prod', raw: {}})
       refs.set('environments', 'staging', {id: 'env-stg', refKey: 'staging', raw: {}})
@@ -868,11 +808,11 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when monitor environment unchanged', () => {
+    it('skips update when monitor environment unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('environments', 'prod', {id: 'env-prod', refKey: 'prod', raw: {}})
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
@@ -886,13 +826,13 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
     // ── Monitor auth: YAML uses secret name, API uses MonitorAuthDto ──
 
-    it('detects update when monitor auth type changes', () => {
+    it('detects update when monitor auth type changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('secrets', 'creds', {id: 'sec-1', refKey: 'creds', raw: {}})
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
@@ -907,11 +847,11 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when monitor auth unchanged', () => {
+    it('skips update when monitor auth unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('secrets', 'token', {id: 'sec-1', refKey: 'token', raw: {}})
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
@@ -926,13 +866,13 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
     // ── Monitor incidentPolicy ──────────────────────────────────────
 
-    it('detects update when monitor incidentPolicy changes', () => {
+    it('detects update when monitor incidentPolicy changes', async () => {
       const apiPolicy = {
         triggerRules: [{
           type: 'consecutive_failures', count: 2, scope: 'per_region', severity: 'down',
@@ -959,13 +899,13 @@ describe('differ', () => {
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
     // ── Resource group: YAML names → API UUIDs ─────────────────────
 
-    it('detects update when resource group alertPolicy changes', () => {
+    it('detects update when resource group alertPolicy changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('notificationPolicies', 'old', {id: 'np-old-uuid', refKey: 'old', raw: {}})
       refs.set('notificationPolicies', 'new', {id: 'np-new-uuid', refKey: 'new', raw: {}})
@@ -975,11 +915,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         resourceGroups: [{name: 'G', alertPolicy: 'new'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('detects update when resource group defaultRegions change', () => {
+    it('detects update when resource group defaultRegions change', async () => {
       const refs = new ResolvedRefs()
       refs.set('resourceGroups', 'G', {id: 'rg-1', refKey: 'G', raw: {
         name: 'G', defaultRegions: ['us-east'],
@@ -987,11 +927,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         resourceGroups: [{name: 'G', defaultRegions: ['us-east', 'eu-west']}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('detects update when resource group defaultRetryStrategy changes', () => {
+    it('detects update when resource group defaultRetryStrategy changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('resourceGroups', 'G', {id: 'rg-1', refKey: 'G', raw: {
         name: 'G', defaultRetryStrategy: {type: 'fixed', maxRetries: 2, interval: 5},
@@ -999,11 +939,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         resourceGroups: [{name: 'G', defaultRetryStrategy: {type: 'fixed', maxRetries: 3, interval: 5}}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('detects update when resource group confirmationDelaySeconds changes', () => {
+    it('detects update when resource group confirmationDelaySeconds changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('resourceGroups', 'G', {id: 'rg-1', refKey: 'G', raw: {
         name: 'G', confirmationDelaySeconds: 30,
@@ -1011,11 +951,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         resourceGroups: [{name: 'G', confirmationDelaySeconds: 60}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('detects update when resource group recoveryCooldownMinutes changes', () => {
+    it('detects update when resource group recoveryCooldownMinutes changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('resourceGroups', 'G', {id: 'rg-1', refKey: 'G', raw: {
         name: 'G', recoveryCooldownMinutes: 10,
@@ -1023,11 +963,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         resourceGroups: [{name: 'G', recoveryCooldownMinutes: 20}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when all resource group fields match (with resolved refs)', () => {
+    it('skips update when all resource group fields match (with resolved refs)', async () => {
       const refs = new ResolvedRefs()
       refs.set('notificationPolicies', 'critical', {id: 'np-uuid-1', refKey: 'critical', raw: {}})
       refs.set('alertChannels', 'ch1', {id: 'ch-uuid-1', refKey: 'ch1', raw: {}})
@@ -1065,11 +1005,11 @@ describe('differ', () => {
           suppressMemberAlerts: true,
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('detects update when webhook API has no subscribedEvents but YAML has events', () => {
+    it('detects update when webhook API has no subscribedEvents but YAML has events', async () => {
       const refs = new ResolvedRefs()
       refs.set('webhooks', 'https://hooks.com/nonevents', {id: 'wh-1', refKey: 'https://hooks.com/nonevents', raw: {
         url: 'https://hooks.com/nonevents',
@@ -1077,11 +1017,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         webhooks: [{url: 'https://hooks.com/nonevents', subscribedEvents: ['e']}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('dependency without alertSensitivity is unchanged', () => {
+    it('dependency without alertSensitivity is unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('dependencies', 'gh', {id: 'dep-1', refKey: 'gh', raw: {
         slug: 'gh', alertSensitivity: 'ALL',
@@ -1089,13 +1029,13 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         dependencies: [{service: 'gh'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
     // ── Dependency component: YAML uses componentId UUID, API has componentId ──
 
-    it('detects update when dependency component changes', () => {
+    it('detects update when dependency component changes', async () => {
       const refs = new ResolvedRefs()
       refs.set('dependencies', 'gh', {id: 'dep-1', refKey: 'gh', raw: {
         slug: 'gh', componentId: 'comp-api',
@@ -1103,11 +1043,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         dependencies: [{service: 'gh', component: 'comp-actions'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
     })
 
-    it('skips update when dependency component unchanged', () => {
+    it('skips update when dependency component unchanged', async () => {
       const refs = new ResolvedRefs()
       refs.set('dependencies', 'gh', {id: 'dep-1', refKey: 'gh', raw: {
         slug: 'gh', componentId: 'comp-api', alertSensitivity: 'ALL',
@@ -1115,11 +1055,11 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         dependencies: [{service: 'gh', component: 'comp-api', alertSensitivity: 'ALL'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
-    it('dependency without component set ignores API componentId', () => {
+    it('dependency without component set ignores API componentId', async () => {
       const refs = new ResolvedRefs()
       refs.set('dependencies', 'gh', {id: 'dep-1', refKey: 'gh', raw: {
         slug: 'gh', componentId: 'comp-actions',
@@ -1127,19 +1067,19 @@ describe('differ', () => {
       const config: DevhelmConfig = {
         dependencies: [{service: 'gh'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
     })
 
     // ── attributeDiffs population ────────────────────────────────────
 
-    it('populates attributeDiffs on updates (tag color change)', () => {
+    it('populates attributeDiffs on updates (tag color change)', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'production', {id: 'tag-1', refKey: 'production', raw: {name: 'production', color: '#000000'}})
       const config: DevhelmConfig = {
         tags: [{name: 'production', color: '#EF4444'}],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
       const update = changeset.updates[0]
       expect(update.attributeDiffs).toBeDefined()
@@ -1148,7 +1088,7 @@ describe('differ', () => {
       expect(colorDiff).toMatchObject({field: 'color', old: '#000000', new: '#EF4444'})
     })
 
-    it('populates attributeDiffs on updates (monitor frequency)', () => {
+    it('populates attributeDiffs on updates (monitor frequency)', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'API', {id: 'mon-1', refKey: 'API', raw: {
         name: 'API', type: 'HTTP', frequencySeconds: 60,
@@ -1160,7 +1100,7 @@ describe('differ', () => {
           config: {url: 'https://api.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
       const update = changeset.updates[0]
       expect(update.attributeDiffs).toBeDefined()
@@ -1170,11 +1110,11 @@ describe('differ', () => {
       expect(freqDiff!.new).toBe(30)
     })
 
-    it('attributeDiffs is absent or empty for creates', () => {
+    it('attributeDiffs is absent or empty for creates', async () => {
       const config: DevhelmConfig = {
         tags: [{name: 'new', color: '#FF0000'}],
       }
-      const changeset = diff(config, emptyRefs())
+      const changeset = await diff(config, emptyRefs())
       expect(changeset.creates).toHaveLength(1)
       // Creates should not carry attributeDiffs (no "old" state to diff against)
       const create = changeset.creates[0] as unknown as {attributeDiffs?: unknown[]}
@@ -1183,7 +1123,7 @@ describe('differ', () => {
       }
     })
 
-    it('attributeDiffs is present but only for fields that changed', () => {
+    it('attributeDiffs is present but only for fields that changed', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
         name: 'M', type: 'HTTP', enabled: true, frequencySeconds: 60,
@@ -1197,7 +1137,7 @@ describe('differ', () => {
           config: {url: 'https://api.com', method: 'GET'},
         }],
       }
-      const changeset = diff(config, refs)
+      const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(1)
       const diffs = changeset.updates[0].attributeDiffs ?? []
       const changedFields = diffs.map((d) => d.field)
@@ -1209,12 +1149,12 @@ describe('differ', () => {
   })
 
   describe('formatPlan', () => {
-    it('shows no changes message', () => {
+    it('shows no changes message', async () => {
       const result = formatPlan({creates: [], updates: [], deletes: [], memberships: []})
       expect(result).toContain('No changes')
     })
 
-    it('shows create/update/delete counts', () => {
+    it('shows create/update/delete counts', async () => {
       const changeset = {
         creates: [{action: 'create' as const, resourceType: 'monitor' as const, refKey: 'M'}],
         updates: [{action: 'update' as const, resourceType: 'tag' as const, refKey: 'T', existingId: '1'}],
@@ -1230,7 +1170,7 @@ describe('differ', () => {
       expect(result).toContain('- tag "X"')
     })
 
-    it('shows memberships', () => {
+    it('shows memberships', async () => {
       const changeset = {
         creates: [],
         updates: [],
@@ -1241,7 +1181,7 @@ describe('differ', () => {
       expect(result).toContain('→ API → Health Check')
     })
 
-    it('creates-only plan snapshot', () => {
+    it('creates-only plan snapshot', async () => {
       const changeset = {
         creates: [
           {action: 'create' as const, resourceType: 'tag' as const, refKey: 'prod'},
@@ -1255,7 +1195,7 @@ describe('differ', () => {
       expect(result).toContain('2 to add, 0 to change, 0 to destroy')
     })
 
-    it('deletes-only plan snapshot', () => {
+    it('deletes-only plan snapshot', async () => {
       const changeset = {
         creates: [],
         updates: [],
@@ -1271,7 +1211,7 @@ describe('differ', () => {
       expect(result).toContain('0 to add, 0 to change, 2 to destroy')
     })
 
-    it('mixed plan snapshot', () => {
+    it('mixed plan snapshot', async () => {
       const changeset = {
         creates: [{action: 'create' as const, resourceType: 'tag' as const, refKey: 'new-tag'}],
         updates: [{action: 'update' as const, resourceType: 'monitor' as const, refKey: 'API', existingId: 'm-1'}],
@@ -1286,7 +1226,7 @@ describe('differ', () => {
       expect(result).toContain('1 to add, 1 to change, 1 to destroy')
     })
 
-    it('shows attribute diffs for updates', () => {
+    it('shows attribute diffs for updates', async () => {
       const changeset = {
         creates: [],
         updates: [{

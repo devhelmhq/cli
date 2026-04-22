@@ -8,7 +8,7 @@ describe('moved blocks', () => {
   describe('simple rename', () => {
     it('renames a monitor address while preserving API ID', () => {
       const state = emptyState()
-      upsertStateEntry(state, 'monitor', 'Old API', 'uuid-1', {name: 'Old API', type: 'HTTP'})
+      upsertStateEntry(state, 'monitor', 'Old API', 'uuid-1')
 
       const warnings = processMovedBlocks(state, [
         {from: 'monitors.Old API', to: 'monitors.Core API'},
@@ -19,14 +19,15 @@ describe('moved blocks', () => {
       const renamed = lookupByAddress(state, 'monitors.Core API')
       expect(renamed).toBeDefined()
       expect(renamed!.apiId).toBe('uuid-1')
-      expect(renamed!.attributes).toEqual({name: 'Old API', type: 'HTTP'})
+      // v3: state stores identity only — no attributes carried across moves.
+      expect(renamed!.resourceType).toBe('monitor')
     })
 
     it('renames a status page with children preserved', () => {
       const state = emptyState()
-      upsertStateEntry(state, 'statusPage', 'old-slug', 'sp-1', {name: 'Old Page'}, {
-        'groups.Platform': {apiId: 'g-1', attributes: {name: 'Platform'}},
-        'components.API': {apiId: 'c-1', attributes: {name: 'API'}},
+      upsertStateEntry(state, 'statusPage', 'old-slug', 'sp-1', {
+        'groups.Platform': {apiId: 'g-1'},
+        'components.API': {apiId: 'c-1'},
       })
 
       processMovedBlocks(state, [
@@ -134,7 +135,7 @@ describe('moved blocks', () => {
   describe('previewMovedBlocks', () => {
     it('returns a renamed clone without mutating the original state', () => {
       const original = emptyState()
-      upsertStateEntry(original, 'monitor', 'Old API', 'uuid-1', {name: 'Old API', type: 'HTTP'})
+      upsertStateEntry(original, 'monitor', 'Old API', 'uuid-1')
       const originalSerial = original.serial
       const originalLastDeployed = original.lastDeployedAt
 
@@ -153,10 +154,10 @@ describe('moved blocks', () => {
       expect(original.lastDeployedAt).toBe(originalLastDeployed)
     })
 
-    it('deep-copies children and attributes so mutations do not leak', () => {
+    it('deep-copies children so mutations do not leak', () => {
       const original = emptyState()
-      upsertStateEntry(original, 'statusPage', 'old-slug', 'sp-1', {name: 'Old Page'}, {
-        'components.API': {apiId: 'c-1', attributes: {name: 'API'}},
+      upsertStateEntry(original, 'statusPage', 'old-slug', 'sp-1', {
+        'components.API': {apiId: 'c-1'},
       })
 
       const {state: preview} = previewMovedBlocks(original, [
@@ -164,12 +165,12 @@ describe('moved blocks', () => {
       ])
 
       const moved = lookupByAddress(preview, 'statusPages.new-slug')!
-      // Mutate the preview's child attributes
-      moved.children['components.API'].attributes!.name = 'mutated'
+      // Mutate the preview's child apiId
+      moved.children['components.API'].apiId = 'mutated'
 
       // Original is unaffected
       const originalEntry = lookupByAddress(original, 'statusPages.old-slug')!
-      expect(originalEntry.children['components.API'].attributes!.name).toBe('API')
+      expect(originalEntry.children['components.API'].apiId).toBe('c-1')
     })
 
     it('surfaces the same warnings as processMovedBlocks for invalid moves', () => {
