@@ -54,7 +54,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "name": "Human-readable environment name",
     "slug": "URL-safe identifier (lowercase alphanumeric, hyphens, underscores)",
     "variables": "Initial key-value variable pairs for this environment",
-    "isDefault": "Whether this is the default environment for new monitors"
+    "isDefault": "Whether this is the default environment for new monitors (default: false)"
   },
   "UpdateEnvironmentRequest": {
     "name": "New environment name; null preserves current",

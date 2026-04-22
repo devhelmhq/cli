@@ -2991,8 +2991,8 @@ export interface components {
             variables?: {
                 [key: string]: string | null;
             } | null;
-            /** @description Whether this is the default environment for new monitors */
-            isDefault: boolean;
+            /** @description Whether this is the default environment for new monitors (default: false) */
+            isDefault?: boolean | null;
         };
         /** @description Invite a new member to the organization by email */
         CreateInviteRequest: {
@@ -15548,7 +15548,7 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
                 "application/json": components["schemas"]["TestNotificationPolicyRequest"];
             };

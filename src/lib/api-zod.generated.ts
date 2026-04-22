@@ -128,7 +128,7 @@ const CreateEnvironmentRequest = z
       .max(100)
       .regex(/^[a-z0-9][a-z0-9_-]*$/),
     variables: z.record(z.string().nullable()).nullish(),
-    isDefault: z.boolean(),
+    isDefault: z.boolean().nullish(),
   })
   .strict();
 const UpdateEnvironmentRequest = z
