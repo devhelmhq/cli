@@ -4,14 +4,20 @@
  *
  * Delegates all per-resource-type semantic comparison to typed handlers
  * in handlers.ts — no Record<string, unknown> anywhere in this file.
+ *
+ * **State as identity, not snapshot** (see RFC 0001): for handlers that
+ * declare `fetchChildSnapshots`, the differ pre-fetches live API children
+ * at plan time and feeds them into `hasChildChanges`. State is consulted
+ * only for renames/identity (`apiId`), never as a diff baseline.
  */
+import type {ApiClient} from '../api-client.js'
 import type {components} from '../api.generated.js'
 import type {DevhelmConfig} from './schema.js'
 import type {ResolvedRefs} from './resolver.js'
-import {allHandlers, type ResourceHandler} from './handlers.js'
+import {allHandlers, type ResourceHandler, type CurrentChildEntry} from './handlers.js'
 import type {Change, Changeset, DiffOptions} from './types.js'
 import {RESOURCE_ORDER} from './types.js'
-import type {DeployState, ChildStateEntry} from './state.js'
+import type {DeployState} from './state.js'
 import {resourceAddress} from './state.js'
 import type {ResourceType} from './types.js'
 
@@ -23,29 +29,47 @@ export type {ChangeAction, ResourceType, Change, DiffOptions, Changeset, Attribu
 
 // ── Main diff function ─────────────────────────────────────────────────
 
-export function diff(
+/** Pre-fetched live child snapshots, keyed by parent resource-address
+ * (e.g. `statusPages.platform`). Built by `prefetchChildSnapshots` and
+ * consumed by `diff`. Empty for parents whose handler doesn't declare
+ * `fetchChildSnapshots` or that don't yet exist in the API. */
+export type ChildSnapshotMap = Map<string, Record<string, CurrentChildEntry>>
+
+/**
+ * Compute the changeset for a deploy/plan run.
+ *
+ * **Async because of child collections.** For handlers like `statusPage`
+ * that declare `fetchChildSnapshots`, the differ needs live API child
+ * data as the diff baseline (see RFC 0001). Pre-fetching is split into
+ * `prefetchChildSnapshots` so production callers can run all child
+ * fetches concurrently up-front, while tests can inject an empty/fake
+ * map without spinning up an HTTP mock.
+ *
+ * `currentChildren` defaults to an empty map. That's the correct
+ * behavior for configs without child-bearing parents AND for tests that
+ * only care about parent-field diffing.
+ */
+export async function diff(
   config: DevhelmConfig,
   refs: ResolvedRefs,
   options: DiffOptions = {},
   priorState?: DeployState,
-): Changeset {
+  currentChildren: ChildSnapshotMap = new Map(),
+): Promise<Changeset> {
   const creates: Change[] = []
   const updates: Change[] = []
   const deletes: Change[] = []
   const memberships: Change[] = []
 
-  // Closure so diffSection can resolve child snapshots without threading
-  // priorState through every helper. Returns {} for handlers / refs with
-  // no prior tracked state — child-aware handlers treat that as "no children
-  // tracked" and rely solely on parent-field hasChanged.
-  function lookupPriorChildren(resourceType: ResourceType, refKey: string): Record<string, ChildStateEntry> {
-    if (!priorState) return {}
+  function lookupCurrentChildren(
+    resourceType: ResourceType, refKey: string,
+  ): Record<string, CurrentChildEntry> {
     const addr = resourceAddress(resourceType, refKey)
-    return priorState.resources[addr]?.children ?? {}
+    return currentChildren.get(addr) ?? {}
   }
 
   for (const handler of allHandlers()) {
-    diffSection(handler, config[handler.configKey], refs, creates, updates, deletes, options, lookupPriorChildren)
+    diffSection(handler, config[handler.configKey], refs, creates, updates, deletes, options, lookupCurrentChildren)
   }
 
   diffMemberships(config, refs, memberships, options)
@@ -54,7 +78,57 @@ export function diff(
   updates.sort(byResourceOrder)
   deletes.sort((a, b) => byResourceOrderIndex(b.resourceType) - byResourceOrderIndex(a.resourceType))
 
+  // Acknowledge unused param: kept in the signature for future drift hooks
+  // (e.g. detecting parents present in state but absent from both YAML and
+  // the live API) without forcing every caller to refactor. The differ
+  // itself reads parent attrs only from `refs` (live API) per RFC 0001.
+  void priorState
+
   return {creates, updates, deletes, memberships}
+}
+
+/**
+ * For every handler that declares `fetchChildSnapshots`, fetch live API
+ * children for each parent that already exists in the API. Returns a map
+ * keyed by parent resource-address so the inner diff loop can look up
+ * children in O(1) without async.
+ *
+ * Network errors are NOT swallowed: if the API fails to return children
+ * for an existing parent, the plan is incorrect by construction (we'd
+ * silently fall back to "no children" and miss real drift). Better to
+ * surface the failure and let the caller retry.
+ */
+export async function prefetchChildSnapshots(
+  config: DevhelmConfig,
+  refs: ResolvedRefs,
+  client: ApiClient,
+): Promise<ChildSnapshotMap> {
+  const out: ChildSnapshotMap = new Map()
+  const tasks: Promise<void>[] = []
+
+  for (const handler of allHandlers()) {
+    if (!handler.fetchChildSnapshots) continue
+    const items = config[handler.configKey] as unknown[] | undefined
+    if (!items || items.length === 0) continue
+
+    // Only fetch for parents that actually exist in the API (i.e. have a
+    // ref entry that isn't a YAML-only pending placeholder). New parents
+    // skip the fetch — their children are handled by `applyCreate`.
+    for (const item of items) {
+      const refKey = handler.getRefKey(item)
+      const existing = refs.get(handler.refType, refKey)
+      if (!existing || existing.isPending) continue
+      const addr = resourceAddress(handler.resourceType as ResourceType, refKey)
+      tasks.push(
+        handler.fetchChildSnapshots(existing.id, client, refs).then((snapshots) => {
+          out.set(addr, snapshots)
+        }),
+      )
+    }
+  }
+
+  await Promise.all(tasks)
+  return out
 }
 
 /**
@@ -85,7 +159,7 @@ function diffSection(
   updates: Change[],
   deletes: Change[],
   options: DiffOptions,
-  lookupPriorChildren: (resourceType: ResourceType, refKey: string) => Record<string, ChildStateEntry>,
+  lookupCurrentChildren: (resourceType: ResourceType, refKey: string) => Record<string, CurrentChildEntry>,
 ): void {
   const desired = new Set<string>()
 
@@ -102,10 +176,12 @@ function diffSection(
       const parentChanged = handler.hasChanged(item, existing.raw, refs)
       // hasChildChanges complements parent comparison so the differ can
       // detect "user added a component to an existing status page" even when
-      // the page itself is byte-identical. Always queried (cheap, sync) and
-      // OR'd into the change decision.
-      const priorChildren = lookupPriorChildren(handler.resourceType as ResourceType, refKey)
-      const childrenChanged = handler.hasChildChanges?.(item, priorChildren) ?? false
+      // the page itself is byte-identical. The children map was pre-fetched
+      // live from the API in prefetchChildSnapshots above, so this OR'd-in
+      // check correctly catches drift across machines/environments without
+      // depending on `state.json` having an up-to-date snapshot.
+      const currentChildren = lookupCurrentChildren(handler.resourceType as ResourceType, refKey)
+      const childrenChanged = handler.hasChildChanges?.(item, currentChildren) ?? false
       if (parentChanged || childrenChanged) {
         const attributeDiffs = handler.computeAttributeDiffs?.(item, existing.raw, refs)
         updates.push({

@@ -35,7 +35,7 @@ import {mkdirSync, rmSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
 import {
-  apply, buildStateV2, diff, emptyState, fetchAllRefs,
+  apply, buildStateV2, diff, emptyState, fetchAllRefs, prefetchChildSnapshots,
   readState, registerYamlPendingRefs, resourceAddress, validate, writeState,
   type ApplyResult,
   type DeployState,
@@ -474,7 +474,8 @@ async function runDeploy(
   const client = api.client() as unknown as Parameters<typeof apply>[2]
   const refs = await fetchAllRefs(client, currentState)
   registerYamlPendingRefs(refs, config)
-  const changeset = diff(config, refs, {}, currentState)
+  const currentChildren = await prefetchChildSnapshots(config, refs, client)
+  const changeset = await diff(config, refs, {}, currentState, currentChildren)
   const result = await apply(changeset, refs, client, currentState)
 
   // Mirror deploy/index.ts state-merge: build fresh state from successful
@@ -1105,13 +1106,14 @@ describe('partial-failure convergence (deploy harness)', () => {
       // Description not applied (PUT failed).
       expect(api.componentsForPage(page.id)[0].description).toBeNull()
 
-      // State: child still tracked by apiId, but attributes are EMPTY
-      // (not the desired snapshot). This is the critical correctness
-      // detail — if we'd stored the desired snapshot here, the next
-      // diff would compare desired-vs-desired and see no drift.
+      // State: child still tracked by apiId. v3 stores identity only —
+      // there are no `attributes` on child entries. The next diff
+      // re-fetches live API children and compares them against the YAML
+      // snapshot, so drift is detected from the live API regardless of
+      // what state.json holds.
       const pageState = second.state.resources['statusPages.public']
       expect(pageState.children['components.API']?.apiId).toBe(apiCompId)
-      expect(pageState.children['components.API']?.attributes).toEqual({})
+      expect('attributes' in (pageState.children['components.API'] ?? {})).toBe(false)
 
       // Third deploy: clear failure, retry. Update must succeed.
       api.clearFailures()

@@ -4,7 +4,7 @@ import {checkedFetch, createApiClient, apiDelete} from '../../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
 import {DevhelmApiError, EXIT_CODES} from '../../lib/errors.js'
 import {urlFlag} from '../../lib/validators.js'
-import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, formatPlan, changesetToJson, apply, writeState, buildStateV2, readState, emptyState, processMovedBlocks, resourceAddress, StateFileCorruptError} from '../../lib/yaml/index.js'
+import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, prefetchChildSnapshots, formatPlan, changesetToJson, apply, writeState, buildStateV2, readState, emptyState, processMovedBlocks, resourceAddress, StateFileCorruptError} from '../../lib/yaml/index.js'
 import {checkEntitlements, formatEntitlementWarnings} from '../../lib/yaml/entitlements.js'
 
 const DEFAULT_LOCK_TTL = 30
@@ -152,10 +152,12 @@ export default class Deploy extends Command {
       this.error('Fix validation errors before deploying', {exit: EXIT_CODES.VALIDATION})
     }
 
-    const changeset = diff(
+    const currentChildren = await prefetchChildSnapshots(config, refs, client)
+    const changeset = await diff(
       config, refs,
       {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']},
       currentState,
+      currentChildren,
     )
 
     const entitlementCheck = await checkEntitlements(client, changeset)
