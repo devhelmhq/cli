@@ -1082,7 +1082,7 @@ const CreateStatusPageComponentGroupRequest = z
     name: z.string().min(0).max(255),
     description: z.string().min(0).max(500).nullish(),
     displayOrder: z.number().int().nullish(),
-    collapsed: z.boolean().nullish(),
+    defaultOpen: z.boolean().nullish(),
   })
   .strict();
 const UpdateStatusPageComponentGroupRequest = z
@@ -1090,7 +1090,7 @@ const UpdateStatusPageComponentGroupRequest = z
     name: z.string().min(0).max(255).nullable(),
     description: z.string().min(0).max(500).nullable(),
     displayOrder: z.number().int().nullable(),
-    collapsed: z.boolean().nullable(),
+    defaultOpen: z.boolean().nullable(),
   })
   .partial()
   .strict();
@@ -2666,7 +2666,7 @@ const StatusPageComponentGroupDto = z
     description: z.string().nullish(),
     displayOrder: z.number().int(),
     pageOrder: z.number().int(),
-    collapsed: z.boolean(),
+    defaultOpen: z.boolean(),
     components: z.array(StatusPageComponentDto).nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),

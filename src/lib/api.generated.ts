@@ -3163,8 +3163,8 @@ export interface components {
              * @description Position in the group list
              */
             displayOrder?: number | null;
-            /** @description Whether the group is collapsed by default (default: true) */
-            collapsed?: boolean | null;
+            /** @description Initial expand/collapse state when a visitor first loads the page; renderer may auto-expand on active incidents (default: true) */
+            defaultOpen?: boolean | null;
         };
         CreateStatusPageComponentRequest: {
             /** @description Component display name */
@@ -3202,7 +3202,7 @@ export interface components {
             excludeFromOverall?: boolean | null;
             /**
              * Format: date
-             * @description Date from which to start showing uptime data
+             * @description Date from which to start showing uptime; defaults to component creation. Set earlier to backdate (e.g. launch day); clamped at the monitor's createdAt for MONITOR-type components
              */
             startDate?: string | null;
         };
@@ -6110,7 +6110,7 @@ export interface components {
             displayOrder: number;
             /** Format: int32 */
             pageOrder: number;
-            collapsed: boolean;
+            defaultOpen: boolean;
             components?: components["schemas"]["StatusPageComponentDto"][] | null;
             /** Format: date-time */
             createdAt: string;
@@ -6974,8 +6974,8 @@ export interface components {
              * @description New position in the group list; null preserves current
              */
             displayOrder?: number | null;
-            /** @description Whether the group is collapsed by default; null preserves current */
-            collapsed?: boolean | null;
+            /** @description Initial expand/collapse state on first page load; null preserves current. Renderer may auto-expand on active incidents */
+            defaultOpen?: boolean | null;
         };
         UpdateStatusPageComponentRequest: {
             /** @description New component name; null preserves current */
@@ -7000,7 +7000,7 @@ export interface components {
             excludeFromOverall?: boolean | null;
             /**
              * Format: date
-             * @description Date from which to start showing uptime data; null preserves current
+             * @description Date from which to start showing uptime; null preserves current. Bars never extend earlier than the underlying monitor's createdAt regardless of value
              */
             startDate?: string | null;
         };

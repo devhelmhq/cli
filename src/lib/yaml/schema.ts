@@ -395,7 +395,12 @@ export interface YamlStatusPageBranding {
 export interface YamlStatusPageComponentGroup {
   name: string
   description?: string
-  collapsed?: boolean
+  /**
+   * Initial expand/collapse state when a visitor first loads the page.
+   * Defaults to `true` (group renders expanded). Renderer may auto-expand
+   * a collapsed group on active incidents.
+   */
+  defaultOpen?: boolean
 }
 
 export interface YamlStatusPageComponent {

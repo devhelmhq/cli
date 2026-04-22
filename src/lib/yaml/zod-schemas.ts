@@ -412,7 +412,7 @@ const StatusPageBrandingSchema = z.object({
 const StatusPageComponentGroupSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
-  collapsed: z.boolean().optional(),
+  defaultOpen: z.boolean().optional(),
 }).strict()
 
 const StatusPageComponentSchema = z.object({

@@ -906,7 +906,7 @@ export function statusPageGroupDesiredSnapshot(
   return {
     name: yaml.name,
     description: yaml.description ?? null,
-    collapsed: yaml.collapsed ?? true,
+    defaultOpen: yaml.defaultOpen ?? true,
   }
 }
 
@@ -938,18 +938,18 @@ function makeGroupCollectionDef(
     toCurrentSnapshot: (api) => ({
       name: api.name ?? '',
       description: api.description ?? null,
-      collapsed: api.collapsed ?? true,
+      defaultOpen: api.defaultOpen ?? true,
     }),
     async applyCreate(parentId, yaml, index) {
       const resp = (await apiPost(
         client, `/api/v1/status-pages/${parentId}/groups`,
-        {name: yaml.name, description: yaml.description ?? null, displayOrder: index, collapsed: yaml.collapsed ?? true},
+        {name: yaml.name, description: yaml.description ?? null, displayOrder: index, defaultOpen: yaml.defaultOpen ?? true},
       )) as {data?: Schemas['StatusPageComponentGroupDto']}
       return String(resp.data?.id ?? '')
     },
     async applyUpdate(parentId, childId, yaml, index) {
       await apiPut(client, `/api/v1/status-pages/${parentId}/groups/${childId}`,
-        {name: yaml.name, description: yaml.description ?? null, displayOrder: index, collapsed: yaml.collapsed ?? true},
+        {name: yaml.name, description: yaml.description ?? null, displayOrder: index, defaultOpen: yaml.defaultOpen ?? true},
       )
     },
     async applyDelete(parentId, childId) {
