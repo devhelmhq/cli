@@ -2904,7 +2904,7 @@ export interface components {
         ComponentUptimeDayDto: {
             /**
              * Format: date-time
-             * @description Date of the daily bucket (ISO 8601)
+             * @description Start-of-day timestamp for this bucket (UTC midnight, ISO 8601)
              */
             date: string;
             /**
@@ -2924,13 +2924,11 @@ export interface components {
             degradedSeconds: number;
             /**
              * Format: double
-             * @description Computed uptime percentage for the day
+             * @description Computed uptime percentage using the weighted formula (degraded does not lower it)
              */
             uptimePercentage: number;
-            /** @description Incident event references for this day as raw JSON */
-            eventsJson?: string | null;
-            /** @description Data source: vendor_reported or incident_derived */
-            source: string;
+            /** @description Incidents that overlapped this day, in display order */
+            incidents?: components["schemas"]["IncidentRef"][] | null;
         };
         /** @description Inline uptime percentages for 24h, 7d, 30d */
         ComponentUptimeSummaryDto: {
@@ -4242,16 +4240,16 @@ export interface components {
              */
             checkFrequencySeconds?: number | null;
         };
-        /** @description Lightweight reference to an incident overlapping this day */
+        /** @description Lightweight reference to an incident overlapping a given uptime day */
         IncidentRef: {
             /**
              * Format: uuid
-             * @description Status page incident ID
+             * @description Internal incident ID — UUID for status-page incidents, service incident UUID for catalog
              */
             id: string;
-            /** @description Incident title */
+            /** @description Incident title at the time of the overlap */
             title: string;
-            /** @description Incident impact level */
+            /** @description Incident impact level (e.g. minor, major, critical for catalog; NONE/MINOR/MAJOR/CRITICAL for status pages) */
             impact: string;
         };
         /** @description Incident summary counters */
@@ -6134,31 +6132,6 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
-        /** @description Daily uptime data for a status page component */
-        StatusPageComponentUptimeDayDto: {
-            /**
-             * Format: date-time
-             * @description Start-of-day timestamp for this bucket (UTC midnight)
-             */
-            date: string;
-            /**
-             * Format: int32
-             * @description Seconds of partial outage on this day
-             */
-            partialOutageSeconds: number;
-            /**
-             * Format: int32
-             * @description Seconds of major outage on this day
-             */
-            majorOutageSeconds: number;
-            /**
-             * Format: double
-             * @description Computed uptime percentage using weighted formula
-             */
-            uptimePercentage: number;
-            /** @description Incidents that overlapped this day */
-            incidents?: components["schemas"]["IncidentRef"][] | null;
-        };
         StatusPageCustomDomainDto: {
             /** Format: uuid */
             id: string;
@@ -6507,15 +6480,6 @@ export interface components {
         };
         TableValueResultStatusPageComponentGroupDto: {
             data: components["schemas"]["StatusPageComponentGroupDto"][];
-            hasNext: boolean;
-            hasPrev: boolean;
-            /** Format: int64 */
-            totalElements?: number | null;
-            /** Format: int32 */
-            totalPages?: number | null;
-        };
-        TableValueResultStatusPageComponentUptimeDayDto: {
-            data: components["schemas"]["StatusPageComponentUptimeDayDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
@@ -20172,7 +20136,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultStatusPageComponentUptimeDayDto"];
+                    "*/*": components["schemas"]["TableValueResultComponentUptimeDayDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
