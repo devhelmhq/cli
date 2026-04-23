@@ -1511,10 +1511,21 @@ const TlsInfoDto = z
   })
   .partial()
   .strict();
+const TimingPhasesDto = z
+  .object({
+    dns_ms: z.number().int().nullable(),
+    tcp_ms: z.number().int().nullable(),
+    tls_ms: z.number().int().nullable(),
+    ttfb_ms: z.number().int().nullable(),
+    download_ms: z.number().int().nullable(),
+    total_ms: z.number().int().nullable(),
+  })
+  .partial()
+  .strict();
 const Http = z
   .object({
     check_type: z.literal("http"),
-    timing: z.record(z.object({}).partial().strict().nullable()).nullish(),
+    timing: TimingPhasesDto.nullish(),
     bodyTruncated: z.boolean().nullish(),
   })
   .strict();
@@ -3359,6 +3370,7 @@ export const schemas = {
   CategoryDto,
   ChartBucketDto,
   TlsInfoDto,
+  TimingPhasesDto,
   Http,
   Tcp,
   Icmp,

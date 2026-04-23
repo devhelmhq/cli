@@ -3897,10 +3897,7 @@ export interface components {
              * @enum {string}
              */
             check_type: "http";
-            /** @description Request phase timing breakdown */
-            timing?: {
-                [key: string]: Record<string, never> | null;
-            } | null;
+            timing?: components["schemas"]["TimingPhasesDto"] | null;
             /** @description Whether the response body was truncated before storage */
             bodyTruncated?: boolean | null;
         };
@@ -6695,6 +6692,45 @@ export interface components {
         TestWebhookEndpointRequest: {
             /** @description Event type to simulate (e.g. monitor.created); null uses a default */
             eventType?: string | null;
+        };
+        /** @description Per-phase HTTP request timing breakdown (milliseconds) */
+        TimingPhasesDto: {
+            /**
+             * Format: int32
+             * @description DNS resolution time in milliseconds
+             * @example 12
+             */
+            dns_ms?: number | null;
+            /**
+             * Format: int32
+             * @description TCP connect time in milliseconds
+             * @example 18
+             */
+            tcp_ms?: number | null;
+            /**
+             * Format: int32
+             * @description TLS handshake time in milliseconds (null for plain HTTP)
+             * @example 34
+             */
+            tls_ms?: number | null;
+            /**
+             * Format: int32
+             * @description Time to first response byte in milliseconds
+             * @example 42
+             */
+            ttfb_ms?: number | null;
+            /**
+             * Format: int32
+             * @description Response body download time in milliseconds
+             * @example 8
+             */
+            download_ms?: number | null;
+            /**
+             * Format: int32
+             * @description Total wall-clock request time in milliseconds
+             * @example 114
+             */
+            total_ms?: number | null;
         };
         /** @description TLS/SSL certificate details for HTTPS targets */
         TlsInfoDto: {
