@@ -1459,6 +1459,9 @@ const AuthMeResponse = z
     rateLimits: RateLimitInfo,
   })
   .strict();
+const IncidentRef = z
+  .object({ id: z.string().uuid(), title: z.string(), impact: z.string() })
+  .strict();
 const ComponentUptimeDayDto = z
   .object({
     date: z.string().datetime({ offset: true }),
@@ -1466,8 +1469,7 @@ const ComponentUptimeDayDto = z
     majorOutageSeconds: z.number().int(),
     degradedSeconds: z.number().int(),
     uptimePercentage: z.number(),
-    eventsJson: z.string().nullish(),
-    source: z.string(),
+    incidents: z.array(IncidentRef).nullish(),
   })
   .strict();
 const BatchComponentUptimeDto = z
@@ -1904,9 +1906,6 @@ const IncidentPolicyDto = z
     monitorRegionCount: z.number().int().nullish(),
     checkFrequencySeconds: z.number().int().nullish(),
   })
-  .strict();
-const IncidentRef = z
-  .object({ id: z.string().uuid(), title: z.string(), impact: z.string() })
   .strict();
 const IntegrationFieldDto = z
   .object({
@@ -2870,15 +2869,6 @@ const WorkspaceDto = z
 const SingleValueResponseWorkspaceDto = z
   .object({ data: WorkspaceDto })
   .strict();
-const StatusPageComponentUptimeDayDto = z
-  .object({
-    date: z.string().datetime({ offset: true }),
-    partialOutageSeconds: z.number().int(),
-    majorOutageSeconds: z.number().int(),
-    uptimePercentage: z.number(),
-    incidents: z.array(IncidentRef).nullish(),
-  })
-  .strict();
 const TableValueResultAlertChannelDto = z
   .object({
     data: z.array(AlertChannelDto),
@@ -3107,15 +3097,6 @@ const TableValueResultStatusPageComponentDto = z
 const TableValueResultStatusPageComponentGroupDto = z
   .object({
     data: z.array(StatusPageComponentGroupDto),
-    hasNext: z.boolean(),
-    hasPrev: z.boolean(),
-    totalElements: z.number().int().nullish(),
-    totalPages: z.number().int().nullish(),
-  })
-  .strict();
-const TableValueResultStatusPageComponentUptimeDayDto = z
-  .object({
-    data: z.array(StatusPageComponentUptimeDayDto),
     hasNext: z.boolean(),
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
@@ -3370,6 +3351,7 @@ export const schemas = {
   PlanInfo,
   RateLimitInfo,
   AuthMeResponse,
+  IncidentRef,
   ComponentUptimeDayDto,
   BatchComponentUptimeDto,
   FailureDetail,
@@ -3411,7 +3393,6 @@ export const schemas = {
   IncidentDetailDto,
   IncidentFilterParams,
   IncidentPolicyDto,
-  IncidentRef,
   IntegrationFieldDto,
   IntegrationConfigSchemaDto,
   IntegrationDto,
@@ -3522,7 +3503,6 @@ export const schemas = {
   SingleValueResponseWebhookTestResult,
   WorkspaceDto,
   SingleValueResponseWorkspaceDto,
-  StatusPageComponentUptimeDayDto,
   TableValueResultAlertChannelDto,
   TableValueResultAlertDeliveryDto,
   TableValueResultApiKeyDto,
@@ -3549,7 +3529,6 @@ export const schemas = {
   TableValueResultServiceSubscriptionDto,
   TableValueResultStatusPageComponentDto,
   TableValueResultStatusPageComponentGroupDto,
-  TableValueResultStatusPageComponentUptimeDayDto,
   TableValueResultStatusPageCustomDomainDto,
   TableValueResultStatusPageDto,
   TableValueResultStatusPageIncidentDto,
