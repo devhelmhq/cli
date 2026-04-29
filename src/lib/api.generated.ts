@@ -4245,17 +4245,17 @@ export interface components {
             resourceGroupName?: string | null;
             /**
              * Format: uuid
-             * @description Scheduler-minted check execution ID whose result confirmed this incident; joins to check_results, rule_evaluations, and incident_state_transitions
+             * @description Scheduler-minted check execution ID whose result confirmed this incident; joins to check_results, rule_evaluations, and incident_state_transitions. Omitted from JSON (undefined to SDKs) when null, treat missing as null.
              */
             triggeringCheckId?: string | null;
-            /** @description Hex SHA-256 of the canonical policy snapshot that fired; combined with triggeredByRuleIndex points to the exact TriggerRule */
+            /** @description Hex SHA-256 of the canonical policy snapshot that fired; combined with triggeredByRuleIndex points to the exact TriggerRule. Omitted from JSON when null, treat missing as null. */
             triggeredByRuleSnapshotHashHex?: string | null;
             /**
              * Format: int32
-             * @description Index of the fired rule inside the policy's trigger_rules array
+             * @description Index of the fired rule inside the policy's trigger_rules array. Omitted from JSON when null, treat missing as null.
              */
             triggeredByRuleIndex?: number | null;
-            /** @description Detection engine semver that evaluated the rule */
+            /** @description Detection engine semver that evaluated the rule. Omitted from JSON when null, treat missing as null. */
             engineVersion?: string | null;
         };
         IncidentFilterParams: {
@@ -4406,7 +4406,7 @@ export interface components {
             fromStatus: string;
             /** @description New status (WATCHING | TRIGGERED | CONFIRMED | RESOLVED) */
             toStatus: string;
-            /** @description Why the transition fired (rule_matched | confirmation_met | auto_cleared_by_timeout | recovery_met | reopened | manually_resolved | policy_changed) */
+            /** @description Why the transition fired (trigger | confirm | resolve | auto_clear | reopen) */
             reason: string;
             /** @description rule_evaluation ids that caused this transition (may be empty for timeout-driven edges) */
             triggeringEvaluationIds: string[];
@@ -4421,6 +4421,7 @@ export interface components {
              * @description Scheduler-minted check execution ID (V92) of the triggering result
              */
             checkId: string;
+            details: components["schemas"]["StateTransitionDetails"];
         };
         IncidentTimelineDto: {
             /** @description State-machine transitions in chronological order */
@@ -6307,6 +6308,14 @@ export interface components {
              * @description Minimum days before TLS certificate expiry; fails or warns below this threshold
              */
             minDaysRemaining: number;
+        };
+        /** @description Typed metadata about this transition (currently: actor source) */
+        StateTransitionDetails: {
+            /**
+             * @description Actor that produced this transition (pipeline | public-api)
+             * @enum {string}
+             */
+            source: "pipeline" | "public-api";
         };
         StatusCodeAssertion: {
             /** @enum {string} */
