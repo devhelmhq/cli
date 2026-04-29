@@ -1403,6 +1403,14 @@ const AssertionTestResultDto = z
     actual: z.string().nullish(),
   })
   .strict();
+const MemberRoleChangedMetadata = z
+  .object({
+    kind: z.literal("member_role_changed"),
+    oldRole: z.enum(["OWNER", "ADMIN", "MEMBER"]),
+    newRole: z.enum(["OWNER", "ADMIN", "MEMBER"]),
+  })
+  .strict();
+const AuditMetadata = MemberRoleChangedMetadata;
 const AuditEventDto = z
   .object({
     id: z.number().int(),
@@ -1412,7 +1420,7 @@ const AuditEventDto = z
     resourceType: z.string().nullish(),
     resourceId: z.string().nullish(),
     resourceName: z.string().nullish(),
-    metadata: z.record(z.object({}).partial().strict().nullable()).nullish(),
+    metadata: AuditMetadata.nullish(),
     createdAt: z.string().datetime({ offset: true }),
   })
   .strict();
@@ -1616,6 +1624,57 @@ const CheckResultDto = z
     severityHint: z.string().nullish(),
     details: CheckResultDetailsDto.nullish(),
     checkId: z.string().uuid().nullish(),
+  })
+  .strict();
+const RuleEvaluationDto = z
+  .object({
+    id: z.string().uuid(),
+    occurredAt: z.string().datetime({ offset: true }),
+    monitorId: z.string().uuid(),
+    region: z.string().min(1),
+    policySnapshotHashHex: z.string().min(1),
+    ruleIndex: z.number().int(),
+    ruleType: z.string().min(1),
+    ruleScope: z.string().min(1),
+    inputResultIds: z.array(z.string().uuid()).min(1),
+    outputMatched: z.boolean(),
+    evaluationDetails: z.record(z.object({}).partial().strict()),
+    engineVersion: z.string().min(1),
+    checkId: z.string().uuid(),
+    triggeringTransitionId: z.string().uuid().nullish(),
+  })
+  .strict();
+const IncidentStateTransitionDto = z
+  .object({
+    id: z.string().uuid(),
+    occurredAt: z.string().datetime({ offset: true }),
+    monitorId: z.string().uuid(),
+    incidentId: z.string().uuid().nullish(),
+    fromStatus: z.string().min(1),
+    toStatus: z.string().min(1),
+    reason: z.string().min(1),
+    triggeringEvaluationIds: z.array(z.string().uuid()),
+    affectedRegions: z.array(z.string()),
+    policySnapshotHashHex: z.string().min(1),
+    engineVersion: z.string().min(1),
+    checkId: z.string().uuid(),
+  })
+  .strict();
+const PolicySnapshotDto = z
+  .object({
+    hashHex: z.string().min(1),
+    policy: z.record(z.object({}).partial().strict()),
+    engineVersion: z.string().min(1),
+    firstSeenAt: z.string().datetime({ offset: true }),
+    lastSeenAt: z.string().datetime({ offset: true }),
+  })
+  .strict();
+const CheckTraceDto = z
+  .object({
+    checkId: z.string().uuid(),
+    evaluations: z.array(RuleEvaluationDto),
+    transitions: z.array(IncidentStateTransitionDto),
+    policySnapshot: PolicySnapshotDto.nullish(),
   })
   .strict();
 const ComponentImpact = z
@@ -1841,6 +1900,10 @@ const IncidentDto = z
     monitorType: z.string().nullish(),
     resourceGroupId: z.string().uuid().nullish(),
     resourceGroupName: z.string().nullish(),
+    triggeringCheckId: z.string().uuid().nullish(),
+    triggeredByRuleSnapshotHashHex: z.string().nullish(),
+    triggeredByRuleIndex: z.number().int().nullish(),
+    engineVersion: z.string().nullish(),
   })
   .strict();
 const IncidentUpdateDto = z
@@ -1916,6 +1979,13 @@ const IncidentPolicyDto = z
     updatedAt: z.string().datetime({ offset: true }),
     monitorRegionCount: z.number().int().nullish(),
     checkFrequencySeconds: z.number().int().nullish(),
+  })
+  .strict();
+const IncidentTimelineDto = z
+  .object({
+    transitions: z.array(IncidentStateTransitionDto),
+    triggeringEvaluations: z.array(RuleEvaluationDto),
+    policySnapshot: PolicySnapshotDto.nullish(),
   })
   .strict();
 const IntegrationFieldDto = z
@@ -2554,6 +2624,9 @@ const SingleValueResponseBatchComponentUptimeDto = z
 const SingleValueResponseBulkMonitorActionResult = z
   .object({ data: BulkMonitorActionResult })
   .strict();
+const SingleValueResponseCheckTraceDto = z
+  .object({ data: CheckTraceDto })
+  .strict();
 const SingleValueResponseDashboardOverviewDto = z
   .object({ data: DashboardOverviewDto })
   .strict();
@@ -2574,6 +2647,9 @@ const SingleValueResponseIncidentDetailDto = z
   .strict();
 const SingleValueResponseIncidentPolicyDto = z
   .object({ data: IncidentPolicyDto })
+  .strict();
+const SingleValueResponseIncidentTimelineDto = z
+  .object({ data: IncidentTimelineDto })
   .strict();
 const SingleValueResponseInviteDto = z.object({ data: InviteDto }).strict();
 const SingleValueResponseListUUID = z
@@ -2604,6 +2680,9 @@ const SingleValueResponseNotificationPolicyDto = z
   .strict();
 const SingleValueResponseOrganizationDto = z
   .object({ data: OrganizationDto })
+  .strict();
+const SingleValueResponsePolicySnapshotDto = z
+  .object({ data: PolicySnapshotDto.nullable() })
   .strict();
 const SingleValueResponseResourceGroupDto = z
   .object({ data: ResourceGroupDto })
@@ -2961,6 +3040,15 @@ const TableValueResultIncidentDto = z
     totalPages: z.number().int().nullish(),
   })
   .strict();
+const TableValueResultIncidentStateTransitionDto = z
+  .object({
+    data: z.array(IncidentStateTransitionDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .strict();
 const TableValueResultIntegrationDto = z
   .object({
     data: z.array(IntegrationDto),
@@ -3045,6 +3133,15 @@ const TableValueResultNotificationPolicyDto = z
 const TableValueResultResourceGroupDto = z
   .object({
     data: z.array(ResourceGroupDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .strict();
+const TableValueResultRuleEvaluationDto = z
+  .object({
+    data: z.array(RuleEvaluationDto),
     hasNext: z.boolean(),
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
@@ -3355,6 +3452,8 @@ export const schemas = {
   ApiKeyDto,
   AssertionResultDto,
   AssertionTestResultDto,
+  MemberRoleChangedMetadata,
+  AuditMetadata,
   AuditEventDto,
   KeyInfo,
   OrgInfo,
@@ -3379,6 +3478,10 @@ export const schemas = {
   CheckTypeDetailsDto,
   CheckResultDetailsDto,
   CheckResultDto,
+  RuleEvaluationDto,
+  IncidentStateTransitionDto,
+  PolicySnapshotDto,
+  CheckTraceDto,
   ComponentImpact,
   ComponentsSummaryDto,
   ComponentStatusDto,
@@ -3405,6 +3508,7 @@ export const schemas = {
   IncidentDetailDto,
   IncidentFilterParams,
   IncidentPolicyDto,
+  IncidentTimelineDto,
   IntegrationFieldDto,
   IntegrationConfigSchemaDto,
   IntegrationDto,
@@ -3454,6 +3558,7 @@ export const schemas = {
   SingleValueResponseAuthMeResponse,
   SingleValueResponseBatchComponentUptimeDto,
   SingleValueResponseBulkMonitorActionResult,
+  SingleValueResponseCheckTraceDto,
   SingleValueResponseDashboardOverviewDto,
   SingleValueResponseDekRotationResultDto,
   SingleValueResponseDeployLockDto,
@@ -3461,6 +3566,7 @@ export const schemas = {
   SingleValueResponseGlobalStatusSummaryDto,
   SingleValueResponseIncidentDetailDto,
   SingleValueResponseIncidentPolicyDto,
+  SingleValueResponseIncidentTimelineDto,
   SingleValueResponseInviteDto,
   SingleValueResponseListUUID,
   SingleValueResponseLong,
@@ -3473,6 +3579,7 @@ export const schemas = {
   SingleValueResponseNotificationDispatchDto,
   SingleValueResponseNotificationPolicyDto,
   SingleValueResponseOrganizationDto,
+  SingleValueResponsePolicySnapshotDto,
   SingleValueResponseResourceGroupDto,
   SingleValueResponseResourceGroupHealthDto,
   SingleValueResponseResourceGroupMemberDto,
@@ -3524,6 +3631,7 @@ export const schemas = {
   TableValueResultDeliveryAttemptDto,
   TableValueResultEnvironmentDto,
   TableValueResultIncidentDto,
+  TableValueResultIncidentStateTransitionDto,
   TableValueResultIntegrationDto,
   TableValueResultInviteDto,
   TableValueResultMaintenanceWindowDto,
@@ -3534,6 +3642,7 @@ export const schemas = {
   TableValueResultNotificationDto,
   TableValueResultNotificationPolicyDto,
   TableValueResultResourceGroupDto,
+  TableValueResultRuleEvaluationDto,
   TableValueResultScheduledMaintenanceDto,
   TableValueResultSecretDto,
   TableValueResultServiceComponentDto,
