@@ -377,6 +377,103 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/forensics/incidents/{id}/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Full forensic timeline for an incident
+         * @description Returns every state-machine transition for this incident plus the rule evaluations that caused each transition, plus the policy snapshot that triggered confirmation. Correlate evaluations to transitions via evaluation.triggeringTransitionId == transition.id.
+         */
+        get: operations["getTimeline"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/forensics/monitors/{id}/rule-evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Paged list of rule evaluations for a monitor
+         * @description Filter by ruleType (e.g. consecutive_failures), region, onlyMatched=true to narrow to firing evaluations, and occurredAt window.
+         */
+        get: operations["listMonitorRuleEvaluations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/forensics/monitors/{id}/transitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Paged list of state transitions for a monitor (optionally time-bounded) */
+        get: operations["listMonitorTransitions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/forensics/policy-snapshots/{hashHex}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fetch a policy snapshot by its content hash
+         * @description Hash is SHA-256 over canonical policy JSON, hex-encoded. Access is gated: caller's org must have evaluated against this hash at least once.
+         */
+        get: operations["getPolicySnapshot"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/forensics/traces/{checkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Replay a single check execution
+         * @description Returns every rule evaluation and state transition emitted for this scheduler-minted check_id (V92), plus the policy snapshot that governed them.
+         */
+        get: operations["getTrace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/heartbeat/{token}": {
         parameters: {
             query?: never;
@@ -2622,16 +2719,15 @@ export interface components {
             resourceId?: string | null;
             /** @description Human-readable name of the affected resource */
             resourceName?: string | null;
-            /** @description Additional context about the action */
-            metadata?: {
-                [key: string]: Record<string, never> | null;
-            } | null;
+            metadata?: Omit<components["schemas"]["AuditMetadata"], "kind"> | null;
             /**
              * Format: date-time
              * @description Timestamp when the action was performed
              */
             createdAt: string;
         };
+        /** @description Typed metadata payload attached to an audit event; null for actions that carry no extra context. */
+        AuditMetadata: components["schemas"]["MemberRoleChangedMetadata"] | null;
         /** @description Identity, organization, plan, and rate-limit info for the authenticated API key */
         AuthMeResponse: {
             key: components["schemas"]["KeyInfo"];
@@ -2827,6 +2923,18 @@ export interface components {
              * @description Unique execution trace ID for cross-service correlation
              */
             checkId?: string | null;
+        };
+        CheckTraceDto: {
+            /**
+             * Format: uuid
+             * @description The check execution ID this trace is keyed by
+             */
+            checkId: string;
+            /** @description All rule evaluations that ran for this check */
+            evaluations: components["schemas"]["RuleEvaluationDto"][];
+            /** @description State-machine transitions this check caused (may be empty if nothing fired) */
+            transitions: components["schemas"]["IncidentStateTransitionDto"][];
+            policySnapshot?: components["schemas"]["PolicySnapshotDto"] | null;
         };
         /** @description Check-type-specific details — polymorphic by check_type discriminator */
         CheckTypeDetailsDto: components["schemas"]["Http"] | components["schemas"]["Tcp"] | components["schemas"]["Icmp"] | components["schemas"]["Dns"] | components["schemas"]["McpServer"];
@@ -4135,6 +4243,20 @@ export interface components {
             resourceGroupId?: string | null;
             /** @description Name of the resource group; populated on list responses. Omitted from JSON (undefined to SDKs) on detail responses, treat missing as null. */
             resourceGroupName?: string | null;
+            /**
+             * Format: uuid
+             * @description Scheduler-minted check execution ID whose result confirmed this incident; joins to check_results, rule_evaluations, and incident_state_transitions
+             */
+            triggeringCheckId?: string | null;
+            /** @description Hex SHA-256 of the canonical policy snapshot that fired; combined with triggeredByRuleIndex points to the exact TriggerRule */
+            triggeredByRuleSnapshotHashHex?: string | null;
+            /**
+             * Format: int32
+             * @description Index of the fired rule inside the policy's trigger_rules array
+             */
+            triggeredByRuleIndex?: number | null;
+            /** @description Detection engine semver that evaluated the rule */
+            engineVersion?: string | null;
         };
         IncidentFilterParams: {
             /**
@@ -4257,6 +4379,55 @@ export interface components {
             resolvedToday: number;
             /** Format: double */
             mttr30d?: number | null;
+        };
+        /** @description State-machine transitions this check caused (may be empty if nothing fired) */
+        IncidentStateTransitionDto: {
+            /**
+             * Format: uuid
+             * @description Forensic row UUID
+             */
+            id: string;
+            /**
+             * Format: date-time
+             * @description When the state transition occurred
+             */
+            occurredAt: string;
+            /**
+             * Format: uuid
+             * @description Monitor this transition pertains to
+             */
+            monitorId: string;
+            /**
+             * Format: uuid
+             * @description Incident this transition belongs to; null for pre-incident (auto-cleared) transitions
+             */
+            incidentId?: string | null;
+            /** @description Previous status (WATCHING | TRIGGERED | CONFIRMED | RESOLVED) */
+            fromStatus: string;
+            /** @description New status (WATCHING | TRIGGERED | CONFIRMED | RESOLVED) */
+            toStatus: string;
+            /** @description Why the transition fired (rule_matched | confirmation_met | auto_cleared_by_timeout | recovery_met | reopened | manually_resolved | policy_changed) */
+            reason: string;
+            /** @description rule_evaluation ids that caused this transition (may be empty for timeout-driven edges) */
+            triggeringEvaluationIds: string[];
+            /** @description Regions whose evaluations contributed to this transition */
+            affectedRegions: string[];
+            /** @description Hex-encoded hash of the policy snapshot that governed this transition */
+            policySnapshotHashHex: string;
+            /** @description Detection engine version that emitted this transition */
+            engineVersion: string;
+            /**
+             * Format: uuid
+             * @description Scheduler-minted check execution ID (V92) of the triggering result
+             */
+            checkId: string;
+        };
+        IncidentTimelineDto: {
+            /** @description State-machine transitions in chronological order */
+            transitions: components["schemas"]["IncidentStateTransitionDto"][];
+            /** @description Rule evaluations that caused any of the transitions above. Correlate via evaluation.triggeringTransitionId == transition.id */
+            triggeringEvaluations: components["schemas"]["RuleEvaluationDto"][];
+            policySnapshot?: components["schemas"]["PolicySnapshotDto"] | null;
         };
         IncidentUpdateDto: {
             /** Format: uuid */
@@ -4594,6 +4765,24 @@ export interface components {
              * @description Timestamp when the member was added to the organization
              */
             createdAt: string;
+        };
+        /** @description Role transition recorded when an organization member's role changes. */
+        MemberRoleChangedMetadata: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "member_role_changed";
+            /**
+             * @description Role the member held before the change
+             * @enum {string}
+             */
+            oldRole: "OWNER" | "ADMIN" | "MEMBER";
+            /**
+             * @description Role the member holds after the change
+             * @enum {string}
+             */
+            newRole: "OWNER" | "ADMIN" | "MEMBER";
         };
         MonitorAssertionDto: {
             /** Format: uuid */
@@ -5011,6 +5200,27 @@ export interface components {
                 [key: string]: number;
             };
         };
+        /** @description Policy snapshot used during this check (all evaluations of a single check are against one policy) */
+        PolicySnapshotDto: {
+            /** @description Hex-encoded SHA-256 of the canonical policy JSON */
+            hashHex: string;
+            /** @description Canonical policy document (snake_case, sorted keys) */
+            policy: {
+                [key: string]: Record<string, never>;
+            };
+            /** @description Detection engine version that observed this policy */
+            engineVersion: string;
+            /**
+             * Format: date-time
+             * @description First time the detection engine evaluated against this policy bytes
+             */
+            firstSeenAt: string;
+            /**
+             * Format: date-time
+             * @description Most recent time the engine evaluated against this policy bytes
+             */
+            lastSeenAt: string;
+        } | null;
         /** @description Aggregated poll metrics for a time bucket */
         PollChartBucketDto: {
             /**
@@ -5407,6 +5617,57 @@ export interface components {
              * @description Delay between retry attempts in seconds
              */
             interval: number;
+        };
+        /** @description All rule evaluations that ran for this check */
+        RuleEvaluationDto: {
+            /**
+             * Format: uuid
+             * @description Forensic row UUID
+             */
+            id: string;
+            /**
+             * Format: date-time
+             * @description When the evaluation ran
+             */
+            occurredAt: string;
+            /**
+             * Format: uuid
+             * @description Monitor that produced the input check result
+             */
+            monitorId: string;
+            /** @description Probe region of the input check result */
+            region: string;
+            /** @description Hex-encoded hash of the policy snapshot this rule came from */
+            policySnapshotHashHex: string;
+            /**
+             * Format: int32
+             * @description Index into the policy's triggerRules array (0-based)
+             */
+            ruleIndex: number;
+            /** @description Rule type (e.g. consecutive_failures, failures_in_window) */
+            ruleType: string;
+            /** @description Rule scope (per_region | multi_region) */
+            ruleScope: string;
+            /** @description check_results IDs that were inputs to this evaluation (newest first) */
+            inputResultIds: string[];
+            /** @description Whether the rule fired on this evaluation */
+            outputMatched: boolean;
+            /** @description Structured details (e.g. failure counts, response-time aggregates) */
+            evaluationDetails: {
+                [key: string]: Record<string, never>;
+            };
+            /** @description Detection engine version that ran this evaluation */
+            engineVersion: string;
+            /**
+             * Format: uuid
+             * @description Scheduler-minted check execution ID (V92) — the causal chain identifier
+             */
+            checkId: string;
+            /**
+             * Format: uuid
+             * @description If this evaluation caused a state transition, points to that transition's id
+             */
+            triggeringTransitionId?: string | null;
         };
         /** @description A scheduled maintenance window from a vendor status page */
         ScheduledMaintenanceDto: {
@@ -5882,6 +6143,9 @@ export interface components {
         SingleValueResponseBulkMonitorActionResult: {
             data: components["schemas"]["BulkMonitorActionResult"];
         };
+        SingleValueResponseCheckTraceDto: {
+            data: components["schemas"]["CheckTraceDto"];
+        };
         SingleValueResponseDashboardOverviewDto: {
             data: components["schemas"]["DashboardOverviewDto"];
         };
@@ -5902,6 +6166,9 @@ export interface components {
         };
         SingleValueResponseIncidentPolicyDto: {
             data: components["schemas"]["IncidentPolicyDto"];
+        };
+        SingleValueResponseIncidentTimelineDto: {
+            data: components["schemas"]["IncidentTimelineDto"];
         };
         SingleValueResponseInviteDto: {
             data: components["schemas"]["InviteDto"];
@@ -5939,6 +6206,9 @@ export interface components {
         };
         SingleValueResponseOrganizationDto: {
             data: components["schemas"]["OrganizationDto"];
+        };
+        SingleValueResponsePolicySnapshotDto: {
+            data: components["schemas"]["PolicySnapshotDto"];
         };
         SingleValueResponseResourceGroupDto: {
             data: components["schemas"]["ResourceGroupDto"];
@@ -6331,6 +6601,15 @@ export interface components {
             /** Format: int32 */
             totalPages?: number | null;
         };
+        TableValueResultIncidentStateTransitionDto: {
+            data: components["schemas"]["IncidentStateTransitionDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
         TableValueResultIntegrationDto: {
             data: components["schemas"]["IntegrationDto"][];
             hasNext: boolean;
@@ -6414,6 +6693,15 @@ export interface components {
         };
         TableValueResultResourceGroupDto: {
             data: components["schemas"]["ResourceGroupDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
+        TableValueResultRuleEvaluationDto: {
+            data: components["schemas"]["RuleEvaluationDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
@@ -9932,6 +10220,487 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getTimeline: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseIncidentTimelineDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listMonitorRuleEvaluations: {
+        parameters: {
+            query: {
+                ruleType?: string;
+                region?: string;
+                onlyMatched?: boolean;
+                from?: string;
+                to?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultRuleEvaluationDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listMonitorTransitions: {
+        parameters: {
+            query: {
+                from?: string;
+                to?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultIncidentStateTransitionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getPolicySnapshot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hashHex: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponsePolicySnapshotDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getTrace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                checkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseCheckTraceDto"];
+                };
             };
             /** @description Bad request — the payload failed validation */
             400: {
