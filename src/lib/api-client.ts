@@ -10,6 +10,7 @@ import {
   type DevhelmApiErrorOptions,
 } from './errors.js'
 import {parseSingle, parsePage, parseCursorPage, type Page, type CursorPage as ValidatedCursorPage} from './response-validation.js'
+import {buildSurfaceHeaders} from './surface-telemetry.js'
 
 export type {paths, components}
 
@@ -94,6 +95,10 @@ export function createApiClient(opts: {
       'Content-Type': 'application/json',
       'x-phelm-org-id': opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
       'x-phelm-workspace-id': opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID ?? '1',
+      // Devtool surface telemetry — see lib/surface-telemetry.ts and
+      // https://devhelm.io/telemetry. Empty object when the user has set
+      // DEVHELM_TELEMETRY=0; otherwise four short identification headers.
+      ...buildSurfaceHeaders(),
     },
   })
 
