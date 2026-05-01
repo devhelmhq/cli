@@ -5,21 +5,25 @@ programmatic access to DevHelm — CLI, SDKs, Terraform, direct HTTP.
 Every workspace has at least one; most have several (one per
 environment, one per CI, one per engineer).
 
-## The default key
+## The starter key
 
-Every DevHelm organization is created with a **permanent default API
-key** named `Default` at org-creation time. Users see it once during
-onboarding (with a copy button), after which only the last-4 is
-visible.
+Every new DevHelm organization is created with one starter API key
+named `Default`. It's the key the setup-complete screen surfaces to
+the user so they can authenticate the CLI in one copy-paste.
 
-The default key:
+This is an **ordinary API key** — no special flag, no protection,
+no uniqueness. The user can:
 
-- Can't be deleted without creating a replacement first.
-- Is scoped to the org (full access within it).
-- Can be rotated any time (`devhelm api-keys rotate default`).
+- Rename it (`devhelm api-keys update <id> --name=…`).
+- Rotate its value (`devhelm api-keys regenerate <id>`).
+- Revoke or delete it once they've created a replacement.
 
-It's the key the onboarding skill-install flow embeds into
-`~/.devhelm/contexts.json`.
+Do not treat "Default" as a first-class concept in skill prose or
+flag semantics. It's just a name. If a user asks "where's my default
+key?", find it with `devhelm api-keys list` and match on `name ==
+"Default"`; if it's missing, the user renamed or deleted it and
+you should offer to create a new key rather than resurrecting a
+"default" state.
 
 ## Create
 
@@ -27,21 +31,20 @@ It's the key the onboarding skill-install flow embeds into
 devhelm api-keys create --name="ci-deploy"
 ```
 
-Response:
+Response (includes the full `key` value):
 
 ```json
 {
-  "id": "key_...",
+  "id": 12,
   "name": "ci-deploy",
-  "value": "devhelm_pat_<opaque>",
-  "last4": "...a3f1",
-  "createdAt": "..."
+  "key": "dh_live_<opaque>",
+  "createdAt": "...",
+  "updatedAt": "...",
+  "lastUsedAt": null,
+  "revokedAt": null,
+  "expiresAt": null
 }
 ```
-
-**The `value` field is ONLY present in the create response.** All
-subsequent `list` / `get` calls return the key without `value`,
-only `last4`. There is no "reveal" endpoint.
 
 ## List / get
 
@@ -50,8 +53,11 @@ devhelm api-keys list
 devhelm api-keys get <id>
 ```
 
-Returns name, ID, `last4`, `createdAt`, `lastUsedAt`, `revokedAt`
-(if revoked).
+Both endpoints return the full key value along with name, id,
+timestamps, and revoke/expire state. There is no "last-4 only"
+masking on reads — users and scripts can retrieve the value at any
+time. Treat API key payloads as sensitive when writing them to logs
+or chat transcripts.
 
 ## Revoke vs. delete
 
@@ -73,7 +79,7 @@ devhelm api-keys delete <id>
 
 ```bash
 # 1. Create a replacement
-NEW=$(devhelm api-keys create --name="ci-deploy-v2" --output=json | jq -r '.value')
+NEW=$(devhelm api-keys create --name="ci-deploy-v2" --output=json | jq -r '.key')
 
 # 2. Update consumers to use $NEW (e.g. GitHub Actions secret, ~/.devhelm)
 # ...
@@ -81,6 +87,10 @@ NEW=$(devhelm api-keys create --name="ci-deploy-v2" --output=json | jq -r '.valu
 # 3. Verify everything works, then revoke the old one
 devhelm api-keys revoke <old-id>
 ```
+
+Alternatively, `devhelm api-keys regenerate <id>` rotates the value
+on an existing key record (same id, new value) — useful when you
+need to keep external references to the key name/id stable.
 
 Never revoke first, create second — you'll break live automation.
 

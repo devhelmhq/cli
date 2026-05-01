@@ -38,15 +38,19 @@ design: most of its operations touch credentials or plan state.
 | "Revoke key X" (reversible) | `devhelm api-keys revoke <id>` |
 | "Delete key X" (permanent) | `devhelm api-keys delete <id>` |
 
-**The value of a key is only shown once at creation time.** The
-`list` and `get` endpoints return only the last-4 and the ID. Never
-promise the user you can retrieve the full value later.
+**The full key value is returned on every read** (`list`, `get`,
+`create`, `regenerate`). Treat API key payloads as sensitive when
+writing them to logs or chat transcripts — never paste them into
+commit messages, PR descriptions, or any output that could be
+shared.
 
-**Default API key:** every DevHelm organization has a permanent
-default API key created at org-creation time. It's named `Default`
-and scoped to the org. Users can rotate it any time; they can't
-delete it without creating a replacement first (the API enforces
-this).
+**Starter key:** every new DevHelm org gets one API key named
+`Default` created during onboarding so the user can authenticate
+the CLI in one copy-paste. It's an ordinary key — no special flag,
+no protection, no uniqueness. If the user asks "where's my default
+key?", match `name == "Default"` in `devhelm api-keys list` output;
+if it's missing, they renamed or deleted it and should create a
+new key rather than you trying to resurrect anything.
 
 Full field details: `@references/api-keys.md`.
 

@@ -58,10 +58,11 @@ in a UI that can show plan changes.
 - **Cross-workspace references don't work.** A notification policy
   in workspace A can't target a monitor in workspace B. Resources
   are fully scoped.
-- **API tokens are per-workspace.** The onboarding default key
-  belongs to the workspace it was created in; switching workspaces
-  in the CLI context means you're using a different token (if
-  configured) or no token (if not).
+- **API tokens are per-organization, not per-workspace.** The key
+  grants access to the whole org; the `x-phelm-workspace-id` header
+  picks which workspace each request operates on. Switching
+  workspaces in the CLI context reuses the same token against a
+  different workspace id.
 - **Role matters.** VIEWER users can't create anything; MEMBER can
   create most resources; ADMIN can manage team; OWNER can change
   billing. `devhelm auth me` shows the current role.
