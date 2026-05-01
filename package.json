@@ -1,6 +1,6 @@
 {
   "name": "devhelm",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "DevHelm CLI — manage monitors, deployments, and infrastructure as code",
   "author": "DevHelm <hello@devhelm.io>",
   "license": "MIT",
@@ -17,7 +17,8 @@
   "files": [
     "bin",
     "dist",
-    "oclif.manifest.json"
+    "oclif.manifest.json",
+    "skills"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,7 +26,8 @@
     "typegen": "openapi-typescript docs/openapi/monitoring-api.json -o src/lib/api.generated.ts",
     "zodgen": "node scripts/generate-zod.mjs",
     "descgen": "node scripts/extract-descriptions.mjs",
-    "build": "npm run typegen && npm run zodgen && npm run descgen && tsc -b && oclif manifest",
+    "skillgen": "node scripts/generate-skill-references.mjs",
+    "build": "npm run typegen && npm run zodgen && npm run descgen && npm run skillgen && tsc -b && oclif manifest",
     "lint": "eslint src/ test/",
     "lint:fix": "eslint src/ test/ --fix",
     "test": "vitest run",
