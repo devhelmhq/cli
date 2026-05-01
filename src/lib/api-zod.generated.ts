@@ -1644,6 +1644,9 @@ const RuleEvaluationDto = z
     triggeringTransitionId: z.string().uuid().nullish(),
   })
   .strict();
+const StateTransitionDetails = z
+  .object({ source: z.enum(["pipeline", "public-api"]) })
+  .strict();
 const IncidentStateTransitionDto = z
   .object({
     id: z.string().uuid(),
@@ -1658,6 +1661,7 @@ const IncidentStateTransitionDto = z
     policySnapshotHashHex: z.string().min(1),
     engineVersion: z.string().min(1),
     checkId: z.string().uuid(),
+    details: StateTransitionDetails,
   })
   .strict();
 const PolicySnapshotDto = z
@@ -3479,6 +3483,7 @@ export const schemas = {
   CheckResultDetailsDto,
   CheckResultDto,
   RuleEvaluationDto,
+  StateTransitionDetails,
   IncidentStateTransitionDto,
   PolicySnapshotDto,
   CheckTraceDto,

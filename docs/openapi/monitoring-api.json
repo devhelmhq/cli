@@ -25631,24 +25631,24 @@
           },
           "triggeringCheckId": {
             "type": "string",
-            "description": "Scheduler-minted check execution ID whose result confirmed this incident; joins to check_results, rule_evaluations, and incident_state_transitions",
+            "description": "Scheduler-minted check execution ID whose result confirmed this incident; joins to check_results, rule_evaluations, and incident_state_transitions. Omitted from JSON (undefined to SDKs) when null, treat missing as null.",
             "format": "uuid",
             "nullable": true
           },
           "triggeredByRuleSnapshotHashHex": {
             "type": "string",
-            "description": "Hex SHA-256 of the canonical policy snapshot that fired; combined with triggeredByRuleIndex points to the exact TriggerRule",
+            "description": "Hex SHA-256 of the canonical policy snapshot that fired; combined with triggeredByRuleIndex points to the exact TriggerRule. Omitted from JSON when null, treat missing as null.",
             "nullable": true
           },
           "triggeredByRuleIndex": {
             "type": "integer",
-            "description": "Index of the fired rule inside the policy's trigger_rules array",
+            "description": "Index of the fired rule inside the policy's trigger_rules array. Omitted from JSON when null, treat missing as null.",
             "format": "int32",
             "nullable": true
           },
           "engineVersion": {
             "type": "string",
-            "description": "Detection engine semver that evaluated the rule",
+            "description": "Detection engine semver that evaluated the rule. Omitted from JSON when null, treat missing as null.",
             "nullable": true
           }
         },
@@ -25864,6 +25864,7 @@
         "required": [
           "affectedRegions",
           "checkId",
+          "details",
           "engineVersion",
           "fromStatus",
           "id",
@@ -25910,7 +25911,7 @@
           "reason": {
             "minLength": 1,
             "type": "string",
-            "description": "Why the transition fired (rule_matched | confirmation_met | auto_cleared_by_timeout | recovery_met | reopened | manually_resolved | policy_changed)"
+            "description": "Why the transition fired (trigger | confirm | resolve | auto_clear | reopen)"
           },
           "triggeringEvaluationIds": {
             "type": "array",
@@ -25943,6 +25944,9 @@
             "type": "string",
             "description": "Scheduler-minted check execution ID (V92) of the triggering result",
             "format": "uuid"
+          },
+          "details": {
+            "$ref": "#/components/schemas/StateTransitionDetails"
           }
         },
         "description": "State-machine transitions this check caused (may be empty if nothing fired)"
@@ -30578,6 +30582,23 @@
           "type",
           "minDaysRemaining"
         ]
+      },
+      "StateTransitionDetails": {
+        "required": [
+          "source"
+        ],
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Actor that produced this transition (pipeline | public-api)",
+            "enum": [
+              "pipeline",
+              "public-api"
+            ]
+          }
+        },
+        "description": "Typed metadata about this transition (currently: actor source)"
       },
       "StatusCodeAssertion": {
         "required": [
