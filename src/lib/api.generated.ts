@@ -3188,10 +3188,10 @@ export interface components {
             /** @description Probe regions to run checks from, e.g. us-east, eu-west */
             regions?: string[] | null;
             /**
-             * @description Who manages this monitor: DASHBOARD or CLI
+             * @description Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Use the value matching your surface so audit logs, drift detection, and analytics attribute correctly.
              * @enum {string}
              */
-            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM";
+            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
             /**
              * Format: uuid
              * @description Environment to associate with this monitor
@@ -4834,10 +4834,10 @@ export interface components {
             /** @description Probe regions where checks are executed */
             regions: string[];
             /**
-             * @description Management source: DASHBOARD or CLI
+             * @description Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API
              * @enum {string}
              */
-            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM";
+            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
             /**
              * Format: date-time
              * @description Timestamp when the monitor was created
@@ -7181,10 +7181,10 @@ export interface components {
             /** @description New probe regions; null preserves current */
             regions?: string[] | null;
             /**
-             * @description New management source; null preserves current
+             * @description New ownership source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
             /**
              * Format: uuid
              * @description New environment ID; null preserves current (use clearEnvironmentId to unset)
@@ -12790,7 +12790,7 @@ export interface operations {
                 /** @description Filter by monitor type */
                 type?: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
                 /** @description Filter by managed-by source */
-                managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM";
+                managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
                 /** @description Filter by tag names, comma-separated (e.g. prod,critical) */
                 tags?: string;
                 /** @description Case-insensitive name search */
