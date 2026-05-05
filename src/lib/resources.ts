@@ -113,6 +113,17 @@ export const MONITORS: FullResource<MonitorDto> = {
       body.config = buildMonitorConfig(monitorType, raw)
       if (raw.regions) {
         body.regions = String(raw.regions).split(',').map((s) => s.trim()).filter(Boolean)
+      } else if (REGIONS_REQUIRED_TYPES.has(monitorType)) {
+        // The API rejects probe-driven monitors without at least one
+        // region (P1.Bug9 — the unhelpful `400: At least one region is
+        // required for HTTP monitors`). Default to a single region and
+        // let users know via stderr so the create still succeeds while
+        // it's obvious where the choice came from. Heartbeat / push
+        // monitors are excluded because they don't run from probes.
+        body.regions = [...DEFAULT_MONITOR_REGIONS]
+        process.stderr.write(
+          'note: defaulting --regions us-east; use --regions to override\n',
+        )
       }
     } else {
       if (raw.frequency) body.frequencySeconds = Number(raw.frequency)
@@ -123,6 +134,18 @@ export const MONITORS: FullResource<MonitorDto> = {
     return body
   },
 }
+
+// Monitor types that the API requires to declare at least one probe
+// region. Includes the four shipping types plus the experimental
+// browser variants (HTTP_HEADLESS, HTTP_BROWSER) that are wired in the
+// CLI ahead of the spec — once they land in MONITOR_TYPES this set
+// stays accurate without code changes. MCP_SERVER and HEARTBEAT are
+// intentionally excluded: HEARTBEAT is push-driven, and MCP_SERVER's
+// region semantics are still in flux.
+const REGIONS_REQUIRED_TYPES: ReadonlySet<string> = new Set([
+  'HTTP', 'TCP', 'DNS', 'ICMP', 'HTTP_HEADLESS', 'HTTP_BROWSER',
+])
+const DEFAULT_MONITOR_REGIONS: readonly string[] = ['us-east']
 
 // Returns the monitor's `config` payload as a plain object — the discriminated
 // union (HttpMonitorConfig | TcpMonitorConfig | …) is enforced by the outer
