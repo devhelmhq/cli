@@ -12,7 +12,7 @@ The official command-line interface for [DevHelm](https://devhelm.io) — manage
 
 ```bash
 # Authenticate
-$ devhelm auth login --token sk_live_...
+$ devhelm auth login --token dh_live_...
 Authenticated as you@company.com
 Context 'default' saved to ~/.devhelm/contexts.json
 
@@ -27,7 +27,7 @@ $ devhelm monitors list
 └────┴─────────────────────┴──────┴────────┴──────────────────────────┴──────────┘
 
 # Create a monitor
-$ devhelm monitors create --name "Checkout API" --type HTTP --url https://api.example.com/checkout --interval 30
+$ devhelm monitors create --name "Checkout API" --type HTTP --url https://api.example.com/checkout --frequency 60
 
 # Scaffold a config file and validate it
 $ devhelm init
@@ -58,10 +58,10 @@ The CLI resolves credentials in this order:
 devhelm auth login
 
 # Or set a token directly
-export DEVHELM_API_TOKEN=sk_live_...
+export DEVHELM_API_TOKEN=dh_live_...
 
 # Manage multiple environments
-devhelm auth context create staging --api-url https://staging-api.devhelm.io --token sk_test_...
+devhelm auth context create staging --api-url https://staging-api.devhelm.io --token dh_test_...
 devhelm auth context use staging
 devhelm auth context list
 ```
@@ -113,8 +113,10 @@ DevHelm is designed to work seamlessly with AI coding agents:
 - **[Agent Skill](https://github.com/devhelmhq/skill)** — structured instructions for Claude Code, Cursor, Codex, and other AI agents
 
 ```bash
-# Install the MCP server
-npm install -g @devhelm/mcp-server
+# Install the MCP server (Python package on PyPI)
+pip install devhelm-mcp-server
+# or, no install required:
+uvx devhelm-mcp-server
 
 # Or add the skill to your project
 npx skills add devhelmhq/skill
