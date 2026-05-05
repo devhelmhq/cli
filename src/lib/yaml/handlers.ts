@@ -619,7 +619,9 @@ const webhookHandler = defineHandler<YamlWebhook, Schemas['WebhookEndpointDto'],
 
 // defaultRetryStrategy is optional (not nullable) in the Update schema,
 // but a group can legitimately have none, so we add | null.
-type ResourceGroupSnapshotBase = Required<Schemas['UpdateResourceGroupRequest']>
+// managedBy is a mutation signal (provenance), not declarative state —
+// snapshots should ignore it the same way the Monitor handler does.
+type ResourceGroupSnapshotBase = Required<Omit<Schemas['UpdateResourceGroupRequest'], 'managedBy'>>
 type ResourceGroupSnapshot = Omit<ResourceGroupSnapshotBase, 'defaultRetryStrategy'> & {
   defaultRetryStrategy: ResourceGroupSnapshotBase['defaultRetryStrategy'] | null
 }
