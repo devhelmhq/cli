@@ -311,13 +311,17 @@ export const ALERT_CHANNELS: FullResource<AlertChannelDto> = {
       options: [...CHANNEL_TYPES],
     }),
     config: Flags.string({description: 'Channel-specific configuration as JSON'}),
-    'webhook-url': urlFlag({description: desc('SlackChannelConfig', 'webhookUrl', 'Slack/Discord/Teams webhook URL')}),
+    'webhook-url': urlFlag({
+      description: 'Webhook URL (used by webhook, slack, discord, teams channel types)',
+    }),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateAlertChannelRequest', 'name')}),
     type: Flags.string({description: 'Alert channel type', options: [...CHANNEL_TYPES]}),
     config: Flags.string({description: 'Channel-specific configuration as JSON'}),
-    'webhook-url': urlFlag({description: desc('SlackChannelConfig', 'webhookUrl', 'Slack/Discord/Teams webhook URL')}),
+    'webhook-url': urlFlag({
+      description: 'Webhook URL (used by webhook, slack, discord, teams channel types)',
+    }),
   },
   // bodyBuilder produces a plain object; the outer
   // `apiSchemas.Create/UpdateAlertChannelRequest` Zod parse validates the

@@ -47,7 +47,84 @@
       "@oclif/plugin-help",
       "@oclif/plugin-not-found"
     ],
-    "topicSeparator": " "
+    "topicSeparator": " ",
+    "topics": {
+      "alert-channels": {
+        "description": "Manage alert channels (slack, webhook, email, pagerduty, opsgenie, teams, discord)"
+      },
+      "api-keys": {
+        "description": "Manage API keys for the DevHelm public API"
+      },
+      "auth": {
+        "description": "Manage CLI authentication, contexts, and current identity"
+      },
+      "auth:context": {
+        "description": "Switch between saved CLI contexts (workspace + token pairs)"
+      },
+      "data": {
+        "description": "Inspect runtime data — service catalog status, monitor results, and uptime windows"
+      },
+      "data:services": {
+        "description": "Look up the current status and metadata of upstream services"
+      },
+      "dependencies": {
+        "description": "Track upstream service dependencies (Stripe, GitHub, etc.) for incident correlation"
+      },
+      "environments": {
+        "description": "Manage logical environments (production, staging, …) used to scope monitors and policies"
+      },
+      "forensics": {
+        "description": "Inspect detection forensics: rule evaluations, state transitions, policy snapshots, check traces"
+      },
+      "incidents": {
+        "description": "Create, inspect, and resolve incidents"
+      },
+      "monitors": {
+        "description": "Manage HTTP, TCP, DNS, ICMP, MCP, and heartbeat monitors"
+      },
+      "monitors:versions": {
+        "description": "Inspect historical monitor configuration versions"
+      },
+      "notification-policies": {
+        "description": "Manage escalation policies that route incidents to alert channels"
+      },
+      "resource-groups": {
+        "description": "Manage resource groups bundling monitors and services for shared health rollups"
+      },
+      "secrets": {
+        "description": "Manage workspace secrets used in monitor configurations and headers"
+      },
+      "skills": {
+        "description": "Generate and install Cursor / Claude agent skill packages for DevHelm"
+      },
+      "state": {
+        "description": "Manage the local deploy state file (.devhelm/state.json)"
+      },
+      "status-pages": {
+        "description": "Manage public status pages with components, branding, custom domains, and incidents"
+      },
+      "status-pages:components": {
+        "description": "Manage components on a status page (monitor, group, or static rows)"
+      },
+      "status-pages:domains": {
+        "description": "Manage custom domains attached to a status page"
+      },
+      "status-pages:groups": {
+        "description": "Manage component groups that organise rows on a status page"
+      },
+      "status-pages:incidents": {
+        "description": "Manage status-page-only incidents (separate from monitor-driven incidents)"
+      },
+      "status-pages:subscribers": {
+        "description": "Manage email and webhook subscribers for a status page"
+      },
+      "tags": {
+        "description": "Manage tags applied to monitors for filtering, grouping, and routing"
+      },
+      "webhooks": {
+        "description": "Manage outbound webhook subscriptions for monitor and incident lifecycle events"
+      }
+    }
   },
   "engines": {
     "node": ">=18.0.0"
