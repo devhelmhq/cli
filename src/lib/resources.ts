@@ -7,6 +7,7 @@ import {schemas as apiSchemas} from './api-zod.generated.js'
 import {fieldDescriptions} from './descriptions.generated.js'
 import {urlFlag} from './validators.js'
 import {applyAssertions, parseAssertionFlag, type ParsedAssertion} from './monitor-assertions.js'
+import {attachAlertChannelsOrRollback, parseAlertChannelsFlag, setAlertChannels} from './monitor-alert-channels.js'
 import {
   MONITOR_TYPES,
   HTTP_METHODS,
@@ -95,6 +96,11 @@ export const MONITORS: FullResource<MonitorDto> = {
         'Failures roll back the monitor.',
       multiple: true,
     }),
+    'alert-channels': Flags.string({
+      description:
+        'Comma-separated alert channel IDs to attach after create. ' +
+        'Failures roll back the monitor.',
+    }),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateMonitorRequest', 'name')}),
@@ -102,6 +108,10 @@ export const MONITORS: FullResource<MonitorDto> = {
     frequency: Flags.string({description: desc('UpdateMonitorRequest', 'frequencySeconds')}),
     method: Flags.string({description: desc('HttpMonitorConfig', 'method'), options: [...HTTP_METHODS]}),
     port: Flags.string({description: desc('TcpMonitorConfig', 'port', 'TCP port to connect to')}),
+    'alert-channels': Flags.string({
+      description:
+        'Comma-separated alert channel IDs (replaces current list; pass empty string to clear)',
+    }),
   },
   // bodyBuilder returns a plain `Record<string, unknown>`; the outer
   // `parseSchema(MONITORS.createRequestSchema, ...)` / `updateRequestSchema`
@@ -141,16 +151,33 @@ export const MONITORS: FullResource<MonitorDto> = {
     }
     return body
   },
-  // Post-create: attach assertions. The create endpoint only accepts
-  // the core monitor shape, so assertions go through a separate POST.
-  // If any assertion POST fails, roll back the monitor so the operator
-  // isn't left with a partial setup — see `applyAssertions`.
+  // Post-create: attach assertions and alert channels. Both APIs are
+  // separate calls — the create endpoint only accepts the core monitor
+  // shape. If either step fails, roll back the monitor so the operator
+  // isn't left with a partial setup. Assertions run first because
+  // they're typically the reason someone is creating the monitor; a
+  // successful assertion attach + failed channel attach still rolls
+  // back so behaviour is uniform.
   afterCreate: async (created, raw, ctx) => {
     const monitorId = extractMonitorId(created)
     if (!monitorId) return
     const assertions = collectAssertions(raw.assertion)
-    if (assertions.length === 0) return
-    await applyAssertions(monitorId, assertions, ctx.client, ctx.apiPath)
+    if (assertions.length > 0) {
+      await applyAssertions(monitorId, assertions, ctx.client, ctx.apiPath)
+    }
+    const channelIds = parseAlertChannelsFlag(rawString(raw['alert-channels']))
+    if (channelIds && channelIds.length > 0) {
+      await attachAlertChannelsOrRollback(monitorId, channelIds, ctx.client, ctx.apiPath)
+    }
+  },
+  // Post-update: only handles --alert-channels (assertions on update
+  // would race with the API's own assertion list, so we keep that to
+  // the dedicated `monitors assertions` topic). An empty string
+  // explicitly clears all channels — undefined leaves them alone.
+  afterUpdate: async (_updated, raw, ctx) => {
+    const channelIds = parseAlertChannelsFlag(rawString(raw['alert-channels']))
+    if (channelIds === undefined) return
+    await setAlertChannels(ctx.id, channelIds, ctx.client, ctx.apiPath)
   },
 }
 
@@ -158,6 +185,10 @@ function extractMonitorId(value: unknown): string | undefined {
   if (!value || typeof value !== 'object') return undefined
   const id = (value as {id?: unknown}).id
   return typeof id === 'string' && id.length > 0 ? id : undefined
+}
+
+function rawString(v: unknown): string | undefined {
+  return typeof v === 'string' ? v : undefined
 }
 
 function collectAssertions(raw: unknown): ParsedAssertion[] {
