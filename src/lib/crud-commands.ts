@@ -80,6 +80,18 @@ export interface CreatableResource<T, C = T> extends ResourceConfig<T> {
    * `responseSchema` for the common case where create echoes the entity.
    */
   createResponseSchema?: ZodType<C>
+  /**
+   * Optional post-create hook for side-effecting follow-ups that need
+   * the freshly-created entity's id (alert-channel attachments,
+   * assertions, etc.). Throw to abort — the hook is responsible for
+   * any rollback (e.g. DELETE'ing the half-created entity) since the
+   * factory has no idea which calls are safe to undo.
+   */
+  afterCreate?: (
+    created: C,
+    rawFlags: Record<string, unknown>,
+    ctx: AfterHookContext,
+  ) => Promise<void>
 }
 
 /**
@@ -94,6 +106,23 @@ export interface UpdatableResource<T> extends ResourceConfig<T> {
   bodyBuilder: (flags: Record<string, unknown>) => object
   updateBodyBuilder?: (flags: Record<string, unknown>) => object
   updateRequestSchema: ZodType<object>
+  /** Optional post-update hook — see {@link CreatableResource.afterCreate}. */
+  afterUpdate?: (
+    updated: T,
+    rawFlags: Record<string, unknown>,
+    ctx: AfterHookContext & {id: string},
+  ) => Promise<void>
+}
+
+/**
+ * Context passed to `afterCreate` / `afterUpdate` hooks. The `command`
+ * is the live oclif command instance, so hooks can use `command.log` /
+ * `command.warn` for user-visible output without re-importing oclif.
+ */
+export interface AfterHookContext {
+  client: ApiClient
+  command: Command
+  apiPath: string
 }
 
 export function createListCommand<T>(config: ResourceConfig<T>) {
@@ -165,6 +194,9 @@ export function createCreateCommand<T, C = T>(config: CreatableResource<T, C>) {
       const built = config.bodyBuilder(raw)
       const body = parseSchema(config.createRequestSchema, built, `${config.name}.create body invalid`)
       const value = await apiPostSingle<C>(client, config.apiPath, createResponseSchema, body)
+      if (config.afterCreate) {
+        await config.afterCreate(value, raw, {client, command: this, apiPath: config.apiPath})
+      }
       display(this, value, flags.output)
     }
   }
@@ -185,12 +217,15 @@ export function createUpdateCommand<T>(config: UpdatableResource<T>) {
     async run() {
       const {args, flags} = await this.parse(UpdateCmd)
       const client = buildClient(flags)
-      const id = args[idLabel]
+      const id = args[idLabel] as string
       const raw = extractResourceFlags(flags, Object.keys(resourceFlags))
       const built = builder(raw)
       const body = parseSchema(config.updateRequestSchema, built, `${config.name}.update body invalid`)
       const path = `${config.apiPath}/${id}`
       const value = await apiPutSingle<T>(client, path, config.responseSchema, body)
+      if (config.afterUpdate) {
+        await config.afterUpdate(value, raw, {client, command: this, apiPath: config.apiPath, id})
+      }
       display(this, value, flags.output)
     }
   }

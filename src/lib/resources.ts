@@ -6,6 +6,7 @@ import type {components} from './api.generated.js'
 import {schemas as apiSchemas} from './api-zod.generated.js'
 import {fieldDescriptions} from './descriptions.generated.js'
 import {urlFlag} from './validators.js'
+import {applyAssertions, parseAssertionFlag, type ParsedAssertion} from './monitor-assertions.js'
 import {
   MONITOR_TYPES,
   HTTP_METHODS,
@@ -87,6 +88,13 @@ export const MONITORS: FullResource<MonitorDto> = {
     }),
     port: Flags.string({description: desc('TcpMonitorConfig', 'port', 'TCP port to connect to')}),
     regions: Flags.string({description: desc('CreateMonitorRequest', 'regions')}),
+    assertion: Flags.string({
+      description:
+        'Assertion to attach (repeatable). DSL: status_code=200, response_time<5000, ' +
+        'ssl_expiry>=14. JSON: \'{"severity":"fail","config":{"type":"...","..."}}\'. ' +
+        'Failures roll back the monitor.',
+      multiple: true,
+    }),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateMonitorRequest', 'name')}),
@@ -133,6 +141,37 @@ export const MONITORS: FullResource<MonitorDto> = {
     }
     return body
   },
+  // Post-create: attach assertions. The create endpoint only accepts
+  // the core monitor shape, so assertions go through a separate POST.
+  // If any assertion POST fails, roll back the monitor so the operator
+  // isn't left with a partial setup — see `applyAssertions`.
+  afterCreate: async (created, raw, ctx) => {
+    const monitorId = extractMonitorId(created)
+    if (!monitorId) return
+    const assertions = collectAssertions(raw.assertion)
+    if (assertions.length === 0) return
+    await applyAssertions(monitorId, assertions, ctx.client, ctx.apiPath)
+  },
+}
+
+function extractMonitorId(value: unknown): string | undefined {
+  if (!value || typeof value !== 'object') return undefined
+  const id = (value as {id?: unknown}).id
+  return typeof id === 'string' && id.length > 0 ? id : undefined
+}
+
+function collectAssertions(raw: unknown): ParsedAssertion[] {
+  if (raw === undefined) return []
+  // oclif passes `multiple: true` flags as a string array, but be
+  // defensive against single-value invocations and unknown shapes —
+  // the body builder + hook are reused across tests and YAML paths.
+  const items = Array.isArray(raw) ? raw : [raw]
+  const out: ParsedAssertion[] = []
+  for (const item of items) {
+    if (typeof item !== 'string') continue
+    out.push(parseAssertionFlag(item))
+  }
+  return out
 }
 
 // Monitor types that the API requires to declare at least one probe
