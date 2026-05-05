@@ -9,7 +9,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "frequencySeconds": "Check frequency in seconds (30–86400); null defaults to plan minimum (60s on most paid plans)",
     "enabled": "Whether the monitor is active (default: true)",
     "regions": "Probe regions to run checks from, e.g. us-east, eu-west",
-    "managedBy": "Who manages this monitor: DASHBOARD or CLI",
+    "managedBy": "Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Use the value matching your surface so audit logs, drift detection, and analytics attribute correctly.",
     "environmentId": "Environment to associate with this monitor",
     "assertions": "Assertions to evaluate against each check result",
     "alertChannelIds": "Alert channels to notify when this monitor triggers"
@@ -19,7 +19,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "frequencySeconds": "New check frequency in seconds (30–86400); null preserves current",
     "enabled": "Enable or disable the monitor; null preserves current",
     "regions": "New probe regions; null preserves current",
-    "managedBy": "New management source; null preserves current",
+    "managedBy": "New ownership source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value",
     "environmentId": "New environment ID; null preserves current (use clearEnvironmentId to unset)",
     "clearEnvironmentId": "Set to true to remove the environment association",
     "assertions": "Replace all assertions; null preserves current",
