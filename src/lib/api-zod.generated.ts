@@ -672,7 +672,7 @@ const CreateMonitorRequest = z
     frequencySeconds: z.number().int().nullish(),
     enabled: z.boolean().nullish(),
     regions: z.array(z.string()).nullish(),
-    managedBy: z.enum(["DASHBOARD", "CLI", "TERRAFORM"]),
+    managedBy: z.enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"]),
     environmentId: z.string().uuid().nullish(),
     assertions: z.array(CreateAssertionRequest).nullish(),
     auth: MonitorAuthConfig.nullish(),
@@ -697,7 +697,9 @@ const UpdateMonitorRequest = z
     frequencySeconds: z.number().int().nullable(),
     enabled: z.boolean().nullable(),
     regions: z.array(z.string()).nullable(),
-    managedBy: z.enum(["DASHBOARD", "CLI", "TERRAFORM"]).nullable(),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
+      .nullable(),
     environmentId: z.string().uuid().nullable(),
     clearEnvironmentId: z.boolean().nullable(),
     assertions: z.array(CreateAssertionRequest).nullable(),
@@ -2219,7 +2221,7 @@ const MonitorDto = z
     frequencySeconds: z.number().int(),
     enabled: z.boolean(),
     regions: z.array(z.string()),
-    managedBy: z.enum(["DASHBOARD", "CLI", "TERRAFORM"]),
+    managedBy: z.enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"]),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
     assertions: z.array(MonitorAssertionDto).nullish(),
