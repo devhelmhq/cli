@@ -6,6 +6,8 @@ import type {components} from './api.generated.js'
 import {schemas as apiSchemas} from './api-zod.generated.js'
 import {fieldDescriptions} from './descriptions.generated.js'
 import {urlFlag} from './validators.js'
+import {applyAssertions, parseAssertionFlag, type ParsedAssertion} from './monitor-assertions.js'
+import {attachAlertChannelsOrRollback, parseAlertChannelsFlag, setAlertChannels} from './monitor-alert-channels.js'
 import {
   MONITOR_TYPES,
   HTTP_METHODS,
@@ -87,6 +89,18 @@ export const MONITORS: FullResource<MonitorDto> = {
     }),
     port: Flags.string({description: desc('TcpMonitorConfig', 'port', 'TCP port to connect to')}),
     regions: Flags.string({description: desc('CreateMonitorRequest', 'regions')}),
+    assertion: Flags.string({
+      description:
+        'Assertion to attach (repeatable). DSL: status_code=200, response_time<5000, ' +
+        'ssl_expiry>=14. JSON: \'{"severity":"fail","config":{"type":"...","..."}}\'. ' +
+        'Failures roll back the monitor.',
+      multiple: true,
+    }),
+    'alert-channels': Flags.string({
+      description:
+        'Comma-separated alert channel IDs to attach after create. ' +
+        'Failures roll back the monitor.',
+    }),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateMonitorRequest', 'name')}),
@@ -94,6 +108,10 @@ export const MONITORS: FullResource<MonitorDto> = {
     frequency: Flags.string({description: desc('UpdateMonitorRequest', 'frequencySeconds')}),
     method: Flags.string({description: desc('HttpMonitorConfig', 'method'), options: [...HTTP_METHODS]}),
     port: Flags.string({description: desc('TcpMonitorConfig', 'port', 'TCP port to connect to')}),
+    'alert-channels': Flags.string({
+      description:
+        'Comma-separated alert channel IDs (replaces current list; pass empty string to clear)',
+    }),
   },
   // bodyBuilder returns a plain `Record<string, unknown>`; the outer
   // `parseSchema(MONITORS.createRequestSchema, ...)` / `updateRequestSchema`
@@ -113,6 +131,17 @@ export const MONITORS: FullResource<MonitorDto> = {
       body.config = buildMonitorConfig(monitorType, raw)
       if (raw.regions) {
         body.regions = String(raw.regions).split(',').map((s) => s.trim()).filter(Boolean)
+      } else if (REGIONS_REQUIRED_TYPES.has(monitorType)) {
+        // The API rejects probe-driven monitors without at least one
+        // region (P1.Bug9 — the unhelpful `400: At least one region is
+        // required for HTTP monitors`). Default to a single region and
+        // let users know via stderr so the create still succeeds while
+        // it's obvious where the choice came from. Heartbeat / push
+        // monitors are excluded because they don't run from probes.
+        body.regions = [...DEFAULT_MONITOR_REGIONS]
+        process.stderr.write(
+          'note: defaulting --regions us-east; use --regions to override\n',
+        )
       }
     } else {
       if (raw.frequency) body.frequencySeconds = Number(raw.frequency)
@@ -122,7 +151,71 @@ export const MONITORS: FullResource<MonitorDto> = {
     }
     return body
   },
+  // Post-create: attach assertions and alert channels. Both APIs are
+  // separate calls — the create endpoint only accepts the core monitor
+  // shape. If either step fails, roll back the monitor so the operator
+  // isn't left with a partial setup. Assertions run first because
+  // they're typically the reason someone is creating the monitor; a
+  // successful assertion attach + failed channel attach still rolls
+  // back so behaviour is uniform.
+  afterCreate: async (created, raw, ctx) => {
+    const monitorId = extractMonitorId(created)
+    if (!monitorId) return
+    const assertions = collectAssertions(raw.assertion)
+    if (assertions.length > 0) {
+      await applyAssertions(monitorId, assertions, ctx.client, ctx.apiPath)
+    }
+    const channelIds = parseAlertChannelsFlag(rawString(raw['alert-channels']))
+    if (channelIds && channelIds.length > 0) {
+      await attachAlertChannelsOrRollback(monitorId, channelIds, ctx.client, ctx.apiPath)
+    }
+  },
+  // Post-update: only handles --alert-channels (assertions on update
+  // would race with the API's own assertion list, so we keep that to
+  // the dedicated `monitors assertions` topic). An empty string
+  // explicitly clears all channels — undefined leaves them alone.
+  afterUpdate: async (_updated, raw, ctx) => {
+    const channelIds = parseAlertChannelsFlag(rawString(raw['alert-channels']))
+    if (channelIds === undefined) return
+    await setAlertChannels(ctx.id, channelIds, ctx.client, ctx.apiPath)
+  },
 }
+
+function extractMonitorId(value: unknown): string | undefined {
+  if (!value || typeof value !== 'object') return undefined
+  const id = (value as {id?: unknown}).id
+  return typeof id === 'string' && id.length > 0 ? id : undefined
+}
+
+function rawString(v: unknown): string | undefined {
+  return typeof v === 'string' ? v : undefined
+}
+
+function collectAssertions(raw: unknown): ParsedAssertion[] {
+  if (raw === undefined) return []
+  // oclif passes `multiple: true` flags as a string array, but be
+  // defensive against single-value invocations and unknown shapes —
+  // the body builder + hook are reused across tests and YAML paths.
+  const items = Array.isArray(raw) ? raw : [raw]
+  const out: ParsedAssertion[] = []
+  for (const item of items) {
+    if (typeof item !== 'string') continue
+    out.push(parseAssertionFlag(item))
+  }
+  return out
+}
+
+// Monitor types that the API requires to declare at least one probe
+// region. Includes the four shipping types plus the experimental
+// browser variants (HTTP_HEADLESS, HTTP_BROWSER) that are wired in the
+// CLI ahead of the spec — once they land in MONITOR_TYPES this set
+// stays accurate without code changes. MCP_SERVER and HEARTBEAT are
+// intentionally excluded: HEARTBEAT is push-driven, and MCP_SERVER's
+// region semantics are still in flux.
+const REGIONS_REQUIRED_TYPES: ReadonlySet<string> = new Set([
+  'HTTP', 'TCP', 'DNS', 'ICMP', 'HTTP_HEADLESS', 'HTTP_BROWSER',
+])
+const DEFAULT_MONITOR_REGIONS: readonly string[] = ['us-east']
 
 // Returns the monitor's `config` payload as a plain object — the discriminated
 // union (HttpMonitorConfig | TcpMonitorConfig | …) is enforced by the outer
@@ -218,13 +311,17 @@ export const ALERT_CHANNELS: FullResource<AlertChannelDto> = {
       options: [...CHANNEL_TYPES],
     }),
     config: Flags.string({description: 'Channel-specific configuration as JSON'}),
-    'webhook-url': urlFlag({description: desc('SlackChannelConfig', 'webhookUrl', 'Slack/Discord/Teams webhook URL')}),
+    'webhook-url': urlFlag({
+      description: 'Webhook URL (used by webhook, slack, discord, teams channel types)',
+    }),
   },
   updateFlags: {
     name: Flags.string({description: desc('UpdateAlertChannelRequest', 'name')}),
     type: Flags.string({description: 'Alert channel type', options: [...CHANNEL_TYPES]}),
     config: Flags.string({description: 'Channel-specific configuration as JSON'}),
-    'webhook-url': urlFlag({description: desc('SlackChannelConfig', 'webhookUrl', 'Slack/Discord/Teams webhook URL')}),
+    'webhook-url': urlFlag({
+      description: 'Webhook URL (used by webhook, slack, discord, teams channel types)',
+    }),
   },
   // bodyBuilder produces a plain object; the outer
   // `apiSchemas.Create/UpdateAlertChannelRequest` Zod parse validates the

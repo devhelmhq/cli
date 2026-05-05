@@ -1,8 +1,8 @@
-import {describe, it, expect, beforeEach, afterEach} from 'vitest'
+import {describe, it, expect, beforeEach, afterEach, vi} from 'vitest'
 import {mkdtempSync, writeFileSync, rmSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
-import {ALERT_CHANNELS, STATUS_PAGES} from '../../src/lib/resources.js'
+import {ALERT_CHANNELS, MONITORS, STATUS_PAGES} from '../../src/lib/resources.js'
 
 describe('ALERT_CHANNELS bodyBuilder --config validation', () => {
   it('accepts valid slack config JSON', () => {
@@ -96,5 +96,53 @@ describe('STATUS_PAGES bodyBuilder --branding-file validation', () => {
   it('rejects unknown branding fields (strict)', () => {
     const path = write('b.json', JSON.stringify({brandColor: '#fff', mysteryField: 'x'}))
     expect(() => STATUS_PAGES.bodyBuilder!({'branding-file': path})).toThrow(/Invalid branding file/)
+  })
+})
+
+describe('MONITORS bodyBuilder --regions defaulting (P1.Bug9)', () => {
+  let stderrSpy: ReturnType<typeof vi.spyOn>
+
+  beforeEach(() => {
+    stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
+  })
+
+  afterEach(() => {
+    stderrSpy.mockRestore()
+  })
+
+  it('defaults regions to [us-east] for HTTP without --regions', () => {
+    const body = MONITORS.bodyBuilder({name: 'X', type: 'HTTP', url: 'https://x.com'}) as Record<string, unknown>
+    expect(body.regions).toEqual(['us-east'])
+    expect(stderrSpy).toHaveBeenCalledWith(
+      expect.stringContaining('defaulting --regions us-east'),
+    )
+  })
+
+  it.each(['TCP', 'DNS', 'ICMP', 'HTTP_HEADLESS', 'HTTP_BROWSER'])(
+    'defaults regions for %s without --regions',
+    (type) => {
+      const body = MONITORS.bodyBuilder({name: 'X', type, url: 'x.com'}) as Record<string, unknown>
+      expect(body.regions).toEqual(['us-east'])
+    },
+  )
+
+  it('respects an explicit --regions value (no default applied)', () => {
+    const body = MONITORS.bodyBuilder({
+      name: 'X', type: 'HTTP', url: 'https://x.com', regions: 'eu-west,ap-south',
+    }) as Record<string, unknown>
+    expect(body.regions).toEqual(['eu-west', 'ap-south'])
+    expect(stderrSpy).not.toHaveBeenCalled()
+  })
+
+  it('does NOT default regions for HEARTBEAT (push monitor)', () => {
+    const body = MONITORS.bodyBuilder({name: 'X', type: 'HEARTBEAT'}) as Record<string, unknown>
+    expect(body.regions).toBeUndefined()
+    expect(stderrSpy).not.toHaveBeenCalled()
+  })
+
+  it('does NOT default regions for MCP_SERVER (region semantics in flux)', () => {
+    const body = MONITORS.bodyBuilder({name: 'X', type: 'MCP_SERVER', url: 'mcp-server'}) as Record<string, unknown>
+    expect(body.regions).toBeUndefined()
+    expect(stderrSpy).not.toHaveBeenCalled()
   })
 })

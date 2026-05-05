@@ -55,7 +55,7 @@ export type SpIncidentStatuses = (typeof SP_INCIDENT_STATUSES)[number]
 export const AUTH_TYPES = ['bearer', 'basic', 'header', 'api_key'] as const
 export type AuthTypes = (typeof AUTH_TYPES)[number]
 
-export const MANAGED_BY = ['DASHBOARD', 'CLI', 'TERRAFORM'] as const
+export const MANAGED_BY = ['DASHBOARD', 'CLI', 'TERRAFORM', 'MCP', 'API'] as const
 export type ManagedBy = (typeof MANAGED_BY)[number]
 
 export const MATCH_RULE_TYPES = ['severity_gte', 'monitor_id_in', 'region_in', 'incident_status', 'monitor_type_in', 'service_id_in', 'resource_group_id_in', 'component_name_in', 'monitor_tag_in'] as const

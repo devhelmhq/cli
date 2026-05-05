@@ -13,7 +13,7 @@
 | `frequencySeconds` | integer (int32) |  | ✓ | Check frequency in seconds (30–86400); null defaults to plan minimum (60s on most paid plans) |
 | `enabled` | boolean |  | ✓ | Whether the monitor is active (default: true) |
 | `regions` | string[] |  | ✓ | Probe regions to run checks from, e.g. us-east, eu-west |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" | ✓ |  | Who manages this monitor: DASHBOARD or CLI |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" | ✓ |  | Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Use the value matching your surface so audit logs, drift detection, and analytics attribute correctly. |
 | `environmentId` | string (uuid) |  | ✓ | Environment to associate with this monitor |
 | `assertions` | CreateAssertionRequest[] |  | ✓ | Assertions to evaluate against each check result |
 | `auth` | any |  | ✓ |  |
@@ -30,7 +30,7 @@
 | `frequencySeconds` | integer (int32) |  | ✓ | New check frequency in seconds (30–86400); null preserves current |
 | `enabled` | boolean |  | ✓ | Enable or disable the monitor; null preserves current |
 | `regions` | string[] |  | ✓ | New probe regions; null preserves current |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" |  | ✓ | New management source; null preserves current |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | New ownership source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value |
 | `environmentId` | string (uuid) |  | ✓ | New environment ID; null preserves current (use clearEnvironmentId to unset) |
 | `clearEnvironmentId` | boolean |  | ✓ | Set to true to remove the environment association |
 | `assertions` | CreateAssertionRequest[] |  | ✓ | Replace all assertions; null preserves current |
@@ -52,7 +52,7 @@
 | `frequencySeconds` | integer (int32) | ✓ |  | Check frequency in seconds (30–86400) |
 | `enabled` | boolean | ✓ |  | Whether the monitor is active |
 | `regions` | string[] | ✓ |  | Probe regions where checks are executed |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" | ✓ |  | Management source: DASHBOARD or CLI |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" | ✓ |  | Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the monitor was created |
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the monitor was last updated |
 | `assertions` | MonitorAssertionDto[] |  | ✓ | Assertions evaluated against each check result; null on list responses |
