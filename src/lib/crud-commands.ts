@@ -2,7 +2,8 @@ import {Command, Args, Flags, type Interfaces} from '@oclif/core'
 import type {ZodType} from 'zod'
 import {globalFlags, buildClient, display} from './base-command.js'
 import {fetchPaginatedValidated} from './typed-api.js'
-import {apiDelete, apiGetSingle, apiPostSingle, apiPutSingle} from './api-client.js'
+import {apiDelete, apiGetSingle, apiPostSingle, apiPutSingle, type ApiClient} from './api-client.js'
+import {DevhelmAuthError, DevhelmNotFoundError, EXIT_CODES} from './errors.js'
 import type {ColumnDef} from './output.js'
 import {parse as parseSchema} from './response-validation.js'
 import {uuidArg} from './validators.js'
@@ -201,20 +202,108 @@ export function createDeleteCommand<T>(config: ResourceConfig<T>) {
   const idLabel = config.idField ?? 'id'
   class DeleteCmd extends Command {
     static description = `Delete a ${config.name}`
-    static examples = [`<%= config.bin %> ${config.plural} delete <${idLabel}>`]
+    static examples = [
+      `<%= config.bin %> ${config.plural} delete <${idLabel}>`,
+      `<%= config.bin %> ${config.plural} delete <${idLabel}> --yes`,
+    ]
     static args = {[idLabel]: idArg(config)}
-    static flags = {...globalFlags}
+    static flags = {
+      ...globalFlags,
+      yes: Flags.boolean({
+        char: 'y',
+        description: 'Skip the interactive confirmation prompt',
+        default: false,
+      }),
+    }
 
     async run() {
       const {args, flags} = await this.parse(DeleteCmd)
       const client = buildClient(flags)
-      const id = args[idLabel]
-      await apiDelete(client, `${config.apiPath}/${id}`)
+      // The id arg is declared `required: true` on the static args block
+      // above, so oclif guarantees it's a string at runtime. The Record
+      // index signature still types it as optional, hence the narrow.
+      const id = args[idLabel] as string
+      const path = `${config.apiPath}/${id}`
+
+      if (!flags.yes) {
+        if (!process.stdin.isTTY) {
+          // In CI / piped invocations, prompting would hang and silent
+          // auto-confirm would defeat the safety check. Refuse loudly.
+          this.error(
+            `Refusing to delete ${config.name} '${id}' in non-interactive mode without --yes (or -y).`,
+            {exit: EXIT_CODES.VALIDATION},
+          )
+        }
+        const confirmed = await promptForDeletion(config, id, path, client)
+        if (!confirmed) {
+          this.log('Cancelled.')
+          return
+        }
+      }
+
+      await apiDelete(client, path)
       this.log(`${config.name} '${id}' deleted.`)
     }
   }
 
   return DeleteCmd
+}
+
+/**
+ * Best-effort label extractor used by the delete confirmation prompt so
+ * the user sees `'My Monitor' (uuid)` instead of just the bare id. The
+ * candidate keys cover the human-readable identifier on every CRUD
+ * resource we ship: `name` for most, `slug`/`key` for status-page slugs
+ * and secret keys, `summary`/`title` for incidents, `email` for users.
+ * Returns `undefined` when nothing usable is found — the caller falls
+ * back to the id alone, which is still safer than no prompt at all.
+ */
+export function extractEntityLabel(value: unknown): string | undefined {
+  if (!value || typeof value !== 'object') return undefined
+  const record = value as Record<string, unknown>
+  for (const key of ['name', 'slug', 'key', 'title', 'summary', 'email']) {
+    const candidate = record[key]
+    if (typeof candidate === 'string' && candidate.length > 0) return candidate
+  }
+  return undefined
+}
+
+/**
+ * Interactive confirmation prompt for the generated delete commands.
+ *
+ * GETs the resource first so the prompt can show its human-readable
+ * name. A 404 (or 401/403) is surfaced before the destructive action:
+ * the typo'd id never makes it to the prompt. Any other GET failure is
+ * swallowed — we still prompt with the bare id rather than blocking the
+ * user from a delete that would otherwise succeed.
+ *
+ * The non-TTY refusal is done by the caller (it has access to
+ * `this.error()` for a clean oclif exit) so this helper only runs when
+ * stdin is interactive.
+ */
+async function promptForDeletion<T>(
+  config: ResourceConfig<T>,
+  id: string,
+  path: string,
+  client: ApiClient,
+): Promise<boolean> {
+  let label = `'${id}'`
+  try {
+    const value = await apiGetSingle<unknown>(client, path, config.responseSchema as ZodType<unknown>)
+    const name = extractEntityLabel(value)
+    if (name) label = `'${name}' (${id})`
+  } catch (err) {
+    if (err instanceof DevhelmAuthError || err instanceof DevhelmNotFoundError) throw err
+  }
+
+  const {createInterface} = await import('node:readline')
+  const rl = createInterface({input: process.stdin, output: process.stderr})
+  const answer = await new Promise<string>((resolve) => {
+    rl.question(`Delete ${config.name} ${label}? [y/N] `, resolve)
+  })
+  rl.close()
+  const normalized = answer.trim().toLowerCase()
+  return normalized === 'y' || normalized === 'yes'
 }
 
 function extractResourceFlags(flags: Record<string, unknown>, keys: string[]): Record<string, unknown> {

@@ -59,12 +59,29 @@ function formatTable(data: unknown, columns?: ColumnDef[]): string {
   return table.toString()
 }
 
+/**
+ * Default-table render of a single record (e.g. the response body of a
+ * `create` / `get` command). Nested objects are JSON-stringified and then
+ * truncated so one noisy field (e.g. `incidentPolicy`, `config`, `auth`)
+ * doesn't blow the value column out to several thousand characters and
+ * push the rest of the record off-screen. Users who actually need the
+ * full structure can re-run with `--output json` (or `yaml`).
+ */
+const SINGLE_RECORD_OBJECT_PREVIEW_CHARS = 80
+const SINGLE_RECORD_TRUNCATION_HINT = '… (use --output json for full)'
+
+function previewObjectValue(value: unknown): string {
+  const json = JSON.stringify(value) ?? ''
+  if (json.length <= SINGLE_RECORD_OBJECT_PREVIEW_CHARS) return json
+  return json.slice(0, SINGLE_RECORD_OBJECT_PREVIEW_CHARS) + SINGLE_RECORD_TRUNCATION_HINT
+}
+
 function formatSingleRecord(data: Record<string, unknown>): string {
   const table = new Table({style: {head: ['cyan']}})
 
   for (const [key, value] of Object.entries(data)) {
     if (value === undefined) continue
-    const display = typeof value === 'object' ? JSON.stringify(value) : String(value ?? '')
+    const display = typeof value === 'object' && value !== null ? previewObjectValue(value) : String(value ?? '')
     table.push({[key]: display})
   }
 
