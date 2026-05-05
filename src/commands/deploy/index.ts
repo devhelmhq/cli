@@ -17,6 +17,7 @@ export default class Deploy extends Command {
     '<%= config.bin %> deploy --yes',
     '<%= config.bin %> deploy -f monitors.yml',
     '<%= config.bin %> deploy --prune --yes',
+    '<%= config.bin %> deploy --prune-org-cli --yes',
     '<%= config.bin %> deploy --prune-all --yes',
     '<%= config.bin %> deploy --dry-run',
     '<%= config.bin %> deploy --dry-run --detailed-exitcode',
@@ -36,11 +37,21 @@ export default class Deploy extends Command {
       default: false,
     }),
     prune: Flags.boolean({
-      description: 'Delete CLI-managed resources not present in config',
+      description:
+        'Delete resources tracked in this config\'s .devhelm/state.json that are absent from YAML. ' +
+        'Safe in multi-config orgs — does NOT touch CLI-managed resources from other configs.',
+      default: false,
+    }),
+    'prune-org-cli': Flags.boolean({
+      description:
+        'Also delete CLI-managed resources elsewhere in the org that are absent from YAML. ' +
+        'Use with caution in shared workspaces; widens --prune to the legacy org-wide CLI scope.',
       default: false,
     }),
     'prune-all': Flags.boolean({
-      description: 'Delete ALL resources not in config, including those not managed by the CLI (use with caution)',
+      description:
+        'Delete ALL resources not in YAML, including dashboard- and Terraform-managed ones. ' +
+        'The most destructive option; intended for single-tenant workspaces or scripted teardowns.',
       default: false,
     }),
     'dry-run': Flags.boolean({
@@ -155,7 +166,16 @@ export default class Deploy extends Command {
     const currentChildren = await prefetchChildSnapshots(config, refs, client)
     const changeset = await diff(
       config, refs,
-      {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']},
+      {
+        // `--prune` is the safe default (state-scoped). The wider scopes
+        // imply `--prune` so users don't have to combine flags to enable
+        // the broader behaviour — `--prune-org-cli` deletes state-tracked
+        // resources AND legacy CLI-managed orphans, and `--prune-all`
+        // also picks up dashboard- and Terraform-managed resources.
+        prune: flags.prune || flags['prune-org-cli'] || flags['prune-all'],
+        pruneOrgCli: flags['prune-org-cli'] || flags['prune-all'],
+        pruneAll: flags['prune-all'],
+      },
       currentState,
       currentChildren,
     )

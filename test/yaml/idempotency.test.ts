@@ -151,7 +151,7 @@ describe('idempotency', () => {
     expect(cs.updates).toHaveLength(0)
   })
 
-  it('removing one monitor → that monitor in deletes (with prune)', async () => {
+  it('removing one monitor → that monitor in deletes (with prune-org-cli)', async () => {
     const config: DevhelmConfig = {
       monitors: [
         {name: 'API', type: 'HTTP', config: {url: 'https://api.example.com', method: 'GET'}},
@@ -169,7 +169,7 @@ describe('idempotency', () => {
         managedBy: 'CLI',
       }, managedBy: 'CLI'},
     ])
-    const cs = await diff(config, refs, {prune: true})
+    const cs = await diff(config, refs, {pruneOrgCli: true})
     expect(cs.deletes).toHaveLength(1)
     expect(cs.deletes[0].refKey).toBe('Web')
     expect(cs.creates).toHaveLength(0)

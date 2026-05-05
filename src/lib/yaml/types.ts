@@ -53,10 +53,38 @@ export interface Change {
   current?: unknown
   /** Attribute-level diffs for update changes */
   attributeDiffs?: AttributeDiff[]
+  /**
+   * For `delete` actions only — which prune scope produced the change.
+   * `state` means the resource was tracked in this config's
+   * `.devhelm/state.json`; `org-cli` means it's CLI-managed elsewhere
+   * in the org; `org-all` is anything else surfaced under `--prune-all`.
+   * Drives the grouped output in `formatPlan` so multi-team users can
+   * tell at a glance which destroys are theirs.
+   */
+  pruneScope?: PruneScope
 }
 
+export type PruneScope = 'state' | 'org-cli' | 'org-all'
+
 export interface DiffOptions {
+  /**
+   * Delete resources tracked in `.devhelm/state.json` that are absent
+   * from YAML. Safe in multi-config orgs because it only touches
+   * resources THIS config previously created (DevEx P0.Bug1).
+   */
   prune?: boolean
+  /**
+   * Delete CLI-managed resources org-wide that are absent from YAML —
+   * the legacy `--prune` behaviour. Required to clean up resources
+   * created from a different YAML file or by an earlier reset of the
+   * local state. Use with caution in shared workspaces.
+   */
+  pruneOrgCli?: boolean
+  /**
+   * Delete ALL resources absent from YAML, including dashboard- and
+   * Terraform-managed ones. The most destructive option; reserve for
+   * single-tenant workspaces or scripted teardowns.
+   */
   pruneAll?: boolean
 }
 

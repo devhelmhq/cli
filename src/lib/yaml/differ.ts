@@ -15,7 +15,7 @@ import type {components} from '../api.generated.js'
 import type {DevhelmConfig} from './schema.js'
 import type {ResolvedRefs} from './resolver.js'
 import {allHandlers, type ResourceHandler, type CurrentChildEntry} from './handlers.js'
-import type {Change, Changeset, DiffOptions} from './types.js'
+import type {Change, Changeset, DiffOptions, PruneScope} from './types.js'
 import {RESOURCE_ORDER} from './types.js'
 import type {DeployState} from './state.js'
 import {resourceAddress} from './state.js'
@@ -68,8 +68,18 @@ export async function diff(
     return currentChildren.get(addr) ?? {}
   }
 
+  // Set of `<section>.<refKey>` addresses present in this config's
+  // `.devhelm/state.json`. Drives the `--prune` (state-scoped) branch
+  // in `diffSection` — non-state addresses are only candidates under
+  // `--prune-org-cli` or `--prune-all`. Lazily an empty set when no
+  // state was passed so callers / tests can omit `priorState` without
+  // accidentally widening the prune scope.
+  const stateAddresses = new Set<string>(
+    priorState ? Object.keys(priorState.resources) : [],
+  )
+
   for (const handler of allHandlers()) {
-    diffSection(handler, config[handler.configKey], refs, creates, updates, deletes, options, lookupCurrentChildren)
+    diffSection(handler, config[handler.configKey], refs, creates, updates, deletes, options, lookupCurrentChildren, stateAddresses)
   }
 
   diffMemberships(config, refs, memberships, options)
@@ -77,12 +87,6 @@ export async function diff(
   creates.sort(byResourceOrder)
   updates.sort(byResourceOrder)
   deletes.sort((a, b) => byResourceOrderIndex(b.resourceType) - byResourceOrderIndex(a.resourceType))
-
-  // Acknowledge unused param: kept in the signature for future drift hooks
-  // (e.g. detecting parents present in state but absent from both YAML and
-  // the live API) without forcing every caller to refactor. The differ
-  // itself reads parent attrs only from `refs` (live API) per RFC 0001.
-  void priorState
 
   return {creates, updates, deletes, memberships}
 }
@@ -160,6 +164,7 @@ function diffSection(
   deletes: Change[],
   options: DiffOptions,
   lookupCurrentChildren: (resourceType: ResourceType, refKey: string) => Record<string, CurrentChildEntry>,
+  stateAddresses: ReadonlySet<string>,
 ): void {
   const desired = new Set<string>()
 
@@ -204,21 +209,55 @@ function diffSection(
     }
   }
 
-  if ((options.prune || options.pruneAll) && items !== undefined) {
+  const anyPrune = options.prune || options.pruneOrgCli || options.pruneAll
+  if (anyPrune && items !== undefined) {
     for (const entry of refs.allEntries(handler.refType)) {
       if (entry.isPending) continue
-      if (!desired.has(entry.refKey)) {
-        if (handler.resourceType === 'monitor' && !options.pruneAll && entry.managedBy !== 'CLI') continue
-        deletes.push({
-          action: 'delete',
-          resourceType: handler.resourceType,
-          refKey: entry.refKey,
-          existingId: entry.id,
-          current: entry.raw,
-        })
-      }
+      if (desired.has(entry.refKey)) continue
+
+      const address = resourceAddress(handler.resourceType as ResourceType, entry.refKey)
+      const scope = classifyDeleteScope(handler, entry, stateAddresses, address)
+
+      // Decide whether to include this delete based on the requested
+      // prune flag(s). State-scoped deletes are the safe default and
+      // are always included when *any* prune flag is on; the wider
+      // scopes require their explicit opt-in.
+      const include =
+        (scope === 'state') ||
+        (scope === 'org-cli' && (options.pruneOrgCli || options.pruneAll)) ||
+        (scope === 'org-all' && options.pruneAll)
+      if (!include) continue
+
+      deletes.push({
+        action: 'delete',
+        resourceType: handler.resourceType,
+        refKey: entry.refKey,
+        existingId: entry.id,
+        current: entry.raw,
+        pruneScope: scope,
+      })
     }
   }
+}
+
+function classifyDeleteScope(
+  handler: ResourceHandler,
+  entry: {refKey: string; managedBy?: string | null},
+  stateAddresses: ReadonlySet<string>,
+  address: string,
+): PruneScope {
+  if (stateAddresses.has(address)) return 'state'
+  // Monitors carry an explicit `managedBy`; non-CLI monitors are
+  // foreign (dashboard / Terraform / MCP / API) and only `--prune-all`
+  // is allowed to touch them.
+  if (handler.resourceType === 'monitor') {
+    return entry.managedBy === 'CLI' ? 'org-cli' : 'org-all'
+  }
+  // Other resource types lack a managedBy concept on the API, so the
+  // legacy `--prune` semantic was "delete anything not in YAML" — keep
+  // that under `--prune-org-cli` for parity, and reserve `--prune-all`
+  // for an unambiguous "everything".
+  return 'org-cli'
 }
 
 // ── Membership diff ────────────────────────────────────────────────────
@@ -251,12 +290,13 @@ function memberKey(memberType: string, nameOrSlug: string): string {
  * Diff resource group memberships.
  *
  * Prune semantics (documented for M8):
- *   - `options.prune` or `options.pruneAll`:
+ *   - Any prune flag (`--prune` / `--prune-org-cli` / `--prune-all`):
  *     - For groups **present in YAML**: remove any current members not listed.
  *     - For groups **absent from YAML** (orphan groups): *only* under
- *       `pruneAll` — because `prune` is scoped to CLI-managed resources and
- *       we don't know membership provenance. `pruneAll` takes the Terraform
- *       stance: anything not in config is fair game.
+ *       `pruneAll` — membership provenance isn't tracked anywhere outside
+ *       the YAML, so the safe default is to leave dashboard-curated
+ *       memberships alone. `pruneAll` takes the Terraform stance:
+ *       anything not in config is fair game.
  *   - Without prune flags, memberships are additive: we only create missing
  *     ones, never remove.
  */
@@ -311,7 +351,8 @@ function diffMemberships(
       }
     }
 
-    if ((options.prune || options.pruneAll) && groupEntry) {
+    const anyPrune = options.prune || options.pruneOrgCli || options.pruneAll
+    if (anyPrune && groupEntry) {
       for (const [key, member] of currentMembers) {
         if (!desired.has(key)) {
           const label = member.name ?? member.slug ?? member.id ?? 'unknown'
@@ -415,8 +456,28 @@ export function formatPlan(changeset: Changeset): string {
       }
     }
   }
-  for (const c of changeset.deletes) {
-    lines.push(`  - ${c.resourceType} "${c.refKey}"`)
+  // Group destroys by prune scope so multi-team users can tell at a
+  // glance which ones came from this config's state and which came from
+  // the wider `--prune-org-cli` / `--prune-all` widening. When every
+  // delete shares a single scope (the common case), only that group's
+  // header is printed.
+  if (changeset.deletes.length > 0) {
+    const groups: Array<{label: string; scope: PruneScope | undefined}> = [
+      {label: 'Tracked by this config:', scope: 'state'},
+      {label: 'Other CLI-managed resources:', scope: 'org-cli'},
+      {label: 'Foreign resources (--prune-all):', scope: 'org-all'},
+    ]
+    const present = new Set(changeset.deletes.map((d) => d.pruneScope ?? 'state'))
+    const showHeaders = present.size > 1
+    for (const {label, scope} of groups) {
+      const items = changeset.deletes.filter((d) => (d.pruneScope ?? 'state') === scope)
+      if (items.length === 0) continue
+      if (showHeaders) lines.push(`  ${label}`)
+      for (const c of items) {
+        const indent = showHeaders ? '    ' : '  '
+        lines.push(`${indent}- ${c.resourceType} "${c.refKey}"`)
+      }
+    }
   }
   for (const c of changeset.memberships) {
     const icon = c.action === 'delete' ? '- membership' : '→'
