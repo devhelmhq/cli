@@ -3196,12 +3196,12 @@ export interface components {
             config: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
             /**
              * Format: int32
-             * @description Check frequency in seconds (30–86400); null defaults to plan minimum (60s on most paid plans)
+             * @description Check frequency in seconds (10–86400); null defaults to plan minimum (60s on most paid plans)
              */
             frequencySeconds?: number | null;
             /** @description Whether the monitor is active (default: true) */
             enabled?: boolean | null;
-            /** @description Probe regions to run checks from, e.g. us-east, eu-west */
+            /** @description Probe regions to run checks from. Allowed values are deployment-dependent; production: us-east, us-west, eu-west, ap-south. */
             regions?: string[] | null;
             /**
              * @description Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted; set to your surface so audit logs, drift detection, and analytics attribute correctly.
@@ -7219,12 +7219,12 @@ export interface components {
             config?: (components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["TcpMonitorConfig"]) | null;
             /**
              * Format: int32
-             * @description New check frequency in seconds (30–86400); null preserves current
+             * @description New check frequency in seconds (10–86400); null preserves current
              */
             frequencySeconds?: number | null;
             /** @description Enable or disable the monitor; null preserves current */
             enabled?: boolean | null;
-            /** @description New probe regions; null preserves current */
+            /** @description New probe regions; null preserves current. Allowed values are deployment-dependent. */
             regions?: string[] | null;
             /**
              * @description New ownership source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value
