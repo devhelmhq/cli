@@ -1,6 +1,6 @@
 {
   "name": "devhelm",
-  "version": "0.7.2",
+  "version": "1.0.0",
   "description": "DevHelm CLI — manage monitors, deployments, and infrastructure as code",
   "author": "DevHelm <hello@devhelm.io>",
   "license": "MIT",
