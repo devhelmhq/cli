@@ -11,7 +11,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List active alert channels for the authenticated org */
+        /**
+         * List active alert channels for the authenticated org
+         * @description Supports filtering by `type` (channel integration), `managedBy` (creating surface), and `search` (case-insensitive contains on name). Unrecognised query parameters are silently ignored — pin to the documented set above.
+         */
         get: operations["list_14"];
         put?: never;
         /** Create a new alert channel with encrypted config */
@@ -757,7 +760,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List monitors for the authenticated org */
+        /**
+         * List monitors for the authenticated org
+         * @description Supports filtering by `enabled`, `status` (alias active|paused for enabled), `type`, `managedBy`, `tag` / `tags`, `search`, and `environmentId`. Unrecognised query parameters are silently ignored (Spring's default binding behaviour) — pin to the documented set above.
+         */
         get: operations["list_8"];
         put?: never;
         /** Create a new monitor */
@@ -2503,6 +2509,11 @@ export interface components {
             /** @description SHA-256 hash of the channel config; use for change detection */
             configHash?: string | null;
             /**
+             * @description Source that created/owns this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on channels created before this attribution column existed.
+             * @enum {string|null}
+             */
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            /**
              * Format: date-time
              * @description Timestamp of the most recent delivery attempt
              */
@@ -3086,6 +3097,11 @@ export interface components {
             /** @description Human-readable name for this alert channel */
             name: string;
             config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
+            /**
+             * @description Source creating this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted.
+             * @enum {string|null}
+             */
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
         };
         CreateApiKeyRequest: {
             /** @description Human-readable name to identify this API key */
@@ -3146,9 +3162,9 @@ export interface components {
              * @description Scheduled end of the maintenance window (ISO 8601)
              */
             endsAt: string;
-            /** @description iCal RRULE for recurring windows (max 100 chars); null for one-time */
+            /** @description Reserved: iCal RRULE for recurring windows (stored but not yet honored) */
             repeatRule?: string | null;
-            /** @description Human-readable reason for the maintenance */
+            /** @description Human-readable reason for the maintenance (max 500 chars) */
             reason?: string | null;
             /** @description Whether to suppress alerts during this window (default: true) */
             suppressAlerts?: boolean | null;
@@ -3188,10 +3204,10 @@ export interface components {
             /** @description Probe regions to run checks from, e.g. us-east, eu-west */
             regions?: string[] | null;
             /**
-             * @description Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Use the value matching your surface so audit logs, drift detection, and analytics attribute correctly.
-             * @enum {string}
+             * @description Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted; set to your surface so audit logs, drift detection, and analytics attribute correctly.
+             * @enum {string|null}
              */
-            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
             /**
              * Format: uuid
              * @description Environment to associate with this monitor
@@ -3269,6 +3285,11 @@ export interface components {
              * @description Recovery cooldown in minutes after group incident resolves (0–60)
              */
             recoveryCooldownMinutes?: number | null;
+            /**
+             * @description Source creating this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted.
+             * @enum {string|null}
+             */
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
         };
         CreateSecretRequest: {
             /** @description Unique secret key within the workspace (max 255 chars) */
@@ -3396,6 +3417,11 @@ export interface components {
              * @enum {string|null}
              */
             incidentMode?: "MANUAL" | "REVIEW" | "AUTOMATIC" | null;
+            /**
+             * @description Source creating this page: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted.
+             * @enum {string|null}
+             */
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
         };
         /** @description Request body for creating a tag */
         CreateTagRequest: {
@@ -4613,7 +4639,7 @@ export interface components {
              * @description Scheduled end of the maintenance window
              */
             endsAt: string;
-            /** @description iCal RRULE for recurring windows; null for one-time */
+            /** @description Reserved: iCal RRULE for recurring windows (stored but not yet honored) */
             repeatRule?: string | null;
             /** @description Human-readable reason for the maintenance */
             reason?: string | null;
@@ -4859,6 +4885,11 @@ export interface components {
             incidentPolicy?: components["schemas"]["IncidentPolicyDto"] | null;
             /** @description Alert channel IDs linked to this monitor; populated on single-monitor responses */
             alertChannelIds?: string[] | null;
+            /**
+             * @description Current operational state — UP, DOWN, DEGRADED, PAUSED, or UNKNOWN if no probe data yet
+             * @enum {string|null}
+             */
+            currentStatus?: "up" | "degraded" | "down" | "paused" | "unknown" | null;
         };
         /** @description Monitors that reference this secret; null on create/update responses */
         MonitorReference: {
@@ -5438,6 +5469,11 @@ export interface components {
             /** @description Member list with individual statuses; populated on detail GET only */
             members?: components["schemas"]["ResourceGroupMemberDto"][] | null;
             /**
+             * @description Source that created/owns this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on groups created before this attribution column existed.
+             * @enum {string|null}
+             */
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            /**
              * Format: date-time
              * @description Timestamp when the group was created
              */
@@ -5586,7 +5622,7 @@ export interface components {
              * @description Derived current status across all regions
              * @enum {string}
              */
-            currentStatus: "up" | "degraded" | "down" | "unknown";
+            currentStatus: "up" | "degraded" | "down" | "paused" | "unknown";
             /** @description Latest check result per region */
             latestPerRegion: components["schemas"]["RegionStatusDto"][];
             /** @description Time-bucketed chart data for the requested window */
@@ -6453,6 +6489,11 @@ export interface components {
             subscriberCount?: number | null;
             /** @enum {string|null} */
             overallStatus?: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE" | null;
+            /**
+             * @description Source that created/owns this status page: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on pages created before this attribution column existed.
+             * @enum {string|null}
+             */
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -7106,6 +7147,11 @@ export interface components {
             /** @description New channel name (full replacement, not partial update) */
             name: string;
             config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
+            /**
+             * @description New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value.
+             * @enum {string|null}
+             */
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
         };
         /** @description Request body for updating alert sensitivity on a service subscription */
         UpdateAlertSensitivityRequest: {
@@ -7144,7 +7190,7 @@ export interface components {
         UpdateMaintenanceWindowRequest: {
             /**
              * Format: uuid
-             * @description Monitor to attach this maintenance window to; null preserves current
+             * @description Monitor this window applies to; null switches the window to org-wide
              */
             monitorId?: string | null;
             /**
@@ -7157,11 +7203,11 @@ export interface components {
              * @description Updated end time (ISO 8601)
              */
             endsAt: string;
-            /** @description Updated iCal RRULE; null clears the repeat rule */
+            /** @description Reserved: iCal RRULE for recurring windows (stored but not yet honored); null clears it */
             repeatRule?: string | null;
-            /** @description Updated reason; null clears the existing reason */
+            /** @description Updated reason (max 500 chars); null clears the existing reason */
             reason?: string | null;
-            /** @description Whether to suppress alerts; null preserves current */
+            /** @description Whether to suppress alerts during this window; null defaults to true */
             suppressAlerts?: boolean | null;
         };
         UpdateMonitorAuthRequest: {
@@ -7277,6 +7323,11 @@ export interface components {
              * @description Recovery cooldown in minutes; null clears
              */
             recoveryCooldownMinutes?: number | null;
+            /**
+             * @description New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value.
+             * @enum {string|null}
+             */
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
         };
         UpdateSecretRequest: {
             /** @description New secret value, stored encrypted (max 32KB) */
@@ -7360,6 +7411,11 @@ export interface components {
              * @enum {string|null}
              */
             incidentMode?: "MANUAL" | "REVIEW" | "AUTOMATIC" | null;
+            /**
+             * @description New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value.
+             * @enum {string|null}
+             */
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
         };
         /** @description Request body for updating a tag; null fields are left unchanged */
         UpdateTagRequest: {
@@ -7575,6 +7631,12 @@ export interface operations {
     list_14: {
         parameters: {
             query: {
+                /** @description Filter by channel integration type (e.g. SLACK, WEBHOOK, EMAIL) */
+                type?: "email" | "webhook" | "slack" | "pagerduty" | "opsgenie" | "teams" | "discord";
+                /** @description Filter by managed-by source (DASHBOARD, CLI, TERRAFORM, MCP, API) */
+                managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
+                /** @description Case-insensitive contains-match on the channel name */
+                search?: string;
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -12785,14 +12847,18 @@ export interface operations {
     list_8: {
         parameters: {
             query: {
-                /** @description Filter by enabled state */
+                /** @description Filter by enabled state (true/false) */
                 enabled?: boolean;
+                /** @description Lifecycle status alias: 'active' (enabled=true) or 'paused' (enabled=false). Ignored when ?enabled is also supplied. */
+                status?: string;
                 /** @description Filter by monitor type */
                 type?: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT";
                 /** @description Filter by managed-by source */
                 managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
-                /** @description Filter by tag names, comma-separated (e.g. prod,critical) */
+                /** @description Filter by tag names, comma-separated (e.g. prod,critical); OR semantics */
                 tags?: string;
+                /** @description Filter by a single tag name (alias for ?tags=); merged with ?tags using OR semantics */
+                tag?: string;
                 /** @description Case-insensitive name search */
                 search?: string;
                 /** @description Filter by environment ID */

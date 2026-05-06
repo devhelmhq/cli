@@ -62,12 +62,17 @@ describe('monitors test --config', () => {
   })
 
   test('reports a clear validation error for a malformed config', () => {
-    const cfg = write('bad.yml', 'name: bad\ntype: HTTP\nconfig:\n  url: not-a-url\n')
+    // `name` is required on CreateMonitorRequest; omitting it must surface
+    // a typed Zod error before the request hits the API. We used to assert
+    // on the missing `managedBy` field, but that became optional in the
+    // API spec (server defaults to "API" / surface-injected value), so we
+    // pivot to `name` which remains required.
+    const cfg = write('bad.yml', 'type: HTTP\nconfig:\n  url: https://example.com\n  method: GET\n')
     const out = run(
       `monitors test --config ${cfg} --api-token devhelm-dev-token --api-url http://127.0.0.1:9999`,
     )
     expect(out).toContain('failed CreateMonitorRequest validation')
-    expect(out).toContain('managedBy')
+    expect(out).toContain('name')
   })
 
   test('errors when the config file does not exist', () => {

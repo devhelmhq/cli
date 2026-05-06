@@ -13,7 +13,7 @@
 | `frequencySeconds` | integer (int32) |  | ✓ | Check frequency in seconds (30–86400); null defaults to plan minimum (60s on most paid plans) |
 | `enabled` | boolean |  | ✓ | Whether the monitor is active (default: true) |
 | `regions` | string[] |  | ✓ | Probe regions to run checks from, e.g. us-east, eu-west |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" | ✓ |  | Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Use the value matching your surface so audit logs, drift detection, and analytics attribute correctly. |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted; set to your surface so audit logs, drift detection, and analytics attribute correctly. |
 | `environmentId` | string (uuid) |  | ✓ | Environment to associate with this monitor |
 | `assertions` | CreateAssertionRequest[] |  | ✓ | Assertions to evaluate against each check result |
 | `auth` | any |  | ✓ |  |
@@ -62,4 +62,5 @@
 | `auth` | any |  | ✓ |  |
 | `incidentPolicy` | any |  | ✓ |  |
 | `alertChannelIds` | string (uuid)[] |  | ✓ | Alert channel IDs linked to this monitor; populated on single-monitor responses |
+| `currentStatus` | "up" \| "degraded" \| "down" \| "paused" \| "unknown" |  | ✓ | Current operational state — UP, DOWN, DEGRADED, PAUSED, or UNKNOWN if no probe data yet |
 

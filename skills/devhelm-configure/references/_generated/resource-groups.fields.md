@@ -20,6 +20,7 @@
 | `suppressMemberAlerts` | boolean |  | ✓ | Suppress member-level alert notifications when group manages alerting |
 | `confirmationDelaySeconds` | integer (int32) |  | ✓ | Confirmation delay in seconds before group incident creation (0–600) |
 | `recoveryCooldownMinutes` | integer (int32) |  | ✓ | Recovery cooldown in minutes after group incident resolves (0–60) |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Source creating this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted. |
 
 ## `UpdateResourceGroupRequest`
 
@@ -38,6 +39,7 @@
 | `suppressMemberAlerts` | boolean |  | ✓ | Suppress member-level alert notifications; null preserves current value |
 | `confirmationDelaySeconds` | integer (int32) |  | ✓ | Confirmation delay in seconds; null clears |
 | `recoveryCooldownMinutes` | integer (int32) |  | ✓ | Recovery cooldown in minutes; null clears |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value. |
 
 ## `ResourceGroupDto` (response shape)
 
@@ -61,6 +63,7 @@
 | `recoveryCooldownMinutes` | integer (int32) |  | ✓ | Cooldown minutes after group incident resolves before a new one can open |
 | `health` | ResourceGroupHealthDto | ✓ |  |  |
 | `members` | ResourceGroupMemberDto[] |  | ✓ | Member list with individual statuses; populated on detail GET only |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Source that created/owns this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on groups created before this attribution column existed. |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the group was created |
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the group was last updated |
 

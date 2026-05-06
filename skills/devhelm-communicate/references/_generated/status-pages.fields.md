@@ -14,6 +14,7 @@
 | `visibility` | "PUBLIC" \| "PASSWORD" \| "IP_RESTRICTED" |  | ✓ | Page visibility: PUBLIC, PASSWORD, or IP_RESTRICTED (default: PUBLIC) |
 | `enabled` | boolean |  | ✓ | Whether the page is enabled (default: true) |
 | `incidentMode` | "MANUAL" \| "REVIEW" \| "AUTOMATIC" |  | ✓ | Incident mode: MANUAL, REVIEW, or AUTOMATIC (default: AUTOMATIC) |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Source creating this page: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted. |
 
 ## `UpdateStatusPageRequest`
 
@@ -25,6 +26,7 @@
 | `visibility` | "PUBLIC" \| "PASSWORD" \| "IP_RESTRICTED" |  | ✓ | Page visibility; null preserves current |
 | `enabled` | boolean |  | ✓ | Whether the page is enabled; null preserves current |
 | `incidentMode` | "MANUAL" \| "REVIEW" \| "AUTOMATIC" |  | ✓ | Incident mode: MANUAL, REVIEW, or AUTOMATIC; null preserves current |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value. |
 
 ## `StatusPageDto` (response shape)
 
@@ -43,6 +45,7 @@
 | `componentCount` | integer (int32) |  | ✓ |  |
 | `subscriberCount` | integer (int64) |  | ✓ |  |
 | `overallStatus` | "OPERATIONAL" \| "DEGRADED_PERFORMANCE" \| "PARTIAL_OUTAGE" \| "MAJOR_OUTAGE" \| "UNDER_MAINTENANCE" |  | ✓ |  |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Source that created/owns this status page: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on pages created before this attribution column existed. |
 | `createdAt` | string (date-time) | ✓ |  |  |
 | `updatedAt` | string (date-time) | ✓ |  |  |
 

@@ -43,7 +43,11 @@ export function toCreateSecretRequest(secret: YamlSecret): Schemas['CreateSecret
 // ── Alert Channel ──────────────────────────────────────────────────────
 
 export function toCreateAlertChannelRequest(channel: YamlAlertChannel): Schemas['CreateAlertChannelRequest'] {
-  return {name: channel.name, config: channel.config as Schemas['CreateAlertChannelRequest']['config']}
+  return {
+    name: channel.name,
+    config: channel.config as Schemas['CreateAlertChannelRequest']['config'],
+    managedBy: 'CLI',
+  }
 }
 
 // ── Notification Policy ────────────────────────────────────────────────
@@ -121,6 +125,7 @@ export function toCreateResourceGroupRequest(
     suppressMemberAlerts: group.suppressMemberAlerts,
     confirmationDelaySeconds: group.confirmationDelaySeconds ?? null,
     recoveryCooldownMinutes: group.recoveryCooldownMinutes ?? null,
+    managedBy: 'CLI',
   }
 }
 
@@ -304,6 +309,7 @@ export function toCreateStatusPageRequest(page: YamlStatusPage): Schemas['Create
     visibility: page.visibility ?? null,
     enabled: page.enabled ?? null,
     incidentMode: page.incidentMode ?? null,
+    managedBy: 'CLI',
   }
 }
 

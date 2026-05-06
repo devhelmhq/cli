@@ -66,15 +66,17 @@ const YAML_ONLY_FIELDS: Record<string, string[]> = {
   dependency: ['service', 'alertSensitivity', 'component'],
 }
 
-// API fields that YAML intentionally does not expose (set by CLI internally, or UUID-only)
+// API fields that YAML intentionally does not expose (set by CLI internally, or UUID-only).
+// `managedBy` is set automatically by the CLI transform layer to "CLI" so the
+// API records correct attribution; users must not set it themselves in YAML.
 const API_ONLY_FIELDS: Record<string, string[]> = {
   monitor: ['managedBy', 'environmentId', 'alertChannelIds', 'clearEnvironmentId', 'clearAuth'],
-  alertChannel: [],
+  alertChannel: ['managedBy'],
   notificationPolicy: [],
   resourceGroup: [
-    'alertPolicyId', 'defaultEnvironmentId',
+    'managedBy', 'alertPolicyId', 'defaultEnvironmentId',
   ],
-  statusPage: [],
+  statusPage: ['managedBy'],
   statusPageComponent: ['monitorId', 'resourceGroupId', 'groupId', 'displayOrder', 'removeFromGroup'],
   webhook: ['enabled'],
   tag: [],
