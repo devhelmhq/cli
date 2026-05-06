@@ -9,7 +9,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "frequencySeconds": "Check frequency in seconds (30–86400); null defaults to plan minimum (60s on most paid plans)",
     "enabled": "Whether the monitor is active (default: true)",
     "regions": "Probe regions to run checks from, e.g. us-east, eu-west",
-    "managedBy": "Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Use the value matching your surface so audit logs, drift detection, and analytics attribute correctly.",
+    "managedBy": "Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted; set to your surface so audit logs, drift detection, and analytics attribute correctly.",
     "environmentId": "Environment to associate with this monitor",
     "assertions": "Assertions to evaluate against each check result",
     "alertChannelIds": "Alert channels to notify when this monitor triggers"
@@ -33,10 +33,12 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "body": "Detailed description or context for the incident"
   },
   "CreateAlertChannelRequest": {
-    "name": "Human-readable name for this alert channel"
+    "name": "Human-readable name for this alert channel",
+    "managedBy": "Source creating this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted."
   },
   "UpdateAlertChannelRequest": {
-    "name": "New channel name (full replacement, not partial update)"
+    "name": "New channel name (full replacement, not partial update)",
+    "managedBy": "New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value."
   },
   "CreateNotificationPolicyRequest": {
     "name": "Human-readable name for this policy",
@@ -88,7 +90,8 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "healthThresholdValue": "Health threshold value: count (0+) or percentage (0–100)",
     "suppressMemberAlerts": "Suppress member-level alert notifications when group manages alerting",
     "confirmationDelaySeconds": "Confirmation delay in seconds before group incident creation (0–600)",
-    "recoveryCooldownMinutes": "Recovery cooldown in minutes after group incident resolves (0–60)"
+    "recoveryCooldownMinutes": "Recovery cooldown in minutes after group incident resolves (0–60)",
+    "managedBy": "Source creating this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted."
   },
   "UpdateResourceGroupRequest": {
     "name": "Human-readable name for this group",
@@ -102,7 +105,8 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "healthThresholdValue": "Health threshold value; null disables threshold",
     "suppressMemberAlerts": "Suppress member-level alert notifications; null preserves current value",
     "confirmationDelaySeconds": "Confirmation delay in seconds; null clears",
-    "recoveryCooldownMinutes": "Recovery cooldown in minutes; null clears"
+    "recoveryCooldownMinutes": "Recovery cooldown in minutes; null clears",
+    "managedBy": "New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value."
   },
   "CreateWebhookEndpointRequest": {
     "url": "HTTPS endpoint that receives webhook event payloads",
@@ -126,17 +130,17 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "monitorId": "Monitor to attach this maintenance window to; null for org-wide",
     "startsAt": "Scheduled start of the maintenance window (ISO 8601)",
     "endsAt": "Scheduled end of the maintenance window (ISO 8601)",
-    "repeatRule": "iCal RRULE for recurring windows (max 100 chars); null for one-time",
-    "reason": "Human-readable reason for the maintenance",
+    "repeatRule": "Reserved: iCal RRULE for recurring windows (stored but not yet honored)",
+    "reason": "Human-readable reason for the maintenance (max 500 chars)",
     "suppressAlerts": "Whether to suppress alerts during this window (default: true)"
   },
   "UpdateMaintenanceWindowRequest": {
-    "monitorId": "Monitor to attach this maintenance window to; null preserves current",
+    "monitorId": "Monitor this window applies to; null switches the window to org-wide",
     "startsAt": "Updated start time (ISO 8601)",
     "endsAt": "Updated end time (ISO 8601)",
-    "repeatRule": "Updated iCal RRULE; null clears the repeat rule",
-    "reason": "Updated reason; null clears the existing reason",
-    "suppressAlerts": "Whether to suppress alerts; null preserves current"
+    "repeatRule": "Reserved: iCal RRULE for recurring windows (stored but not yet honored); null clears it",
+    "reason": "Updated reason (max 500 chars); null clears the existing reason",
+    "suppressAlerts": "Whether to suppress alerts during this window; null defaults to true"
   },
   "ResolveIncidentRequest": {
     "body": "Optional resolution message or post-mortem notes"

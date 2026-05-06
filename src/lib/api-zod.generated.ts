@@ -75,6 +75,9 @@ const CreateAlertChannelRequest = z
       TeamsChannelConfig,
       WebhookChannelConfig,
     ]),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
+      .nullish(),
   })
   .strict();
 const UpdateAlertChannelRequest = z
@@ -89,6 +92,9 @@ const UpdateAlertChannelRequest = z
       TeamsChannelConfig,
       WebhookChannelConfig,
     ]),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
+      .nullish(),
   })
   .strict();
 const TestAlertChannelRequest = z
@@ -198,7 +204,7 @@ const CreateMaintenanceWindowRequest = z
     startsAt: z.string().datetime({ offset: true }),
     endsAt: z.string().datetime({ offset: true }),
     repeatRule: z.string().min(0).max(100).nullish(),
-    reason: z.string().nullish(),
+    reason: z.string().min(0).max(500).nullish(),
     suppressAlerts: z.boolean().nullish(),
   })
   .strict();
@@ -208,7 +214,7 @@ const UpdateMaintenanceWindowRequest = z
     startsAt: z.string().datetime({ offset: true }),
     endsAt: z.string().datetime({ offset: true }),
     repeatRule: z.string().min(0).max(100).nullish(),
-    reason: z.string().nullish(),
+    reason: z.string().min(0).max(500).nullish(),
     suppressAlerts: z.boolean().nullish(),
   })
   .strict();
@@ -672,7 +678,9 @@ const CreateMonitorRequest = z
     frequencySeconds: z.number().int().nullish(),
     enabled: z.boolean().nullish(),
     regions: z.array(z.string()).nullish(),
-    managedBy: z.enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"]),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
+      .nullish(),
     environmentId: z.string().uuid().nullish(),
     assertions: z.array(CreateAssertionRequest).nullish(),
     auth: MonitorAuthConfig.nullish(),
@@ -895,6 +903,9 @@ const CreateResourceGroupRequest = z
     suppressMemberAlerts: z.boolean().nullish(),
     confirmationDelaySeconds: z.number().int().gte(0).lte(600).nullish(),
     recoveryCooldownMinutes: z.number().int().gte(0).lte(60).nullish(),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
+      .nullish(),
   })
   .strict();
 const UpdateResourceGroupRequest = z
@@ -912,6 +923,9 @@ const UpdateResourceGroupRequest = z
     suppressMemberAlerts: z.boolean().nullish(),
     confirmationDelaySeconds: z.number().int().gte(0).lte(600).nullish(),
     recoveryCooldownMinutes: z.number().int().gte(0).lte(60).nullish(),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
+      .nullish(),
   })
   .strict();
 const AddResourceGroupMemberRequest = z
@@ -1018,6 +1032,9 @@ const CreateStatusPageRequest = z
     visibility: z.enum(["PUBLIC", "PASSWORD", "IP_RESTRICTED"]).nullish(),
     enabled: z.boolean().nullish(),
     incidentMode: z.enum(["MANUAL", "REVIEW", "AUTOMATIC"]).nullish(),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
+      .nullish(),
   })
   .strict();
 const UpdateStatusPageRequest = z
@@ -1028,6 +1045,9 @@ const UpdateStatusPageRequest = z
     visibility: z.enum(["PUBLIC", "PASSWORD", "IP_RESTRICTED"]).nullable(),
     enabled: z.boolean().nullable(),
     incidentMode: z.enum(["MANUAL", "REVIEW", "AUTOMATIC"]).nullable(),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
+      .nullable(),
   })
   .partial()
   .strict();
@@ -1287,6 +1307,9 @@ const AlertChannelDto = z
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
     configHash: z.string().nullish(),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
+      .nullish(),
     lastDeliveryAt: z.string().datetime({ offset: true }).nullish(),
     lastDeliveryStatus: z.string().nullish(),
   })
@@ -2231,6 +2254,9 @@ const MonitorDto = z
     auth: MonitorAuthConfig.nullish(),
     incidentPolicy: IncidentPolicyDto.nullish(),
     alertChannelIds: z.array(z.string().uuid()).nullish(),
+    currentStatus: z
+      .enum(["up", "degraded", "down", "paused", "unknown"])
+      .nullish(),
   })
   .strict();
 const MonitorReference = z
@@ -2401,13 +2427,16 @@ const ResourceGroupDto = z
     recoveryCooldownMinutes: z.number().int().nullish(),
     health: ResourceGroupHealthDto,
     members: z.array(ResourceGroupMemberDto).nullish(),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
+      .nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
   })
   .strict();
 const ResultSummaryDto = z
   .object({
-    currentStatus: z.enum(["up", "degraded", "down", "unknown"]),
+    currentStatus: z.enum(["up", "degraded", "down", "paused", "unknown"]),
     latestPerRegion: z.array(RegionStatusDto),
     chartData: z.array(ChartBucketDto),
     uptime24h: z.number().nullish(),
@@ -2821,6 +2850,9 @@ const StatusPageDto = z
         "MAJOR_OUTAGE",
         "UNDER_MAINTENANCE",
       ])
+      .nullish(),
+    managedBy: z
+      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
       .nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
