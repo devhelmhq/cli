@@ -29,6 +29,7 @@ const TARGET_SCHEMAS = [
   'CreateResourceGroupRequest', 'UpdateResourceGroupRequest',
   'CreateWebhookEndpointRequest', 'UpdateWebhookEndpointRequest',
   'CreateApiKeyRequest', 'UpdateApiKeyRequest',
+  'CreateMaintenanceWindowRequest', 'UpdateMaintenanceWindowRequest',
   'ResolveIncidentRequest', 'MonitorTestRequest',
   'AcquireDeployLockRequest',
   'HttpMonitorConfig', 'TcpMonitorConfig', 'DnsMonitorConfig',

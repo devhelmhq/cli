@@ -122,6 +122,22 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   "UpdateApiKeyRequest": {
     "name": "New name for this API key"
   },
+  "CreateMaintenanceWindowRequest": {
+    "monitorId": "Monitor to attach this maintenance window to; null for org-wide",
+    "startsAt": "Scheduled start of the maintenance window (ISO 8601)",
+    "endsAt": "Scheduled end of the maintenance window (ISO 8601)",
+    "repeatRule": "iCal RRULE for recurring windows (max 100 chars); null for one-time",
+    "reason": "Human-readable reason for the maintenance",
+    "suppressAlerts": "Whether to suppress alerts during this window (default: true)"
+  },
+  "UpdateMaintenanceWindowRequest": {
+    "monitorId": "Monitor to attach this maintenance window to; null preserves current",
+    "startsAt": "Updated start time (ISO 8601)",
+    "endsAt": "Updated end time (ISO 8601)",
+    "repeatRule": "Updated iCal RRULE; null clears the repeat rule",
+    "reason": "Updated reason; null clears the existing reason",
+    "suppressAlerts": "Whether to suppress alerts; null preserves current"
+  },
   "ResolveIncidentRequest": {
     "body": "Optional resolution message or post-mortem notes"
   },
