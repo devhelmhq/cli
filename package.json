@@ -79,6 +79,9 @@
       "incidents": {
         "description": "Create, inspect, and resolve incidents"
       },
+      "maintenance-windows": {
+        "description": "Schedule downtime windows that suppress alerts during planned changes"
+      },
       "monitors": {
         "description": "Manage HTTP, TCP, DNS, ICMP, MCP, and heartbeat monitors"
       },

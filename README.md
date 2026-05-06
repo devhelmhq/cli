@@ -84,6 +84,8 @@ Every resource supports `list`, `get`, `create`, `update`, and `delete` subcomma
 | Resource | Commands | API Path |
 |----------|----------|----------|
 | `monitors` | list, get, create, update, delete, pause, resume, test, results | `/api/v1/monitors` |
+| `monitors test --config <file>` | validate a YAML/JSON CreateMonitorRequest before saving | `/api/v1/monitors/test` |
+| `maintenance-windows` | list, get, create, update, cancel | `/api/v1/maintenance-windows` |
 | `incidents` | list, get, create, update, delete, resolve | `/api/v1/incidents` |
 | `alert-channels` | list, get, create, update, delete, test | `/api/v1/alert-channels` |
 | `notification-policies` | list, get, create, update, delete, test | `/api/v1/notification-policies` |
