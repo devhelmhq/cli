@@ -618,7 +618,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Resend invite */
-        post: operations["resend"];
+        post: operations["resend_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -11803,7 +11803,7 @@ export interface operations {
             };
         };
     };
-    resend: {
+    resend_1: {
         parameters: {
             query?: never;
             header?: never;
