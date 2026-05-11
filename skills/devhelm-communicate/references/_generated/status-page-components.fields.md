@@ -40,10 +40,10 @@
 | `groupId` | string (uuid) |  | ✓ |  |
 | `name` | string | ✓ |  |  |
 | `description` | string |  | ✓ |  |
-| `type` | "MONITOR" \| "GROUP" \| "STATIC" | ✓ |  |  |
+| `type` | string | ✓ |  |  |
 | `monitorId` | string (uuid) |  | ✓ |  |
 | `resourceGroupId` | string (uuid) |  | ✓ |  |
-| `currentStatus` | "OPERATIONAL" \| "DEGRADED_PERFORMANCE" \| "PARTIAL_OUTAGE" \| "MAJOR_OUTAGE" \| "UNDER_MAINTENANCE" | ✓ |  |  |
+| `currentStatus` | string | ✓ |  |  |
 | `showUptime` | boolean | ✓ |  |  |
 | `displayOrder` | integer (int32) | ✓ |  |  |
 | `pageOrder` | integer (int32) | ✓ |  |  |

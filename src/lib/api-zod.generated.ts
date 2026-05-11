@@ -675,7 +675,7 @@ const CreateMonitorRequest = z
       McpServerMonitorConfig,
       TcpMonitorConfig,
     ]),
-    frequencySeconds: z.number().int().nullish(),
+    frequencySeconds: z.number().int().gte(10).lte(86400).nullish(),
     enabled: z.boolean().nullish(),
     regions: z.array(z.string()).nullish(),
     managedBy: z
@@ -702,7 +702,7 @@ const UpdateMonitorRequest = z
         TcpMonitorConfig,
       ])
       .nullable(),
-    frequencySeconds: z.number().int().nullable(),
+    frequencySeconds: z.number().int().gte(10).lte(86400).nullable(),
     enabled: z.boolean().nullable(),
     regions: z.array(z.string()).nullable(),
     managedBy: z
@@ -1294,22 +1294,12 @@ const AlertChannelDto = z
   .object({
     id: z.string().uuid(),
     name: z.string(),
-    channelType: z.enum([
-      "email",
-      "webhook",
-      "slack",
-      "pagerduty",
-      "opsgenie",
-      "teams",
-      "discord",
-    ]),
+    channelType: z.string(),
     displayConfig: AlertChannelDisplayConfig.nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
     configHash: z.string().nullish(),
-    managedBy: z
-      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
-      .nullish(),
+    managedBy: z.string().nullish(),
     lastDeliveryAt: z.string().datetime({ offset: true }).nullish(),
     lastDeliveryStatus: z.string().nullish(),
   })
@@ -1322,18 +1312,8 @@ const AlertDeliveryDto = z
     channelId: z.string().uuid(),
     channel: z.string(),
     channelType: z.string(),
-    status: z.enum([
-      "PENDING",
-      "DELIVERED",
-      "RETRY_PENDING",
-      "FAILED",
-      "CANCELLED",
-    ]),
-    eventType: z.enum([
-      "INCIDENT_CREATED",
-      "INCIDENT_RESOLVED",
-      "INCIDENT_REOPENED",
-    ]),
+    status: z.string(),
+    eventType: z.string(),
     stepNumber: z.number().int(),
     fireCount: z.number().int(),
     attemptCount: z.number().int(),
@@ -1369,7 +1349,7 @@ const AssertionResultDto = z
   .object({
     type: z.string(),
     passed: z.boolean(),
-    severity: z.enum(["fail", "warn"]),
+    severity: z.string(),
     message: z.string().nullish(),
     expected: z.string().nullish(),
     actual: z.string().nullish(),
@@ -1377,52 +1357,9 @@ const AssertionResultDto = z
   .strict();
 const AssertionTestResultDto = z
   .object({
-    assertionType: z.enum([
-      "status_code",
-      "response_time",
-      "body_contains",
-      "json_path",
-      "header_value",
-      "regex_body",
-      "dns_resolves",
-      "dns_response_time",
-      "dns_expected_ips",
-      "dns_expected_cname",
-      "dns_record_contains",
-      "dns_record_equals",
-      "dns_txt_contains",
-      "dns_min_answers",
-      "dns_max_answers",
-      "dns_response_time_warn",
-      "dns_ttl_low",
-      "dns_ttl_high",
-      "mcp_connects",
-      "mcp_response_time",
-      "mcp_has_capability",
-      "mcp_tool_available",
-      "mcp_min_tools",
-      "mcp_protocol_version",
-      "mcp_response_time_warn",
-      "mcp_tool_count_changed",
-      "ssl_expiry",
-      "response_size",
-      "redirect_count",
-      "redirect_target",
-      "response_time_warn",
-      "tcp_connects",
-      "tcp_response_time",
-      "tcp_response_time_warn",
-      "icmp_reachable",
-      "icmp_response_time",
-      "icmp_response_time_warn",
-      "icmp_packet_loss",
-      "heartbeat_received",
-      "heartbeat_max_interval",
-      "heartbeat_interval_drift",
-      "heartbeat_payload_contains",
-    ]),
+    assertionType: z.string(),
     passed: z.boolean(),
-    severity: z.enum(["fail", "warn"]),
+    severity: z.string(),
     message: z.string(),
     expected: z.string().nullish(),
     actual: z.string().nullish(),
@@ -1894,15 +1831,9 @@ const IncidentDto = z
     id: z.string().uuid(),
     monitorId: z.string().uuid().nullish(),
     organizationId: z.number().int(),
-    source: z.enum([
-      "AUTOMATIC",
-      "MANUAL",
-      "MONITORS",
-      "STATUS_DATA",
-      "RESOURCE_GROUP",
-    ]),
-    status: z.enum(["WATCHING", "TRIGGERED", "CONFIRMED", "RESOLVED"]),
-    severity: z.enum(["DOWN", "DEGRADED", "MAINTENANCE"]),
+    source: z.string(),
+    status: z.string(),
+    severity: z.string(),
     title: z.string().nullish(),
     triggeredByRule: z.string().nullish(),
     affectedRegions: z.array(z.string()),
@@ -1914,9 +1845,7 @@ const IncidentDto = z
     externalRef: z.string().nullish(),
     affectedComponents: z.array(z.string()).nullish(),
     shortlink: z.string().nullish(),
-    resolutionReason: z
-      .enum(["MANUAL", "AUTO_RECOVERED", "AUTO_RESOLVED"])
-      .nullish(),
+    resolutionReason: z.string().nullish(),
     startedAt: z.string().datetime({ offset: true }).nullish(),
     confirmedAt: z.string().datetime({ offset: true }).nullish(),
     resolvedAt: z.string().datetime({ offset: true }).nullish(),
@@ -1939,14 +1868,10 @@ const IncidentUpdateDto = z
   .object({
     id: z.string().uuid(),
     incidentId: z.string().uuid(),
-    oldStatus: z
-      .enum(["WATCHING", "TRIGGERED", "CONFIRMED", "RESOLVED"])
-      .nullish(),
-    newStatus: z
-      .enum(["WATCHING", "TRIGGERED", "CONFIRMED", "RESOLVED"])
-      .nullish(),
+    oldStatus: z.string().nullish(),
+    newStatus: z.string().nullish(),
     body: z.string().nullish(),
-    createdBy: z.enum(["SYSTEM", "USER"]).nullish(),
+    createdBy: z.string().nullish(),
     notifySubscribers: z.boolean(),
     createdAt: z.string().datetime({ offset: true }),
   })
@@ -1958,8 +1883,8 @@ const LinkedStatusPageIncidentDto = z
     statusPageName: z.string(),
     statusPageSlug: z.string(),
     title: z.string(),
-    status: z.enum(["INVESTIGATING", "IDENTIFIED", "MONITORING", "RESOLVED"]),
-    impact: z.enum(["NONE", "MINOR", "MAJOR", "CRITICAL"]),
+    status: z.string(),
+    impact: z.string(),
     scheduled: z.boolean(),
     publishedAt: z.string().datetime({ offset: true }).nullish(),
   })
@@ -2043,14 +1968,7 @@ const IntegrationDto = z
     description: z.string(),
     logoUrl: z.string(),
     authType: z.string(),
-    tierAvailability: z.enum([
-      "FREE",
-      "STARTER",
-      "PRO",
-      "TEAM",
-      "BUSINESS",
-      "ENTERPRISE",
-    ]),
+    tierAvailability: z.string(),
     lifecycle: z.string(),
     setupGuideUrl: z.string(),
     configSchema: IntegrationConfigSchemaDto,
@@ -2060,7 +1978,7 @@ const InviteDto = z
   .object({
     inviteId: z.number().int(),
     email: z.string(),
-    roleOffered: z.enum(["OWNER", "ADMIN", "MEMBER"]),
+    roleOffered: z.string(),
     expiresAt: z.string().datetime({ offset: true }),
     consumedAt: z.string().datetime({ offset: true }).nullish(),
     revokedAt: z.string().datetime({ offset: true }).nullish(),
@@ -2095,15 +2013,8 @@ const MemberDto = z
     userId: z.number().int(),
     email: z.string(),
     name: z.string().nullish(),
-    orgRole: z.enum(["OWNER", "ADMIN", "MEMBER"]),
-    status: z.enum([
-      "INVITED",
-      "ACTIVE",
-      "SUSPENDED",
-      "LEFT",
-      "REMOVED",
-      "DECLINED",
-    ]),
+    orgRole: z.string(),
+    status: z.string(),
     createdAt: z.string().datetime({ offset: true }),
   })
   .strict();
@@ -2111,50 +2022,7 @@ const MonitorAssertionDto = z
   .object({
     id: z.string().uuid(),
     monitorId: z.string().uuid(),
-    assertionType: z.enum([
-      "status_code",
-      "response_time",
-      "body_contains",
-      "json_path",
-      "header_value",
-      "regex_body",
-      "dns_resolves",
-      "dns_response_time",
-      "dns_expected_ips",
-      "dns_expected_cname",
-      "dns_record_contains",
-      "dns_record_equals",
-      "dns_txt_contains",
-      "dns_min_answers",
-      "dns_max_answers",
-      "dns_response_time_warn",
-      "dns_ttl_low",
-      "dns_ttl_high",
-      "mcp_connects",
-      "mcp_response_time",
-      "mcp_has_capability",
-      "mcp_tool_available",
-      "mcp_min_tools",
-      "mcp_protocol_version",
-      "mcp_response_time_warn",
-      "mcp_tool_count_changed",
-      "ssl_expiry",
-      "response_size",
-      "redirect_count",
-      "redirect_target",
-      "response_time_warn",
-      "tcp_connects",
-      "tcp_response_time",
-      "tcp_response_time_warn",
-      "icmp_reachable",
-      "icmp_response_time",
-      "icmp_response_time_warn",
-      "icmp_packet_loss",
-      "heartbeat_received",
-      "heartbeat_max_interval",
-      "heartbeat_interval_drift",
-      "heartbeat_payload_contains",
-    ]),
+    assertionType: z.string(),
     config: z.union([
       BodyContainsAssertion,
       DnsExpectedCnameAssertion,
@@ -2199,14 +2067,14 @@ const MonitorAssertionDto = z
       TcpResponseTimeAssertion,
       TcpResponseTimeWarnAssertion,
     ]),
-    severity: z.enum(["fail", "warn"]),
+    severity: z.string(),
   })
   .strict();
 const MonitorAuthDto = z
   .object({
     id: z.string().uuid(),
     monitorId: z.string().uuid(),
-    authType: z.enum(["bearer", "basic", "header", "api_key"]),
+    authType: z.string(),
     config: z.discriminatedUnion("type", [ApiKeyAuthConfig, BasicAuthConfig, BearerAuthConfig, HeaderAuthConfig]),
   })
   .strict();
@@ -2232,7 +2100,7 @@ const MonitorDto = z
     id: z.string().uuid(),
     organizationId: z.number().int(),
     name: z.string().min(1),
-    type: z.enum(["HTTP", "DNS", "MCP_SERVER", "TCP", "ICMP", "HEARTBEAT"]),
+    type: z.string(),
     config: z.union([
       DnsMonitorConfig,
       HeartbeatMonitorConfig,
@@ -2244,7 +2112,7 @@ const MonitorDto = z
     frequencySeconds: z.number().int(),
     enabled: z.boolean(),
     regions: z.array(z.string()),
-    managedBy: z.enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"]),
+    managedBy: z.string(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
     assertions: z.array(MonitorAssertionDto).nullish(),
@@ -2254,9 +2122,7 @@ const MonitorDto = z
     auth: MonitorAuthConfig.nullish(),
     incidentPolicy: IncidentPolicyDto.nullish(),
     alertChannelIds: z.array(z.string().uuid()).nullish(),
-    currentStatus: z
-      .enum(["up", "degraded", "down", "paused", "unknown"])
-      .nullish(),
+    currentStatus: z.string().nullish(),
   })
   .strict();
 const MonitorReference = z
@@ -2286,7 +2152,7 @@ const MonitorVersionDto = z
     version: z.number().int(),
     snapshot: MonitorDto,
     changedById: z.number().int().nullish(),
-    changedVia: z.enum(["API", "DASHBOARD", "CLI", "TERRAFORM"]),
+    changedVia: z.string(),
     changeSummary: z.string().nullish(),
     createdAt: z.string().datetime({ offset: true }),
   })
@@ -2297,15 +2163,8 @@ const NotificationDispatchDto = z
     incidentId: z.string().uuid(),
     policyId: z.string().uuid(),
     policyName: z.string().nullish(),
-    status: z.enum([
-      "PENDING",
-      "DISPATCHING",
-      "DELIVERED",
-      "ESCALATING",
-      "ACKNOWLEDGED",
-      "COMPLETED",
-    ]),
-    completionReason: z.enum(["EXHAUSTED", "RESOLVED", "NO_STEPS"]).nullish(),
+    status: z.string(),
+    completionReason: z.string().nullish(),
     currentStep: z.number().int(),
     totalSteps: z.number().int().nullish(),
     acknowledgedAt: z.string().datetime({ offset: true }).nullish(),
@@ -2377,11 +2236,11 @@ const RegionStatusDto = z
   .strict();
 const ResourceGroupHealthDto = z
   .object({
-    status: z.enum(["operational", "maintenance", "degraded", "down"]),
+    status: z.string(),
     totalMembers: z.number().int(),
     operationalCount: z.number().int(),
     activeIncidents: z.number().int(),
-    thresholdStatus: z.enum(["healthy", "degraded", "down"]).nullish(),
+    thresholdStatus: z.string().nullish(),
     failingCount: z.number().int().nullish(),
   })
   .strict();
@@ -2395,7 +2254,7 @@ const ResourceGroupMemberDto = z
     name: z.string().nullish(),
     slug: z.string().nullish(),
     subscriptionId: z.string().uuid().nullish(),
-    status: z.enum(["operational", "maintenance", "degraded", "down"]),
+    status: z.string(),
     effectiveFrequency: z.string().nullish(),
     createdAt: z.string().datetime({ offset: true }),
     uptime24h: z.number().nullish(),
@@ -2420,23 +2279,21 @@ const ResourceGroupDto = z
     defaultRetryStrategy: RetryStrategy.nullish(),
     defaultAlertChannels: z.array(z.string().uuid()).nullish(),
     defaultEnvironmentId: z.string().uuid().nullish(),
-    healthThresholdType: z.enum(["COUNT", "PERCENTAGE"]).nullish(),
+    healthThresholdType: z.string().nullish(),
     healthThresholdValue: z.number().nullish(),
     suppressMemberAlerts: z.boolean(),
     confirmationDelaySeconds: z.number().int().nullish(),
     recoveryCooldownMinutes: z.number().int().nullish(),
     health: ResourceGroupHealthDto,
     members: z.array(ResourceGroupMemberDto).nullish(),
-    managedBy: z
-      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
-      .nullish(),
+    managedBy: z.string().nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
   })
   .strict();
 const ResultSummaryDto = z
   .object({
-    currentStatus: z.enum(["up", "degraded", "down", "paused", "unknown"]),
+    currentStatus: z.string(),
     latestPerRegion: z.array(RegionStatusDto),
     chartData: z.array(ChartBucketDto),
     uptime24h: z.number().nullish(),
@@ -2620,7 +2477,7 @@ const ServiceSubscriptionDto = z
     overallStatus: z.string().nullish(),
     componentId: z.string().uuid().nullish(),
     component: ServiceComponentDto.nullish(),
-    alertSensitivity: z.enum(["ALL", "INCIDENTS_ONLY", "MAJOR_ONLY"]),
+    alertSensitivity: z.string().min(1),
     subscribedAt: z.string().datetime({ offset: true }),
   })
   .strict();
@@ -2760,16 +2617,10 @@ const StatusPageComponentDto = z
     groupId: z.string().uuid().nullish(),
     name: z.string().min(1),
     description: z.string().nullish(),
-    type: z.enum(["MONITOR", "GROUP", "STATIC"]),
+    type: z.string(),
     monitorId: z.string().uuid().nullish(),
     resourceGroupId: z.string().uuid().nullish(),
-    currentStatus: z.enum([
-      "OPERATIONAL",
-      "DEGRADED_PERFORMANCE",
-      "PARTIAL_OUTAGE",
-      "MAJOR_OUTAGE",
-      "UNDER_MAINTENANCE",
-    ]),
+    currentStatus: z.string(),
     showUptime: z.boolean(),
     displayOrder: z.number().int(),
     pageOrder: z.number().int(),
@@ -2803,16 +2654,8 @@ const StatusPageCustomDomainDto = z
   .object({
     id: z.string().uuid(),
     hostname: z.string(),
-    status: z.enum([
-      "PENDING_VERIFICATION",
-      "VERIFICATION_FAILED",
-      "VERIFIED",
-      "SSL_PENDING",
-      "ACTIVE",
-      "FAILED",
-      "REMOVED",
-    ]),
-    verificationMethod: z.enum(["CNAME", "TXT"]),
+    status: z.string(),
+    verificationMethod: z.string(),
     verificationToken: z.string(),
     verificationCnameTarget: z.string(),
     verifiedAt: z.string().datetime({ offset: true }).nullish(),
@@ -2837,23 +2680,13 @@ const StatusPageDto = z
     slug: z.string().min(1),
     description: z.string().nullish(),
     branding: StatusPageBranding,
-    visibility: z.enum(["PUBLIC", "PASSWORD", "IP_RESTRICTED"]),
+    visibility: z.string(),
     enabled: z.boolean(),
-    incidentMode: z.enum(["MANUAL", "REVIEW", "AUTOMATIC"]),
+    incidentMode: z.string(),
     componentCount: z.number().int().nullish(),
     subscriberCount: z.number().int().nullish(),
-    overallStatus: z
-      .enum([
-        "OPERATIONAL",
-        "DEGRADED_PERFORMANCE",
-        "PARTIAL_OUTAGE",
-        "MAJOR_OUTAGE",
-        "UNDER_MAINTENANCE",
-      ])
-      .nullish(),
-    managedBy: z
-      .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
-      .nullish(),
+    overallStatus: z.string().nullish(),
+    managedBy: z.string().nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
   })
@@ -2864,22 +2697,16 @@ const SingleValueResponseStatusPageDto = z
 const StatusPageIncidentComponentDto = z
   .object({
     statusPageComponentId: z.string().uuid(),
-    componentStatus: z.enum([
-      "OPERATIONAL",
-      "DEGRADED_PERFORMANCE",
-      "PARTIAL_OUTAGE",
-      "MAJOR_OUTAGE",
-      "UNDER_MAINTENANCE",
-    ]),
+    componentStatus: z.string(),
     componentName: z.string(),
   })
   .strict();
 const StatusPageIncidentUpdateDto = z
   .object({
     id: z.string().uuid(),
-    status: z.enum(["INVESTIGATING", "IDENTIFIED", "MONITORING", "RESOLVED"]),
+    status: z.string(),
     body: z.string(),
-    createdBy: z.enum(["USER", "SYSTEM"]).nullish(),
+    createdBy: z.string().nullish(),
     createdByUserId: z.number().int().nullish(),
     notifySubscribers: z.boolean(),
     createdAt: z.string().datetime({ offset: true }),
@@ -2890,8 +2717,8 @@ const StatusPageIncidentDto = z
     id: z.string().uuid(),
     statusPageId: z.string().uuid(),
     title: z.string().min(1),
-    status: z.enum(["INVESTIGATING", "IDENTIFIED", "MONITORING", "RESOLVED"]),
-    impact: z.enum(["NONE", "MINOR", "MAJOR", "CRITICAL"]),
+    status: z.string(),
+    impact: z.string(),
     scheduled: z.boolean(),
     scheduledFor: z.string().datetime({ offset: true }).nullish(),
     scheduledUntil: z.string().datetime({ offset: true }).nullish(),

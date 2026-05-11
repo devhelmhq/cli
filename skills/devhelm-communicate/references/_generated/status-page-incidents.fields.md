@@ -36,8 +36,8 @@
 | `id` | string (uuid) | ✓ |  |  |
 | `statusPageId` | string (uuid) | ✓ |  |  |
 | `title` | string | ✓ |  |  |
-| `status` | "INVESTIGATING" \| "IDENTIFIED" \| "MONITORING" \| "RESOLVED" | ✓ |  |  |
-| `impact` | "NONE" \| "MINOR" \| "MAJOR" \| "CRITICAL" | ✓ |  |  |
+| `status` | string | ✓ |  |  |
+| `impact` | string | ✓ |  |  |
 | `scheduled` | boolean | ✓ |  |  |
 | `scheduledFor` | string (date-time) |  | ✓ |  |
 | `scheduledUntil` | string (date-time) |  | ✓ |  |

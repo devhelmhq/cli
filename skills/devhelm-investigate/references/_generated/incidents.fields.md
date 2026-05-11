@@ -10,9 +10,9 @@
 | `id` | string (uuid) | ✓ |  | Unique incident identifier |
 | `monitorId` | string (uuid) |  | ✓ | Monitor that triggered the incident; null for service or manual incidents |
 | `organizationId` | integer (int32) | ✓ |  | Organization this incident belongs to |
-| `source` | "AUTOMATIC" \| "MANUAL" \| "MONITORS" \| "STATUS_DATA" \| "RESOURCE_GROUP" | ✓ |  | Incident origin: MONITOR, SERVICE, or MANUAL |
-| `status` | "WATCHING" \| "TRIGGERED" \| "CONFIRMED" \| "RESOLVED" | ✓ |  | Current lifecycle status (OPEN, RESOLVED, etc.) |
-| `severity` | "DOWN" \| "DEGRADED" \| "MAINTENANCE" | ✓ |  | Severity level: DOWN, DEGRADED, or MAINTENANCE |
+| `source` | string | ✓ |  | Incident origin: MONITOR, SERVICE, or MANUAL |
+| `status` | string | ✓ |  | Current lifecycle status (OPEN, RESOLVED, etc.) |
+| `severity` | string | ✓ |  | Severity level: DOWN, DEGRADED, or MAINTENANCE |
 | `title` | string |  | ✓ | Short summary of the incident; null for auto-generated incidents |
 | `triggeredByRule` | string |  | ✓ | Human-readable description of the trigger rule that fired |
 | `affectedRegions` | string[] | ✓ |  | Probe regions that observed the failure |
@@ -24,7 +24,7 @@
 | `externalRef` | string |  | ✓ | External reference ID (e.g. PagerDuty incident ID) |
 | `affectedComponents` | string[] |  | ✓ | Service components affected by this incident |
 | `shortlink` | string |  | ✓ | Short URL linking to the incident details |
-| `resolutionReason` | "MANUAL" \| "AUTO_RECOVERED" \| "AUTO_RESOLVED" |  | ✓ | How the incident was resolved (AUTO_RECOVERED, MANUAL, etc.) |
+| `resolutionReason` | string |  | ✓ | How the incident was resolved (AUTO_RECOVERED, MANUAL, etc.) |
 | `startedAt` | string (date-time) |  | ✓ | Timestamp when the incident was detected or created |
 | `confirmedAt` | string (date-time) |  | ✓ | Timestamp when the incident was confirmed (multi-region confirmation) |
 | `resolvedAt` | string (date-time) |  | ✓ | Timestamp when the incident was resolved |

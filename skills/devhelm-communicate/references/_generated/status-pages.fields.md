@@ -39,13 +39,13 @@
 | `slug` | string | ✓ |  |  |
 | `description` | string |  | ✓ |  |
 | `branding` | StatusPageBranding | ✓ |  |  |
-| `visibility` | "PUBLIC" \| "PASSWORD" \| "IP_RESTRICTED" | ✓ |  |  |
+| `visibility` | string | ✓ |  |  |
 | `enabled` | boolean | ✓ |  |  |
-| `incidentMode` | "MANUAL" \| "REVIEW" \| "AUTOMATIC" | ✓ |  |  |
+| `incidentMode` | string | ✓ |  |  |
 | `componentCount` | integer (int32) |  | ✓ |  |
 | `subscriberCount` | integer (int64) |  | ✓ |  |
-| `overallStatus` | "OPERATIONAL" \| "DEGRADED_PERFORMANCE" \| "PARTIAL_OUTAGE" \| "MAJOR_OUTAGE" \| "UNDER_MAINTENANCE" |  | ✓ |  |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Source that created/owns this status page: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on pages created before this attribution column existed. |
+| `overallStatus` | string |  | ✓ |  |
+| `managedBy` | string |  | ✓ | Source that created/owns this status page: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on pages created before this attribution column existed. |
 | `createdAt` | string (date-time) | ✓ |  |  |
 | `updatedAt` | string (date-time) | ✓ |  |  |
 
