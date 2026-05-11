@@ -25,12 +25,12 @@
 |---|---|---|---|---|
 | `id` | string (uuid) | ✓ |  | Unique alert channel identifier |
 | `name` | string | ✓ |  | Human-readable channel name |
-| `channelType` | "email" \| "webhook" \| "slack" \| "pagerduty" \| "opsgenie" \| "teams" \| "discord" | ✓ |  | Channel integration type (e.g. SLACK, PAGERDUTY, EMAIL) |
+| `channelType` | string | ✓ |  | Channel integration type (e.g. SLACK, PAGERDUTY, EMAIL) |
 | `displayConfig` | any |  | ✓ |  |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the channel was created |
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the channel was last updated |
 | `configHash` | string |  | ✓ | SHA-256 hash of the channel config; use for change detection |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Source that created/owns this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on channels created before this attribution column existed. |
+| `managedBy` | string |  | ✓ | Source that created/owns this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on channels created before this attribution column existed. |
 | `lastDeliveryAt` | string (date-time) |  | ✓ | Timestamp of the most recent delivery attempt |
 | `lastDeliveryStatus` | string |  | ✓ | Outcome of the most recent delivery (SUCCESS, FAILED, etc.) |
 

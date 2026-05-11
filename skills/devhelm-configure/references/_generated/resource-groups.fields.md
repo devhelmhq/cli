@@ -56,14 +56,14 @@
 | `defaultRetryStrategy` | any |  | ✓ |  |
 | `defaultAlertChannels` | string (uuid)[] |  | ✓ | Default alert channel IDs for member monitors |
 | `defaultEnvironmentId` | string (uuid) |  | ✓ | Default environment ID for member monitors |
-| `healthThresholdType` | "COUNT" \| "PERCENTAGE" |  | ✓ | Health threshold type: COUNT or PERCENTAGE |
+| `healthThresholdType` | string |  | ✓ | Health threshold type: COUNT or PERCENTAGE |
 | `healthThresholdValue` | number |  | ✓ | Health threshold value |
 | `suppressMemberAlerts` | boolean | ✓ |  | When true, member-level incidents skip notification dispatch; only group alerts fire |
 | `confirmationDelaySeconds` | integer (int32) |  | ✓ | Seconds to wait after health threshold breach before creating group incident |
 | `recoveryCooldownMinutes` | integer (int32) |  | ✓ | Cooldown minutes after group incident resolves before a new one can open |
 | `health` | ResourceGroupHealthDto | ✓ |  |  |
 | `members` | ResourceGroupMemberDto[] |  | ✓ | Member list with individual statuses; populated on detail GET only |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Source that created/owns this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on groups created before this attribution column existed. |
+| `managedBy` | string |  | ✓ | Source that created/owns this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on groups created before this attribution column existed. |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the group was created |
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the group was last updated |
 

@@ -6,9 +6,9 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   "CreateMonitorRequest": {
     "name": "Human-readable name for this monitor",
     "type": "Monitor protocol type",
-    "frequencySeconds": "Check frequency in seconds (30–86400); null defaults to plan minimum (60s on most paid plans)",
+    "frequencySeconds": "Check frequency in seconds (10–86400); null defaults to plan minimum (60s on most paid plans)",
     "enabled": "Whether the monitor is active (default: true)",
-    "regions": "Probe regions to run checks from, e.g. us-east, eu-west",
+    "regions": "Probe regions to run checks from. Allowed values are deployment-dependent; production: us-east, us-west, eu-west, ap-south.",
     "managedBy": "Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted; set to your surface so audit logs, drift detection, and analytics attribute correctly.",
     "environmentId": "Environment to associate with this monitor",
     "assertions": "Assertions to evaluate against each check result",
@@ -16,9 +16,9 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   },
   "UpdateMonitorRequest": {
     "name": "New monitor name; null preserves current",
-    "frequencySeconds": "New check frequency in seconds (30–86400); null preserves current",
+    "frequencySeconds": "New check frequency in seconds (10–86400); null preserves current",
     "enabled": "Enable or disable the monitor; null preserves current",
-    "regions": "New probe regions; null preserves current",
+    "regions": "New probe regions; null preserves current. Allowed values are deployment-dependent.",
     "managedBy": "New ownership source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value",
     "environmentId": "New environment ID; null preserves current (use clearEnvironmentId to unset)",
     "clearEnvironmentId": "Set to true to remove the environment association",

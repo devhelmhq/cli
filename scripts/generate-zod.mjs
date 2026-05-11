@@ -125,8 +125,21 @@ async function main() {
   console.log('Reading spec from', SPEC_PATH);
   const spec = JSON.parse(readFileSync(SPEC_PATH, 'utf8'));
 
-  const { flattened, inlinedDiscriminators, inlinedNullableDeductions } =
-    preprocessSpec(spec);
+  // Snapshot the unmodified spec for `generateSpecFacts` BEFORE
+  // preprocessing mutates it. The Postel's-Law relaxer drops multi-value
+  // enums on response-shape DTOs (e.g. `AlertChannelDto.channelType`),
+  // and a few facts are anchored on response DTOs as fallbacks. Reading
+  // facts off the original spec keeps the canonical value lists complete
+  // even after the relaxer runs, while the generated Zod schemas (which
+  // use `spec`) stay tolerant on the wire.
+  const originalSpec = JSON.parse(JSON.stringify(spec));
+
+  const {
+    flattened,
+    inlinedDiscriminators,
+    inlinedNullableDeductions,
+    relaxedEnums,
+  } = preprocessSpec(spec);
   console.log(`Preprocessed spec (${Object.keys(spec.components?.schemas ?? {}).length} schemas)`);
   if (flattened.length > 0) {
     console.log(`  Flattened circular oneOf: ${flattened.join(', ')}`);
@@ -143,8 +156,13 @@ async function main() {
       `  Inlined nullable deduction refs for: ${inlinedNullableDeductions.join(', ')}`,
     );
   }
+  if (relaxedEnums && relaxedEnums.length > 0) {
+    console.log(
+      `  Relaxed response-DTO enums (Postel's Law): ${relaxedEnums.length} fields`,
+    );
+  }
 
-  generateSpecFacts(spec);
+  generateSpecFacts(originalSpec);
 
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
 
