@@ -16,7 +16,7 @@ export type IncidentSeverities = (typeof INCIDENT_SEVERITIES)[number]
 export const ASSERTION_SEVERITIES = ['fail', 'warn'] as const
 export type AssertionSeverities = (typeof ASSERTION_SEVERITIES)[number]
 
-export const CHANNEL_TYPES = ['email', 'webhook', 'slack', 'pagerduty', 'opsgenie', 'teams', 'discord'] as const
+export const CHANNEL_TYPES = ['email', 'webhook', 'slack', 'pagerduty', 'opsgenie', 'teams', 'discord', 'telegram', 'google_chat', 'pushover', 'mattermost', 'splunk_oncall', 'pushbullet', 'linear', 'incident_io', 'rootly', 'zapier', 'datadog', 'jira', 'gitlab'] as const
 export type ChannelTypes = (typeof CHANNEL_TYPES)[number]
 
 export const TRIGGER_RULE_TYPES = ['consecutive_failures', 'failures_in_window', 'response_time'] as const
@@ -31,7 +31,7 @@ export type TriggerSeverities = (typeof TRIGGER_SEVERITIES)[number]
 export const TRIGGER_AGGREGATIONS = ['all_exceed', 'average', 'p95', 'max'] as const
 export type TriggerAggregations = (typeof TRIGGER_AGGREGATIONS)[number]
 
-export const ALERT_SENSITIVITIES = ['ALL', 'INCIDENTS_ONLY', 'MAJOR_ONLY'] as const
+export const ALERT_SENSITIVITIES = ['ALL', 'AWARENESS', 'INCIDENTS_ONLY', 'MAJOR_ONLY'] as const
 export type AlertSensitivities = (typeof ALERT_SENSITIVITIES)[number]
 
 export const HEALTH_THRESHOLD_TYPES = ['COUNT', 'PERCENTAGE'] as const

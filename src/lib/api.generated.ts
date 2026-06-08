@@ -618,7 +618,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Resend invite */
-        post: operations["resend"];
+        post: operations["resend_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1521,7 +1521,7 @@ export interface paths {
         head?: never;
         /**
          * Update alert sensitivity for a subscription
-         * @description Controls which external incidents trigger alerts: ALL (any status change), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (only DOWN-level incidents).
+         * @description Controls which external incidents trigger alerts and whether they page anyone: ALL (any status change, paged), INCIDENTS_ONLY (real vendor incidents, paged), MAJOR_ONLY (only DOWN-level incidents, paged), AWARENESS (real vendor incidents tracked silently — visible on the dashboard but no alert channels fire; default for new subscriptions).
          */
         patch: operations["updateAlertSensitivity"];
         trace?: never;
@@ -1537,7 +1537,7 @@ export interface paths {
         put?: never;
         /**
          * Subscribe to a service or a component of a service
-         * @description Idempotent — returns the existing subscription if an identical one exists. Omit the request body or set componentId to null for a whole-service subscription. Free tier: max 10 subscriptions. Paid tier: unlimited.
+         * @description Idempotent — returns the existing subscription if an identical one exists. Omit the request body or set componentId to null for a whole-service subscription. When alertSensitivity is omitted, new subscriptions default to AWARENESS (silent tracking — the incident appears on the dashboard but no alert channels fire). PATCH /alert-sensitivity to opt in to paging. Free tier: max 10 subscriptions. Paid tier: unlimited.
          */
         post: operations["subscribe_1"];
         delete?: never;
@@ -2480,6 +2480,26 @@ export interface components {
             customHeaders?: {
                 [key: string]: string | null;
             } | null;
+            /** @description Telegram chat ID */
+            chatId?: string | null;
+            /** @description Pushover notification priority override */
+            priority?: string | null;
+            /** @description Mattermost channel override */
+            channel?: string | null;
+            /** @description Splunk On-Call routing key */
+            routingKey?: string | null;
+            /** @description Pushbullet target device identifier */
+            deviceIden?: string | null;
+            /** @description Linear team ID for issue creation */
+            teamId?: string | null;
+            /** @description incident.io incident visibility */
+            visibility?: string | null;
+            /** @description Rootly incident severity slug */
+            severity?: string | null;
+            /** @description Datadog site region */
+            site?: string | null;
+            /** @description Jira project key */
+            projectKey?: string | null;
         };
         /** @description Alert channel with non-sensitive configuration metadata */
         AlertChannelDto: {
@@ -2494,7 +2514,7 @@ export interface components {
              * @description Channel integration type (e.g. SLACK, PAGERDUTY, EMAIL)
              * @enum {string}
              */
-            channelType: "email" | "webhook" | "slack" | "pagerduty" | "opsgenie" | "teams" | "discord";
+            channelType: "email" | "webhook" | "slack" | "pagerduty" | "opsgenie" | "teams" | "discord" | "telegram" | "google_chat" | "pushover" | "mattermost" | "splunk_oncall" | "pushbullet" | "linear" | "incident_io" | "rootly" | "zapier" | "datadog" | "jira" | "gitlab";
             displayConfig?: components["schemas"]["AlertChannelDisplayConfig"] | null;
             /**
              * Format: date-time
@@ -3096,7 +3116,7 @@ export interface components {
         CreateAlertChannelRequest: {
             /** @description Human-readable name for this alert channel */
             name: string;
-            config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
+            config: components["schemas"]["DatadogChannelConfig"] | components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["GitLabChannelConfig"] | components["schemas"]["GoogleChatChannelConfig"] | components["schemas"]["IncidentIoChannelConfig"] | components["schemas"]["JiraChannelConfig"] | components["schemas"]["LinearChannelConfig"] | components["schemas"]["MattermostChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["PushbulletChannelConfig"] | components["schemas"]["PushoverChannelConfig"] | components["schemas"]["RootlyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["SplunkOnCallChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["TelegramChannelConfig"] | components["schemas"]["WebhookChannelConfig"] | components["schemas"]["ZapierChannelConfig"];
             /**
              * @description Source creating this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted.
              * @enum {string|null}
@@ -3475,6 +3495,16 @@ export interface components {
             monitors: components["schemas"]["MonitorsSummaryDto"];
             incidents: components["schemas"]["IncidentsSummaryDto"];
         };
+        DatadogChannelConfig: {
+            /** @enum {string} */
+            channelType: "datadog";
+            /** @description Datadog API key */
+            apiKey: string;
+            /** @description Datadog site region (e.g. datadoghq.com, datadoghq.eu, us3.datadoghq.com) */
+            site?: string | null;
+            /** @description Comma-separated tags to attach to events */
+            tags?: string | null;
+        };
         /** @description Incident that overlapped the day */
         DayIncident: {
             /**
@@ -3817,6 +3847,21 @@ export interface components {
             /** @description Whether this is the default environment for new monitors */
             isDefault: boolean;
         };
+        /** @description One structured validation rejection */
+        ErrorEntry: {
+            /**
+             * @description Stable machine-readable code; see ValidationErrorCode for the registry
+             * @example MONITOR_HEARTBEAT_GRACE_EXCEEDS_INTERVAL
+             */
+            code: string;
+            /**
+             * @description JSON-pointer-like path to the offending field, or null for request-wide errors
+             * @example config.gracePeriod
+             */
+            field?: string | null;
+            /** @description Human-readable message; safe to surface to end users */
+            message: string;
+        };
         /**
          * @description Uniform error envelope returned for every non-2xx response
          * @example {
@@ -3855,6 +3900,8 @@ export interface components {
              * @example 5b6f7a8c-1234-4d5e-9f0a-1b2c3d4e5f6a
              */
             requestId?: string | null;
+            /** @description Structured per-field rejections; populated for validation errors, null otherwise */
+            errors?: (components["schemas"]["ErrorEntry"] | null)[] | null;
         };
         /** @description Escalation chain defining which channels to notify; null preserves current */
         EscalationChain: {
@@ -3891,6 +3938,14 @@ export interface components {
             monitorId: string;
             /** @description Human-readable reason for the failure */
             reason: string;
+        };
+        GitLabChannelConfig: {
+            /** @enum {string} */
+            channelType: "gitlab";
+            /** @description GitLab alert integration endpoint URL */
+            endpointUrl: string;
+            /** @description Authorization key from GitLab alert integration settings */
+            authorizationKey: string;
         };
         /** @description Global status summary across all subscribed vendor services */
         GlobalStatusSummaryDto: {
@@ -3936,6 +3991,12 @@ export interface components {
             activeIncidentCount: number;
             /** @description Services that are not fully operational */
             servicesWithIssues: components["schemas"]["ServiceCatalogDto"][];
+        };
+        GoogleChatChannelConfig: {
+            /** @enum {string} */
+            channelType: "google_chat";
+            /** @description Google Chat space webhook URL */
+            webhookUrl: string;
         };
         /** @description Component ordering within a single group */
         GroupComponentOrder: {
@@ -4348,6 +4409,16 @@ export interface components {
              */
             size: number;
         };
+        IncidentIoChannelConfig: {
+            /** @enum {string} */
+            channelType: "incident_io";
+            /** @description incident.io API key with 'Create incidents' permission */
+            apiKey: string;
+            /** @description Severity ID for created incidents (from List Severities API) */
+            severityId?: string | null;
+            /** @description Incident visibility: public or private (default: public) */
+            visibility?: string | null;
+        };
         /** @description Incident detection, confirmation, and recovery policy for a monitor */
         IncidentPolicyDto: {
             /**
@@ -4529,6 +4600,20 @@ export interface components {
              */
             revokedAt?: string | null;
         };
+        JiraChannelConfig: {
+            /** @enum {string} */
+            channelType: "jira";
+            /** @description Atlassian instance domain (e.g. yourteam.atlassian.net) */
+            domain: string;
+            /** @description Atlassian account email for API authentication */
+            email: string;
+            /** @description Atlassian API token */
+            apiToken: string;
+            /** @description Jira project key where issues are created (e.g. OPS) */
+            projectKey: string;
+            /** @description Issue type name (e.g. Bug, Task, Incident) */
+            issueType?: string | null;
+        };
         JsonPathAssertion: {
             /** @enum {string} */
             type: "json_path";
@@ -4566,6 +4651,16 @@ export interface components {
              * @description Last time the key was used
              */
             lastUsedAt?: string | null;
+        };
+        LinearChannelConfig: {
+            /** @enum {string} */
+            channelType: "linear";
+            /** @description Linear API key */
+            apiKey: string;
+            /** @description Team ID to create issues in */
+            teamId: string;
+            /** @description Label ID to attach to created issues */
+            labelId?: string | null;
         };
         LinkedStatusPageIncidentDto: {
             /** Format: uuid */
@@ -4666,6 +4761,16 @@ export interface components {
             regions?: string[] | null;
             /** @description Values list for multi-value rules like monitor_type_in */
             values?: string[] | null;
+        };
+        MattermostChannelConfig: {
+            /** @enum {string} */
+            channelType: "mattermost";
+            /** @description Mattermost incoming webhook URL */
+            webhookUrl: string;
+            /** @description Override channel (if webhook allows) */
+            channel?: string | null;
+            /** @description Custom bot icon URL */
+            iconUrl?: string | null;
         };
         McpConnectsAssertion: {
             /** @enum {string} */
@@ -5299,6 +5404,26 @@ export interface components {
             /** @description Whether to notify subscribers (default: true) */
             notifySubscribers?: boolean | null;
         };
+        PushbulletChannelConfig: {
+            /** @enum {string} */
+            channelType: "pushbullet";
+            /** @description Pushbullet access token */
+            accessToken: string;
+            /** @description Target device identifier (broadcasts to all if empty) */
+            deviceIden?: string | null;
+        };
+        PushoverChannelConfig: {
+            /** @enum {string} */
+            channelType: "pushover";
+            /** @description Pushover user or group key */
+            userKey: string;
+            /** @description Pushover application API token */
+            appToken: string;
+            /** @description Notification priority override (-2 to 2) */
+            priority?: string | null;
+            /** @description Notification sound override */
+            sound?: string | null;
+        };
         /** @description Rate-limit quota for the current sliding window */
         RateLimitInfo: {
             /**
@@ -5655,6 +5780,14 @@ export interface components {
              */
             interval: number;
         };
+        RootlyChannelConfig: {
+            /** @enum {string} */
+            channelType: "rootly";
+            /** @description Rootly API token with incident creation permission */
+            apiKey: string;
+            /** @description Severity slug override (e.g. sev0, sev1) */
+            severity?: string | null;
+        };
         /** @description All rule evaluations that ran for this check */
         RuleEvaluationDto: {
             /**
@@ -5799,6 +5932,11 @@ export interface components {
             adapterType: string;
             /** Format: int32 */
             pollingIntervalSeconds: number;
+            /**
+             * @description Service lifecycle state: ACTIVE, DEGRADED, DEPRECATED, or RETIRED
+             * @enum {string}
+             */
+            lifecycleStatus: "ACTIVE" | "DEGRADED" | "DEPRECATED" | "RETIRED";
             enabled: boolean;
             published: boolean;
             overallStatus?: string | null;
@@ -5907,6 +6045,11 @@ export interface components {
             adapterType: string;
             /** Format: int32 */
             pollingIntervalSeconds: number;
+            /**
+             * @description Service lifecycle state: ACTIVE, DEGRADED, DEPRECATED, or RETIRED
+             * @enum {string}
+             */
+            lifecycleStatus: "ACTIVE" | "DEGRADED" | "DEPRECATED" | "RETIRED";
             enabled: boolean;
             /** Format: date-time */
             createdAt: string;
@@ -6081,7 +6224,7 @@ export interface components {
              * @description ID of the component to subscribe to. Omit or null for whole-service subscription.
              */
             componentId?: string | null;
-            /** @description Alert sensitivity level. Defaults to INCIDENTS_ONLY when not provided. */
+            /** @description Alert sensitivity: ALL (any status change), INCIDENTS_ONLY (real vendor incidents, page on every one), MAJOR_ONLY (only DOWN-level incidents), AWARENESS (track silently — show on dashboard, never send alerts). Defaults to AWARENESS when not provided — silent tracking is the friendliest first-run choice; switch to one of the paging modes to opt in to alert-channel fan-out. */
             alertSensitivity?: string | null;
         };
         /** @description An org-level service subscription with current status information */
@@ -6115,10 +6258,10 @@ export interface components {
             componentId?: string | null;
             component?: components["schemas"]["ServiceComponentDto"] | null;
             /**
-             * @description Alert sensitivity: ALL (synthetic + real incidents), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (real + DOWN severity)
+             * @description Alert sensitivity: ALL (synthetic + real incidents, paged), INCIDENTS_ONLY (real vendor incidents, paged), MAJOR_ONLY (real + DOWN severity, paged), AWARENESS (real vendor incidents tracked silently — visible on dashboard, never paged; default for new subscriptions)
              * @enum {string}
              */
-            alertSensitivity: "ALL" | "INCIDENTS_ONLY" | "MAJOR_ONLY";
+            alertSensitivity: "ALL" | "AWARENESS" | "INCIDENTS_ONLY" | "MAJOR_ONLY";
             /**
              * Format: date-time
              * @description When the organization subscribed to this service
@@ -6336,6 +6479,14 @@ export interface components {
             /** @description Optional mention text included in notifications, e.g. @channel */
             mentionText?: string | null;
         };
+        SplunkOnCallChannelConfig: {
+            /** @enum {string} */
+            channelType: "splunk_oncall";
+            /** @description Splunk On-Call REST API key */
+            apiKey: string;
+            /** @description Routing key for alert routing */
+            routingKey: string;
+        };
         SslExpiryAssertion: {
             /** @enum {string} */
             type: "ssl_expiry";
@@ -6391,6 +6542,11 @@ export interface components {
              * @default false
              */
             hidePoweredBy: boolean;
+            /**
+             * @description Whether to show the 'Subscribe' button in the header (default: true)
+             * @default true
+             */
+            showSubscribeButton: boolean;
             /** @description Custom CSS injected via <style> on the public page — grants full style control */
             customCss?: string | null;
             /** @description Custom HTML injected into <head> on the public page — grants full script control (analytics, pixels) */
@@ -6984,9 +7140,17 @@ export interface components {
             /** @description Microsoft Teams incoming webhook URL */
             webhookUrl: string;
         };
+        TelegramChannelConfig: {
+            /** @enum {string} */
+            channelType: "telegram";
+            /** @description Telegram bot token from @BotFather */
+            botToken: string;
+            /** @description Chat, group, or channel ID to send alerts to */
+            chatId: string;
+        };
         /** @description Alert channel configuration to test without saving */
         TestAlertChannelRequest: {
-            config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
+            config: components["schemas"]["DatadogChannelConfig"] | components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["GitLabChannelConfig"] | components["schemas"]["GoogleChatChannelConfig"] | components["schemas"]["IncidentIoChannelConfig"] | components["schemas"]["JiraChannelConfig"] | components["schemas"]["LinearChannelConfig"] | components["schemas"]["MattermostChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["PushbulletChannelConfig"] | components["schemas"]["PushoverChannelConfig"] | components["schemas"]["RootlyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["SplunkOnCallChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["TelegramChannelConfig"] | components["schemas"]["WebhookChannelConfig"] | components["schemas"]["ZapierChannelConfig"];
         };
         TestChannelResult: {
             success: boolean;
@@ -7146,7 +7310,7 @@ export interface components {
         UpdateAlertChannelRequest: {
             /** @description New channel name (full replacement, not partial update) */
             name: string;
-            config: components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["WebhookChannelConfig"];
+            config: components["schemas"]["DatadogChannelConfig"] | components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["GitLabChannelConfig"] | components["schemas"]["GoogleChatChannelConfig"] | components["schemas"]["IncidentIoChannelConfig"] | components["schemas"]["JiraChannelConfig"] | components["schemas"]["LinearChannelConfig"] | components["schemas"]["MattermostChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["PushbulletChannelConfig"] | components["schemas"]["PushoverChannelConfig"] | components["schemas"]["RootlyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["SplunkOnCallChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["TelegramChannelConfig"] | components["schemas"]["WebhookChannelConfig"] | components["schemas"]["ZapierChannelConfig"];
             /**
              * @description New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value.
              * @enum {string|null}
@@ -7155,7 +7319,7 @@ export interface components {
         };
         /** @description Request body for updating alert sensitivity on a service subscription */
         UpdateAlertSensitivityRequest: {
-            /** @description Alert sensitivity: ALL (any status change), INCIDENTS_ONLY (real vendor incidents, default), MAJOR_ONLY (only DOWN-level incidents) */
+            /** @description Alert sensitivity: ALL (any status change), INCIDENTS_ONLY (real vendor incidents, page on every one), MAJOR_ONLY (only DOWN-level incidents), AWARENESS (track silently — show on dashboard, never send alerts; default for new subscriptions) */
             alertSensitivity: string;
         };
         UpdateApiKeyRequest: {
@@ -7619,6 +7783,12 @@ export interface components {
              */
             orgId: number;
         };
+        ZapierChannelConfig: {
+            /** @enum {string} */
+            channelType: "zapier";
+            /** @description Zapier/n8n/Make catch webhook URL */
+            webhookUrl: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -7632,7 +7802,7 @@ export interface operations {
         parameters: {
             query: {
                 /** @description Filter by channel integration type (e.g. SLACK, WEBHOOK, EMAIL) */
-                type?: "email" | "webhook" | "slack" | "pagerduty" | "opsgenie" | "teams" | "discord";
+                type?: "email" | "webhook" | "slack" | "pagerduty" | "opsgenie" | "teams" | "discord" | "telegram" | "google_chat" | "pushover" | "mattermost" | "splunk_oncall" | "pushbullet" | "linear" | "incident_io" | "rootly" | "zapier" | "datadog" | "jira" | "gitlab";
                 /** @description Filter by managed-by source (DASHBOARD, CLI, TERRAFORM, MCP, API) */
                 managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
                 /** @description Case-insensitive contains-match on the channel name */
@@ -11803,7 +11973,7 @@ export interface operations {
             };
         };
     };
-    resend: {
+    resend_1: {
         parameters: {
             query?: never;
             header?: never;

@@ -920,6 +920,7 @@ function normalizeBrandingForSnapshot(
     theme: b.theme ?? null,
     reportUrl: b.reportUrl ?? null,
     hidePoweredBy: b.hidePoweredBy ?? false,
+    showSubscribeButton: b.showSubscribeButton ?? true,
     customCss: b.customCss ?? null,
     customHeadHtml: b.customHeadHtml ?? null,
   }
