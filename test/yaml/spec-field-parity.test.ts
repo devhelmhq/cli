@@ -341,7 +341,7 @@ describe('Nested config schema coverage', () => {
     const yamlBrandingFields = [
       'logoUrl', 'faviconUrl', 'brandColor', 'pageBackground',
       'cardBackground', 'textColor', 'borderColor', 'headerStyle',
-      'theme', 'reportUrl', 'hidePoweredBy', 'customCss', 'customHeadHtml',
+      'theme', 'reportUrl', 'hidePoweredBy', 'showSubscribeButton', 'customCss', 'customHeadHtml',
     ]
     expect(brandingFields.length).toBeGreaterThan(0)
     for (const field of yamlBrandingFields) {

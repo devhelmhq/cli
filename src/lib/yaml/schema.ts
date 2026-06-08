@@ -256,6 +256,78 @@ export interface YamlTeamsConfig {
   webhookUrl: string
 }
 
+export interface YamlTelegramConfig {
+  botToken: string
+  chatId: string
+}
+
+export interface YamlGoogleChatConfig {
+  webhookUrl: string
+}
+
+export interface YamlPushoverConfig {
+  userKey: string
+  appToken: string
+  priority?: string
+  sound?: string
+}
+
+export interface YamlMattermostConfig {
+  webhookUrl: string
+  channel?: string
+  iconUrl?: string
+}
+
+export interface YamlSplunkOnCallConfig {
+  apiKey: string
+  routingKey: string
+}
+
+export interface YamlPushbulletConfig {
+  accessToken: string
+  deviceIden?: string
+}
+
+export interface YamlLinearConfig {
+  apiKey: string
+  teamId: string
+  labelId?: string
+}
+
+export interface YamlIncidentIoConfig {
+  apiKey: string
+  severityId?: string
+  visibility?: string
+}
+
+export interface YamlRootlyConfig {
+  apiKey: string
+  severity?: string
+}
+
+export interface YamlZapierConfig {
+  webhookUrl: string
+}
+
+export interface YamlDatadogConfig {
+  apiKey: string
+  site?: string
+  tags?: string
+}
+
+export interface YamlJiraConfig {
+  domain: string
+  email: string
+  apiToken: string
+  projectKey: string
+  issueType?: string
+}
+
+export interface YamlGitLabConfig {
+  endpointUrl: string
+  authorizationKey: string
+}
+
 export type YamlChannelConfig =
   | YamlSlackConfig
   | YamlDiscordConfig
@@ -264,6 +336,19 @@ export type YamlChannelConfig =
   | YamlPagerDutyConfig
   | YamlOpsGenieConfig
   | YamlTeamsConfig
+  | YamlTelegramConfig
+  | YamlGoogleChatConfig
+  | YamlPushoverConfig
+  | YamlMattermostConfig
+  | YamlSplunkOnCallConfig
+  | YamlPushbulletConfig
+  | YamlLinearConfig
+  | YamlIncidentIoConfig
+  | YamlRootlyConfig
+  | YamlZapierConfig
+  | YamlDatadogConfig
+  | YamlJiraConfig
+  | YamlGitLabConfig
 
 // ── Retry strategy (for resource groups) ───────────────────────────────
 
@@ -388,6 +473,7 @@ export interface YamlStatusPageBranding {
   theme?: string
   reportUrl?: string
   hidePoweredBy?: boolean
+  showSubscribeButton?: boolean
   customCss?: string
   customHeadHtml?: string
 }

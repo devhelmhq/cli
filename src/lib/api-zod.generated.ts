@@ -9,6 +9,13 @@ const pageable = z
     sort: z.array(z.string()),
   })
   .strict();
+const ErrorEntry = z
+  .object({
+    code: z.string().min(1),
+    field: z.string().nullish(),
+    message: z.string().min(1),
+  })
+  .strict();
 const ErrorResponse = z
   .object({
     status: z.number().int(),
@@ -16,6 +23,15 @@ const ErrorResponse = z
     message: z.string(),
     timestamp: z.number().int(),
     requestId: z.string().nullish(),
+    errors: z.array(ErrorEntry.nullable()).nullish(),
+  })
+  .strict();
+const DatadogChannelConfig = z
+  .object({
+    channelType: z.literal("datadog"),
+    apiKey: z.string().min(1),
+    site: z.string().nullish(),
+    tags: z.string().nullish(),
   })
   .strict();
 const DiscordChannelConfig = z
@@ -29,6 +45,53 @@ const EmailChannelConfig = z
   .object({
     channelType: z.literal("email"),
     recipients: z.array(z.string().email()).min(1),
+  })
+  .strict();
+const GitLabChannelConfig = z
+  .object({
+    channelType: z.literal("gitlab"),
+    endpointUrl: z.string().min(1),
+    authorizationKey: z.string().min(1),
+  })
+  .strict();
+const GoogleChatChannelConfig = z
+  .object({
+    channelType: z.literal("google_chat"),
+    webhookUrl: z.string().min(1),
+  })
+  .strict();
+const IncidentIoChannelConfig = z
+  .object({
+    channelType: z.literal("incident_io"),
+    apiKey: z.string().min(1),
+    severityId: z.string().nullish(),
+    visibility: z.string().nullish(),
+  })
+  .strict();
+const JiraChannelConfig = z
+  .object({
+    channelType: z.literal("jira"),
+    domain: z.string().min(1),
+    email: z.string().min(1),
+    apiToken: z.string().min(1),
+    projectKey: z.string().min(1),
+    issueType: z.string().nullish(),
+  })
+  .strict();
+const LinearChannelConfig = z
+  .object({
+    channelType: z.literal("linear"),
+    apiKey: z.string().min(1),
+    teamId: z.string().min(1),
+    labelId: z.string().nullish(),
+  })
+  .strict();
+const MattermostChannelConfig = z
+  .object({
+    channelType: z.literal("mattermost"),
+    webhookUrl: z.string().min(1),
+    channel: z.string().nullish(),
+    iconUrl: z.string().nullish(),
   })
   .strict();
 const OpsGenieChannelConfig = z
@@ -45,6 +108,29 @@ const PagerDutyChannelConfig = z
     severityOverride: z.string().nullish(),
   })
   .strict();
+const PushbulletChannelConfig = z
+  .object({
+    channelType: z.literal("pushbullet"),
+    accessToken: z.string().min(1),
+    deviceIden: z.string().nullish(),
+  })
+  .strict();
+const PushoverChannelConfig = z
+  .object({
+    channelType: z.literal("pushover"),
+    userKey: z.string().min(1),
+    appToken: z.string().min(1),
+    priority: z.string().nullish(),
+    sound: z.string().nullish(),
+  })
+  .strict();
+const RootlyChannelConfig = z
+  .object({
+    channelType: z.literal("rootly"),
+    apiKey: z.string().min(1),
+    severity: z.string().nullish(),
+  })
+  .strict();
 const SlackChannelConfig = z
   .object({
     channelType: z.literal("slack"),
@@ -52,8 +138,22 @@ const SlackChannelConfig = z
     mentionText: z.string().nullish(),
   })
   .strict();
+const SplunkOnCallChannelConfig = z
+  .object({
+    channelType: z.literal("splunk_oncall"),
+    apiKey: z.string().min(1),
+    routingKey: z.string().min(1),
+  })
+  .strict();
 const TeamsChannelConfig = z
   .object({ channelType: z.literal("teams"), webhookUrl: z.string().min(1) })
+  .strict();
+const TelegramChannelConfig = z
+  .object({
+    channelType: z.literal("telegram"),
+    botToken: z.string().min(1),
+    chatId: z.string().min(1),
+  })
   .strict();
 const WebhookChannelConfig = z
   .object({
@@ -63,17 +163,33 @@ const WebhookChannelConfig = z
     customHeaders: z.record(z.string().nullable()).nullish(),
   })
   .strict();
+const ZapierChannelConfig = z
+  .object({ channelType: z.literal("zapier"), webhookUrl: z.string().min(1) })
+  .strict();
 const CreateAlertChannelRequest = z
   .object({
     name: z.string().min(0).max(255),
     config: z.union([
+      DatadogChannelConfig,
       DiscordChannelConfig,
       EmailChannelConfig,
+      GitLabChannelConfig,
+      GoogleChatChannelConfig,
+      IncidentIoChannelConfig,
+      JiraChannelConfig,
+      LinearChannelConfig,
+      MattermostChannelConfig,
       OpsGenieChannelConfig,
       PagerDutyChannelConfig,
+      PushbulletChannelConfig,
+      PushoverChannelConfig,
+      RootlyChannelConfig,
       SlackChannelConfig,
+      SplunkOnCallChannelConfig,
       TeamsChannelConfig,
+      TelegramChannelConfig,
       WebhookChannelConfig,
+      ZapierChannelConfig,
     ]),
     managedBy: z
       .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
@@ -84,13 +200,26 @@ const UpdateAlertChannelRequest = z
   .object({
     name: z.string().min(0).max(255),
     config: z.union([
+      DatadogChannelConfig,
       DiscordChannelConfig,
       EmailChannelConfig,
+      GitLabChannelConfig,
+      GoogleChatChannelConfig,
+      IncidentIoChannelConfig,
+      JiraChannelConfig,
+      LinearChannelConfig,
+      MattermostChannelConfig,
       OpsGenieChannelConfig,
       PagerDutyChannelConfig,
+      PushbulletChannelConfig,
+      PushoverChannelConfig,
+      RootlyChannelConfig,
       SlackChannelConfig,
+      SplunkOnCallChannelConfig,
       TeamsChannelConfig,
+      TelegramChannelConfig,
       WebhookChannelConfig,
+      ZapierChannelConfig,
     ]),
     managedBy: z
       .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
@@ -100,13 +229,26 @@ const UpdateAlertChannelRequest = z
 const TestAlertChannelRequest = z
   .object({
     config: z.union([
+      DatadogChannelConfig,
       DiscordChannelConfig,
       EmailChannelConfig,
+      GitLabChannelConfig,
+      GoogleChatChannelConfig,
+      IncidentIoChannelConfig,
+      JiraChannelConfig,
+      LinearChannelConfig,
+      MattermostChannelConfig,
       OpsGenieChannelConfig,
       PagerDutyChannelConfig,
+      PushbulletChannelConfig,
+      PushoverChannelConfig,
+      RootlyChannelConfig,
       SlackChannelConfig,
+      SplunkOnCallChannelConfig,
       TeamsChannelConfig,
+      TelegramChannelConfig,
       WebhookChannelConfig,
+      ZapierChannelConfig,
     ]),
   })
   .strict();
@@ -951,13 +1093,16 @@ const UpdateAlertSensitivityRequest = z
     alertSensitivity: z
       .string()
       .min(1)
-      .regex(/ALL|INCIDENTS_ONLY|MAJOR_ONLY/),
+      .regex(/ALL|AWARENESS|INCIDENTS_ONLY|MAJOR_ONLY/),
   })
   .strict();
 const ServiceSubscribeRequest = z
   .object({
     componentId: z.string().uuid().nullable(),
-    alertSensitivity: z.string().nullable(),
+    alertSensitivity: z
+      .string()
+      .regex(/ALL|AWARENESS|INCIDENTS_ONLY|MAJOR_ONLY/)
+      .nullable(),
   })
   .partial()
   .strict();
@@ -1014,6 +1159,7 @@ const StatusPageBranding = z
       .regex(/^https?:\/\/.*/)
       .nullable(),
     hidePoweredBy: z.boolean().default(false),
+    showSubscribeButton: z.boolean().default(true),
     customCss: z.string().min(0).max(50000).nullable(),
     customHeadHtml: z.string().min(0).max(50000).nullable(),
   })
@@ -1287,6 +1433,16 @@ const AlertChannelDisplayConfig = z
     severityOverride: z.string().nullable(),
     mentionRoleId: z.string().nullable(),
     customHeaders: z.record(z.string().nullable()).nullable(),
+    chatId: z.string().nullable(),
+    priority: z.string().nullable(),
+    channel: z.string().nullable(),
+    routingKey: z.string().nullable(),
+    deviceIden: z.string().nullable(),
+    teamId: z.string().nullable(),
+    visibility: z.string().nullable(),
+    severity: z.string().nullable(),
+    site: z.string().nullable(),
+    projectKey: z.string().nullable(),
   })
   .partial()
   .strict();
@@ -1689,6 +1845,7 @@ const ServiceCatalogDto = z
     logoUrl: z.string().nullish(),
     adapterType: z.string(),
     pollingIntervalSeconds: z.number().int(),
+    lifecycleStatus: z.string(),
     enabled: z.boolean(),
     published: z.boolean(),
     overallStatus: z.string().nullish(),
@@ -2408,6 +2565,7 @@ const ServiceDetailDto = z
     logoUrl: z.string().nullish(),
     adapterType: z.string(),
     pollingIntervalSeconds: z.number().int(),
+    lifecycleStatus: z.string(),
     enabled: z.boolean(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
@@ -3175,14 +3333,28 @@ const WebhookEventCatalogResponse = z
 
 export const schemas = {
   pageable,
+  ErrorEntry,
   ErrorResponse,
+  DatadogChannelConfig,
   DiscordChannelConfig,
   EmailChannelConfig,
+  GitLabChannelConfig,
+  GoogleChatChannelConfig,
+  IncidentIoChannelConfig,
+  JiraChannelConfig,
+  LinearChannelConfig,
+  MattermostChannelConfig,
   OpsGenieChannelConfig,
   PagerDutyChannelConfig,
+  PushbulletChannelConfig,
+  PushoverChannelConfig,
+  RootlyChannelConfig,
   SlackChannelConfig,
+  SplunkOnCallChannelConfig,
   TeamsChannelConfig,
+  TelegramChannelConfig,
   WebhookChannelConfig,
+  ZapierChannelConfig,
   CreateAlertChannelRequest,
   UpdateAlertChannelRequest,
   TestAlertChannelRequest,

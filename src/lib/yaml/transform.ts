@@ -295,6 +295,7 @@ export function toBrandingRequest(
     theme: branding.theme ?? null,
     reportUrl: branding.reportUrl ?? null,
     hidePoweredBy: branding.hidePoweredBy ?? false,
+    showSubscribeButton: branding.showSubscribeButton ?? true,
     customCss: branding.customCss ?? null,
     customHeadHtml: branding.customHeadHtml ?? null,
   }
