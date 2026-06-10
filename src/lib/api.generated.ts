@@ -18850,6 +18850,8 @@ export interface operations {
                 status?: string;
                 /** @description Filter by published status for pSEO pages */
                 published?: boolean;
+                /** @description Case-insensitive substring match on service name or slug */
+                search?: string;
                 /** @description Opaque cursor from a previous response */
                 cursor?: string;
                 /** @description Page size (1–100, default 20) */

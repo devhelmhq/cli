@@ -95,8 +95,9 @@ Every resource supports `list`, `get`, `create`, `update`, and `delete` subcomma
 | `resource-groups` | list, get, create, update, delete | `/api/v1/resource-groups` |
 | `webhooks` | list, get, create, update, delete, test | `/api/v1/webhooks` |
 | `api-keys` | list, get, create, delete, revoke | `/api/v1/api-keys` |
-| `dependencies` | list, get, track, delete | `/api/v1/service-subscriptions` |
-| `data services` | status, uptime | `/api/v1/services` |
+| `dependencies` | list, get, track, update, delete | `/api/v1/service-subscriptions` |
+| `services` | list, get, status, summary, components, categories, uptime, incidents, maintenances | `/api/v1/services`, `/api/v1/categories` |
+| `data services` | status, uptime (aliases of `services status` / `services uptime`) | `/api/v1/services` |
 
 ### Global Flags
 

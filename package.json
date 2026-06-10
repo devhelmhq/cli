@@ -97,6 +97,9 @@
       "secrets": {
         "description": "Manage workspace secrets used in monitor configurations and headers"
       },
+      "services": {
+        "description": "Browse the status-data service catalog and query service health"
+      },
       "skills": {
         "description": "Generate and install Cursor / Claude agent skill packages for DevHelm"
       },
