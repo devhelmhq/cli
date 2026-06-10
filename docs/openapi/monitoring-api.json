@@ -2274,6 +2274,18 @@
         ],
         "summary": "List categories with service counts",
         "operationId": "listCategories",
+        "parameters": [
+          {
+            "name": "publishedOnly",
+            "in": "query",
+            "description": "Count only published services (curated public pSEO set); default false",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -13670,6 +13682,16 @@
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "name": "publishedOnly",
+            "in": "query",
+            "description": "Resolve only published services (curated public pSEO set); 404 otherwise. Default false",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -15367,6 +15389,18 @@
         "summary": "Global status summary across all services",
         "description": "Returns aggregate counts of services by status and a list of services currently experiencing issues.",
         "operationId": "getGlobalStatusSummary",
+        "parameters": [
+          {
+            "name": "publishedOnly",
+            "in": "query",
+            "description": "Aggregate only published services (curated public pSEO set); default false",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
