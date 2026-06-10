@@ -1,17 +1,4 @@
-import {Command, Args} from '@oclif/core'
-import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {checkedFetch, unwrapData} from '../../../lib/api-client.js'
-
-export default class DataServicesStatus extends Command {
-  static description = 'Get the current status of a service'
-  static examples = ['<%= config.bin %> data services status aws-ec2']
-  static args = {slug: Args.string({description: 'Service slug', required: true})}
-  static flags = {...globalFlags}
-
-  async run() {
-    const {args, flags} = await this.parse(DataServicesStatus)
-    const client = buildClient(flags)
-    const resp = await checkedFetch(client.GET('/api/v1/services/{slugOrId}', {params: {path: {slugOrId: args.slug}}}))
-    display(this, unwrapData(resp), flags.output)
-  }
-}
+// Back-compat shim: `data services status` is the legacy spelling of
+// `services status`. Re-exporting the class registers the same command
+// under the old id so existing scripts keep working.
+export {default} from '../../services/status.js'
