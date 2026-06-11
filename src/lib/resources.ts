@@ -392,15 +392,40 @@ function parseAlertChannelConfigFlag(raw: string): object {
 }
 
 // Discriminated by `channelType` to match the API's AlertChannelConfig union.
-const ALERT_CHANNEL_CONFIG_SCHEMAS: Record<string, z.ZodType> = {
-  discord: apiSchemas.DiscordChannelConfig,
-  email: apiSchemas.EmailChannelConfig,
-  opsgenie: apiSchemas.OpsGenieChannelConfig,
-  pagerduty: apiSchemas.PagerDutyChannelConfig,
-  slack: apiSchemas.SlackChannelConfig,
-  teams: apiSchemas.TeamsChannelConfig,
-  webhook: apiSchemas.WebhookChannelConfig,
-}
+// Derived from the generated OpenAPI Zod schemas (the source of truth) so this
+// map can never drift from the API surface: every config variant is keyed by
+// its own `channelType` literal, and a new channel type added to the spec shows
+// up here automatically after `pnpm sync-schema` regenerates api-zod.generated.
+// The drift-guard test asserts this covers every entry in CHANNEL_TYPES.
+const CHANNEL_CONFIG_SCHEMA_LIST: z.AnyZodObject[] = [
+  apiSchemas.DatadogChannelConfig,
+  apiSchemas.DiscordChannelConfig,
+  apiSchemas.EmailChannelConfig,
+  apiSchemas.GitLabChannelConfig,
+  apiSchemas.GoogleChatChannelConfig,
+  apiSchemas.IncidentIoChannelConfig,
+  apiSchemas.JiraChannelConfig,
+  apiSchemas.LinearChannelConfig,
+  apiSchemas.MattermostChannelConfig,
+  apiSchemas.OpsGenieChannelConfig,
+  apiSchemas.PagerDutyChannelConfig,
+  apiSchemas.PushbulletChannelConfig,
+  apiSchemas.PushoverChannelConfig,
+  apiSchemas.RootlyChannelConfig,
+  apiSchemas.SlackChannelConfig,
+  apiSchemas.SplunkOnCallChannelConfig,
+  apiSchemas.TeamsChannelConfig,
+  apiSchemas.TelegramChannelConfig,
+  apiSchemas.WebhookChannelConfig,
+  apiSchemas.ZapierChannelConfig,
+]
+
+export const ALERT_CHANNEL_CONFIG_SCHEMAS: Record<string, z.ZodType> = Object.fromEntries(
+  CHANNEL_CONFIG_SCHEMA_LIST.map((schema) => [
+    (schema.shape as {channelType: z.ZodLiteral<string>}).channelType.value,
+    schema as z.ZodType,
+  ]),
+)
 
 export const NOTIFICATION_POLICIES: FullResource<NotificationPolicyDto> = {
   name: 'notification policy',

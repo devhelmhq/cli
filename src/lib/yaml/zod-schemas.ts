@@ -91,16 +91,40 @@ export const ASSERTION_WIRE_TYPES = Object.keys(ASSERTION_CONFIG_SCHEMAS)
 export {ASSERTION_CONFIG_SCHEMAS}
 
 // ── Channel config schemas (imported from generated OpenAPI Zod) ─────
+// Derived from the generated schemas (the source of truth), keyed by each
+// variant's `channelType` literal, so every channel type the API supports is
+// deeply validated in YAML. Previously this covered only 7 of 20 types and the
+// rest fell through the `if (!configSchema) return` escape hatch unvalidated.
+// The parity test asserts this covers every entry in CHANNEL_TYPES.
+const CHANNEL_CONFIG_SCHEMA_LIST: z.AnyZodObject[] = [
+  apiSchemas.DatadogChannelConfig,
+  apiSchemas.DiscordChannelConfig,
+  apiSchemas.EmailChannelConfig,
+  apiSchemas.GitLabChannelConfig,
+  apiSchemas.GoogleChatChannelConfig,
+  apiSchemas.IncidentIoChannelConfig,
+  apiSchemas.JiraChannelConfig,
+  apiSchemas.LinearChannelConfig,
+  apiSchemas.MattermostChannelConfig,
+  apiSchemas.OpsGenieChannelConfig,
+  apiSchemas.PagerDutyChannelConfig,
+  apiSchemas.PushbulletChannelConfig,
+  apiSchemas.PushoverChannelConfig,
+  apiSchemas.RootlyChannelConfig,
+  apiSchemas.SlackChannelConfig,
+  apiSchemas.SplunkOnCallChannelConfig,
+  apiSchemas.TeamsChannelConfig,
+  apiSchemas.TelegramChannelConfig,
+  apiSchemas.WebhookChannelConfig,
+  apiSchemas.ZapierChannelConfig,
+]
 
-const CHANNEL_CONFIG_SCHEMAS: Record<string, z.ZodType> = {
-  discord: apiSchemas.DiscordChannelConfig,
-  email: apiSchemas.EmailChannelConfig,
-  opsgenie: apiSchemas.OpsGenieChannelConfig,
-  pagerduty: apiSchemas.PagerDutyChannelConfig,
-  slack: apiSchemas.SlackChannelConfig,
-  teams: apiSchemas.TeamsChannelConfig,
-  webhook: apiSchemas.WebhookChannelConfig,
-}
+const CHANNEL_CONFIG_SCHEMAS: Record<string, z.ZodType> = Object.fromEntries(
+  CHANNEL_CONFIG_SCHEMA_LIST.map((schema) => [
+    (schema.shape as {channelType: z.ZodLiteral<string>}).channelType.value,
+    schema as z.ZodType,
+  ]),
+)
 
 // ── Monitor config schemas (imported from generated OpenAPI Zod) ─────
 

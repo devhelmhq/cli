@@ -2,7 +2,8 @@ import {describe, it, expect, beforeEach, afterEach, vi} from 'vitest'
 import {mkdtempSync, writeFileSync, rmSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
-import {ALERT_CHANNELS, MONITORS, STATUS_PAGES} from '../../src/lib/resources.js'
+import {ALERT_CHANNELS, ALERT_CHANNEL_CONFIG_SCHEMAS, MONITORS, STATUS_PAGES} from '../../src/lib/resources.js'
+import {CHANNEL_TYPES} from '../../src/lib/spec-facts.generated.js'
 
 describe('ALERT_CHANNELS bodyBuilder --config validation', () => {
   it('accepts valid slack config JSON', () => {
@@ -35,8 +36,33 @@ describe('ALERT_CHANNELS bodyBuilder --config validation', () => {
 
   it('throws on unknown channelType', () => {
     expect(() =>
-      ALERT_CHANNELS.bodyBuilder!({name: 'x', type: 'slack', config: '{"channelType":"telegram"}'}),
-    ).toThrow(/Unknown channelType "telegram"/)
+      ALERT_CHANNELS.bodyBuilder!({name: 'x', type: 'slack', config: '{"channelType":"carrier_pigeon"}'}),
+    ).toThrow(/Unknown channelType "carrier_pigeon"/)
+  })
+
+  it('accepts a valid telegram config (previously unmapped)', () => {
+    const body = ALERT_CHANNELS.bodyBuilder!({
+      name: 'tg',
+      type: 'telegram',
+      config: JSON.stringify({channelType: 'telegram', botToken: 'abc123', chatId: '-1001234567890'}),
+    })
+    expect(body.config).toMatchObject({channelType: 'telegram', botToken: 'abc123'})
+  })
+
+  it.each(['telegram', 'google_chat', 'pushover', 'mattermost', 'splunk_oncall', 'pushbullet', 'linear', 'incident_io', 'rootly', 'zapier', 'datadog', 'jira', 'gitlab'])(
+    'rejects an incomplete %s config with a field-level error (not "Unknown channelType")',
+    (channelType) => {
+      expect(() =>
+        ALERT_CHANNELS.bodyBuilder!({name: 'x', type: channelType, config: JSON.stringify({channelType})}),
+      ).toThrow(new RegExp(`Invalid --config payload for channelType "${channelType}"`))
+    },
+  )
+
+  it('config schema map covers every channel type (drift guard)', () => {
+    const mapped = new Set(Object.keys(ALERT_CHANNEL_CONFIG_SCHEMAS))
+    const missing = CHANNEL_TYPES.filter((t) => !mapped.has(t))
+    expect(missing).toEqual([])
+    expect(mapped.size).toBe(CHANNEL_TYPES.length)
   })
 
   it('throws when payload does not match the channelType schema', () => {

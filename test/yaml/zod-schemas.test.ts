@@ -182,6 +182,20 @@ describe('DevhelmConfigSchema', () => {
       })
       expect(result.success).toBe(false)
     })
+
+    // Drift guard: every channel type in the spec must be deeply validated.
+    // A config carrying only `channelType` (no required fields) must fail for
+    // every type — if a type were missing from CHANNEL_CONFIG_SCHEMAS it would
+    // slip through the `if (!configSchema) return` escape hatch and succeed.
+    it.each([..._ZOD_ENUMS.CHANNEL_TYPES])(
+      'deeply validates %s config (no unmapped escape hatch)',
+      (channelType) => {
+        const result = DevhelmConfigSchema.safeParse({
+          alertChannels: [{name: 'x', config: {channelType}}],
+        })
+        expect(result.success).toBe(false)
+      },
+    )
   })
 
   describe('notificationPolicies', () => {
