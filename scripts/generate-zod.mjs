@@ -12,7 +12,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { preprocessSpec, rewriteUnionsAsDiscriminated } from './lib/preprocess.mjs';
+import { preprocessSpec, rewriteUnionsAsDiscriminated, relaxResponseStrict } from './lib/preprocess.mjs';
 import { generateZodClientFromOpenAPI } from 'openapi-zod-client';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -192,6 +192,9 @@ async function main() {
   // Post-process: convert `z.union([...])` → `z.discriminatedUnion("type", [...])`
   // for hierarchies the preprocessor inlined.
   clean = rewriteUnionsAsDiscriminated(clean, inlinedDiscriminators);
+  // Post-process: relax `.strict()` → `.passthrough()` on response-shape DTOs
+  // so new API fields don't break surfaces built against an older spec.
+  clean = relaxResponseStrict(clean);
   writeFileSync(OUTPUT_PATH, clean, 'utf8');
 
   const schemaCount = (clean.match(/^const /gm) || []).length;
