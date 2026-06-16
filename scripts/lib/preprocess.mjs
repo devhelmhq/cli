@@ -436,3 +436,43 @@ export function rewriteUnionsAsDiscriminated(source, unions) {
     return `z.discriminatedUnion("${disc}", [${memberList.join(', ')}])`;
   });
 }
+
+/**
+ * Rewrite `.strict()` → `.passthrough()` on response-shape DTO declarations
+ * so surfaces tolerate new fields added to the API after the surface was built.
+ * Request schemas keep `.strict()` to catch typos in user input.
+ */
+export function relaxResponseStrict(source) {
+  const declRe = /^const\s+(\w+)\b/gm;
+  const strictRe = /\.strict\(\)/g;
+
+  function isResponseShape(name) {
+    if (/^[a-z]/.test(name)) return false;
+    if (/(Request|Params)$/.test(name)) return false;
+    return (
+      /(Dto|Response)$/.test(name) ||
+      /^(SingleValueResponse|TableValueResult|CursorPage)/.test(name)
+    );
+  }
+
+  const declarations = [];
+  let match;
+  while ((match = declRe.exec(source)) !== null) {
+    declarations.push({ start: match.index, name: match[1] });
+  }
+  if (declarations.length === 0) return source;
+
+  let out = source.slice(0, declarations[0].start);
+  for (let i = 0; i < declarations.length; i++) {
+    const { start, name } = declarations[i];
+    const end =
+      i + 1 < declarations.length ? declarations[i + 1].start : source.length;
+    const body = source.slice(start, end);
+    if (isResponseShape(name)) {
+      out += body.replace(strictRe, '.passthrough()');
+    } else {
+      out += body;
+    }
+  }
+  return out;
+}
