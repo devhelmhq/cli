@@ -346,7 +346,7 @@ export function relaxResponseEnumsInSpec(spec) {
     if (/^[a-z]/.test(name)) return false;
     if (/(Request|Params)$/.test(name)) return false;
     return (
-      /(Dto|Response)$/.test(name) ||
+      /(Dto|Response|DisplayConfig)$/.test(name) ||
       /^(SingleValueResponse|TableValueResult|CursorPage)/.test(name)
     );
   }
@@ -447,10 +447,12 @@ export function relaxResponseStrict(source) {
   const strictRe = /\.strict\(\)/g;
 
   function isResponseShape(name) {
+    // Nested response-only metadata (*DisplayConfig) must be tolerant too —
+    // parent *Dto `.passthrough()` does not relax nested `.strict()` objects.
     if (/^[a-z]/.test(name)) return false;
     if (/(Request|Params)$/.test(name)) return false;
     return (
-      /(Dto|Response)$/.test(name) ||
+      /(Dto|Response|DisplayConfig)$/.test(name) ||
       /^(SingleValueResponse|TableValueResult|CursorPage)/.test(name)
     );
   }

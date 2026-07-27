@@ -1445,7 +1445,7 @@ const AlertChannelDisplayConfig = z
     projectKey: z.string().nullable(),
   })
   .partial()
-  .strict();
+  .passthrough();
 const AlertChannelDto = z
   .object({
     id: z.string().uuid(),
