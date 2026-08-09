@@ -7560,6 +7560,8 @@ export interface components {
         UpdateStatusPageRequest: {
             /** @description New name; null preserves current */
             name?: string | null;
+            /** @description URL-safe slug used in the public URL; null preserves current */
+            slug?: string | null;
             /** @description New description; null preserves current, empty string clears */
             description?: string | null;
             branding?: components["schemas"]["StatusPageBranding"] | null;
