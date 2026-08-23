@@ -8,6 +8,7 @@
 | Field | Type | Required | Nullable | Description |
 |---|---|---|---|---|
 | `name` | string | ✓ |  | Human-readable name for this policy |
+| `description` | string |  | ✓ | Optional note; omit or null when unused |
 | `matchRules` | MatchRule[] |  | ✓ | Match rules to evaluate (all must pass; omit or empty for catch-all) |
 | `escalation` | EscalationChain | ✓ |  |  |
 | `enabled` | boolean |  | ✓ | Whether this policy is enabled (default true) |
@@ -18,6 +19,7 @@
 | Field | Type | Required | Nullable | Description |
 |---|---|---|---|---|
 | `name` | string |  | ✓ | Human-readable name for this policy; null preserves current |
+| `description` | string |  | ✓ | New note; null preserves current, empty string clears |
 | `matchRules` | MatchRule[] |  | ✓ | Match rules to evaluate (all must pass; omit or empty for catch-all) |
 | `escalation` | any |  | ✓ |  |
 | `enabled` | boolean |  | ✓ | Whether this policy is enabled; null preserves current |
@@ -30,10 +32,15 @@
 | `id` | string (uuid) | ✓ |  | Unique notification policy identifier |
 | `organizationId` | integer (int32) | ✓ |  | Organization this policy belongs to |
 | `name` | string | ✓ |  | Human-readable name for this policy |
+| `description` | string |  | ✓ | Optional note; null when unset |
 | `matchRules` | MatchRule[] | ✓ |  | Match rules (all must pass; empty = catch-all) |
 | `escalation` | EscalationChain | ✓ |  |  |
 | `enabled` | boolean | ✓ |  | Whether this policy is active |
 | `priority` | integer (int32) | ✓ |  | Evaluation order; higher value = evaluated first |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the policy was created |
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the policy was last updated |
+| `stats7d` | any |  | ✓ |  |
+| `stats30d` | any |  | ✓ |  |
+| `lastFiredAt` | string (date-time) |  | ✓ | Created-at of the most recent dispatch for this policy; null if never fired |
+| `lastFiredIncidentId` | string (uuid) |  | ✓ | Incident id of the most recent dispatch; null if never fired |
 

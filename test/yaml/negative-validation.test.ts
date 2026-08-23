@@ -458,7 +458,7 @@ describe('invalid channel configs per type', () => {
   })
 
   it('rejects unknown channel type', () => {
-    expectFail(channel({channelType: 'sms', phone: '+1234'}))
+    expectFail(channel({channelType: 'not_a_channel', phone: '+1234'}))
   })
 
   it('rejects missing channelType', () => {

@@ -18,6 +18,7 @@
 | `name` | string | ✓ |  | New channel name (full replacement, not partial update) |
 | `config` | any | ✓ |  |  |
 | `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value. |
+| `enabled` | boolean |  | ✓ | Whether this channel is enabled (default: true); null preserves current value |
 
 ## `AlertChannelDto` (response shape)
 
@@ -27,6 +28,7 @@
 | `name` | string | ✓ |  | Human-readable channel name |
 | `channelType` | string | ✓ |  | Channel integration type (e.g. SLACK, PAGERDUTY, EMAIL) |
 | `displayConfig` | any |  | ✓ |  |
+| `enabled` | boolean | ✓ |  | Whether this channel is enabled and will receive alerts |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the channel was created |
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the channel was last updated |
 | `configHash` | string |  | ✓ | SHA-256 hash of the channel config; use for change detection |

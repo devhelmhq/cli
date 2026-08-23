@@ -112,6 +112,8 @@ const CHANNEL_CONFIG_SCHEMA_LIST: z.AnyZodObject[] = [
   apiSchemas.PushoverChannelConfig,
   apiSchemas.RootlyChannelConfig,
   apiSchemas.SlackChannelConfig,
+  apiSchemas.SmsChannelConfig,
+  apiSchemas.PhoneCallChannelConfig,
   apiSchemas.SplunkOnCallChannelConfig,
   apiSchemas.TeamsChannelConfig,
   apiSchemas.TelegramChannelConfig,
@@ -320,6 +322,7 @@ const SecretSchema = z.object({
 
 const AlertChannelSchema = z.object({
   name: z.string(),
+  enabled: z.boolean().optional(),
   config: z.record(z.unknown()).refine(
     (c) => typeof c.channelType === 'string',
     {message: 'config.channelType is required'},
@@ -343,10 +346,21 @@ const AlertChannelSchema = z.object({
       ctx.addIssue({...issue, path: ['config', ...issue.path]})
     }
   }
+  if (result.success && (channelType === 'sms' || channelType === 'phone_call')) {
+    const cfg = data.config as {phoneNumber?: unknown; verifiedPhoneNumberId?: unknown}
+    if (!cfg.phoneNumber && cfg.verifiedPhoneNumberId == null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['config'],
+        message: `${channelType} requires phoneNumber or verifiedPhoneNumberId`,
+      })
+    }
+  }
 })
 
 const NotificationPolicySchema = z.object({
   name: z.string(),
+  description: z.string().optional(),
   enabled: z.boolean().optional(),
   priority: z.number().int().optional(),
   matchRules: z.array(MatchRuleSchema).optional(),
@@ -445,6 +459,7 @@ const StatusPageComponentSchema = z.object({
   type: z.enum(STATUS_PAGE_COMPONENT_TYPES),
   monitor: z.string().optional(),
   resourceGroup: z.string().optional(),
+  service: z.string().optional(),
   group: z.string().optional(),
   showUptime: z.boolean().optional(),
   excludeFromOverall: z.boolean().optional(),

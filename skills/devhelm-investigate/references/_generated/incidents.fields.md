@@ -3,6 +3,13 @@
 > Auto-generated from the DevHelm OpenAPI spec. Do not edit by hand.
 > Regenerate with `node scripts/generate-skill-references.mjs`.
 
+## `UpdateIncidentRequest`
+
+| Field | Type | Required | Nullable | Description |
+|---|---|---|---|---|
+| `title` | string |  | ✓ | New title; null preserves current (min 1 char if present) |
+| `severity` | "DOWN" \| "DEGRADED" \| "MAINTENANCE" |  | ✓ | New severity: DOWN, DEGRADED, or MAINTENANCE; null preserves current |
+
 ## `IncidentDto` (response shape)
 
 | Field | Type | Required | Nullable | Description |
@@ -19,12 +26,14 @@
 | `reopenCount` | integer (int32) | ✓ |  | Number of times this incident has been reopened |
 | `createdByUserId` | integer (int32) |  | ✓ | User who created the incident (manual incidents only) |
 | `statusPageVisible` | boolean | ✓ |  | Whether this incident is visible on the status page |
+| `suppressDispatch` | boolean | ✓ |  | When true, alert channels are suppressed (AWARENESS silent tracking); false means Alerted |
 | `serviceIncidentId` | string (uuid) |  | ✓ | Linked vendor service incident ID; null for monitor incidents |
 | `serviceId` | string (uuid) |  | ✓ | Linked service catalog ID; null for monitor incidents |
 | `externalRef` | string |  | ✓ | External reference ID (e.g. PagerDuty incident ID) |
 | `affectedComponents` | string[] |  | ✓ | Service components affected by this incident |
 | `shortlink` | string |  | ✓ | Short URL linking to the incident details |
 | `resolutionReason` | string |  | ✓ | How the incident was resolved (AUTO_RECOVERED, MANUAL, etc.) |
+| `resolutionNote` | string |  | ✓ | Body from the most recent resolve update; null when not currently resolved, auto-resolved without a note, or no resolve update body was provided |
 | `startedAt` | string (date-time) |  | ✓ | Timestamp when the incident was detected or created |
 | `confirmedAt` | string (date-time) |  | ✓ | Timestamp when the incident was confirmed (multi-region confirmation) |
 | `resolvedAt` | string (date-time) |  | ✓ | Timestamp when the incident was resolved |
@@ -41,4 +50,8 @@
 | `triggeredByRuleSnapshotHashHex` | string |  | ✓ | Hex SHA-256 of the canonical policy snapshot that fired; combined with triggeredByRuleIndex points to the exact TriggerRule. Omitted from JSON when null, treat missing as null. |
 | `triggeredByRuleIndex` | integer (int32) |  | ✓ | Index of the fired rule inside the policy's trigger_rules array. Omitted from JSON when null, treat missing as null. |
 | `engineVersion` | string |  | ✓ | Detection engine semver that evaluated the rule. Omitted from JSON when null, treat missing as null. |
+| `displayKey` | string |  | ✓ | Org-scoped human-readable incident code, e.g. "ABC-42". Null on incidents created by pre-INC-keys API pods before the sweep; treat missing as unknown and fall back to the id |
+| `alertCollapsedByResourceGroupIds` | string (uuid)[] |  | ✓ | Sticky union of resource-group IDs that suppressed a paging dispatch for this member incident; null when never written / legacy |
+| `peakFailingMemberCount` | integer (int32) |  | ✓ | Peak non-operational member count while this RESOURCE_GROUP incident was open; null otherwise |
+| `failingMembersAtPeak` | IncidentFailingMemberSnapshotDto[] |  | ✓ | Frozen failing members at peakFailingMemberCount; null when not a group incident or never snapshotted |
 

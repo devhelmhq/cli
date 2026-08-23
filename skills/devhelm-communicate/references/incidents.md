@@ -10,8 +10,8 @@ Two flavors:
 - **Auto-created**: a monitor tied to a status page component went
   DOWN; DevHelm opened a public incident automatically. The user can
   edit/update it.
-- **Manual**: the user creates one for scheduled maintenance or
-  vendor-side outages that monitors can't detect.
+- **Manual**: the user creates one for outages monitors can't detect.
+  Planned work is a separate resource — see Maintenance below.
 
 ## List on a page
 
@@ -24,21 +24,36 @@ devhelm status-pages incidents get <incident-id>
 
 ```bash
 devhelm status-pages incidents create <page-id> \
-  --title="Scheduled maintenance — DB upgrade" \
-  --status=SCHEDULED \
-  --scheduled-start=2026-05-01T02:00:00Z \
-  --scheduled-end=2026-05-01T03:00:00Z \
-  --affected-components=<comp_id1>,<comp_id2> \
-  --body="Database upgrade. Expect 5-10m of read-only mode."
+  --title="API outage" \
+  --impact=MAJOR \
+  --status=INVESTIGATING \
+  --body="Investigating elevated 5xx on the public API."
 ```
 
-### Incident kinds
+`--scheduled` is rejected. Planned work goes on the maintenance resource.
 
-| Kind | Use | Required fields |
-|---|---|---|
-| `REAL_TIME` | Something is broken right now | `status=INVESTIGATING`, `body` |
-| `SCHEDULED` | Upcoming planned work | `scheduled_start`, `scheduled_end`, `body` |
-| `HISTORICAL` | Retrospective entry for an outage already over | `status=RESOLVED`, `body` with timeline |
+## Maintenance windows
+
+```bash
+devhelm status-pages maintenance create <page-id> \
+  --title="Database upgrade" \
+  --impact=MINOR \
+  --body="Read-only for 30 minutes." \
+  --scheduled-for=2026-05-01T02:00:00Z \
+  --scheduled-until=2026-05-01T03:00:00Z
+
+devhelm status-pages maintenance list <page-id>
+devhelm status-pages maintenance get <page-id> <window-id>
+devhelm status-pages maintenance update <page-id> <window-id> --status=MONITORING
+devhelm status-pages maintenance post-update <page-id> <window-id> \
+  --body="Halfway through." --status=MONITORING
+devhelm status-pages maintenance publish <page-id> <window-id>
+devhelm status-pages maintenance dismiss <page-id> <window-id>
+devhelm status-pages maintenance delete <page-id> <window-id>
+```
+
+`@_generated/status-page-maintenance.fields.md`. Runtime pull:
+`devhelm skills schema status-page-maintenance`.
 
 ## Update an incident (post an update)
 

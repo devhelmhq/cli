@@ -1,7 +1,7 @@
 // Auto-generated from OpenAPI spec. DO NOT EDIT.
 // Re-run `npm run zodgen` to regenerate.
 
-export const MONITOR_TYPES = ['HTTP', 'DNS', 'MCP_SERVER', 'TCP', 'ICMP', 'HEARTBEAT'] as const
+export const MONITOR_TYPES = ['HTTP', 'DNS', 'MCP_SERVER', 'TCP', 'ICMP', 'HEARTBEAT', 'BROWSER', 'MULTI_STEP_API'] as const
 export type MonitorTypes = (typeof MONITOR_TYPES)[number]
 
 export const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'] as const
@@ -16,7 +16,7 @@ export type IncidentSeverities = (typeof INCIDENT_SEVERITIES)[number]
 export const ASSERTION_SEVERITIES = ['fail', 'warn'] as const
 export type AssertionSeverities = (typeof ASSERTION_SEVERITIES)[number]
 
-export const CHANNEL_TYPES = ['email', 'webhook', 'slack', 'pagerduty', 'opsgenie', 'teams', 'discord', 'telegram', 'google_chat', 'pushover', 'mattermost', 'splunk_oncall', 'pushbullet', 'linear', 'incident_io', 'rootly', 'zapier', 'datadog', 'jira', 'gitlab'] as const
+export const CHANNEL_TYPES = ['email', 'webhook', 'slack', 'pagerduty', 'opsgenie', 'teams', 'discord', 'telegram', 'google_chat', 'pushover', 'mattermost', 'splunk_oncall', 'pushbullet', 'linear', 'incident_io', 'rootly', 'zapier', 'datadog', 'jira', 'gitlab', 'sms', 'phone_call'] as const
 export type ChannelTypes = (typeof CHANNEL_TYPES)[number]
 
 export const TRIGGER_RULE_TYPES = ['consecutive_failures', 'failures_in_window', 'response_time'] as const
@@ -43,7 +43,7 @@ export type StatusPageVisibilities = (typeof STATUS_PAGE_VISIBILITIES)[number]
 export const STATUS_PAGE_INCIDENT_MODES = ['MANUAL', 'REVIEW', 'AUTOMATIC'] as const
 export type StatusPageIncidentModes = (typeof STATUS_PAGE_INCIDENT_MODES)[number]
 
-export const STATUS_PAGE_COMPONENT_TYPES = ['MONITOR', 'GROUP', 'STATIC'] as const
+export const STATUS_PAGE_COMPONENT_TYPES = ['MONITOR', 'GROUP', 'STATIC', 'DEPENDENCY'] as const
 export type StatusPageComponentTypes = (typeof STATUS_PAGE_COMPONENT_TYPES)[number]
 
 export const SP_INCIDENT_IMPACTS = ['NONE', 'MINOR', 'MAJOR', 'CRITICAL'] as const
