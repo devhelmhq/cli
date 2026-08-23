@@ -52,9 +52,12 @@ export interface Page<T> {
   hasPrev: boolean
   totalElements: number | null
   totalPages: number | null
+  nextCursor: string | null
 }
 
 export function parsePage<T>(schema: ZodType<T>, data: unknown, context = 'Response'): Page<T> {
+  // nextCursor is additive on TableValueResult. Passthrough so a new
+  // envelope field cannot break list commands (Postel's Law).
   const envelope = z
     .object({
       data: z.array(schema),
@@ -62,8 +65,9 @@ export function parsePage<T>(schema: ZodType<T>, data: unknown, context = 'Respo
       hasPrev: z.boolean(),
       totalElements: z.number().int().nullable().optional(),
       totalPages: z.number().int().nullable().optional(),
+      nextCursor: z.string().nullable().optional(),
     })
-    .strict()
+    .passthrough()
   const out = parse(envelope, data, `${context}: invalid TableValueResult envelope`)
   return {
     data: out.data,
@@ -71,6 +75,7 @@ export function parsePage<T>(schema: ZodType<T>, data: unknown, context = 'Respo
     hasPrev: out.hasPrev,
     totalElements: out.totalElements ?? null,
     totalPages: out.totalPages ?? null,
+    nextCursor: out.nextCursor ?? null,
   }
 }
 
