@@ -495,22 +495,34 @@ const alertChannelHandler = defineHandler<YamlAlertChannel, Schemas['AlertChanne
       name: req.name,
       channelType: yaml.config.channelType,
       configHash: sha256Hex(stableStringify(stripNullish(req.config))),
+      enabled: yaml.enabled ?? true,
     }
   },
   toCurrentSnapshot: (api) => ({
     name: api.name,
     channelType: api.channelType?.toLowerCase?.() ?? '',
     configHash: api.configHash ?? '',
+    enabled: api.enabled ?? true,
   }),
 
   fetchAll: (client) => fetchPaginated<Schemas['AlertChannelDto']>(client, '/api/v1/alert-channels'),
 
   async applyCreate(yaml, _refs, client) {
     const resp = await checkedFetch(client.POST('/api/v1/alert-channels', {body: toCreateAlertChannelRequest(yaml)}))
-    return idToString(resp?.data?.id)
+    const id = idToString(resp?.data?.id)
+    if (id && yaml.enabled === false) {
+      await checkedFetch(client.PUT('/api/v1/alert-channels/{id}', {
+        params: {path: {id}},
+        body: {...toCreateAlertChannelRequest(yaml), enabled: false},
+      }))
+    }
+    return id
   },
   async applyUpdate(yaml, id, _refs, client) {
-    await checkedFetch(client.PUT('/api/v1/alert-channels/{id}', {params: {path: {id}}, body: toCreateAlertChannelRequest(yaml)}))
+    await checkedFetch(client.PUT('/api/v1/alert-channels/{id}', {
+      params: {path: {id}},
+      body: {...toCreateAlertChannelRequest(yaml), enabled: yaml.enabled ?? true},
+    }))
   },
   deletePath: (id) => `/api/v1/alert-channels/${id}`,
 })
@@ -533,6 +545,7 @@ const notificationPolicyHandler = defineHandler<YamlNotificationPolicy, Schemas[
     const req = toCreateNotificationPolicyRequest(yaml, refs)
     return {
       name: req.name,
+      description: req.description ?? api.description ?? '',
       enabled: req.enabled ?? api.enabled ?? true,
       priority: req.priority ?? api.priority ?? 0,
       // matchRules from the request shape carry deeply-nested null fields
@@ -546,6 +559,7 @@ const notificationPolicyHandler = defineHandler<YamlNotificationPolicy, Schemas[
   },
   toCurrentSnapshot: (api) => ({
     name: api.name ?? '',
+    description: api.description ?? '',
     enabled: api.enabled ?? true,
     priority: api.priority ?? 0,
     matchRules: stripNullish(api.matchRules ?? []),
@@ -957,6 +971,7 @@ export function statusPageComponentDesiredSnapshot(
     group: yaml.group ?? null,
     monitor: yaml.monitor ?? null,
     resourceGroup: yaml.resourceGroup ?? null,
+    service: yaml.service ?? null,
   }
 }
 
@@ -1012,6 +1027,12 @@ export function statusPageComponentCurrentSnapshot(
       if (entry.id === String(api.resourceGroupId)) {resourceGroupName = entry.refKey; break}
     }
   }
+  let serviceName: string | null = null
+  if (api.serviceSubscriptionId) {
+    for (const entry of refs.allEntries('dependencies')) {
+      if (entry.id === api.serviceSubscriptionId) {serviceName = entry.refKey; break}
+    }
+  }
   return {
     name: api.name ?? '',
     description: api.description ?? null,
@@ -1024,6 +1045,7 @@ export function statusPageComponentCurrentSnapshot(
     group: groupName,
     monitor: monitorName,
     resourceGroup: resourceGroupName,
+    service: serviceName,
   }
 }
 
@@ -1082,6 +1104,9 @@ function makeComponentCollectionDef(
       if (yaml.type === 'GROUP' && yaml.resourceGroup) {
         body.resourceGroupId = refs.resolve('resourceGroups', yaml.resourceGroup) ?? yaml.resourceGroup
       }
+      if (yaml.type === 'DEPENDENCY' && yaml.service) {
+        body.serviceSubscriptionId = refs.resolve('dependencies', yaml.service) ?? yaml.service
+      }
       const resp = (await apiPost(
         client, `/api/v1/status-pages/${parentId}/components`, body,
       )) as {data?: Schemas['StatusPageComponentDto']}
@@ -1099,6 +1124,9 @@ function makeComponentCollectionDef(
         body.groupId = groupNameToId.get(yaml.group)
       } else if (!yaml.group) {
         body.removeFromGroup = true
+      }
+      if (yaml.type === 'DEPENDENCY' && yaml.service) {
+        body.serviceSubscriptionId = refs.resolve('dependencies', yaml.service) ?? yaml.service
       }
       await apiPut(client, `/api/v1/status-pages/${parentId}/components/${childId}`, body)
     },

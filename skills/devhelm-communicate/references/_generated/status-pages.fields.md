@@ -45,6 +45,7 @@
 | `componentCount` | integer (int32) |  | ✓ |  |
 | `subscriberCount` | integer (int64) |  | ✓ |  |
 | `overallStatus` | string |  | ✓ |  |
+| `openIncident` | any |  | ✓ |  |
 | `managedBy` | string |  | ✓ | Source that created/owns this status page: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on pages created before this attribution column existed. |
 | `createdAt` | string (date-time) | ✓ |  |  |
 | `updatedAt` | string (date-time) | ✓ |  |  |

@@ -379,11 +379,13 @@ export interface YamlSecret {
 
 export interface YamlAlertChannel {
   name: string
+  enabled?: boolean
   config: {channelType: ChannelType} & YamlChannelConfig
 }
 
 export interface YamlNotificationPolicy {
   name: string
+  description?: string
   enabled?: boolean
   priority?: number
   matchRules?: YamlMatchRule[]
@@ -495,6 +497,8 @@ export interface YamlStatusPageComponent {
   type: StatusPageComponentType
   monitor?: string
   resourceGroup?: string
+  /** Service subscription slug or id — required when type=DEPENDENCY. */
+  service?: string
   group?: string
   showUptime?: boolean
   /** Exclude from overall status calculation (e.g. third-party deps). */

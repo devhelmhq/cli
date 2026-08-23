@@ -51,6 +51,7 @@ const RESOURCES = {
     'status-pages': { singular: 'StatusPage' },
     'status-page-components': { singular: 'StatusPageComponent' },
     'status-page-incidents': { singular: 'StatusPageIncident' },
+    'status-page-maintenance': { singular: 'StatusPageMaintenance' },
     'status-page-subscribers': { singular: 'StatusPageSubscriber' },
     'status-page-domains': { singular: 'StatusPageDomain' },
   },

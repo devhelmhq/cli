@@ -8,7 +8,7 @@
 | Field | Type | Required | Nullable | Description |
 |---|---|---|---|---|
 | `name` | string | ✓ |  | Human-readable name for this monitor |
-| `type` | "HTTP" \| "DNS" \| "MCP_SERVER" \| "TCP" \| "ICMP" \| "HEARTBEAT" | ✓ |  | Monitor protocol type |
+| `type` | "HTTP" \| "DNS" \| "MCP_SERVER" \| "TCP" \| "ICMP" \| "HEARTBEAT" \| "BROWSER" \| "MULTI_STEP_API" | ✓ |  | Monitor protocol type |
 | `config` | any | ✓ |  |  |
 | `frequencySeconds` | integer (int32) |  | ✓ | Check frequency in seconds (10–86400); null defaults to plan minimum (60s on most paid plans) |
 | `enabled` | boolean |  | ✓ | Whether the monitor is active (default: true) |

@@ -534,7 +534,7 @@ describe('differ', () => {
     const baseApiComponent = {
       name: 'API', description: null, type: 'STATIC', showUptime: true,
       excludeFromOverall: false, startDate: null, group: null,
-      monitor: null, resourceGroup: null,
+      monitor: null, resourceGroup: null, service: null,
     }
 
     it('FIXED: component added in YAML is detected as page-level update', async () => {

@@ -178,7 +178,7 @@ describe('DevhelmConfigSchema', () => {
 
     it('rejects unknown channel type', () => {
       const result = DevhelmConfigSchema.safeParse({
-        alertChannels: [{name: 'x', config: {channelType: 'sms', webhookUrl: 'x'}}],
+        alertChannels: [{name: 'x', config: {channelType: 'not_a_channel', webhookUrl: 'x'}}],
       })
       expect(result.success).toBe(false)
     })

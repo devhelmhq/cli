@@ -55,7 +55,7 @@ const YAML_ONLY_FIELDS: Record<string, string[]> = {
     'monitors', 'services',
   ],
   statusPage: ['componentGroups', 'components'],
-  statusPageComponent: ['monitor', 'resourceGroup', 'group'],
+  statusPageComponent: ['monitor', 'resourceGroup', 'service', 'group'],
   webhook: [],
   tag: [],
   environment: [],
@@ -77,7 +77,7 @@ const API_ONLY_FIELDS: Record<string, string[]> = {
     'managedBy', 'alertPolicyId', 'defaultEnvironmentId',
   ],
   statusPage: ['managedBy'],
-  statusPageComponent: ['monitorId', 'resourceGroupId', 'groupId', 'displayOrder', 'removeFromGroup'],
+  statusPageComponent: ['monitorId', 'resourceGroupId', 'serviceSubscriptionId', 'groupId', 'displayOrder', 'removeFromGroup'],
   webhook: ['enabled'],
   tag: [],
   environment: [],
@@ -110,14 +110,14 @@ const MAPPINGS: FieldMapping[] = [
   {
     yamlName: 'alertChannel',
     apiSchemaNames: ['CreateAlertChannelRequest', 'UpdateAlertChannelRequest'],
-    yamlFields: ['name', 'config'],
+    yamlFields: ['name', 'config', 'enabled'],
     yamlOnlyFields: YAML_ONLY_FIELDS['alertChannel'],
     apiOnlyFields: API_ONLY_FIELDS['alertChannel'],
   },
   {
     yamlName: 'notificationPolicy',
     apiSchemaNames: ['CreateNotificationPolicyRequest', 'UpdateNotificationPolicyRequest'],
-    yamlFields: ['name', 'enabled', 'priority', 'matchRules', 'escalation'],
+    yamlFields: ['name', 'description', 'enabled', 'priority', 'matchRules', 'escalation'],
     yamlOnlyFields: YAML_ONLY_FIELDS['notificationPolicy'],
     apiOnlyFields: API_ONLY_FIELDS['notificationPolicy'],
   },
@@ -148,7 +148,7 @@ const MAPPINGS: FieldMapping[] = [
     apiSchemaNames: ['CreateStatusPageComponentRequest', 'UpdateStatusPageComponentRequest'],
     yamlFields: [
       'name', 'description', 'type', 'monitor', 'resourceGroup',
-      'group', 'showUptime', 'excludeFromOverall', 'startDate',
+      'service', 'group', 'showUptime', 'excludeFromOverall', 'startDate',
     ],
     yamlOnlyFields: YAML_ONLY_FIELDS['statusPageComponent'],
     apiOnlyFields: API_ONLY_FIELDS['statusPageComponent'],
@@ -251,12 +251,14 @@ describe('YAML ↔ OpenAPI field parity', () => {
 
 const SNAPSHOT_COMPONENT_FIELDS = [
   'name', 'description', 'type', 'showUptime', 'excludeFromOverall',
-  'startDate', 'group', 'monitor', 'resourceGroup',
+  'startDate', 'group', 'monitor', 'resourceGroup', 'service',
 ]
 
 const SNAPSHOT_COMPONENT_DTO_ONLY = [
   'id', 'statusPageId', 'groupId', 'monitorId', 'resourceGroupId',
+  'serviceSubscriptionId', 'serviceName', 'serviceSlug',
   'displayOrder', 'pageOrder', 'currentStatus', 'createdAt', 'updatedAt',
+  'overrideActor', 'overrideExpiresAt', 'overrideReason', 'overrideStatus',
 ]
 
 const SNAPSHOT_GROUP_FIELDS = ['name', 'description', 'defaultOpen']
@@ -275,7 +277,7 @@ describe('Snapshot ↔ DTO field parity', () => {
     })
 
     it('every snapshot field maps to a DTO field or is a YAML name ref', () => {
-      const yamlNameRefs = ['group', 'monitor', 'resourceGroup']
+      const yamlNameRefs = ['group', 'monitor', 'resourceGroup', 'service']
       for (const field of SNAPSHOT_COMPONENT_FIELDS) {
         if (yamlNameRefs.includes(field)) continue
         expect(

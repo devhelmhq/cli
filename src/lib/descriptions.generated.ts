@@ -30,7 +30,9 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "title": "Short summary of the incident",
     "severity": "Incident severity: DOWN, DEGRADED, or MAINTENANCE",
     "monitorId": "Monitor to associate with this incident",
-    "body": "Detailed description or context for the incident"
+    "body": "Detailed description or context for the incident",
+    "serviceId": "Vendor service to link; optional for Dependencies create CTA",
+    "serviceIncidentId": "Vendor incident to link; idempotent if an active org incident already links it"
   },
   "CreateAlertChannelRequest": {
     "name": "Human-readable name for this alert channel",
@@ -38,16 +40,19 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   },
   "UpdateAlertChannelRequest": {
     "name": "New channel name (full replacement, not partial update)",
-    "managedBy": "New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value."
+    "managedBy": "New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value.",
+    "enabled": "Whether this channel is enabled (default: true); null preserves current value"
   },
   "CreateNotificationPolicyRequest": {
     "name": "Human-readable name for this policy",
+    "description": "Optional note; omit or null when unused",
     "matchRules": "Match rules to evaluate (all must pass; omit or empty for catch-all)",
     "enabled": "Whether this policy is enabled (default true)",
     "priority": "Evaluation priority; higher value = evaluated first (default 0)"
   },
   "UpdateNotificationPolicyRequest": {
     "name": "Human-readable name for this policy; null preserves current",
+    "description": "New note; null preserves current, empty string clears",
     "matchRules": "Match rules to evaluate (all must pass; omit or empty for catch-all)",
     "enabled": "Whether this policy is enabled; null preserves current",
     "priority": "Evaluation priority; higher value = evaluated first; null preserves current"
@@ -80,7 +85,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   },
   "CreateResourceGroupRequest": {
     "name": "Human-readable name for this group",
-    "description": "Optional description",
+    "description": "Optional description (max 500)",
     "alertPolicyId": "Optional notification policy to apply for this group",
     "defaultFrequency": "Default check frequency in seconds applied to members (30–86400)",
     "defaultRegions": "Default regions applied to member monitors",
@@ -95,7 +100,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   },
   "UpdateResourceGroupRequest": {
     "name": "Human-readable name for this group",
-    "description": "Optional description; null clears the existing value",
+    "description": "Optional description (max 500); null clears the existing value",
     "alertPolicyId": "Optional notification policy to apply for this group; null clears the existing value",
     "defaultFrequency": "Default check frequency in seconds for members (30–86400); null clears",
     "defaultRegions": "Default regions for member monitors; null clears",
@@ -200,7 +205,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   },
   "WebhookChannelConfig": {
     "url": "Webhook endpoint URL that receives alert payloads",
-    "signingSecret": "Optional HMAC signing secret for payload verification",
+    "signingSecret": "HMAC secret for X-DevHelm-Signature header; omit for unsigned delivery",
     "customHeaders": "Additional HTTP headers to include in webhook requests"
   },
   "PagerDutyChannelConfig": {

@@ -97,11 +97,13 @@ Two sources:
 
 - **Auto-created** — from monitor failures.
 - **Manual** — `devhelm status-pages incidents create <page-id> ...`
-  for maintenance windows, vendor-side outages, etc.
+  for outages monitors can't detect.
 
-Both are rendered in the same section. Manual incidents need an
-explicit resolve; auto-created ones resolve when the underlying
-monitor returns to UP.
+Do **not** use incident create for planned work. Schedule a window
+with `devhelm status-pages maintenance create <page-id> ...`.
+
+Manual incidents need an explicit resolve; auto-created ones resolve
+when the underlying monitor returns to UP.
 
 ## Complete field reference
 

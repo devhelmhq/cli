@@ -58,6 +58,7 @@ export function toCreateNotificationPolicyRequest(
 ): Schemas['CreateNotificationPolicyRequest'] {
   return {
     name: policy.name,
+    description: policy.description,
     enabled: policy.enabled ?? true,
     priority: policy.priority ?? 0,
     matchRules: policy.matchRules?.map((r) => toMatchRule(r, refs)) ?? [],
@@ -155,6 +156,9 @@ function toMonitorConfig(
     case 'ICMP': return cfg as Schemas['IcmpMonitorConfig']
     case 'HEARTBEAT': return cfg as Schemas['HeartbeatMonitorConfig']
     case 'MCP_SERVER': return cfg as Schemas['McpServerMonitorConfig']
+    case 'BROWSER':
+    case 'MULTI_STEP_API':
+      return cfg as Schemas['ScriptMonitorConfig']
   }
 }
 

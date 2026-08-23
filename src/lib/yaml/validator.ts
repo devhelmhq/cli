@@ -560,8 +560,12 @@ function validateStatusPageComponent(comp: YamlStatusPageComponent, path: string
   if (comp.type === 'GROUP' && !comp.resourceGroup) {
     ctx.error(`${path}.resourceGroup`, 'GROUP component requires "resourceGroup" reference')
   }
+  if (comp.type === 'DEPENDENCY' && !comp.service) {
+    ctx.error(`${path}.service`, 'DEPENDENCY component requires "service" reference')
+  }
   if (comp.monitor) ctx.checkRef('monitors', comp.monitor, `${path}.monitor`)
   if (comp.resourceGroup) ctx.checkRef('resourceGroups', comp.resourceGroup, `${path}.resourceGroup`)
+  if (comp.service) ctx.checkRef('dependencies', comp.service, `${path}.service`)
   if (comp.group && !groupNames.has(comp.group)) {
     ctx.warn(`${path}.group`, `Component group "${comp.group}" not found in this status page's componentGroups`)
   }

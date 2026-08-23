@@ -9,13 +9,14 @@
 |---|---|---|---|---|
 | `name` | string | ✓ |  | Component display name |
 | `description` | string |  | ✓ | Optional description shown on expand |
-| `type` | "MONITOR" \| "GROUP" \| "STATIC" | ✓ |  | Component type: MONITOR, GROUP, or STATIC |
+| `type` | "MONITOR" \| "GROUP" \| "STATIC" \| "DEPENDENCY" | ✓ |  | Component type: MONITOR, GROUP, STATIC, or DEPENDENCY |
 | `monitorId` | string (uuid) |  | ✓ | Monitor ID (required when type=MONITOR) |
 | `resourceGroupId` | string (uuid) |  | ✓ | Resource group ID (required when type=GROUP) |
+| `serviceSubscriptionId` | string (uuid) |  | ✓ | Service subscription (Dependency) ID — required when type=DEPENDENCY. Bind an existing org subscription; catalog picks must create the subscription first, then pass its id |
 | `groupId` | string (uuid) |  | ✓ | Component group ID for visual grouping |
-| `showUptime` | boolean |  | ✓ | Whether to show the uptime bar (default: true) |
+| `showUptime` | boolean |  | ✓ | Whether to show the uptime bar (default: true; false for DEPENDENCY) |
 | `displayOrder` | integer (int32) |  | ✓ | Position in the component list |
-| `excludeFromOverall` | boolean |  | ✓ | Exclude from overall status calculation (default: false, use true for third-party deps) |
+| `excludeFromOverall` | boolean |  | ✓ | Exclude from overall status calculation (default: false; true for DEPENDENCY) |
 | `startDate` | string (date) |  | ✓ | Date from which to start showing uptime; defaults to component creation. Set earlier to backdate (e.g. launch day); clamped at the monitor's createdAt for MONITOR-type components |
 
 ## `UpdateStatusPageComponentRequest`
@@ -43,7 +44,14 @@
 | `type` | string | ✓ |  |  |
 | `monitorId` | string (uuid) |  | ✓ |  |
 | `resourceGroupId` | string (uuid) |  | ✓ |  |
-| `currentStatus` | string | ✓ |  |  |
+| `serviceSubscriptionId` | string (uuid) |  | ✓ | Service subscription (Dependency) id when type=DEPENDENCY |
+| `serviceSlug` | string |  | ✓ | Slug of the subscribed catalog service (denormalized for display) |
+| `serviceName` | string |  | ✓ | Display name of the subscribed catalog service (denormalized for display) |
+| `currentStatus` | string | ✓ |  | Effective display status (incident > active override > binding) |
+| `overrideStatus` | string |  | ✓ | Active timed override status; null when unset or expired |
+| `overrideReason` | string |  | ✓ | Optional operator reason for the active override |
+| `overrideExpiresAt` | string (date-time) |  | ✓ | When the active override expires; null when unset or expired |
+| `overrideActor` | integer (int32) |  | ✓ | User id who set the override; null for API-key actors or when inactive |
 | `showUptime` | boolean | ✓ |  |  |
 | `displayOrder` | integer (int32) | ✓ |  |  |
 | `pageOrder` | integer (int32) | ✓ |  |  |

@@ -108,6 +108,16 @@ const PagerDutyChannelConfig = z
     severityOverride: z.string().nullish(),
   })
   .strict();
+const PhoneCallChannelConfig = z
+  .object({
+    channelType: z.literal("phone_call"),
+    phoneNumber: z.string().nullish(),
+    verifiedPhoneNumberId: z.number().int().nullish(),
+    phoneNumbers: z.array(z.string().nullable()).nullish(),
+    voiceLanguage: z.string().nullish(),
+    preferredLanguage: z.string().nullish(),
+  })
+  .strict();
 const PushbulletChannelConfig = z
   .object({
     channelType: z.literal("pushbullet"),
@@ -136,6 +146,15 @@ const SlackChannelConfig = z
     channelType: z.literal("slack"),
     webhookUrl: z.string().min(1),
     mentionText: z.string().nullish(),
+  })
+  .strict();
+const SmsChannelConfig = z
+  .object({
+    channelType: z.literal("sms"),
+    phoneNumber: z.string().nullish(),
+    verifiedPhoneNumberId: z.number().int().nullish(),
+    phoneNumbers: z.array(z.string().nullable()).nullish(),
+    preferredLanguage: z.string().nullish(),
   })
   .strict();
 const SplunkOnCallChannelConfig = z
@@ -181,10 +200,12 @@ const CreateAlertChannelRequest = z
       MattermostChannelConfig,
       OpsGenieChannelConfig,
       PagerDutyChannelConfig,
+      PhoneCallChannelConfig,
       PushbulletChannelConfig,
       PushoverChannelConfig,
       RootlyChannelConfig,
       SlackChannelConfig,
+      SmsChannelConfig,
       SplunkOnCallChannelConfig,
       TeamsChannelConfig,
       TelegramChannelConfig,
@@ -194,38 +215,204 @@ const CreateAlertChannelRequest = z
     managedBy: z
       .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
       .nullish(),
+  })
+  .strict();
+const UpdateDatadogChannelConfig = z
+  .object({
+    channelType: z.literal("datadog"),
+    apiKey: z.string().nullish(),
+    site: z.string().nullish(),
+    tags: z.string().nullish(),
+  })
+  .strict();
+const UpdateDiscordChannelConfig = z
+  .object({
+    channelType: z.literal("discord"),
+    webhookUrl: z.string().nullish(),
+    mentionRoleId: z.string().nullish(),
+  })
+  .strict();
+const UpdateEmailChannelConfig = z
+  .object({
+    channelType: z.literal("email"),
+    recipients: z.array(z.string().email()).min(1),
+  })
+  .strict();
+const UpdateGitLabChannelConfig = z
+  .object({
+    channelType: z.literal("gitlab"),
+    endpointUrl: z.string().min(1),
+    authorizationKey: z.string().nullish(),
+  })
+  .strict();
+const UpdateGoogleChatChannelConfig = z
+  .object({
+    channelType: z.literal("google_chat"),
+    webhookUrl: z.string().nullish(),
+  })
+  .strict();
+const UpdateIncidentIoChannelConfig = z
+  .object({
+    channelType: z.literal("incident_io"),
+    apiKey: z.string().nullish(),
+    severityId: z.string().nullish(),
+    visibility: z.string().nullish(),
+  })
+  .strict();
+const UpdateJiraChannelConfig = z
+  .object({
+    channelType: z.literal("jira"),
+    domain: z.string().min(1),
+    email: z.string().min(1),
+    apiToken: z.string().nullish(),
+    projectKey: z.string().min(1),
+    issueType: z.string().nullish(),
+  })
+  .strict();
+const UpdateLinearChannelConfig = z
+  .object({
+    channelType: z.literal("linear"),
+    apiKey: z.string().nullish(),
+    teamId: z.string().min(1),
+    labelId: z.string().nullish(),
+  })
+  .strict();
+const UpdateMattermostChannelConfig = z
+  .object({
+    channelType: z.literal("mattermost"),
+    webhookUrl: z.string().nullish(),
+    channel: z.string().nullish(),
+    iconUrl: z.string().nullish(),
+  })
+  .strict();
+const UpdateOpsGenieChannelConfig = z
+  .object({
+    channelType: z.literal("opsgenie"),
+    apiKey: z.string().nullish(),
+    region: z.string().nullish(),
+  })
+  .strict();
+const UpdatePagerDutyChannelConfig = z
+  .object({
+    channelType: z.literal("pagerduty"),
+    routingKey: z.string().nullish(),
+    severityOverride: z.string().nullish(),
+  })
+  .strict();
+const UpdatePhoneCallChannelConfig = z
+  .object({
+    channelType: z.literal("phone_call"),
+    phoneNumber: z.string().nullish(),
+    verifiedPhoneNumberId: z.number().int().nullish(),
+    phoneNumbers: z.array(z.string().nullable()).nullish(),
+    voiceLanguage: z.string().nullish(),
+    preferredLanguage: z.string().nullish(),
+  })
+  .strict();
+const UpdatePushbulletChannelConfig = z
+  .object({
+    channelType: z.literal("pushbullet"),
+    accessToken: z.string().nullish(),
+    deviceIden: z.string().nullish(),
+  })
+  .strict();
+const UpdatePushoverChannelConfig = z
+  .object({
+    channelType: z.literal("pushover"),
+    userKey: z.string().nullish(),
+    appToken: z.string().nullish(),
+    priority: z.string().nullish(),
+    sound: z.string().nullish(),
+  })
+  .strict();
+const UpdateRootlyChannelConfig = z
+  .object({
+    channelType: z.literal("rootly"),
+    apiKey: z.string().nullish(),
+    severity: z.string().nullish(),
+  })
+  .strict();
+const UpdateSlackChannelConfig = z
+  .object({
+    channelType: z.literal("slack"),
+    webhookUrl: z.string().nullish(),
+    mentionText: z.string().nullish(),
+  })
+  .strict();
+const UpdateSmsChannelConfig = z
+  .object({
+    channelType: z.literal("sms"),
+    phoneNumber: z.string().nullish(),
+    verifiedPhoneNumberId: z.number().int().nullish(),
+    phoneNumbers: z.array(z.string().nullable()).nullish(),
+    preferredLanguage: z.string().nullish(),
+  })
+  .strict();
+const UpdateSplunkOnCallChannelConfig = z
+  .object({
+    channelType: z.literal("splunk_oncall"),
+    apiKey: z.string().nullish(),
+    routingKey: z.string().min(1),
+  })
+  .strict();
+const UpdateTeamsChannelConfig = z
+  .object({ channelType: z.literal("teams"), webhookUrl: z.string().nullish() })
+  .strict();
+const UpdateTelegramChannelConfig = z
+  .object({
+    channelType: z.literal("telegram"),
+    botToken: z.string().nullish(),
+    chatId: z.string().min(1),
+  })
+  .strict();
+const UpdateWebhookChannelConfig = z
+  .object({
+    channelType: z.literal("webhook"),
+    url: z.string().nullish(),
+    signingSecret: z.string().nullish(),
+    customHeaders: z.record(z.string().nullable()).nullish(),
+  })
+  .strict();
+const UpdateZapierChannelConfig = z
+  .object({
+    channelType: z.literal("zapier"),
+    webhookUrl: z.string().nullish(),
   })
   .strict();
 const UpdateAlertChannelRequest = z
   .object({
     name: z.string().min(0).max(255),
     config: z.union([
-      DatadogChannelConfig,
-      DiscordChannelConfig,
-      EmailChannelConfig,
-      GitLabChannelConfig,
-      GoogleChatChannelConfig,
-      IncidentIoChannelConfig,
-      JiraChannelConfig,
-      LinearChannelConfig,
-      MattermostChannelConfig,
-      OpsGenieChannelConfig,
-      PagerDutyChannelConfig,
-      PushbulletChannelConfig,
-      PushoverChannelConfig,
-      RootlyChannelConfig,
-      SlackChannelConfig,
-      SplunkOnCallChannelConfig,
-      TeamsChannelConfig,
-      TelegramChannelConfig,
-      WebhookChannelConfig,
-      ZapierChannelConfig,
+      UpdateDatadogChannelConfig,
+      UpdateDiscordChannelConfig,
+      UpdateEmailChannelConfig,
+      UpdateGitLabChannelConfig,
+      UpdateGoogleChatChannelConfig,
+      UpdateIncidentIoChannelConfig,
+      UpdateJiraChannelConfig,
+      UpdateLinearChannelConfig,
+      UpdateMattermostChannelConfig,
+      UpdateOpsGenieChannelConfig,
+      UpdatePagerDutyChannelConfig,
+      UpdatePhoneCallChannelConfig,
+      UpdatePushbulletChannelConfig,
+      UpdatePushoverChannelConfig,
+      UpdateRootlyChannelConfig,
+      UpdateSlackChannelConfig,
+      UpdateSmsChannelConfig,
+      UpdateSplunkOnCallChannelConfig,
+      UpdateTeamsChannelConfig,
+      UpdateTelegramChannelConfig,
+      UpdateWebhookChannelConfig,
+      UpdateZapierChannelConfig,
     ]),
     managedBy: z
       .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
       .nullish(),
+    enabled: z.boolean().nullish(),
   })
   .strict();
+const SetEnabledRequest = z.object({ enabled: z.boolean() }).strict();
 const TestAlertChannelRequest = z
   .object({
     config: z.union([
@@ -240,10 +427,12 @@ const TestAlertChannelRequest = z
       MattermostChannelConfig,
       OpsGenieChannelConfig,
       PagerDutyChannelConfig,
+      PhoneCallChannelConfig,
       PushbulletChannelConfig,
       PushoverChannelConfig,
       RootlyChannelConfig,
       SlackChannelConfig,
+      SmsChannelConfig,
       SplunkOnCallChannelConfig,
       TeamsChannelConfig,
       TelegramChannelConfig,
@@ -307,6 +496,7 @@ const params = z
     resourceGroupId: z.string().uuid().nullish(),
     tagId: z.string().uuid().nullish(),
     environmentId: z.string().uuid().nullish(),
+    excludeId: z.string().uuid().nullish(),
     startedFrom: z.string().datetime({ offset: true }).nullish(),
     startedTo: z.string().datetime({ offset: true }).nullish(),
     page: z.number().int().gte(0),
@@ -319,7 +509,16 @@ const CreateManualIncidentRequest = z
     severity: z.enum(["DOWN", "DEGRADED", "MAINTENANCE"]),
     monitorId: z.string().uuid().nullish(),
     body: z.string().nullish(),
+    serviceId: z.string().uuid().nullish(),
+    serviceIncidentId: z.string().uuid().nullish(),
   })
+  .strict();
+const UpdateIncidentRequest = z
+  .object({
+    title: z.string().min(1).max(2147483647).nullable(),
+    severity: z.enum(["DOWN", "DEGRADED", "MAINTENANCE"]).nullable(),
+  })
+  .partial()
   .strict();
 const ResolveIncidentRequest = z
   .object({ body: z.string().nullable() })
@@ -429,6 +628,12 @@ const McpServerMonitorConfig = z
     command: z.string().min(1),
     args: z.array(z.string().nullable()).nullish(),
     env: z.record(z.string().nullable()).nullish(),
+  })
+  .strict();
+const ScriptMonitorConfig = z
+  .object({
+    script: z.string().min(1).max(65536),
+    timeoutSeconds: z.number().int().gte(5).lte(120).nullish(),
   })
   .strict();
 const TcpMonitorConfig = z
@@ -808,13 +1013,23 @@ const AddMonitorTagsRequest = z
 const CreateMonitorRequest = z
   .object({
     name: z.string().min(0).max(255),
-    type: z.enum(["HTTP", "DNS", "MCP_SERVER", "TCP", "ICMP", "HEARTBEAT"]),
+    type: z.enum([
+      "HTTP",
+      "DNS",
+      "MCP_SERVER",
+      "TCP",
+      "ICMP",
+      "HEARTBEAT",
+      "BROWSER",
+      "MULTI_STEP_API",
+    ]),
     config: z.union([
       DnsMonitorConfig,
       HeartbeatMonitorConfig,
       HttpMonitorConfig,
       IcmpMonitorConfig,
       McpServerMonitorConfig,
+      ScriptMonitorConfig,
       TcpMonitorConfig,
     ]),
     frequencySeconds: z.number().int().gte(10).lte(86400).nullish(),
@@ -841,6 +1056,7 @@ const UpdateMonitorRequest = z
         HttpMonitorConfig,
         IcmpMonitorConfig,
         McpServerMonitorConfig,
+        ScriptMonitorConfig,
         TcpMonitorConfig,
       ])
       .nullable(),
@@ -863,6 +1079,12 @@ const UpdateMonitorRequest = z
   .strict();
 const RemoveMonitorTagsRequest = z
   .object({ tagIds: z.array(z.string().uuid()).min(1) })
+  .strict();
+const TestMonitorNotificationsRequest = z
+  .object({
+    channelIds: z.array(z.string().uuid()).nullish(),
+    includeResolved: z.boolean(),
+  })
   .strict();
 const SetAlertChannelsRequest = z
   .object({ channelIds: z.array(z.string().uuid()) })
@@ -936,13 +1158,23 @@ const BulkMonitorActionRequest = z
   .strict();
 const MonitorTestRequest = z
   .object({
-    type: z.enum(["HTTP", "DNS", "MCP_SERVER", "TCP", "ICMP", "HEARTBEAT"]),
+    type: z.enum([
+      "HTTP",
+      "DNS",
+      "MCP_SERVER",
+      "TCP",
+      "ICMP",
+      "HEARTBEAT",
+      "BROWSER",
+      "MULTI_STEP_API",
+    ]),
     config: z.union([
       DnsMonitorConfig,
       HeartbeatMonitorConfig,
       HttpMonitorConfig,
       IcmpMonitorConfig,
       McpServerMonitorConfig,
+      ScriptMonitorConfig,
       TcpMonitorConfig,
     ]),
     assertions: z.array(CreateAssertionRequest).nullish(),
@@ -985,6 +1217,7 @@ const EscalationChain = z
 const CreateNotificationPolicyRequest = z
   .object({
     name: z.string().min(0).max(255),
+    description: z.string().min(0).max(500).nullish(),
     matchRules: z.array(MatchRule).nullish(),
     escalation: EscalationChain,
     enabled: z.boolean().nullish().default(true),
@@ -994,6 +1227,7 @@ const CreateNotificationPolicyRequest = z
 const UpdateNotificationPolicyRequest = z
   .object({
     name: z.string().min(0).max(255).nullable(),
+    description: z.string().min(0).max(500).nullable(),
     matchRules: z.array(MatchRule).nullable(),
     escalation: EscalationChain.nullable(),
     enabled: z.boolean().nullable(),
@@ -1033,7 +1267,7 @@ const RetryStrategy = z
 const CreateResourceGroupRequest = z
   .object({
     name: z.string().min(0).max(255),
-    description: z.string().nullish(),
+    description: z.string().min(0).max(500).nullish(),
     alertPolicyId: z.string().uuid().nullish(),
     defaultFrequency: z.number().int().gte(30).lte(86400).nullish(),
     defaultRegions: z.array(z.string()).nullish(),
@@ -1053,7 +1287,7 @@ const CreateResourceGroupRequest = z
 const UpdateResourceGroupRequest = z
   .object({
     name: z.string().min(0).max(255),
-    description: z.string().nullish(),
+    description: z.string().min(0).max(500).nullish(),
     alertPolicyId: z.string().uuid().nullish(),
     defaultFrequency: z.number().int().gte(30).lte(86400).nullish(),
     defaultRegions: z.array(z.string()).nullish(),
@@ -1201,9 +1435,10 @@ const CreateStatusPageComponentRequest = z
   .object({
     name: z.string().min(0).max(255),
     description: z.string().min(0).max(500).nullish(),
-    type: z.enum(["MONITOR", "GROUP", "STATIC"]),
+    type: z.enum(["MONITOR", "GROUP", "STATIC", "DEPENDENCY"]),
     monitorId: z.string().uuid().nullish(),
     resourceGroupId: z.string().uuid().nullish(),
+    serviceSubscriptionId: z.string().uuid().nullish(),
     groupId: z.string().uuid().nullish(),
     showUptime: z.boolean().nullish(),
     displayOrder: z.number().int().nullish(),
@@ -1223,6 +1458,19 @@ const UpdateStatusPageComponentRequest = z
     startDate: z.string().nullable(),
   })
   .partial()
+  .strict();
+const SetStatusPageComponentOverrideRequest = z
+  .object({
+    status: z.enum([
+      "OPERATIONAL",
+      "DEGRADED_PERFORMANCE",
+      "PARTIAL_OUTAGE",
+      "MAJOR_OUTAGE",
+      "UNDER_MAINTENANCE",
+    ]),
+    reason: z.string().min(0).max(2000).nullish(),
+    expiresAt: z.string().datetime({ offset: true }),
+  })
   .strict();
 const ComponentPosition = z
   .object({
@@ -1283,11 +1531,8 @@ const CreateStatusPageIncidentRequest = z
     impact: z.enum(["NONE", "MINOR", "MAJOR", "CRITICAL"]),
     body: z.string().min(1),
     affectedComponents: z.array(AffectedComponent).nullish(),
-    scheduled: z.boolean().nullish(),
-    scheduledFor: z.string().datetime({ offset: true }).nullish(),
-    scheduledUntil: z.string().datetime({ offset: true }).nullish(),
-    autoResolve: z.boolean().nullish(),
     notifySubscribers: z.boolean().nullish(),
+    monitoringIncidentId: z.string().uuid().nullish(),
   })
   .strict();
 const UpdateStatusPageIncidentRequest = z
@@ -1303,8 +1548,12 @@ const UpdateStatusPageIncidentRequest = z
       .string()
       .min(0)
       .max(2048)
-      .regex(/^https?:\/\/.*/)
+      .regex(/^$|^https?:\/\/.*/)
       .nullable(),
+    published: z.boolean().nullable(),
+    scheduledFor: z.string().datetime({ offset: true }).nullable(),
+    scheduledUntil: z.string().datetime({ offset: true }).nullable(),
+    autoResolve: z.boolean().nullable(),
   })
   .partial()
   .strict();
@@ -1329,6 +1578,14 @@ const CreateStatusPageIncidentUpdateRequest = z
     affectedComponents: z.array(AffectedComponent).nullish(),
   })
   .strict();
+const UpdateStatusPageIncidentUpdateRequest = z
+  .object({
+    body: z.string().min(0).max(10000),
+    status: z
+      .enum(["INVESTIGATING", "IDENTIFIED", "MONITORING", "RESOLVED"])
+      .nullish(),
+  })
+  .strict();
 const PageSection = z
   .object({
     groupId: z.string().uuid().nullish(),
@@ -1348,8 +1605,30 @@ const ReorderPageLayoutRequest = z
     groupOrders: z.array(GroupComponentOrder).nullish(),
   })
   .strict();
+const CreateStatusPageMaintenanceRequest = z
+  .object({
+    title: z.string().min(0).max(500),
+    status: z
+      .enum(["INVESTIGATING", "IDENTIFIED", "MONITORING", "RESOLVED"])
+      .nullish(),
+    impact: z.enum(["NONE", "MINOR", "MAJOR", "CRITICAL"]),
+    body: z.string().min(1),
+    affectedComponents: z.array(AffectedComponent).nullish(),
+    scheduledFor: z.string().datetime({ offset: true }),
+    scheduledUntil: z.string().datetime({ offset: true }).nullish(),
+    autoResolve: z.boolean().nullish(),
+    notifySubscribers: z.boolean().nullish(),
+  })
+  .strict();
 const AdminAddSubscriberRequest = z
-  .object({ email: z.string().min(1).email() })
+  .object({
+    email: z.string().min(0).max(320).email().nullable(),
+    channel: z.enum(["EMAIL", "SMS", "WEBHOOK"]).nullable(),
+    destination: z.string().min(0).max(2048).nullable(),
+    componentIds: z.array(z.string().uuid()).nullable(),
+    requireConfirmation: z.boolean().nullable(),
+  })
+  .partial()
   .strict();
 const CreateTagRequest = z
   .object({
@@ -1426,40 +1705,6 @@ const CreateWorkspaceRequest = z.object({ name: z.string().min(1) }).strict();
 const UpdateWorkspaceRequest = z
   .object({ name: z.string().min(0).max(200) })
   .strict();
-const AlertChannelDisplayConfig = z
-  .object({
-    recipients: z.array(z.string()).nullable(),
-    region: z.string().nullable(),
-    severityOverride: z.string().nullable(),
-    mentionRoleId: z.string().nullable(),
-    customHeaders: z.record(z.string().nullable()).nullable(),
-    chatId: z.string().nullable(),
-    priority: z.string().nullable(),
-    channel: z.string().nullable(),
-    routingKey: z.string().nullable(),
-    deviceIden: z.string().nullable(),
-    teamId: z.string().nullable(),
-    visibility: z.string().nullable(),
-    severity: z.string().nullable(),
-    site: z.string().nullable(),
-    projectKey: z.string().nullable(),
-  })
-  .partial()
-  .passthrough();
-const AlertChannelDto = z
-  .object({
-    id: z.string().uuid(),
-    name: z.string(),
-    channelType: z.string(),
-    displayConfig: AlertChannelDisplayConfig.nullish(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
-    configHash: z.string().nullish(),
-    managedBy: z.string().nullish(),
-    lastDeliveryAt: z.string().datetime({ offset: true }).nullish(),
-    lastDeliveryStatus: z.string().nullish(),
-  })
-  .passthrough();
 const AlertDeliveryDto = z
   .object({
     id: z.string().uuid(),
@@ -1478,6 +1723,88 @@ const AlertDeliveryDto = z
     deliveredAt: z.string().datetime({ offset: true }).nullish(),
     errorMessage: z.string().nullish(),
     createdAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const NotificationDispatchDto = z
+  .object({
+    id: z.string().uuid(),
+    incidentId: z.string().uuid(),
+    incidentTitle: z.string().nullish(),
+    policyId: z.string().uuid(),
+    policyName: z.string().nullish(),
+    status: z.string(),
+    completionReason: z.string().nullish(),
+    currentStep: z.number().int(),
+    totalSteps: z.number().int().nullish(),
+    acknowledgedAt: z.string().datetime({ offset: true }).nullish(),
+    acknowledgedBy: z.string().nullish(),
+    acknowledgedVia: z.string().nullish(),
+    matchedRules: z.array(z.string()).nullish(),
+    nextEscalationAt: z.string().datetime({ offset: true }).nullish(),
+    lastNotifiedAt: z.string().datetime({ offset: true }).nullish(),
+    deliveries: z.array(AlertDeliveryDto),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const SkippedDispatch = z
+  .object({
+    id: z.string().uuid(),
+    status: z.enum([
+      "PENDING",
+      "DISPATCHING",
+      "DELIVERED",
+      "ESCALATING",
+      "ACKNOWLEDGED",
+      "COMPLETED",
+    ]),
+    reason: z.string().min(1),
+  })
+  .strict();
+const AcknowledgeAllIncidentsResponse = z
+  .object({
+    acknowledged: z.array(NotificationDispatchDto),
+    skipped: z.array(SkippedDispatch),
+  })
+  .passthrough();
+const AlertChannelDisplayConfig = z
+  .object({
+    recipients: z.array(z.string()).nullable(),
+    region: z.string().nullable(),
+    severityOverride: z.string().nullable(),
+    mentionRoleId: z.string().nullable(),
+    customHeaders: z.record(z.string().nullable()).nullable(),
+    chatId: z.string().nullable(),
+    priority: z.string().nullable(),
+    channel: z.string().nullable(),
+    routingKey: z.string().nullable(),
+    deviceIden: z.string().nullable(),
+    teamId: z.string().nullable(),
+    visibility: z.string().nullable(),
+    severity: z.string().nullable(),
+    site: z.string().nullable(),
+    projectKey: z.string().nullable(),
+    phoneNumber: z.string().nullable(),
+    verifiedPhoneNumberId: z.number().int().nullable(),
+    phoneNumbers: z.array(z.string()).nullable(),
+    voiceLanguage: z.string().nullable(),
+    preferredLanguage: z.string().nullable(),
+  })
+  .partial()
+  .passthrough();
+const AlertChannelDto = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string(),
+    channelType: z.string(),
+    displayConfig: AlertChannelDisplayConfig.nullish(),
+    enabled: z.boolean(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+    configHash: z.string().nullish(),
+    managedBy: z.string().nullish(),
+    lastDeliveryAt: z.string().datetime({ offset: true }).nullish(),
+    lastDeliveryStatus: z.string().nullish(),
   })
   .passthrough();
 const ApiKeyCreateResponse = z
@@ -1708,12 +2035,32 @@ const McpServer = z
     promptCount: z.number().int().nullish(),
   })
   .strict();
+const CodeCheckStep = z
+  .object({
+    name: z.string(),
+    status: z.string(),
+    durationMs: z.number().int().nullish(),
+    error: z.string().nullish(),
+  })
+  .strict();
+const Code = z
+  .object({
+    check_type: z.literal("code"),
+    exitCode: z.number().int(),
+    stdoutSnippet: z.string().nullish(),
+    stderrSnippet: z.string().nullish(),
+    steps: z.array(CodeCheckStep.nullable()).nullish(),
+    failureKind: z.string().nullish(),
+    timedOut: z.boolean().nullish(),
+  })
+  .strict();
 const CheckTypeDetailsDto = z.discriminatedUnion("check_type", [
   Http,
   Tcp,
   Icmp,
   Dns,
   McpServer,
+  Code,
 ]);
 const CheckResultDetailsDto = z
   .object({
@@ -1809,6 +2156,14 @@ const ComponentImpact = z
     majorOutageSeconds: z.number().int(),
   })
   .strict();
+const ComponentSample = z
+  .object({
+    componentId: z.string().uuid(),
+    componentName: z.string().nullish(),
+    oldStatus: z.string().nullish(),
+    newStatus: z.string(),
+  })
+  .strict();
 const ComponentsSummaryDto = z
   .object({
     totalCount: z.number().int(),
@@ -1819,6 +2174,13 @@ const ComponentsSummaryDto = z
 const ComponentStatusDto = z
   .object({ id: z.string(), name: z.string(), status: z.string() })
   .passthrough();
+const ComponentTransitionEventDto = z
+  .object({
+    newStatus: z.string(),
+    componentCount: z.number().int(),
+    componentSample: z.array(ComponentSample),
+  })
+  .passthrough();
 const ComponentUptimeSummaryDto = z
   .object({
     day: z.number().nullish(),
@@ -1827,9 +2189,73 @@ const ComponentUptimeSummaryDto = z
     source: z.string(),
   })
   .passthrough();
+const CreditTier = z
+  .object({
+    uptimeRange: z.string(),
+    creditPercent: z.number().int().nullish(),
+    formula: z.string().nullish(),
+    notes: z.string().nullish(),
+  })
+  .strict();
+const CreditPolicy = z
+  .object({
+    summary: z.string().nullable(),
+    maxCreditPercent: z.number().int().nullable(),
+    claimWindowDays: z.number().int().nullable(),
+    creditApplicationDays: z.number().int().nullable(),
+    tiers: z.array(CreditTier).nullable(),
+  })
+  .partial()
+  .strict();
 const CursorPageCheckResultDto = z
   .object({
     data: z.array(CheckResultDto),
+    nextCursor: z.string().nullish(),
+    hasMore: z.boolean(),
+  })
+  .passthrough();
+const IncidentActivityPayloadDto = z
+  .object({
+    oldStatus: z.string().nullable(),
+    newStatus: z.string().nullable(),
+    body: z.string().nullable(),
+    createdBy: z.string().nullable(),
+    phase: z.string().nullable(),
+    status: z.string().nullable(),
+    policyId: z.string().nullable(),
+    policyName: z.string().nullable(),
+    currentStep: z.number().int().nullable(),
+    dispatchId: z.string().nullable(),
+    acknowledgedBy: z.string().nullable(),
+    acknowledgedVia: z.string().nullable(),
+    eventType: z.string().nullable(),
+    stepNumber: z.number().int().nullable(),
+    fireCount: z.number().int().nullable(),
+    channelId: z.string().nullable(),
+    channelName: z.string().nullable(),
+    channelType: z.string().nullable(),
+    errorMessage: z.string().nullable(),
+    fromStatus: z.string().nullable(),
+    toStatus: z.string().nullable(),
+    reason: z.string().nullable(),
+    affectedRegions: z.array(z.string()).nullable(),
+    statusPageIncidentId: z.string().nullable(),
+  })
+  .partial()
+  .passthrough();
+const IncidentActivityEventDto = z
+  .object({
+    id: z.string().uuid(),
+    at: z.string().datetime({ offset: true }),
+    kind: z.string(),
+    actor: z.string().nullish(),
+    summary: z.string(),
+    payload: IncidentActivityPayloadDto.nullish(),
+  })
+  .passthrough();
+const CursorPageIncidentActivityEventDto = z
+  .object({
+    data: z.array(IncidentActivityEventDto),
     nextCursor: z.string().nullish(),
     hasMore: z.boolean(),
   })
@@ -1848,6 +2274,7 @@ const ServiceCatalogDto = z
     lifecycleStatus: z.string(),
     enabled: z.boolean(),
     published: z.boolean(),
+    slaPublished: z.boolean(),
     overallStatus: z.string().nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
@@ -1884,6 +2311,66 @@ const CursorPageServicePollResultDto = z
     hasMore: z.boolean(),
   })
   .passthrough();
+const IncidentEventDto = z
+  .object({
+    incidentId: z.string().uuid(),
+    externalId: z.string().nullish(),
+    title: z.string(),
+    impact: z.string().nullish(),
+    status: z.string().nullish(),
+    body: z.string().nullish(),
+    shortlink: z.string().nullish(),
+    startedAt: z.string().datetime({ offset: true }).nullish(),
+    resolvedAt: z.string().datetime({ offset: true }).nullish(),
+    detectedAt: z.string().datetime({ offset: true }).nullish(),
+    vendorCreatedAt: z.string().datetime({ offset: true }).nullish(),
+    durationSeconds: z.number().int().nullish(),
+    affectedComponentIds: z.array(z.string().uuid()).nullish(),
+  })
+  .passthrough();
+const MaintenanceEventDto = z
+  .object({
+    maintenanceId: z.string().uuid(),
+    externalId: z.string(),
+    title: z.string(),
+    status: z.string(),
+    impact: z.string().nullish(),
+    shortlink: z.string().nullish(),
+    scheduledFor: z.string().datetime({ offset: true }).nullish(),
+    scheduledUntil: z.string().datetime({ offset: true }).nullish(),
+    startedAt: z.string().datetime({ offset: true }).nullish(),
+    completedAt: z.string().datetime({ offset: true }).nullish(),
+    affectedComponentIds: z.array(z.string().uuid()).nullish(),
+  })
+  .passthrough();
+const OrgIncidentAnnotationDto = z
+  .object({
+    incidentId: z.string().uuid(),
+    displayKey: z.string().nullish(),
+    status: z.string(),
+    severity: z.string(),
+    alerted: z.boolean(),
+    startedAt: z.string().datetime({ offset: true }).nullish(),
+  })
+  .passthrough();
+const StatusEventDto = z
+  .object({
+    id: z.string().uuid(),
+    type: z.string(),
+    at: z.string().datetime({ offset: true }),
+    incident: IncidentEventDto.nullish(),
+    maintenance: MaintenanceEventDto.nullish(),
+    component: ComponentTransitionEventDto.nullish(),
+    orgAnnotation: OrgIncidentAnnotationDto.nullish(),
+  })
+  .passthrough();
+const CursorPageStatusEventDto = z
+  .object({
+    data: z.array(StatusEventDto),
+    nextCursor: z.string().nullish(),
+    hasMore: z.boolean(),
+  })
+  .passthrough();
 const MonitorsSummaryDto = z
   .object({
     total: z.number().int(),
@@ -1915,6 +2402,7 @@ const DayIncident = z
     startedAt: z.string().datetime({ offset: true }).nullish(),
     resolvedAt: z.string().datetime({ offset: true }).nullish(),
     affectedComponentNames: z.array(z.string()),
+    affectedComponentIds: z.array(z.string().uuid()),
   })
   .strict();
 const DekRotationResultDto = z
@@ -1983,6 +2471,15 @@ const GlobalStatusSummaryDto = z
   })
   .passthrough();
 const HeartbeatPingResponse = z.object({ ok: z.boolean() }).passthrough();
+const IncidentFailingMemberSnapshotDto = z
+  .object({
+    memberType: z.string(),
+    monitorId: z.string().uuid().nullish(),
+    serviceId: z.string().uuid().nullish(),
+    name: z.string().min(1),
+    membershipId: z.string().uuid().nullish(),
+  })
+  .passthrough();
 const IncidentDto = z
   .object({
     id: z.string().uuid(),
@@ -1997,12 +2494,14 @@ const IncidentDto = z
     reopenCount: z.number().int(),
     createdByUserId: z.number().int().nullish(),
     statusPageVisible: z.boolean(),
+    suppressDispatch: z.boolean(),
     serviceIncidentId: z.string().uuid().nullish(),
     serviceId: z.string().uuid().nullish(),
     externalRef: z.string().nullish(),
     affectedComponents: z.array(z.string()).nullish(),
     shortlink: z.string().nullish(),
     resolutionReason: z.string().nullish(),
+    resolutionNote: z.string().nullish(),
     startedAt: z.string().datetime({ offset: true }).nullish(),
     confirmedAt: z.string().datetime({ offset: true }).nullish(),
     resolvedAt: z.string().datetime({ offset: true }).nullish(),
@@ -2019,6 +2518,10 @@ const IncidentDto = z
     triggeredByRuleSnapshotHashHex: z.string().nullish(),
     triggeredByRuleIndex: z.number().int().nullish(),
     engineVersion: z.string().nullish(),
+    displayKey: z.string().nullish(),
+    alertCollapsedByResourceGroupIds: z.array(z.string().uuid()).nullish(),
+    peakFailingMemberCount: z.number().int().nullish(),
+    failingMembersAtPeak: z.array(IncidentFailingMemberSnapshotDto).nullish(),
   })
   .passthrough();
 const IncidentUpdateDto = z
@@ -2036,6 +2539,7 @@ const IncidentUpdateDto = z
 const LinkedStatusPageIncidentDto = z
   .object({
     id: z.string().uuid(),
+    spIncidentId: z.string().uuid(),
     statusPageId: z.string().uuid(),
     statusPageName: z.string(),
     statusPageSlug: z.string(),
@@ -2044,6 +2548,19 @@ const LinkedStatusPageIncidentDto = z
     impact: z.string(),
     scheduled: z.boolean(),
     publishedAt: z.string().datetime({ offset: true }).nullish(),
+    connectionMode: z.string(),
+    pageIncidentMode: z.string(),
+  })
+  .passthrough();
+const IncidentTriggerDto = z
+  .object({
+    ruleType: z.string().nullish(),
+    ruleIndex: z.number().int().nullish(),
+    count: z.number().int().nullish(),
+    threshold: z.number().int().nullish(),
+    lastError: z.string().nullish(),
+    firstFailedCheckAt: z.string().datetime({ offset: true }).nullish(),
+    source: z.string().min(1),
   })
   .passthrough();
 const IncidentDetailDto = z
@@ -2051,6 +2568,7 @@ const IncidentDetailDto = z
     incident: IncidentDto,
     updates: z.array(IncidentUpdateDto),
     statusPageIncidents: z.array(LinkedStatusPageIncidentDto).nullish(),
+    trigger: IncidentTriggerDto.nullish(),
   })
   .passthrough();
 const IncidentFilterParams = z
@@ -2073,6 +2591,7 @@ const IncidentFilterParams = z
     resourceGroupId: z.string().uuid().nullish(),
     tagId: z.string().uuid().nullish(),
     environmentId: z.string().uuid().nullish(),
+    excludeId: z.string().uuid().nullish(),
     startedFrom: z.string().datetime({ offset: true }).nullish(),
     startedTo: z.string().datetime({ offset: true }).nullish(),
     page: z.number().int().gte(0),
@@ -2136,6 +2655,7 @@ const InviteDto = z
     inviteId: z.number().int(),
     email: z.string(),
     roleOffered: z.string(),
+    createdAt: z.string().datetime({ offset: true }),
     expiresAt: z.string().datetime({ offset: true }),
     consumedAt: z.string().datetime({ offset: true }).nullish(),
     revokedAt: z.string().datetime({ offset: true }).nullish(),
@@ -2264,6 +2784,7 @@ const MonitorDto = z
       HttpMonitorConfig,
       IcmpMonitorConfig,
       McpServerMonitorConfig,
+      ScriptMonitorConfig,
       TcpMonitorConfig,
     ]),
     frequencySeconds: z.number().int(),
@@ -2314,24 +2835,15 @@ const MonitorVersionDto = z
     createdAt: z.string().datetime({ offset: true }),
   })
   .passthrough();
-const NotificationDispatchDto = z
+const NoSlaContext = z
   .object({
-    id: z.string().uuid(),
-    incidentId: z.string().uuid(),
-    policyId: z.string().uuid(),
-    policyName: z.string().nullish(),
-    status: z.string(),
-    completionReason: z.string().nullish(),
-    currentStep: z.number().int(),
-    totalSteps: z.number().int().nullish(),
-    acknowledgedAt: z.string().datetime({ offset: true }).nullish(),
-    nextEscalationAt: z.string().datetime({ offset: true }).nullish(),
-    lastNotifiedAt: z.string().datetime({ offset: true }).nullish(),
-    deliveries: z.array(AlertDeliveryDto),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    reason: z.string().nullable(),
+    historicalClaim: z.string().nullable(),
+    supportSla: z.string().nullable(),
+    enterpriseNote: z.string().nullable(),
   })
-  .passthrough();
+  .partial()
+  .strict();
 const NotificationDto = z
   .object({
     id: z.number().int(),
@@ -2344,19 +2856,49 @@ const NotificationDto = z
     createdAt: z.string().datetime({ offset: true }),
   })
   .passthrough();
+const NotificationPolicyWindowStatsDto = z
+  .object({
+    fires: z.number().int(),
+    acknowledgements: z.number().int(),
+    ackableFires: z.number().int(),
+    expired: z.number().int(),
+    sends: z.number().int(),
+    failedSends: z.number().int(),
+    medianAckSeconds: z.number().int().nullish(),
+    deepestStepReached: z.number().int().nullish(),
+    lastFiredAt: z.string().datetime({ offset: true }).nullish(),
+    lastFiredIncidentId: z.string().uuid().nullish(),
+  })
+  .passthrough();
 const NotificationPolicyDto = z
   .object({
     id: z.string().uuid(),
     organizationId: z.number().int(),
     name: z.string().min(1),
+    description: z.string().nullish(),
     matchRules: z.array(MatchRule),
     escalation: EscalationChain,
     enabled: z.boolean(),
     priority: z.number().int(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
+    stats7d: NotificationPolicyWindowStatsDto.nullish(),
+    stats30d: NotificationPolicyWindowStatsDto.nullish(),
+    lastFiredAt: z.string().datetime({ offset: true }).nullish(),
+    lastFiredIncidentId: z.string().uuid().nullish(),
   })
   .passthrough();
+const OfficialSla = z
+  .object({
+    percentage: z.string().nullable(),
+    scope: z.string().nullable(),
+    measurement: z.string().nullable(),
+    exclusions: z.string().nullable(),
+    appliesToPlans: z.array(z.string()).nullable(),
+    notCovered: z.string().nullable(),
+  })
+  .partial()
+  .strict();
 const OrganizationDto = z
   .object({
     id: z.number().int(),
@@ -2382,6 +2924,13 @@ const PollChartBucketDto = z
     totalPolls: z.number().int(),
   })
   .passthrough();
+const PricingTier = z
+  .object({
+    name: z.string(),
+    slaPercentage: z.string().nullish(),
+    priceFrom: z.string().nullish(),
+  })
+  .strict();
 const RegionStatusDto = z
   .object({
     region: z.string(),
@@ -2389,6 +2938,19 @@ const RegionStatusDto = z
     responseTimeMs: z.number().int().nullish(),
     timestamp: z.string().datetime({ offset: true }),
     severityHint: z.string().nullish(),
+  })
+  .passthrough();
+const RelatedIncidentsResponse = z
+  .object({ data: z.array(IncidentDto), total: z.number().int() })
+  .passthrough();
+const ResourceGroupDeleteBlockerDto = z
+  .object({
+    statusPageId: z.string().uuid(),
+    statusPageName: z.string().min(1),
+    statusPageSlug: z.string().min(1),
+    componentId: z.string().uuid(),
+    componentName: z.string().min(1),
+    hostname: z.string().nullish(),
   })
   .passthrough();
 const ResourceGroupHealthDto = z
@@ -2399,6 +2961,15 @@ const ResourceGroupHealthDto = z
     activeIncidents: z.number().int(),
     thresholdStatus: z.string().nullish(),
     failingCount: z.number().int().nullish(),
+    healthBreachedSince: z.string().datetime({ offset: true }).nullish(),
+    healthEvaluatedAt: z.string().datetime({ offset: true }).nullish(),
+  })
+  .passthrough();
+const ResourceGroupMemberIncidentMarkDto = z
+  .object({
+    at: z.string().datetime({ offset: true }),
+    incidentId: z.string().uuid().nullish(),
+    severity: z.string().nullish(),
   })
   .passthrough();
 const ResourceGroupMemberDto = z
@@ -2421,6 +2992,10 @@ const ResourceGroupMemberDto = z
     lastCheckedAt: z.string().datetime({ offset: true }).nullish(),
     monitorType: z.string().nullish(),
     environmentName: z.string().nullish(),
+    groupMembershipCount: z.number().int().nullish(),
+    failingSince: z.string().datetime({ offset: true }).nullish(),
+    alertCollapsed: z.boolean().nullish(),
+    incidentMarks: z.array(ResourceGroupMemberIncidentMarkDto).nullish(),
   })
   .passthrough();
 const ResourceGroupDto = z
@@ -2443,6 +3018,8 @@ const ResourceGroupDto = z
     recoveryCooldownMinutes: z.number().int().nullish(),
     health: ResourceGroupHealthDto,
     members: z.array(ResourceGroupMemberDto).nullish(),
+    deleteBlockedBy: z.array(ResourceGroupDeleteBlockerDto).nullish(),
+    openRegionIncident: IncidentDto.nullish(),
     managedBy: z.string().nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
@@ -2492,6 +3069,14 @@ const SeoMetadataDto = z
   })
   .partial()
   .passthrough();
+const ServiceBreakdown = z
+  .object({
+    service: z.string(),
+    slaPercentage: z.string().nullish(),
+    scope: z.string().nullish(),
+    notes: z.string().nullish(),
+  })
+  .strict();
 const ServiceComponentDto = z
   .object({
     id: z.string().uuid(),
@@ -2552,7 +3137,32 @@ const ServiceIncidentDto = z
     shortlink: z.string().nullish(),
     detectedAt: z.string().datetime({ offset: true }).nullish(),
     vendorCreatedAt: z.string().datetime({ offset: true }).nullish(),
+    affectedRegions: z.array(z.string()).nullish(),
   })
+  .passthrough();
+const SourceUrls = z
+  .object({
+    slaPage: z.string().nullable(),
+    pricingPage: z.string().nullable(),
+    tosPage: z.string().nullable(),
+    statusPage: z.string().nullable(),
+    allSlasPage: z.string().nullable(),
+  })
+  .partial()
+  .strict();
+const SlaDataDto = z
+  .object({
+    slaType: z.string().nullable(),
+    officialSla: OfficialSla.nullable(),
+    serviceBreakdown: z.array(ServiceBreakdown).nullable(),
+    pricingTiers: z.array(PricingTier).nullable(),
+    creditPolicy: CreditPolicy.nullable(),
+    noSlaContext: NoSlaContext.nullable(),
+    sourceUrls: SourceUrls.nullable(),
+    lastResearched: z.string().nullable(),
+    researchNotes: z.string().nullable(),
+  })
+  .partial()
   .passthrough();
 const ServiceDetailDto = z
   .object({
@@ -2576,7 +3186,9 @@ const ServiceDetailDto = z
     uptime: ComponentUptimeSummaryDto.nullish(),
     activeMaintenances: z.array(ScheduledMaintenanceDto),
     dataCompleteness: z.string(),
+    slaPublished: z.boolean(),
     seoMetadata: SeoMetadataDto.nullish(),
+    slaData: SlaDataDto.nullish(),
     relatedServices: z.array(ServiceCatalogDto).nullish(),
   })
   .passthrough();
@@ -2598,6 +3210,7 @@ const ServiceIncidentDetailDto = z
     detectedAt: z.string().datetime({ offset: true }).nullish(),
     shortlink: z.string().nullish(),
     affectedComponents: z.array(z.string()).nullish(),
+    affectedRegions: z.array(z.string()).nullish(),
     updates: z.array(ServiceIncidentUpdateDto),
   })
   .passthrough();
@@ -2655,6 +3268,9 @@ const ServiceUptimeResponse = z
     source: z.string().nullish(),
   })
   .passthrough();
+const SingleValueResponseAcknowledgeAllIncidentsResponse = z
+  .object({ data: AcknowledgeAllIncidentsResponse })
+  .passthrough();
 const SingleValueResponseAlertChannelDto = z
   .object({ data: AlertChannelDto })
   .passthrough();
@@ -2700,6 +3316,9 @@ const SingleValueResponseIncidentPolicyDto = z
   .passthrough();
 const SingleValueResponseIncidentTimelineDto = z
   .object({ data: IncidentTimelineDto })
+  .passthrough();
+const SingleValueResponseIncidentTriggerDto = z
+  .object({ data: IncidentTriggerDto })
   .passthrough();
 const SingleValueResponseInviteDto = z.object({ data: InviteDto }).passthrough();
 const SingleValueResponseListUUID = z
@@ -2778,7 +3397,14 @@ const StatusPageComponentDto = z
     type: z.string(),
     monitorId: z.string().uuid().nullish(),
     resourceGroupId: z.string().uuid().nullish(),
+    serviceSubscriptionId: z.string().uuid().nullish(),
+    serviceSlug: z.string().nullish(),
+    serviceName: z.string().nullish(),
     currentStatus: z.string(),
+    overrideStatus: z.string().nullish(),
+    overrideReason: z.string().nullish(),
+    overrideExpiresAt: z.string().datetime({ offset: true }).nullish(),
+    overrideActor: z.number().int().nullish(),
     showUptime: z.boolean(),
     displayOrder: z.number().int(),
     pageOrder: z.number().int(),
@@ -2829,6 +3455,15 @@ const StatusPageCustomDomainDto = z
 const SingleValueResponseStatusPageCustomDomainDto = z
   .object({ data: StatusPageCustomDomainDto })
   .passthrough();
+const StatusPageOpenIncidentSummaryDto = z
+  .object({
+    id: z.string().uuid().nullish(),
+    title: z.string().min(1),
+    status: z.string(),
+    startedAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
 const StatusPageDto = z
   .object({
     id: z.string().uuid(),
@@ -2844,6 +3479,7 @@ const StatusPageDto = z
     componentCount: z.number().int().nullish(),
     subscriberCount: z.number().int().nullish(),
     overallStatus: z.string().nullish(),
+    openIncident: StatusPageOpenIncidentSummaryDto.nullish(),
     managedBy: z.string().nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
@@ -2897,11 +3533,60 @@ const StatusPageIncidentDto = z
 const SingleValueResponseStatusPageIncidentDto = z
   .object({ data: StatusPageIncidentDto })
   .passthrough();
+const SingleValueResponseStatusPageIncidentUpdateDto = z
+  .object({ data: StatusPageIncidentUpdateDto })
+  .passthrough();
+const StatusPageMeasuredUptimeDayDto = z
+  .object({
+    date: z.string().datetime({ offset: true }),
+    totalChecks: z.number().int(),
+    passedChecks: z.number().int(),
+    uptimePercentage: z.number().nullish(),
+  })
+  .passthrough();
+const StatusPageMeasuredComponentUptimeDto = z
+  .object({
+    source: z.string(),
+    componentId: z.string().uuid(),
+    monitorId: z.string().uuid(),
+    trackingSince: z.string().nullish(),
+    days: z.array(StatusPageMeasuredUptimeDayDto),
+  })
+  .passthrough();
+const SingleValueResponseStatusPageMeasuredComponentUptimeDto = z
+  .object({ data: StatusPageMeasuredComponentUptimeDto })
+  .passthrough();
+const StatusPageNotificationDeliveryDto = z
+  .object({
+    id: z.string().uuid(),
+    statusPageId: z.string().uuid(),
+    subscriberId: z.string().uuid(),
+    destination: z.string().nullish(),
+    channel: z.string(),
+    incidentId: z.string().uuid().nullish(),
+    incidentUpdateId: z.string().uuid().nullish(),
+    eventType: z.string(),
+    status: z.string(),
+    attemptCount: z.number().int(),
+    lastAttemptAt: z.string().datetime({ offset: true }).nullish(),
+    nextRetryAt: z.string().datetime({ offset: true }).nullish(),
+    deliveredAt: z.string().datetime({ offset: true }).nullish(),
+    errorMessage: z.string().nullish(),
+    createdAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const SingleValueResponseStatusPageNotificationDeliveryDto = z
+  .object({ data: StatusPageNotificationDeliveryDto })
+  .passthrough();
 const StatusPageSubscriberDto = z
   .object({
     id: z.string().uuid(),
-    email: z.string(),
+    email: z.string().nullish(),
+    channel: z.string(),
+    destination: z.string(),
+    componentIds: z.array(z.string().uuid()).nullish(),
     confirmed: z.boolean(),
+    confirmationSent: z.boolean().nullish(),
     createdAt: z.string().datetime({ offset: true }),
   })
   .passthrough();
@@ -2933,6 +3618,8 @@ const UptimeDto = z
     passedChecks: z.number().int(),
     avgLatencyMs: z.number().nullish(),
     p95LatencyMs: z.number().nullish(),
+    p50LatencyMs: z.number().nullish(),
+    incidentCount: z.number().int(),
   })
   .passthrough();
 const SingleValueResponseUptimeDto = z.object({ data: UptimeDto }).passthrough();
@@ -2989,6 +3676,7 @@ const TableValueResultAlertChannelDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultAlertDeliveryDto = z
@@ -2998,6 +3686,7 @@ const TableValueResultAlertDeliveryDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultApiKeyDto = z
@@ -3007,6 +3696,7 @@ const TableValueResultApiKeyDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultAuditEventDto = z
@@ -3016,6 +3706,7 @@ const TableValueResultAuditEventDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultCategoryDto = z
@@ -3025,6 +3716,7 @@ const TableValueResultCategoryDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultComponentUptimeDayDto = z
@@ -3034,6 +3726,7 @@ const TableValueResultComponentUptimeDayDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultDeliveryAttemptDto = z
@@ -3043,6 +3736,7 @@ const TableValueResultDeliveryAttemptDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultEnvironmentDto = z
@@ -3052,6 +3746,7 @@ const TableValueResultEnvironmentDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultIncidentDto = z
@@ -3061,6 +3756,7 @@ const TableValueResultIncidentDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultIncidentStateTransitionDto = z
@@ -3070,6 +3766,7 @@ const TableValueResultIncidentStateTransitionDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultIntegrationDto = z
@@ -3079,6 +3776,7 @@ const TableValueResultIntegrationDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultInviteDto = z
@@ -3088,6 +3786,7 @@ const TableValueResultInviteDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultMaintenanceWindowDto = z
@@ -3097,6 +3796,7 @@ const TableValueResultMaintenanceWindowDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultMemberDto = z
@@ -3106,6 +3806,7 @@ const TableValueResultMemberDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultMonitorDto = z
@@ -3115,6 +3816,7 @@ const TableValueResultMonitorDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultMonitorVersionDto = z
@@ -3124,6 +3826,7 @@ const TableValueResultMonitorVersionDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultNotificationDispatchDto = z
@@ -3133,6 +3836,7 @@ const TableValueResultNotificationDispatchDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultNotificationDto = z
@@ -3142,6 +3846,7 @@ const TableValueResultNotificationDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultNotificationPolicyDto = z
@@ -3151,6 +3856,7 @@ const TableValueResultNotificationPolicyDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultResourceGroupDto = z
@@ -3160,6 +3866,7 @@ const TableValueResultResourceGroupDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultRuleEvaluationDto = z
@@ -3169,6 +3876,7 @@ const TableValueResultRuleEvaluationDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultScheduledMaintenanceDto = z
@@ -3178,6 +3886,7 @@ const TableValueResultScheduledMaintenanceDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultSecretDto = z
@@ -3187,6 +3896,7 @@ const TableValueResultSecretDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultServiceComponentDto = z
@@ -3196,6 +3906,7 @@ const TableValueResultServiceComponentDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultServiceIncidentDto = z
@@ -3205,6 +3916,7 @@ const TableValueResultServiceIncidentDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultServiceSubscriptionDto = z
@@ -3214,6 +3926,7 @@ const TableValueResultServiceSubscriptionDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultStatusPageComponentDto = z
@@ -3223,6 +3936,7 @@ const TableValueResultStatusPageComponentDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultStatusPageComponentGroupDto = z
@@ -3232,6 +3946,7 @@ const TableValueResultStatusPageComponentGroupDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultStatusPageCustomDomainDto = z
@@ -3241,6 +3956,7 @@ const TableValueResultStatusPageCustomDomainDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultStatusPageDto = z
@@ -3250,6 +3966,7 @@ const TableValueResultStatusPageDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultStatusPageIncidentDto = z
@@ -3259,6 +3976,17 @@ const TableValueResultStatusPageIncidentDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
+  })
+  .passthrough();
+const TableValueResultStatusPageNotificationDeliveryDto = z
+  .object({
+    data: z.array(StatusPageNotificationDeliveryDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultStatusPageSubscriberDto = z
@@ -3268,6 +3996,7 @@ const TableValueResultStatusPageSubscriberDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultTagDto = z
@@ -3277,6 +4006,30 @@ const TableValueResultTagDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
+  })
+  .passthrough();
+const TableValueResultTestChannelResult = z
+  .object({
+    data: z.array(TestChannelResult),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
+  })
+  .passthrough();
+const VoiceLanguageDto = z
+  .object({ code: z.string().min(1), label: z.string().min(1) })
+  .passthrough();
+const TableValueResultVoiceLanguageDto = z
+  .object({
+    data: z.array(VoiceLanguageDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const WebhookDeliveryDto = z
@@ -3304,6 +4057,7 @@ const TableValueResultWebhookDeliveryDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultWebhookEndpointDto = z
@@ -3313,6 +4067,7 @@ const TableValueResultWebhookEndpointDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const TableValueResultWorkspaceDto = z
@@ -3322,6 +4077,7 @@ const TableValueResultWorkspaceDto = z
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
     totalPages: z.number().int().nullish(),
+    nextCursor: z.string().nullish(),
   })
   .passthrough();
 const WebhookEventCatalogEntry = z
@@ -3346,17 +4102,42 @@ export const schemas = {
   MattermostChannelConfig,
   OpsGenieChannelConfig,
   PagerDutyChannelConfig,
+  PhoneCallChannelConfig,
   PushbulletChannelConfig,
   PushoverChannelConfig,
   RootlyChannelConfig,
   SlackChannelConfig,
+  SmsChannelConfig,
   SplunkOnCallChannelConfig,
   TeamsChannelConfig,
   TelegramChannelConfig,
   WebhookChannelConfig,
   ZapierChannelConfig,
   CreateAlertChannelRequest,
+  UpdateDatadogChannelConfig,
+  UpdateDiscordChannelConfig,
+  UpdateEmailChannelConfig,
+  UpdateGitLabChannelConfig,
+  UpdateGoogleChatChannelConfig,
+  UpdateIncidentIoChannelConfig,
+  UpdateJiraChannelConfig,
+  UpdateLinearChannelConfig,
+  UpdateMattermostChannelConfig,
+  UpdateOpsGenieChannelConfig,
+  UpdatePagerDutyChannelConfig,
+  UpdatePhoneCallChannelConfig,
+  UpdatePushbulletChannelConfig,
+  UpdatePushoverChannelConfig,
+  UpdateRootlyChannelConfig,
+  UpdateSlackChannelConfig,
+  UpdateSmsChannelConfig,
+  UpdateSplunkOnCallChannelConfig,
+  UpdateTeamsChannelConfig,
+  UpdateTelegramChannelConfig,
+  UpdateWebhookChannelConfig,
+  UpdateZapierChannelConfig,
   UpdateAlertChannelRequest,
+  SetEnabledRequest,
   TestAlertChannelRequest,
   CreateApiKeyRequest,
   UpdateApiKeyRequest,
@@ -3365,6 +4146,7 @@ export const schemas = {
   UpdateEnvironmentRequest,
   params,
   CreateManualIncidentRequest,
+  UpdateIncidentRequest,
   ResolveIncidentRequest,
   AddIncidentUpdateRequest,
   CreateInviteRequest,
@@ -3377,6 +4159,7 @@ export const schemas = {
   HttpMonitorConfig,
   IcmpMonitorConfig,
   McpServerMonitorConfig,
+  ScriptMonitorConfig,
   TcpMonitorConfig,
   BodyContainsAssertion,
   DnsExpectedCnameAssertion,
@@ -3435,6 +4218,7 @@ export const schemas = {
   CreateMonitorRequest,
   UpdateMonitorRequest,
   RemoveMonitorTagsRequest,
+  TestMonitorNotificationsRequest,
   SetAlertChannelsRequest,
   UpdateAssertionRequest,
   UpdateMonitorAuthRequest,
@@ -3461,6 +4245,7 @@ export const schemas = {
   UpdateStatusPageRequest,
   CreateStatusPageComponentRequest,
   UpdateStatusPageComponentRequest,
+  SetStatusPageComponentOverrideRequest,
   ComponentPosition,
   ReorderComponentsRequest,
   AddCustomDomainRequest,
@@ -3471,9 +4256,11 @@ export const schemas = {
   UpdateStatusPageIncidentRequest,
   PublishStatusPageIncidentRequest,
   CreateStatusPageIncidentUpdateRequest,
+  UpdateStatusPageIncidentUpdateRequest,
   PageSection,
   GroupComponentOrder,
   ReorderPageLayoutRequest,
+  CreateStatusPageMaintenanceRequest,
   AdminAddSubscriberRequest,
   CreateTagRequest,
   UpdateTagRequest,
@@ -3482,9 +4269,12 @@ export const schemas = {
   TestWebhookEndpointRequest,
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
+  AlertDeliveryDto,
+  NotificationDispatchDto,
+  SkippedDispatch,
+  AcknowledgeAllIncidentsResponse,
   AlertChannelDisplayConfig,
   AlertChannelDto,
-  AlertDeliveryDto,
   ApiKeyCreateResponse,
   ApiKeyDto,
   AssertionResultDto,
@@ -3512,6 +4302,8 @@ export const schemas = {
   Icmp,
   Dns,
   McpServer,
+  CodeCheckStep,
+  Code,
   CheckTypeDetailsDto,
   CheckResultDetailsDto,
   CheckResultDto,
@@ -3521,14 +4313,26 @@ export const schemas = {
   PolicySnapshotDto,
   CheckTraceDto,
   ComponentImpact,
+  ComponentSample,
   ComponentsSummaryDto,
   ComponentStatusDto,
+  ComponentTransitionEventDto,
   ComponentUptimeSummaryDto,
+  CreditTier,
+  CreditPolicy,
   CursorPageCheckResultDto,
+  IncidentActivityPayloadDto,
+  IncidentActivityEventDto,
+  CursorPageIncidentActivityEventDto,
   ServiceCatalogDto,
   CursorPageServiceCatalogDto,
   ServicePollResultDto,
   CursorPageServicePollResultDto,
+  IncidentEventDto,
+  MaintenanceEventDto,
+  OrgIncidentAnnotationDto,
+  StatusEventDto,
+  CursorPageStatusEventDto,
   MonitorsSummaryDto,
   IncidentsSummaryDto,
   DashboardOverviewDto,
@@ -3540,9 +4344,11 @@ export const schemas = {
   EnvironmentDto,
   GlobalStatusSummaryDto,
   HeartbeatPingResponse,
+  IncidentFailingMemberSnapshotDto,
   IncidentDto,
   IncidentUpdateDto,
   LinkedStatusPageIncidentDto,
+  IncidentTriggerDto,
   IncidentDetailDto,
   IncidentFilterParams,
   IncidentPolicyDto,
@@ -3563,24 +4369,33 @@ export const schemas = {
   MonitorReference,
   MonitorTestResultDto,
   MonitorVersionDto,
-  NotificationDispatchDto,
+  NoSlaContext,
   NotificationDto,
+  NotificationPolicyWindowStatsDto,
   NotificationPolicyDto,
+  OfficialSla,
   OrganizationDto,
   Pageable,
   PollChartBucketDto,
+  PricingTier,
   RegionStatusDto,
+  RelatedIncidentsResponse,
+  ResourceGroupDeleteBlockerDto,
   ResourceGroupHealthDto,
+  ResourceGroupMemberIncidentMarkDto,
   ResourceGroupMemberDto,
   ResourceGroupDto,
   ResultSummaryDto,
   ScheduledMaintenanceDto,
   SecretDto,
   SeoMetadataDto,
+  ServiceBreakdown,
   ServiceComponentDto,
   ServiceDayDetailDto,
   ServiceStatusDto,
   ServiceIncidentDto,
+  SourceUrls,
+  SlaDataDto,
   ServiceDetailDto,
   ServiceIncidentUpdateDto,
   ServiceIncidentDetailDto,
@@ -3589,6 +4404,7 @@ export const schemas = {
   ServiceSubscriptionDto,
   UptimeBucketDto,
   ServiceUptimeResponse,
+  SingleValueResponseAcknowledgeAllIncidentsResponse,
   SingleValueResponseAlertChannelDto,
   SingleValueResponseAlertDeliveryDto,
   SingleValueResponseApiKeyCreateResponse,
@@ -3605,6 +4421,7 @@ export const schemas = {
   SingleValueResponseIncidentDetailDto,
   SingleValueResponseIncidentPolicyDto,
   SingleValueResponseIncidentTimelineDto,
+  SingleValueResponseIncidentTriggerDto,
   SingleValueResponseInviteDto,
   SingleValueResponseListUUID,
   SingleValueResponseLong,
@@ -3636,12 +4453,19 @@ export const schemas = {
   SingleValueResponseStatusPageComponentGroupDto,
   StatusPageCustomDomainDto,
   SingleValueResponseStatusPageCustomDomainDto,
+  StatusPageOpenIncidentSummaryDto,
   StatusPageDto,
   SingleValueResponseStatusPageDto,
   StatusPageIncidentComponentDto,
   StatusPageIncidentUpdateDto,
   StatusPageIncidentDto,
   SingleValueResponseStatusPageIncidentDto,
+  SingleValueResponseStatusPageIncidentUpdateDto,
+  StatusPageMeasuredUptimeDayDto,
+  StatusPageMeasuredComponentUptimeDto,
+  SingleValueResponseStatusPageMeasuredComponentUptimeDto,
+  StatusPageNotificationDeliveryDto,
+  SingleValueResponseStatusPageNotificationDeliveryDto,
   StatusPageSubscriberDto,
   SingleValueResponseStatusPageSubscriberDto,
   SingleValueResponseString,
@@ -3691,8 +4515,12 @@ export const schemas = {
   TableValueResultStatusPageCustomDomainDto,
   TableValueResultStatusPageDto,
   TableValueResultStatusPageIncidentDto,
+  TableValueResultStatusPageNotificationDeliveryDto,
   TableValueResultStatusPageSubscriberDto,
   TableValueResultTagDto,
+  TableValueResultTestChannelResult,
+  VoiceLanguageDto,
+  TableValueResultVoiceLanguageDto,
   WebhookDeliveryDto,
   TableValueResultWebhookDeliveryDto,
   TableValueResultWebhookEndpointDto,

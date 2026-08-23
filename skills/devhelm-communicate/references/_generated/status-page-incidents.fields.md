@@ -12,11 +12,8 @@
 | `impact` | "NONE" \| "MINOR" \| "MAJOR" \| "CRITICAL" | ✓ |  | Impact level: NONE, MINOR, MAJOR, or CRITICAL |
 | `body` | string | ✓ |  | Initial update body in markdown |
 | `affectedComponents` | AffectedComponent[] |  | ✓ | Component IDs affected by this incident |
-| `scheduled` | boolean |  | ✓ | Whether this is a scheduled maintenance (default: false) |
-| `scheduledFor` | string (date-time) |  | ✓ | Maintenance start time (required when scheduled=true) |
-| `scheduledUntil` | string (date-time) |  | ✓ | Maintenance end time |
-| `autoResolve` | boolean |  | ✓ | Auto-resolve at scheduledUntil (default: false) |
 | `notifySubscribers` | boolean |  | ✓ | Whether to email confirmed subscribers about this incident (default: true) |
+| `monitoringIncidentId` | string (uuid) |  | ✓ | Monitoring incident ID to link this status page incident to; null for standalone |
 
 ## `UpdateStatusPageIncidentRequest`
 
@@ -28,6 +25,10 @@
 | `affectedComponents` | AffectedComponent[] |  | ✓ | Updated affected components; null preserves current |
 | `postmortemBody` | string |  | ✓ | Postmortem body in markdown; empty string clears |
 | `postmortemUrl` | string |  | ✓ | URL to an external postmortem document; empty string clears |
+| `published` | boolean |  | ✓ | Whether the incident is published on the public page; null preserves current. true publishes (sets publishedAt); false unpublishes (clears publishedAt) |
+| `scheduledFor` | string (date-time) |  | ✓ | New maintenance window start; null preserves current. Only for scheduled incidents |
+| `scheduledUntil` | string (date-time) |  | ✓ | New maintenance window end; null preserves current. Only for scheduled incidents |
+| `autoResolve` | boolean |  | ✓ | Whether the window auto-completes at scheduledUntil; null preserves current |
 
 ## `StatusPageIncidentDto` (response shape)
 

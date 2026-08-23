@@ -1,5 +1,5 @@
 alertChannels:
   - name: bad
     config:
-      channelType: sms
+      channelType: not_a_channel
       phone: "+1234567890"

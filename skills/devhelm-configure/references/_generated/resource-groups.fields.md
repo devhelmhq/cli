@@ -8,7 +8,7 @@
 | Field | Type | Required | Nullable | Description |
 |---|---|---|---|---|
 | `name` | string | ✓ |  | Human-readable name for this group |
-| `description` | string |  | ✓ | Optional description |
+| `description` | string |  | ✓ | Optional description (max 500) |
 | `alertPolicyId` | string (uuid) |  | ✓ | Optional notification policy to apply for this group |
 | `defaultFrequency` | integer (int32) |  | ✓ | Default check frequency in seconds applied to members (30–86400) |
 | `defaultRegions` | string[] |  | ✓ | Default regions applied to member monitors |
@@ -27,7 +27,7 @@
 | Field | Type | Required | Nullable | Description |
 |---|---|---|---|---|
 | `name` | string | ✓ |  | Human-readable name for this group |
-| `description` | string |  | ✓ | Optional description; null clears the existing value |
+| `description` | string |  | ✓ | Optional description (max 500); null clears the existing value |
 | `alertPolicyId` | string (uuid) |  | ✓ | Optional notification policy to apply for this group; null clears the existing value |
 | `defaultFrequency` | integer (int32) |  | ✓ | Default check frequency in seconds for members (30–86400); null clears |
 | `defaultRegions` | string[] |  | ✓ | Default regions for member monitors; null clears |
@@ -63,6 +63,8 @@
 | `recoveryCooldownMinutes` | integer (int32) |  | ✓ | Cooldown minutes after group incident resolves before a new one can open |
 | `health` | ResourceGroupHealthDto | ✓ |  |  |
 | `members` | ResourceGroupMemberDto[] |  | ✓ | Member list with individual statuses; populated on detail GET only |
+| `deleteBlockedBy` | ResourceGroupDeleteBlockerDto[] |  | ✓ | Status-page GROUP components that reference this group (delete blockers / public exposure); populated on detail GET only — omitted on list |
+| `openRegionIncident` | any |  | ✓ |  |
 | `managedBy` | string |  | ✓ | Source that created/owns this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on groups created before this attribution column existed. |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the group was created |
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the group was last updated |

@@ -14,15 +14,22 @@ export default class StatusPagesIncidentsCreate extends Command {
     impact: Flags.string({description: 'Incident impact', required: true, options: [...SP_INCIDENT_IMPACTS]}),
     body: Flags.string({description: 'Initial update body in markdown', required: true}),
     status: Flags.string({description: 'Incident status', options: [...SP_INCIDENT_STATUSES]}),
-    scheduled: Flags.boolean({description: 'Whether this is a scheduled maintenance'}),
+    scheduled: Flags.boolean({
+      description: 'Removed. Use `status-pages maintenance create` instead.',
+      hidden: true,
+    }),
   }
 
   async run() {
     const {args, flags} = await this.parse(StatusPagesIncidentsCreate)
+    if (flags.scheduled) {
+      this.error(
+        '`--scheduled` is no longer valid on incident create. Use `devhelm status-pages maintenance create` instead.',
+      )
+    }
     const client = buildClient(flags)
     const body: Record<string, unknown> = {title: flags.title, impact: flags.impact, body: flags.body}
     if (flags.status) body.status = flags.status
-    if (flags.scheduled) body.scheduled = flags.scheduled
     const resp = await apiPost(client, `/api/v1/status-pages/${args.id}/incidents`, body)
     display(this, unwrapData(resp), flags.output)
   }

@@ -413,6 +413,8 @@ const CHANNEL_CONFIG_SCHEMA_LIST: z.AnyZodObject[] = [
   apiSchemas.PushoverChannelConfig,
   apiSchemas.RootlyChannelConfig,
   apiSchemas.SlackChannelConfig,
+  apiSchemas.SmsChannelConfig,
+  apiSchemas.PhoneCallChannelConfig,
   apiSchemas.SplunkOnCallChannelConfig,
   apiSchemas.TeamsChannelConfig,
   apiSchemas.TelegramChannelConfig,
