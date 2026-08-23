@@ -1411,7 +1411,7 @@ export interface paths {
         };
         /**
          * List dispatches (firing history) for a notification policy
-         * @description Additive optional query params: since/until/cursor/limit. When all are omitted, returns the full history (legacy). When any is set, defaults to a 30-day window and limit 50, and may include nextCursor. Response remains TableValueResult — no CursorPage swap.
+         * @description Optional query params: since/until/cursor/limit. When all are omitted, returns the full history (legacy). When any is set, defaults to a 30-day window and limit 50. Response is CursorPage (hasMore + nextCursor), the same wrapper used by other append-only history endpoints.
          */
         get: operations["listDispatches"];
         put?: never;
@@ -4098,6 +4098,15 @@ export interface components {
         CursorPageIncidentActivityEventDto: {
             /** @description Items on this page */
             data: components["schemas"]["IncidentActivityEventDto"][];
+            /** @description Opaque cursor for the next page; null when there are no more results */
+            nextCursor?: string | null;
+            /** @description Whether more results exist beyond this page */
+            hasMore: boolean;
+        };
+        /** @description Cursor-paginated response for time-series and append-only data */
+        CursorPageNotificationDispatchDto: {
+            /** @description Items on this page */
+            data: components["schemas"]["NotificationDispatchDto"][];
             /** @description Opaque cursor for the next page; null when there are no more results */
             nextCursor?: string | null;
             /** @description Whether more results exist beyond this page */
@@ -8218,7 +8227,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultAlertDeliveryDto: {
             data: components["schemas"]["AlertDeliveryDto"][];
@@ -8228,7 +8236,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultApiKeyDto: {
             data: components["schemas"]["ApiKeyDto"][];
@@ -8238,7 +8245,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultAuditEventDto: {
             data: components["schemas"]["AuditEventDto"][];
@@ -8248,7 +8254,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultCategoryDto: {
             data: components["schemas"]["CategoryDto"][];
@@ -8258,7 +8263,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultComponentUptimeDayDto: {
             data: components["schemas"]["ComponentUptimeDayDto"][];
@@ -8268,7 +8272,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultDeliveryAttemptDto: {
             data: components["schemas"]["DeliveryAttemptDto"][];
@@ -8278,7 +8281,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultEnvironmentDto: {
             data: components["schemas"]["EnvironmentDto"][];
@@ -8288,7 +8290,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultIncidentDto: {
             data: components["schemas"]["IncidentDto"][];
@@ -8298,7 +8299,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultIncidentStateTransitionDto: {
             data: components["schemas"]["IncidentStateTransitionDto"][];
@@ -8308,7 +8308,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultIntegrationDto: {
             data: components["schemas"]["IntegrationDto"][];
@@ -8318,7 +8317,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultInviteDto: {
             data: components["schemas"]["InviteDto"][];
@@ -8328,7 +8326,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultMaintenanceWindowDto: {
             data: components["schemas"]["MaintenanceWindowDto"][];
@@ -8338,7 +8335,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultMemberDto: {
             data: components["schemas"]["MemberDto"][];
@@ -8348,7 +8344,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultMonitorDto: {
             data: components["schemas"]["MonitorDto"][];
@@ -8358,7 +8353,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultMonitorVersionDto: {
             data: components["schemas"]["MonitorVersionDto"][];
@@ -8368,7 +8362,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultNotificationDispatchDto: {
             data: components["schemas"]["NotificationDispatchDto"][];
@@ -8378,7 +8371,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultNotificationDto: {
             data: components["schemas"]["NotificationDto"][];
@@ -8388,7 +8380,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultNotificationPolicyDto: {
             data: components["schemas"]["NotificationPolicyDto"][];
@@ -8398,7 +8389,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultResourceGroupDto: {
             data: components["schemas"]["ResourceGroupDto"][];
@@ -8408,7 +8398,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultRuleEvaluationDto: {
             data: components["schemas"]["RuleEvaluationDto"][];
@@ -8418,7 +8407,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultScheduledMaintenanceDto: {
             data: components["schemas"]["ScheduledMaintenanceDto"][];
@@ -8428,7 +8416,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultSecretDto: {
             data: components["schemas"]["SecretDto"][];
@@ -8438,7 +8425,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultServiceComponentDto: {
             data: components["schemas"]["ServiceComponentDto"][];
@@ -8448,7 +8434,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultServiceIncidentDto: {
             data: components["schemas"]["ServiceIncidentDto"][];
@@ -8458,7 +8443,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultServiceSubscriptionDto: {
             data: components["schemas"]["ServiceSubscriptionDto"][];
@@ -8468,7 +8452,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageComponentDto: {
             data: components["schemas"]["StatusPageComponentDto"][];
@@ -8478,7 +8461,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageComponentGroupDto: {
             data: components["schemas"]["StatusPageComponentGroupDto"][];
@@ -8488,7 +8470,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageCustomDomainDto: {
             data: components["schemas"]["StatusPageCustomDomainDto"][];
@@ -8498,7 +8479,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageDto: {
             data: components["schemas"]["StatusPageDto"][];
@@ -8508,7 +8488,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageIncidentDto: {
             data: components["schemas"]["StatusPageIncidentDto"][];
@@ -8518,7 +8497,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageNotificationDeliveryDto: {
             data: components["schemas"]["StatusPageNotificationDeliveryDto"][];
@@ -8528,7 +8506,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageSubscriberDto: {
             data: components["schemas"]["StatusPageSubscriberDto"][];
@@ -8538,7 +8515,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultTagDto: {
             data: components["schemas"]["TagDto"][];
@@ -8548,7 +8524,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultTestChannelResult: {
             data: components["schemas"]["TestChannelResult"][];
@@ -8558,7 +8533,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultVoiceLanguageDto: {
             data: components["schemas"]["VoiceLanguageDto"][];
@@ -8568,7 +8542,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultWebhookDeliveryDto: {
             data: components["schemas"]["WebhookDeliveryDto"][];
@@ -8578,7 +8551,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultWebhookEndpointDto: {
             data: components["schemas"]["WebhookEndpointDto"][];
@@ -8588,7 +8560,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultWorkspaceDto: {
             data: components["schemas"]["WorkspaceDto"][];
@@ -8598,7 +8569,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         /** @description Tag for organizing and filtering monitors */
         TagDto: {
@@ -19283,7 +19253,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultNotificationDispatchDto"];
+                    "*/*": components["schemas"]["CursorPageNotificationDispatchDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
