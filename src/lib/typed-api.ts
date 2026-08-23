@@ -38,8 +38,8 @@ export async function fetchPaginated<TItem>(
 /**
  * Schema-validated variant of `fetchPaginated`.
  *
- * Each page is parsed through `parsePage` (envelope `.strict()` — P1) so an
- * unknown top-level field on the `TableValueResult` envelope, or a per-item
+ * Each page is parsed through `parsePage` (envelope `.passthrough()` so
+ * additive fields like `nextCursor` cannot break list commands; per-item
  * shape mismatch, raises a typed `ValidationError` rather than flowing
  * silently into `display()`. Continues paginating until `hasNext === false`.
  */
