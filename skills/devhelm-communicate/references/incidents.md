@@ -66,11 +66,13 @@ devhelm status-pages incidents updates create <incident-id> \
 
 Valid status values:
 
-- `SCHEDULED` → upcoming maintenance
 - `INVESTIGATING` → just started, cause unknown
 - `IDENTIFIED` → cause known, fix in progress
 - `MONITORING` → fix applied, watching
 - `RESOLVED` → over
+
+Window timing belongs on the maintenance resource
+(`status-pages maintenance create` / `update`), not incident status.
 
 Each update is appended to the incident; the page shows the full
 timeline.

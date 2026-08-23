@@ -124,9 +124,12 @@ Ask which one if ambiguous.
 - **Existing auto-created incident** (from a monitor going down):
   list recent ones with `devhelm status-pages incidents list
   <page-id>` and ask the user which to post under.
-- **New manual incident**: create with `devhelm status-pages incidents
-  create <page-id> ...` (planned maintenance, external provider
-  outages, etc.).
+- **New incident**: create with `devhelm status-pages incidents
+  create <page-id> ...` for outages monitors can't detect
+  (external provider outages, etc.).
+- **Maintenance window**: schedule with
+  `devhelm status-pages maintenance create <page-id> ...`.
+  Do not use incident create for planned work.
 
 **Step 3 — Compose the update.**
 
