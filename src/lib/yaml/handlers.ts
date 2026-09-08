@@ -703,10 +703,28 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
 
 // ── Monitor ─────────────────────────────────────────────────────────────
 
-// Derived from UpdateMonitorRequest minus control-only fields (clearAuth,
-// clearEnvironmentId, managedBy) that are mutation signals, not state.
-// auth and incidentPolicy need | null because monitors can lack them.
-type MonitorSnapshotBase = Required<Omit<Schemas['UpdateMonitorRequest'], 'clearEnvironmentId' | 'clearAuth' | 'managedBy'>>
+// YAML-managed update fields only. Do not Required<> the whole UpdateMonitorRequest
+// — additive optional keys (capturePolicy, package, status, …) must not break
+// snapshot constructors after spec regen (evolution harness).
+type MonitorSnapshotKeys =
+  | 'name'
+  | 'config'
+  | 'frequencySeconds'
+  | 'enabled'
+  | 'regions'
+  | 'environmentId'
+  | 'assertions'
+  | 'auth'
+  | 'incidentPolicy'
+  | 'alertChannelIds'
+  | 'tags'
+type MonitorUpdateFields = Omit<
+  Schemas['UpdateMonitorRequest'],
+  'clearEnvironmentId' | 'clearAuth' | 'managedBy'
+>
+type MonitorSnapshotBase = Required<
+  Pick<MonitorUpdateFields, Extract<MonitorSnapshotKeys, keyof MonitorUpdateFields>>
+>
 type MonitorSnapshot = Omit<MonitorSnapshotBase, 'auth' | 'incidentPolicy'> & {
   auth: MonitorSnapshotBase['auth'] | null
   incidentPolicy: MonitorSnapshotBase['incidentPolicy'] | null
