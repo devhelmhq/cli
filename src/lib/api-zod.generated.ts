@@ -1705,6 +1705,84 @@ const CreateWorkspaceRequest = z.object({ name: z.string().min(1) }).strict();
 const UpdateWorkspaceRequest = z
   .object({ name: z.string().min(0).max(200) })
   .strict();
+const WaitEmailMessageRequest = z
+  .object({
+    timeoutMs: z.number().int().nullable(),
+    receivedAfter: z.string().datetime({ offset: true }).nullable(),
+    to: z.string().nullable(),
+    subjectContains: z.string().nullable(),
+    domain: z.string().nullable(),
+  })
+  .partial()
+  .strict();
+const CreateEmailDomainRequest = z
+  .object({
+    kind: z.enum(["assigned", "custom"]).nullable(),
+    name: z.string().nullable(),
+  })
+  .partial()
+  .strict();
+const UpdateEmailDomainRequest = z
+  .object({
+    status: z
+      .enum(["active", "disabled", "pending_dns", "verification_failed"])
+      .nullable(),
+  })
+  .partial()
+  .strict();
+const InjectEmailMessageRequest = z
+  .object({
+    to: z.string().min(1),
+    from: z.string().min(1),
+    subject: z.string().nullish(),
+    text: z.string().nullish(),
+    html: z.string().nullish(),
+    headers: z.record(z.array(z.string().nullable()).nullable()).nullish(),
+  })
+  .strict();
+const InboundWebhookHttpResponsePatch = z
+  .object({
+    status: z.number().int().gte(200).lte(599).nullable(),
+    headers: z.record(z.string().nullable()).nullable(),
+    body: z.string().min(0).max(65536).nullable(),
+    contentType: z.string().nullable(),
+    delayMs: z.number().int().gte(0).lte(30000).nullable(),
+  })
+  .partial()
+  .strict();
+const CreateWebhookInboxRequest = z
+  .object({
+    name: z.string().min(0).max(200),
+    status: z.enum(["active", "disabled"]).nullish(),
+    httpResponse: InboundWebhookHttpResponsePatch.nullish(),
+    cors: z.boolean().nullish(),
+    retentionDays: z.number().int().gte(1).lte(3650).nullish(),
+    maxEvents: z.number().int().gte(1).lte(100000).nullish(),
+  })
+  .strict();
+const UpdateWebhookInboxRequest = z
+  .object({
+    name: z.string().min(0).max(200).nullable(),
+    status: z.enum(["active", "disabled"]).nullable(),
+    httpResponse: InboundWebhookHttpResponsePatch.nullable(),
+    cors: z.boolean().nullable(),
+    retentionDays: z.number().int().gte(1).lte(3650).nullable(),
+    maxEvents: z.number().int().gte(1).lte(100000).nullable(),
+  })
+  .partial()
+  .strict();
+const WaitHttpMatchers = z
+  .object({ method: z.string().nullable(), pathPrefix: z.string().nullable() })
+  .partial()
+  .strict();
+const WaitWebhookEventRequest = z
+  .object({
+    timeoutMs: z.number().int().nullable(),
+    receivedAfter: z.string().datetime({ offset: true }).nullable(),
+    http: WaitHttpMatchers.nullable(),
+  })
+  .partial()
+  .strict();
 const AlertDeliveryDto = z
   .object({
     id: z.string().uuid(),
@@ -4086,6 +4164,196 @@ const WebhookEventCatalogEntry = z
 const WebhookEventCatalogResponse = z
   .object({ data: z.array(WebhookEventCatalogEntry) })
   .passthrough();
+const InboundOtpCode = z
+  .object({ value: z.string().min(1), source: z.enum(["text", "html"]) })
+  .strict();
+const InboundEmailLink = z
+  .object({ href: z.string().min(1), text: z.string().nullish() })
+  .strict();
+const InboundEmailAttachment = z
+  .object({
+    id: z.string().uuid(),
+    filename: z.string().min(1),
+    contentType: z.string().min(1),
+    sizeBytes: z.number().int(),
+    objectKey: z.string().min(1),
+  })
+  .strict();
+const EmailMessageDto = z
+  .object({
+    id: z.string().uuid(),
+    domainId: z.string().uuid(),
+    inbox: z.string().nullish(),
+    receivedAt: z.string().datetime({ offset: true }),
+    sizeBytes: z.number().int(),
+    from: z.string().nullish(),
+    to: z.array(z.string()).nullish(),
+    subject: z.string().nullish(),
+    headers: z.record(z.array(z.string())),
+    bodyPreview: z.string().nullish(),
+    otp: z.array(InboundOtpCode).nullish(),
+    links: z.array(InboundEmailLink).nullish(),
+    attachments: z.array(InboundEmailAttachment).nullish(),
+    sha256: z.string(),
+  })
+  .passthrough();
+const CursorPageEmailMessageDto = z
+  .object({
+    data: z.array(EmailMessageDto),
+    nextCursor: z.string().nullish(),
+    hasMore: z.boolean(),
+  })
+  .passthrough();
+const WebhookEventDto = z
+  .object({
+    id: z.string().uuid(),
+    inboxId: z.string().uuid(),
+    receivedAt: z.string().datetime({ offset: true }),
+    sizeBytes: z.number().int(),
+    sourceIp: z.string().nullish(),
+    headers: z.record(z.array(z.string())),
+    method: z.string(),
+    path: z.string(),
+    query: z.record(z.array(z.string().nullable()).nullable()).nullish(),
+    url: z.string().nullish(),
+    host: z.string().nullish(),
+    bodyPreview: z.string().nullish(),
+    body: z.string().nullish(),
+    sha256: z.string(),
+  })
+  .passthrough();
+const CursorPageWebhookEventDto = z
+  .object({
+    data: z.array(WebhookEventDto),
+    nextCursor: z.string().nullish(),
+    hasMore: z.boolean(),
+  })
+  .passthrough();
+const EmailDnsRecordDto = z
+  .object({
+    label: z.string().min(1),
+    type: z.string().min(1),
+    name: z.string().min(1),
+    value: z.string().min(1),
+    priority: z.number().int().nullish(),
+    required: z.boolean(),
+  })
+  .passthrough();
+const EmailDomainDto = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string().min(1),
+    workspaceId: z.number().int(),
+    kind: z.string(),
+    status: z.string(),
+    mxVerified: z.boolean(),
+    verificationToken: z.string().uuid().nullish(),
+    verificationError: z.string().nullish(),
+    verifiedAt: z.string().datetime({ offset: true }).nullish(),
+    dnsRecords: z.array(EmailDnsRecordDto),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const InboundWebhookHttpResponse = z
+  .object({
+    status: z.number().int().gte(200).lte(599),
+    headers: z.record(z.string()),
+    body: z.string().min(0).max(65536),
+    contentType: z.string(),
+    delayMs: z.number().int().gte(0).lte(30000),
+  })
+  .passthrough();
+const InjectEmailMessageResponse = z
+  .object({
+    eventId: z.string().uuid(),
+    receivedAt: z.string().datetime({ offset: true }),
+    inbox: z.string(),
+  })
+  .passthrough();
+const SignedDownload = z
+  .object({
+    url: z.string().min(1),
+    expiresAt: z.string().datetime({ offset: true }),
+    filename: z.string().min(1),
+    contentType: z.string().min(1),
+    sizeBytes: z.number().int(),
+  })
+  .strict();
+const SingleValueResponseEmailDomainDto = z
+  .object({ data: EmailDomainDto })
+  .passthrough();
+const SingleValueResponseEmailMessageDto = z
+  .object({ data: EmailMessageDto })
+  .passthrough();
+const SingleValueResponseInjectEmailMessageResponse = z
+  .object({ data: InjectEmailMessageResponse })
+  .passthrough();
+const SingleValueResponseSignedDownload = z
+  .object({ data: SignedDownload })
+  .passthrough();
+const SingleValueResponseWebhookEventDto = z
+  .object({ data: WebhookEventDto })
+  .passthrough();
+const WebhookInboxDto = z
+  .object({
+    id: z.string().uuid(),
+    workspaceId: z.number().int(),
+    name: z.string().min(1),
+    status: z.string(),
+    publicToken: z.string().min(1),
+    httpUrl: z.string().min(1),
+    httpResponse: InboundWebhookHttpResponse,
+    cors: z.boolean(),
+    retentionDays: z.number().int(),
+    maxEvents: z.number().int(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const SingleValueResponseWebhookInboxDto = z
+  .object({ data: WebhookInboxDto })
+  .passthrough();
+const TableValueResultEmailDomainDto = z
+  .object({
+    data: z.array(EmailDomainDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .passthrough();
+const TableValueResultInboundEmailLink = z
+  .object({
+    data: z.array(InboundEmailLink),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .passthrough();
+const TableValueResultInboundOtpCode = z
+  .object({
+    data: z.array(InboundOtpCode),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .passthrough();
+const TableValueResultWebhookInboxDto = z
+  .object({
+    data: z.array(WebhookInboxDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .passthrough();
+const WaitEmailMessageResponse = z
+  .object({ message: EmailMessageDto })
+  .passthrough();
+const WaitWebhookEventResponse = z.object({ event: WebhookEventDto }).passthrough();
 
 export const schemas = {
   pageable,
@@ -4269,6 +4537,15 @@ export const schemas = {
   TestWebhookEndpointRequest,
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
+  WaitEmailMessageRequest,
+  CreateEmailDomainRequest,
+  UpdateEmailDomainRequest,
+  InjectEmailMessageRequest,
+  InboundWebhookHttpResponsePatch,
+  CreateWebhookInboxRequest,
+  UpdateWebhookInboxRequest,
+  WaitHttpMatchers,
+  WaitWebhookEventRequest,
   AlertDeliveryDto,
   NotificationDispatchDto,
   SkippedDispatch,
@@ -4527,5 +4804,30 @@ export const schemas = {
   TableValueResultWorkspaceDto,
   WebhookEventCatalogEntry,
   WebhookEventCatalogResponse,
+  InboundOtpCode,
+  InboundEmailLink,
+  InboundEmailAttachment,
+  EmailMessageDto,
+  CursorPageEmailMessageDto,
+  WebhookEventDto,
+  CursorPageWebhookEventDto,
+  EmailDnsRecordDto,
+  EmailDomainDto,
+  InboundWebhookHttpResponse,
+  InjectEmailMessageResponse,
+  SignedDownload,
+  SingleValueResponseEmailDomainDto,
+  SingleValueResponseEmailMessageDto,
+  SingleValueResponseInjectEmailMessageResponse,
+  SingleValueResponseSignedDownload,
+  SingleValueResponseWebhookEventDto,
+  WebhookInboxDto,
+  SingleValueResponseWebhookInboxDto,
+  TableValueResultEmailDomainDto,
+  TableValueResultInboundEmailLink,
+  TableValueResultInboundOtpCode,
+  TableValueResultWebhookInboxDto,
+  WaitEmailMessageResponse,
+  WaitWebhookEventResponse,
 };
 

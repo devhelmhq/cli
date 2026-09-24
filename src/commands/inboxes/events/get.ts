@@ -5,7 +5,7 @@ import {asRecord, show} from '../../../lib/inbound.js'
 import {uuidArg} from '../../../lib/validators.js'
 
 export default class InboxesEventsGet extends Command {
-  static description = 'Get one captured request'
+  static description = 'Get one captured request, including its body'
   static args = {
     id: uuidArg({description: 'Inbox ID', required: true}),
     eventId: uuidArg({description: 'Event ID', required: true}),

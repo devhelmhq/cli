@@ -4,7 +4,7 @@ import {EVENT_COLUMNS, postWait, show, unwrapKey, waitOrExplain} from '../../lib
 import {uuidArg} from '../../lib/validators.js'
 
 export default class InboxesWait extends Command {
-  static description = 'Wait for the next request sent to a capture URL'
+  static description = 'Wait for the next request. JSON and YAML include the captured body'
   static args = {id: uuidArg({description: 'Inbox ID', required: true})}
   static flags = {
     ...globalFlags,

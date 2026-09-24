@@ -10406,8 +10406,10 @@ export interface components {
             url?: string | null;
             /** @description Host header */
             host?: string | null;
-            /** @description Body preview at most 2048 characters. Full bytes are in object storage */
+            /** @description Body preview at most 2048 characters */
             bodyPreview?: string | null;
+            /** @description Captured body as UTF-8 text; null when listing events */
+            body?: string | null;
             /** @description SHA-256 of the raw object */
             sha256: string;
         };

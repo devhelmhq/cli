@@ -46258,7 +46258,12 @@
           },
           "bodyPreview": {
             "type": "string",
-            "description": "Body preview at most 2048 characters. Full bytes are in object storage",
+            "description": "Body preview at most 2048 characters",
+            "nullable": true
+          },
+          "body": {
+            "type": "string",
+            "description": "Captured body as UTF-8 text; null when listing events",
             "nullable": true
           },
           "sha256": {
