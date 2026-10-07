@@ -63,7 +63,7 @@
 | `recoveryCooldownMinutes` | integer (int32) |  | ✓ | Cooldown minutes after group incident resolves before a new one can open |
 | `health` | ResourceGroupHealthDto | ✓ |  |  |
 | `members` | ResourceGroupMemberDto[] |  | ✓ | Member list with individual statuses; populated on detail GET only |
-| `deleteBlockedBy` | ResourceGroupDeleteBlockerDto[] |  | ✓ | Status-page GROUP components that reference this group (delete blockers / public exposure); populated on detail GET only — omitted on list |
+| `deleteBlockedBy` | ResourceGroupDeleteBlockerDto[] |  | ✓ | Status-page GROUP components that represent this group (removed with the group on delete); populated on detail GET only — omitted on list |
 | `openRegionIncident` | any |  | ✓ |  |
 | `managedBy` | string |  | ✓ | Source that created/owns this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on groups created before this attribution column existed. |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the group was created |

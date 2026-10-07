@@ -70,7 +70,10 @@ const YAML_ONLY_FIELDS: Record<string, string[]> = {
 // `managedBy` is set automatically by the CLI transform layer to "CLI" so the
 // API records correct attribution; users must not set it themselves in YAML.
 const API_ONLY_FIELDS: Record<string, string[]> = {
-  monitor: ['managedBy', 'environmentId', 'alertChannelIds', 'clearEnvironmentId', 'clearAuth'],
+  monitor: [
+    'managedBy', 'environmentId', 'alertChannelIds', 'clearEnvironmentId', 'clearAuth',
+    'capturePolicy', 'definitionId', 'fastRetryMaxAttempts', 'package', 'runParallel', 'status',
+  ],
   alertChannel: ['managedBy'],
   notificationPolicy: [],
   resourceGroup: [
