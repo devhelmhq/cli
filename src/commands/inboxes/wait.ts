@@ -9,7 +9,9 @@ export default class InboxesWait extends Command {
   static flags = {
     ...globalFlags,
     'timeout-ms': Flags.integer({description: 'How long to wait, in milliseconds', default: 30000}),
-    'received-after': Flags.string({description: 'Ignore events received before this timestamp'}),
+    'received-after': Flags.string({
+      description: 'Ignore events received before this timestamp. Omit for the server lookback of 60 seconds',
+    }),
     method: Flags.string({description: 'HTTP method to match'}),
     'path-prefix': Flags.string({description: 'Captured path must start with this prefix'}),
   }
@@ -21,8 +23,8 @@ export default class InboxesWait extends Command {
     if (flags['path-prefix']) http.pathPrefix = flags['path-prefix']
     const body: Record<string, unknown> = {
       timeoutMs: flags['timeout-ms'],
-      receivedAfter: flags['received-after'] ?? new Date().toISOString(),
     }
+    if (flags['received-after']) body.receivedAfter = flags['received-after']
     if (Object.keys(http).length > 0) body.http = http
     const raw = await waitOrExplain(this, `inbox ${args.id}`, () =>
       postWait(buildClient(flags), `/api/v1/webhook/inboxes/${args.id}/wait`, body, flags['timeout-ms']),

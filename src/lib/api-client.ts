@@ -88,18 +88,21 @@ export function createApiClient(opts: {
   workspaceId?: string
   verbose?: boolean
 }) {
+  const workspaceId = opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${opts.token}`,
+    'Content-Type': 'application/json',
+    'x-phelm-org-id': opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
+    // Devtool surface telemetry — see lib/surface-telemetry.ts and
+    // https://devhelm.io/telemetry. Empty object when the user has set
+    // DEVHELM_TELEMETRY=0; otherwise four short identification headers.
+    ...buildSurfaceHeaders(),
+  }
+  if (workspaceId) headers['x-phelm-workspace-id'] = workspaceId
+
   const client = createClient<paths>({
     baseUrl: opts.baseUrl.replace(/\/$/, ''),
-    headers: {
-      Authorization: `Bearer ${opts.token}`,
-      'Content-Type': 'application/json',
-      'x-phelm-org-id': opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
-      'x-phelm-workspace-id': opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID ?? '1',
-      // Devtool surface telemetry — see lib/surface-telemetry.ts and
-      // https://devhelm.io/telemetry. Empty object when the user has set
-      // DEVHELM_TELEMETRY=0; otherwise four short identification headers.
-      ...buildSurfaceHeaders(),
-    },
+    headers,
   })
 
   if (opts.verbose) {
