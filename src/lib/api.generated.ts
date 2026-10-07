@@ -222,6 +222,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/artifacts/{id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Redirect to signed artifact download
+         * @description Returns 302 Location with a signed GET URL. 410 after the 14-day file clock.
+         */
+        get: operations["getArtifactContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/audit-log": {
         parameters: {
             query?: never;
@@ -230,7 +250,7 @@ export interface paths {
             cookie?: never;
         };
         /** List audit events for the current organization */
-        get: operations["list_20"];
+        get: operations["list_22"];
         put?: never;
         post?: never;
         delete?: never;
@@ -288,6 +308,57 @@ export interface paths {
          * @description Returns monitor status counts, average uptime windows, and incident aggregates for the authenticated org. Results are cached for 1 minute.
          */
         get: operations["overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/definitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List definitions */
+        get: operations["list_21"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/definitions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get definition with Heads */
+        get: operations["get_13"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/definitions/{id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all revisions for a definition */
+        get: operations["listRevisions_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -355,6 +426,265 @@ export interface paths {
          * @description Forcibly removes any deploy lock on the current workspace. Use to break stale locks.
          */
         delete: operations["forceRelease"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/{localpart}/wait": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Wait for the oldest matching captured email at a local-part */
+        post: operations["waitForEmailByLocalpart"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List email testing domains for the workspace */
+        get: operations["listEmailDomains"];
+        put?: never;
+        /** Create an assigned or custom email testing domain */
+        post: operations["createEmailDomain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an email testing domain including derived DNS records */
+        get: operations["getEmailDomain"];
+        put?: never;
+        post?: never;
+        /** Delete a domain, cascade messages, and remove the Redis allowlist entry */
+        delete: operations["deleteEmailDomain"];
+        options?: never;
+        head?: never;
+        /** Patch an email testing domain */
+        patch: operations["updateEmailDomain"];
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}/inboxes/{inbox}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete every message for one local-part */
+        delete: operations["deleteEmailInbox"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Super-inbox: list messages newest-first */
+        get: operations["listEmailMessages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}/messages/{messageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one captured message */
+        get: operations["getEmailMessage"];
+        put?: never;
+        post?: never;
+        /** Delete one captured message */
+        delete: operations["deleteEmailMessage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}/messages/{messageId}/attachments/{attId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Signed URL for one attachment */
+        get: operations["getEmailMessageAttachment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}/messages/{messageId}/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Extracted links on the message */
+        get: operations["listEmailMessageLinks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}/messages/{messageId}/otp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Extracted one-time codes on the message */
+        get: operations["listEmailMessageOtp"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}/messages/{messageId}/raw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Signed URL for the raw RFC822 object */
+        get: operations["getEmailMessageRaw"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}/messages/{messageId}/source": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Original message source as text */
+        get: operations["getEmailMessageSource"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}/messages/inject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Inject a JSON message onto the same durable path as SMTP */
+        post: operations["injectEmailMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/{domain}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Re-check TXT and MX for a custom domain */
+        post: operations["verifyEmailDomain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/domains/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Last-24h received-message activity for email domains */
+        get: operations["listEmailDomainActivity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email/wait": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Wait for the oldest matching captured email at a full address */
+        post: operations["waitForEmail"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -674,6 +1004,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ingest/{publicToken}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Capture an HTTP request sent to an inbox URL
+         * @description The response is that inbox's mock reply
+         */
+        get: operations["ingest"];
+        /**
+         * Capture an HTTP request sent to an inbox URL
+         * @description The response is that inbox's mock reply
+         */
+        put: operations["ingest_2"];
+        /**
+         * Capture an HTTP request sent to an inbox URL
+         * @description The response is that inbox's mock reply
+         */
+        post: operations["ingest_1"];
+        /**
+         * Capture an HTTP request sent to an inbox URL
+         * @description The response is that inbox's mock reply
+         */
+        delete: operations["ingest_3"];
+        /**
+         * Capture an HTTP request sent to an inbox URL
+         * @description The response is that inbox's mock reply
+         */
+        options: operations["ingest_6"];
+        /**
+         * Capture an HTTP request sent to an inbox URL
+         * @description The response is that inbox's mock reply
+         */
+        head: operations["ingest_5"];
+        /**
+         * Capture an HTTP request sent to an inbox URL
+         * @description The response is that inbox's mock reply
+         */
+        patch: operations["ingest_4"];
+        trace?: never;
+    };
     "/api/v1/integrations": {
         parameters: {
             query?: never;
@@ -685,7 +1059,7 @@ export interface paths {
          * List all supported integration types
          * @description Returns the full static catalog of supported alert channel integration types with their metadata and config field schemas. Used by the frontend to dynamically render the 'Add Alert Channel' form.
          */
-        get: operations["list_19"];
+        get: operations["list_20"];
         put?: never;
         post?: never;
         delete?: never;
@@ -817,7 +1191,7 @@ export interface paths {
             cookie?: never;
         };
         /** List organization members */
-        get: operations["list_18"];
+        get: operations["list_19"];
         put?: never;
         post?: never;
         delete?: never;
@@ -886,7 +1260,7 @@ export interface paths {
         };
         /**
          * List monitors for the authenticated org
-         * @description Supports filtering by `enabled`, `status` (alias active|paused for enabled), `type`, `managedBy`, `tag` / `tags`, `search`, and `environmentId`. Unrecognised query parameters are silently ignored (Spring's default binding behaviour) — pin to the documented set above.
+         * @description Supports filtering by `enabled`, `status` (alias active|paused for enabled), `type`, `managedBy`, `tag` / `tags`, `search`, `environmentId`, `displayHealth`, `needsAttention`, and `region`. Unrecognised query parameters are silently ignored (Spring's default binding behaviour) — pin to the documented set above.
          */
         get: operations["list_8"];
         put?: never;
@@ -910,8 +1284,65 @@ export interface paths {
         /** Update a monitor */
         put: operations["update_11"];
         post?: never;
-        /** Soft-delete a monitor */
+        /**
+         * Soft-delete a monitor
+         * @description Also deletes status-page components that represent this monitor. The parent status page stays.
+         */
         delete: operations["delete_7"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/drift": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** IaC-declared baseline vs live overlays */
+        get: operations["drift"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/mute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mute alert delivery without flipping enabled */
+        post: operations["mute"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/overview/steps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Overview step catalog
+         * @description Step catalog from finished runs of the Head revision in the window, with first-try and flake aggregates. Empty when the monitor has no step catalog.
+         */
+        get: operations["getMonitorOverviewSteps"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -926,8 +1357,62 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Pause a monitor (set enabled=false) */
+        /** Pause a monitor */
         post: operations["pause"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish a revision as Head for this monitor's environment
+         * @description Retargets the shared Head for (definition, environment). Does not clone package bytes.
+         */
+        post: operations["publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/quarantine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Quarantine a monitor */
+        post: operations["quarantine"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/release-quarantine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Release quarantine */
+        post: operations["releaseQuarantine"];
         delete?: never;
         options?: never;
         head?: never;
@@ -983,8 +1468,85 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Resume a monitor (set enabled=true) */
+        /** Resume a paused monitor */
         post: operations["resume"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List revisions published in this monitor's environment
+         * @description Omits drafts never published here. Page size default 25.
+         */
+        get: operations["listRevisions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/revisions/{revisionId}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run remote validation against a revision without moving Head
+         * @description Creates a Run with source=remote_validation. Does not signal.
+         */
+        post: operations["testRevision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/rollback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Roll back Head to a prior revision
+         * @description Same Head UPDATE as publish; stores reason on the Head.
+         */
+        post: operations["rollback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/rollback-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Preview rollback consequences for this environment */
+        get: operations["rollbackPreview"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1005,6 +1567,150 @@ export interface paths {
          * @description Generates a new ping token. The old token remains valid for 24 hours to allow cron jobs to be updated without downtime. Only supported for HEARTBEAT monitors.
          */
         post: operations["rotateToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List runs for a code monitor
+         * @description Cursor page of runs from the last 90 days. Default limit 25.
+         */
+        get: operations["listMonitorRuns"];
+        put?: never;
+        /**
+         * Run now
+         * @description Persists a run in queued phase. 409 if no Head or any secret key is missing.
+         */
+        post: operations["runNow"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/secret-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List secret requests for a monitor */
+        get: operations["list_18"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/secret-requests/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Attach or clear a remapped secret for a key */
+        put: operations["remap"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/secret-requests/rescan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rescan secret requests from the active package */
+        post: operations["rescan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the monitor session */
+        get: operations["getSession"];
+        /** Create or update the monitor session */
+        put: operations["putSession"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/session/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Renew the monitor session */
+        post: operations["renewSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/session/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke the monitor session */
+        post: operations["revokeSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/settings/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Projected run volume and meter headroom */
+        get: operations["settingsPreview"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1050,6 +1756,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/monitors/{id}/takeover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Claim a field for dashboard ownership or reset an overlay */
+        post: operations["takeover"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/monitors/{id}/test": {
         parameters: {
             query?: never;
@@ -1090,6 +1813,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/monitors/{id}/unmute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Clear mute overlay */
+        post: operations["unmute"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/monitors/{id}/uptime": {
         parameters: {
             query?: never;
@@ -1099,7 +1839,7 @@ export interface paths {
         };
         /**
          * Get uptime statistics
-         * @description Returns uptime percentage and latency statistics for the requested time window, computed from continuous aggregates. Uses hourly aggregates for 24h/7d windows and daily aggregates for 30d/90d windows.
+         * @description Returns uptime percentage and latency statistics for the requested time window, computed from continuous aggregates. Uses hourly aggregates for 24h/7d windows and daily aggregates for 30d/90d windows. Daily windows fall back to hourly when the daily rollup reports fewer checks.
          */
         get: operations["getUptime"];
         put?: never;
@@ -1265,6 +2005,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/monitors/package-uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mint a signed package upload URL */
+        post: operations["createPackageUpload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/monitors/test": {
         parameters: {
             query?: never;
@@ -1411,7 +2168,7 @@ export interface paths {
         };
         /**
          * List dispatches (firing history) for a notification policy
-         * @description Additive optional query params: since/until/cursor/limit. When all are omitted, returns the full history (legacy). When any is set, defaults to a 30-day window and limit 50, and may include nextCursor. Response remains TableValueResult — no CursorPage swap.
+         * @description Optional query params: since/until/cursor/limit. When all are omitted, returns the full history (legacy). When any is set, defaults to a 30-day window and limit 50. Response is CursorPage (hasMore + nextCursor), the same wrapper used by other append-only history endpoints.
          */
         get: operations["listDispatches"];
         put?: never;
@@ -1558,7 +2315,10 @@ export interface paths {
         /** Update a resource group's name, description, alert policy, inherited settings, and health threshold */
         put: operations["update_5"];
         post?: never;
-        /** Delete a resource group (cascades to member rows) */
+        /**
+         * Delete a resource group (cascades to member rows)
+         * @description Also deletes status-page components that represent this group. The parent status page stays.
+         */
         delete: operations["delete_5"];
         options?: never;
         head?: never;
@@ -1639,6 +2399,331 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/revisions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get revision package */
+        get: operations["get_12"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/revisions/{id}/bundle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Redirect to signed package download
+         * @description Returns 302 Location with a signed GET URL. 404 after downloadUntil.
+         */
+        get: operations["bundle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/revisions/{id}/diff/{other}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Compare two revisions (bounded hunks) */
+        get: operations["diff"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List code runs
+         * @description Org index. Default window last 30 minutes; from clamped to 90 days. Page size 50.
+         */
+        get: operations["listRuns"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a run */
+        get: operations["getRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/artifacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List run artifacts
+         * @description Complete persist manifest for this run.
+         */
+        get: operations["listRunArtifacts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request run cancel
+         * @description Sets cancel_requested; phase unchanged.
+         */
+        post: operations["cancelRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/captures/{artifactId}/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Compare a screenshot to the last pass of this step
+         * @description Captures viewer baseline: last pass of this step in this region, any revision.
+         */
+        get: operations["compareRunCapture"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List run cases with nested steps */
+        get: operations["listRunCases"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/console": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download raw console log
+         * @description Ungrouped text/plain console lines.
+         */
+        get: operations["getRunConsoleRaw"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/diff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Diff this run against a prior pass
+         * @description Default baseline is the last pass of the same revision in this region. Pass baselineRunId to pick another finished run of the same monitor.
+         */
+        get: operations["getRunDiff"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stream run control events */
+        get: operations["streamRunEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export run snapshot and available artifacts
+         * @description Zip of snapshot.json plus available artifact bytes. Expired files are omitted.
+         */
+        get: operations["exportRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/network": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List run network rows
+         * @description Waterfall collection. Filters: failed, slow, stepId, xhr, source. 500 per page.
+         */
+        get: operations["listRunNetwork"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/network/{rowId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get one network row
+         * @description Includes redacted headers, bodies, and copy-as-cURL.
+         */
+        get: operations["getRunNetworkRow"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/runner-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Snapshot in-flight runner log
+         * @description Hot Loki snapshot (text/plain) of lines so far. This is not live tail — poll this endpoint or use GET /runner-log/live (SSE). After finish, the cold file is the runner_log artifact (GET /artifacts/{id}/content). Empty while no lines have been pushed.
+         */
+        get: operations["getRunRunnerLog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{id}/runner-log/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Live tail runner log
+         * @description SSE live tail of in-flight Loki lines. Same ACL as the snapshot (runs.get). Each event data is JSON {ts,line} (ts is Loki nanoseconds, line is one log line). Loki stays internal. Closes on client disconnect, idle/run-finished, or the same SSE timeout as GET /events. Cold file after finish is the runner_log artifact.
+         */
+        get: operations["streamRunRunnerLog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/secrets": {
         parameters: {
             query?: never;
@@ -1646,7 +2731,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List secrets */
+        /** List organization secrets */
         get: operations["list_5"];
         put?: never;
         /** Create secret */
@@ -1670,6 +2755,57 @@ export interface paths {
         post?: never;
         /** Delete secret */
         delete: operations["delete_4"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/secrets/{key}/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Last update metadata for a secret */
+        get: operations["audit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/secrets/{key}/environments/{environmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Write a secret value for one environment */
+        put: operations["writeEnvironmentValue"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/secrets/{key}/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Secret usage across monitors */
+        get: operations["usage"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1705,7 +2841,7 @@ export interface paths {
         post?: never;
         /**
          * Remove a subscription by its ID
-         * @description Removes a specific subscription (whole-service or component-level). No-op if not found.
+         * @description Removes a specific subscription (whole-service or component-level). Also deletes status-page components that represent this dependency. The parent status page stays. No-op if not found.
          */
         delete: operations["unsubscribe_1"];
         options?: never;
@@ -2687,6 +3823,130 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/webhook/inboxes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List webhook testing inboxes for the workspace */
+        get: operations["listWebhookInboxes"];
+        put?: never;
+        /** Create a webhook testing inbox */
+        post: operations["createWebhookInbox"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhook/inboxes/{inboxId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a webhook testing inbox */
+        get: operations["getWebhookInbox"];
+        put?: never;
+        post?: never;
+        /** Delete a webhook testing inbox and cascade events */
+        delete: operations["deleteWebhookInbox"];
+        options?: never;
+        head?: never;
+        /** Patch a webhook testing inbox */
+        patch: operations["updateWebhookInbox"];
+        trace?: never;
+    };
+    "/api/v1/webhook/inboxes/{inboxId}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List captured HTTP events newest-first */
+        get: operations["listWebhookEvents"];
+        put?: never;
+        post?: never;
+        /** Delete every captured event on this inbox */
+        delete: operations["deleteWebhookEvents"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhook/inboxes/{inboxId}/events/{eventId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one captured HTTP event */
+        get: operations["getWebhookEvent"];
+        put?: never;
+        post?: never;
+        /** Delete one captured event */
+        delete: operations["deleteWebhookEvent"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhook/inboxes/{inboxId}/events/{eventId}/raw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Signed URL for the raw captured request */
+        get: operations["getWebhookEventRaw"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhook/inboxes/{inboxId}/wait": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Wait for the oldest matching captured HTTP event */
+        post: operations["waitForWebhookEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhook/inboxes/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Last-24h received-request activity for webhook inboxes */
+        get: operations["listWebhookInboxActivity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/webhooks": {
         parameters: {
             query?: never;
@@ -2844,338 +4104,6 @@ export interface paths {
         post?: never;
         /** Delete workspace */
         delete: operations["delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/{localpart}/wait": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Wait for the oldest matching captured email at a local-part */
-        post: operations["waitForEmailByLocalpart"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/domains": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List email testing domains for the workspace */
-        get: operations["listEmailDomains"];
-        put?: never;
-        /** Create an assigned or custom email testing domain */
-        post: operations["createEmailDomain"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/domains/{domain}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get an email testing domain including derived DNS records */
-        get: operations["getEmailDomain"];
-        put?: never;
-        post?: never;
-        /** Delete a domain, cascade messages, and remove the Redis allowlist entry */
-        delete: operations["deleteEmailDomain"];
-        options?: never;
-        head?: never;
-        /** Patch an email testing domain */
-        patch: operations["updateEmailDomain"];
-        trace?: never;
-    };
-    "/api/v1/email/domains/{domain}/inboxes/{inbox}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete every message for one local-part */
-        delete: operations["deleteEmailInbox"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/domains/{domain}/messages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Super-inbox: list messages newest-first */
-        get: operations["listEmailMessages"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/domains/{domain}/messages/{messageId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get one captured message */
-        get: operations["getEmailMessage"];
-        put?: never;
-        post?: never;
-        /** Delete one captured message */
-        delete: operations["deleteEmailMessage"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/domains/{domain}/messages/{messageId}/attachments/{attId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Signed URL for one attachment */
-        get: operations["getEmailMessageAttachment"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/domains/{domain}/messages/{messageId}/links": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Extracted links on the message */
-        get: operations["listEmailMessageLinks"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/domains/{domain}/messages/{messageId}/otp": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Extracted one-time codes on the message */
-        get: operations["listEmailMessageOtp"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/domains/{domain}/messages/{messageId}/raw": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Signed URL for the raw RFC822 object */
-        get: operations["getEmailMessageRaw"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/domains/{domain}/messages/inject": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Inject a JSON message onto the same durable path as SMTP */
-        post: operations["injectEmailMessage"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/domains/{domain}/verify": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Re-check TXT and MX for a custom domain */
-        post: operations["verifyEmailDomain"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/email/wait": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Wait for the oldest matching captured email at a full address */
-        post: operations["waitForEmail"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhook/inboxes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List webhook testing inboxes for the workspace */
-        get: operations["listWebhookInboxes"];
-        put?: never;
-        /** Create a webhook testing inbox */
-        post: operations["createWebhookInbox"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhook/inboxes/{inboxId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a webhook testing inbox */
-        get: operations["getWebhookInbox"];
-        put?: never;
-        post?: never;
-        /** Delete a webhook testing inbox and cascade events */
-        delete: operations["deleteWebhookInbox"];
-        options?: never;
-        head?: never;
-        /** Patch a webhook testing inbox */
-        patch: operations["updateWebhookInbox"];
-        trace?: never;
-    };
-    "/api/v1/webhook/inboxes/{inboxId}/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List captured HTTP events newest-first */
-        get: operations["listWebhookEvents"];
-        put?: never;
-        post?: never;
-        /** Delete every captured event on this inbox */
-        delete: operations["deleteWebhookEvents"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhook/inboxes/{inboxId}/events/{eventId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get one captured HTTP event */
-        get: operations["getWebhookEvent"];
-        put?: never;
-        post?: never;
-        /** Delete one captured event */
-        delete: operations["deleteWebhookEvent"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhook/inboxes/{inboxId}/events/{eventId}/raw": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Signed URL for the raw captured request */
-        get: operations["getWebhookEventRaw"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhook/inboxes/{inboxId}/wait": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Wait for the oldest matching captured HTTP event */
-        post: operations["waitForWebhookEvent"];
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3497,6 +4425,41 @@ export interface components {
              */
             expiresAt?: string | null;
         };
+        /** @description Packed trace doorway; do not unpack the zip */
+        ArtifactTraceMeta: {
+            /**
+             * Format: int32
+             * @description Action count in the trace
+             */
+            actionCount?: number | null;
+            /**
+             * Format: int32
+             * @description Snapshot count in the trace
+             */
+            snapshotCount?: number | null;
+            /** @description Actions around the failure, teardown labelled */
+            nearbyActions?: components["schemas"]["TraceNearbyAction"][] | null;
+            /** @description Four doorways into the downloaded file */
+            entryPoints?: components["schemas"]["TraceEntryPoint"][] | null;
+        };
+        /** @description Screenshot viewport */
+        ArtifactViewport: {
+            /**
+             * Format: int32
+             * @description Viewport width in CSS pixels
+             */
+            width: number;
+            /**
+             * Format: int32
+             * @description Viewport height in CSS pixels
+             */
+            height: number;
+            /**
+             * Format: int32
+             * @description Device pixel ratio at capture
+             */
+            dpr: number;
+        };
         /** @description Result of evaluating a single assertion against a check result */
         AssertionResultDto: {
             /**
@@ -3638,6 +4601,50 @@ export interface components {
             succeeded: string[];
             /** @description Monitors on which the action failed, with the reason for each failure */
             failed: components["schemas"]["FailureDetail"][];
+        };
+        /** @description Screenshot compare against the last pass of this step */
+        CaptureCompareDto: {
+            /**
+             * Format: uuid
+             * @description Screenshot on this run
+             */
+            thisArtifactId: string;
+            /**
+             * Format: uuid
+             * @description Matching screenshot on the prior pass; null when none
+             */
+            baselineArtifactId?: string | null;
+            /**
+             * Format: uuid
+             * @description Run that owns the baseline screenshot
+             */
+            baselineRunId?: string | null;
+            /**
+             * @description Always last_pass_this_step_this_region
+             * @enum {string}
+             */
+            baselineKind: "last_pass_this_step_this_region";
+            /** @description Why the baseline is empty; null when a baseline exists */
+            emptyReason?: string | null;
+            nearestOtherRegion?: components["schemas"]["NearestOtherRegion"] | null;
+        };
+        /** @description When to capture screenshots, traces, and video during a code run */
+        CapturePolicy: {
+            /**
+             * @description When to capture screenshots
+             * @enum {string|null}
+             */
+            screenshots?: "always" | "on_failure" | "off" | null;
+            /**
+             * @description When to capture a Playwright trace
+             * @enum {string|null}
+             */
+            trace?: "always" | "on_failure" | "off" | null;
+            /**
+             * @description When to capture video
+             * @enum {string|null}
+             */
+            video?: "always" | "on_failure" | "off" | null;
         };
         /** @description Service category with its count of catalog entries */
         CategoryDto: {
@@ -3991,6 +4998,49 @@ export interface components {
              */
             maxWaitSeconds: number;
         };
+        /** @description Grouped console messages */
+        ConsoleGroupDto: {
+            /** @description UI bucket: error, warning, or info */
+            level: string;
+            /** @description Repeated message text */
+            text: string;
+            /**
+             * Format: int32
+             * @description How many times this message occurred
+             */
+            count: number;
+            /** @description Source URL of the first occurrence */
+            sourceUrl: string;
+            /** @description First step that logged this message */
+            stepIdFirst?: string | null;
+            /** @description Last step that logged this message */
+            stepIdLast?: string | null;
+        };
+        /** @description One console line */
+        ConsoleLineDto: {
+            /** @description Stable line id from capture */
+            id: string;
+            /** @description Step this line belonged to */
+            stepId?: string | null;
+            /** @description UI bucket: error, warning, or info */
+            level: string;
+            /** @description Console message text */
+            text: string;
+            /** @description Script URL that logged this line */
+            sourceUrl: string;
+            /**
+             * Format: int32
+             * @description Source line number
+             */
+            lineNumber: number;
+            /**
+             * Format: int32
+             * @description Source column number
+             */
+            columnNumber: number;
+            /** @description When the line was captured */
+            ts: string;
+        };
         CreateAlertChannelRequest: {
             /** @description Human-readable name for this alert channel */
             name: string;
@@ -4010,7 +5060,7 @@ export interface components {
              */
             expiresAt?: string | null;
         };
-        /** @description Replace all assertions; null preserves current */
+        /** @description Replace all assertions. Null preserves current */
         CreateAssertionRequest: {
             config: components["schemas"]["BodyContainsAssertion"] | components["schemas"]["DnsExpectedCnameAssertion"] | components["schemas"]["DnsExpectedIpsAssertion"] | components["schemas"]["DnsMaxAnswersAssertion"] | components["schemas"]["DnsMinAnswersAssertion"] | components["schemas"]["DnsRecordContainsAssertion"] | components["schemas"]["DnsRecordEqualsAssertion"] | components["schemas"]["DnsResolvesAssertion"] | components["schemas"]["DnsResponseTimeAssertion"] | components["schemas"]["DnsResponseTimeWarnAssertion"] | components["schemas"]["DnsTtlHighAssertion"] | components["schemas"]["DnsTtlLowAssertion"] | components["schemas"]["DnsTxtContainsAssertion"] | components["schemas"]["HeaderValueAssertion"] | components["schemas"]["HeartbeatIntervalDriftAssertion"] | components["schemas"]["HeartbeatMaxIntervalAssertion"] | components["schemas"]["HeartbeatPayloadContainsAssertion"] | components["schemas"]["HeartbeatReceivedAssertion"] | components["schemas"]["IcmpPacketLossAssertion"] | components["schemas"]["IcmpReachableAssertion"] | components["schemas"]["IcmpResponseTimeAssertion"] | components["schemas"]["IcmpResponseTimeWarnAssertion"] | components["schemas"]["JsonPathAssertion"] | components["schemas"]["McpConnectsAssertion"] | components["schemas"]["McpHasCapabilityAssertion"] | components["schemas"]["McpMinToolsAssertion"] | components["schemas"]["McpProtocolVersionAssertion"] | components["schemas"]["McpResponseTimeAssertion"] | components["schemas"]["McpResponseTimeWarnAssertion"] | components["schemas"]["McpToolAvailableAssertion"] | components["schemas"]["McpToolCountChangedAssertion"] | components["schemas"]["RedirectCountAssertion"] | components["schemas"]["RedirectTargetAssertion"] | components["schemas"]["RegexBodyAssertion"] | components["schemas"]["ResponseSizeAssertion"] | components["schemas"]["ResponseTimeAssertion"] | components["schemas"]["ResponseTimeWarnAssertion"] | components["schemas"]["SslExpiryAssertion"] | components["schemas"]["StatusCodeAssertion"] | components["schemas"]["TcpConnectsAssertion"] | components["schemas"]["TcpResponseTimeAssertion"] | components["schemas"]["TcpResponseTimeWarnAssertion"];
             /**
@@ -4018,6 +5068,16 @@ export interface components {
              * @enum {string|null}
              */
             severity?: "fail" | "warn" | null;
+        };
+        /** @description Create an email testing receive domain */
+        CreateEmailDomainRequest: {
+            /**
+             * @description assigned allocates a host under the DevHelm mail zone. custom uses name
+             * @enum {string|null}
+             */
+            kind?: "assigned" | "custom" | null;
+            /** @description Custom FQDN. Required when kind is custom */
+            name?: string | null;
         };
         CreateEnvironmentRequest: {
             /** @description Human-readable environment name */
@@ -4101,24 +5161,24 @@ export interface components {
              * @enum {string}
              */
             type: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT" | "BROWSER" | "MULTI_STEP_API";
-            config: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["ScriptMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
+            config?: (components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["ScriptMonitorConfig"] | components["schemas"]["TcpMonitorConfig"]) | null;
             /**
              * Format: int32
-             * @description Check frequency in seconds (10–86400); null defaults to plan minimum (60s on most paid plans)
+             * @description Check frequency in seconds (10–86400). Null defaults to the plan minimum
              */
             frequencySeconds?: number | null;
             /** @description Whether the monitor is active (default: true) */
             enabled?: boolean | null;
-            /** @description Probe regions to run checks from. Allowed values are deployment-dependent; production: us-east, us-west, eu-west, ap-south. */
+            /** @description Probe regions to run checks from. Allowed values are deployment-dependent. Production: us-east, us-west, eu-west, ap-south */
             regions?: string[] | null;
             /**
-             * @description Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted; set to your surface so audit logs, drift detection, and analytics attribute correctly.
+             * @description Source that created this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API
              * @enum {string|null}
              */
             managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
             /**
              * Format: uuid
-             * @description Environment to associate with this monitor
+             * @description Environment to associate with this monitor. Required for browser and multi-step monitors
              */
             environmentId?: string | null;
             /** @description Assertions to evaluate against each check result */
@@ -4128,6 +5188,20 @@ export interface components {
             /** @description Alert channels to notify when this monitor triggers */
             alertChannelIds?: string[] | null;
             tags?: components["schemas"]["AddMonitorTagsRequest"] | null;
+            capturePolicy?: components["schemas"]["CapturePolicy"] | null;
+            /**
+             * Format: int32
+             * @description Fast-retry attempts after failure. Null or 0 disables
+             */
+            fastRetryMaxAttempts?: number | null;
+            /** @description When multiple locations are set, run all of them each interval (default: true). false rotates one location per interval */
+            runParallel?: boolean | null;
+            /**
+             * Format: uuid
+             * @description Existing definition to reuse for a sibling monitor
+             */
+            definitionId?: string | null;
+            package?: components["schemas"]["MonitorPackageSpec"] | null;
         };
         /** @description Request body for creating a notification policy */
         CreateNotificationPolicyRequest: {
@@ -4149,6 +5223,10 @@ export interface components {
              * @default 0
              */
             priority: number | null;
+        };
+        CreatePackageUploadRequest: {
+            /** @description SHA-256 hex digest of the package zip to upload (64 chars) */
+            digest: string;
         };
         /** @description Request body for creating a resource group */
         CreateResourceGroupRequest: {
@@ -4376,6 +5454,29 @@ export interface components {
             /** @description Event types to deliver */
             subscribedEvents: ("monitor.created" | "monitor.updated" | "monitor.deleted" | "incident.created" | "incident.resolved" | "incident.reopened" | "service.status_changed" | "service.component_changed" | "service.incident_created" | "service.incident_updated" | "service.incident_resolved")[];
         };
+        /** @description Create a webhook testing inbox */
+        CreateWebhookInboxRequest: {
+            /** @description Human-readable name for this inbox */
+            name: string;
+            /**
+             * @description Inbox lifecycle (default: active)
+             * @enum {string|null}
+             */
+            status?: "active" | "disabled" | null;
+            httpResponse?: components["schemas"]["InboundWebhookHttpResponsePatch"] | null;
+            /** @description Allow browser callers on other origins to hit the ingest URL (default: true) */
+            cors?: boolean | null;
+            /**
+             * Format: int32
+             * @description Days events are kept. Omitted uses the testing plan. Cannot exceed the plan
+             */
+            retentionDays?: number | null;
+            /**
+             * Format: int32
+             * @description Max stored events before ingest drops the oldest (default: 10000)
+             */
+            maxEvents?: number | null;
+        };
         /** @description Create a new workspace within the organization */
         CreateWorkspaceRequest: {
             /** @description Workspace name */
@@ -4427,9 +5528,36 @@ export interface components {
             hasMore: boolean;
         };
         /** @description Cursor-paginated response for time-series and append-only data */
+        CursorPageEmailMessageDto: {
+            /** @description Items on this page */
+            data: components["schemas"]["EmailMessageDto"][];
+            /** @description Opaque cursor for the next page; null when there are no more results */
+            nextCursor?: string | null;
+            /** @description Whether more results exist beyond this page */
+            hasMore: boolean;
+        };
+        /** @description Cursor-paginated response for time-series and append-only data */
         CursorPageIncidentActivityEventDto: {
             /** @description Items on this page */
             data: components["schemas"]["IncidentActivityEventDto"][];
+            /** @description Opaque cursor for the next page; null when there are no more results */
+            nextCursor?: string | null;
+            /** @description Whether more results exist beyond this page */
+            hasMore: boolean;
+        };
+        /** @description Cursor-paginated response for time-series and append-only data */
+        CursorPageNotificationDispatchDto: {
+            /** @description Items on this page */
+            data: components["schemas"]["NotificationDispatchDto"][];
+            /** @description Opaque cursor for the next page; null when there are no more results */
+            nextCursor?: string | null;
+            /** @description Whether more results exist beyond this page */
+            hasMore: boolean;
+        };
+        /** @description Cursor-paginated response for time-series and append-only data */
+        CursorPageRunDto: {
+            /** @description Items on this page */
+            data: components["schemas"]["RunDto"][];
             /** @description Opaque cursor for the next page; null when there are no more results */
             nextCursor?: string | null;
             /** @description Whether more results exist beyond this page */
@@ -4457,6 +5585,15 @@ export interface components {
         CursorPageStatusEventDto: {
             /** @description Items on this page */
             data: components["schemas"]["StatusEventDto"][];
+            /** @description Opaque cursor for the next page; null when there are no more results */
+            nextCursor?: string | null;
+            /** @description Whether more results exist beyond this page */
+            hasMore: boolean;
+        };
+        /** @description Cursor-paginated response for time-series and append-only data */
+        CursorPageWebhookEventDto: {
+            /** @description Items on this page */
+            data: components["schemas"]["WebhookEventDto"][];
             /** @description Opaque cursor for the next page; null when there are no more results */
             nextCursor?: string | null;
             /** @description Whether more results exist beyond this page */
@@ -4512,6 +5649,58 @@ export interface components {
             affectedComponentNames: string[];
             /** @description UUIDs of components this incident affected */
             affectedComponentIds: string[];
+        };
+        /** @description Definition with Heads for each environment */
+        DefinitionDetailDto: {
+            definition: components["schemas"]["DefinitionDto"];
+            /** @description Active Heads per environment */
+            heads: components["schemas"]["DefinitionHeadDto"][];
+        };
+        /** @description Code-monitor definition */
+        DefinitionDto: {
+            /**
+             * Format: uuid
+             * @description Definition identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this definition belongs to
+             */
+            organizationId: number;
+            /** @description Human-readable name */
+            name: string;
+            /** @description URL-safe slug unique within the organization */
+            slug: string;
+            /**
+             * Format: date-time
+             * @description When the definition was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description When the definition was last updated
+             */
+            updatedAt: string;
+        };
+        /** @description Active Head for a definition in one environment */
+        DefinitionHeadDto: {
+            /**
+             * Format: uuid
+             * @description Definition this Head belongs to
+             */
+            definitionId: string;
+            environment: components["schemas"]["EnvironmentDto"];
+            revision: components["schemas"]["RevisionDto"];
+            /**
+             * Format: date-time
+             * @description When this Head last activated
+             */
+            activatedAt: string;
+            /** @description Who last activated this Head */
+            activatedBy?: string | null;
+            /** @description Rollback reason when this Head was restored */
+            reason?: string | null;
         };
         /** @description Result of a data encryption key rotation operation */
         DekRotationResultDto: {
@@ -4591,6 +5780,15 @@ export interface components {
             } | null;
             /** Format: date-time */
             attemptedAt: string;
+        };
+        /** @description Per-key declaring file and location from package scan */
+        DemandedKeyLocation: {
+            /** @description Secret name the code reads */
+            key: string;
+            /** @description Declaring file path inside the zip */
+            declaringFile?: string | null;
+            /** @description Call site from package scan, e.g. signIn(…) · line 6 */
+            declaringLocation?: string | null;
         };
         /** @description Represents an active deploy lock for a workspace */
         DeployLockDto: {
@@ -4765,6 +5963,175 @@ export interface components {
             channelType: "email";
             /** @description Email addresses to send notifications to */
             recipients: string[];
+        };
+        /** @description Derived DNS record for an email testing domain */
+        EmailDnsRecordDto: {
+            /** @description Record purpose label */
+            label: string;
+            /** @description DNS record type */
+            type: string;
+            /** @description DNS owner name */
+            name: string;
+            /** @description Record value */
+            value: string;
+            /**
+             * Format: int32
+             * @description MX priority when type is MX
+             */
+            priority?: number | null;
+            /** @description Whether this record is required for verification */
+            required: boolean;
+            /** @description Whether the last check saw this record. Null before the first check */
+            found?: boolean | null;
+            /**
+             * Format: date-time
+             * @description When this record was last checked
+             */
+            lastCheckedAt?: string | null;
+        };
+        /** @description Received-message count for one UTC hour */
+        EmailDomainActivityBucketDto: {
+            /**
+             * Format: date-time
+             * @description Start of the UTC hour (ISO 8601)
+             */
+            hour: string;
+            /**
+             * Format: int32
+             * @description Messages received in this hour
+             */
+            messageCount: number;
+        };
+        /** @description 24-hour received-message activity for one email domain */
+        EmailDomainActivityDto: {
+            /**
+             * Format: uuid
+             * @description Domain id
+             */
+            domainId: string;
+            /** @description Exactly 24 UTC-hour buckets, oldest first, zero-filled */
+            buckets: components["schemas"]["EmailDomainActivityBucketDto"][];
+        };
+        /** @description Email testing receive domain */
+        EmailDomainDto: {
+            /**
+             * Format: uuid
+             * @description Domain id
+             */
+            id: string;
+            /** @description FQDN mail is sent to */
+            name: string;
+            /**
+             * Format: int32
+             * @description Workspace this domain belongs to
+             */
+            workspaceId: number;
+            /**
+             * @description How the domain was obtained
+             * @enum {string}
+             */
+            kind: "assigned" | "custom";
+            /**
+             * @description Domain lifecycle
+             * @enum {string}
+             */
+            status: "active" | "disabled" | "pending_dns" | "verification_failed";
+            /** @description Whether MX currently matches the published exchange */
+            mxVerified: boolean;
+            /**
+             * Format: uuid
+             * @description Custom-domain verification token
+             */
+            verificationToken?: string | null;
+            /** @description Last verification error */
+            verificationError?: string | null;
+            /**
+             * Format: date-time
+             * @description When MX+TXT last passed
+             */
+            verifiedAt?: string | null;
+            /** @description DNS records to publish for this domain */
+            dnsRecords: components["schemas"]["EmailDnsRecordDto"][];
+            /**
+             * Format: int32
+             * @description Days messages are kept on the current plan
+             */
+            retentionDays: number;
+            /**
+             * Format: date-time
+             * @description When the domain last received a message
+             */
+            lastMessageAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When the domain was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description When the domain was last updated
+             */
+            updatedAt: string;
+        };
+        /** @description Captured inbound email (preview, not RFC822 bytes) */
+        EmailMessageDto: {
+            /**
+             * Format: uuid
+             * @description Message id
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Parent domain id
+             */
+            domainId: string;
+            /** @description Local-part the message was addressed to */
+            inbox?: string | null;
+            /**
+             * Format: date-time
+             * @description When the message was received
+             */
+            receivedAt: string;
+            /**
+             * Format: int32
+             * @description Captured size in bytes
+             */
+            sizeBytes: number;
+            /** @description Sender mailbox */
+            from?: string | null;
+            /** @description Recipient mailboxes */
+            to?: string[] | null;
+            /** @description Subject */
+            subject?: string | null;
+            /** @description Captured MIME headers as received */
+            headers: {
+                [key: string]: string[];
+            };
+            /** @description Truncated body excerpt; full MIME lives in Spaces */
+            bodyPreview?: string | null;
+            /** @description Extracted one-time codes */
+            otp?: components["schemas"]["InboundOtpCode"][] | null;
+            /** @description Extracted links */
+            links?: components["schemas"]["InboundEmailLink"][] | null;
+            /** @description Attachment metadata */
+            attachments?: components["schemas"]["InboundEmailAttachment"][] | null;
+            /** @description Plain-text body, at most 256 KB */
+            text?: string | null;
+            /** @description HTML body, at most 256 KB */
+            html?: string | null;
+            /** @description True when the returned text or HTML was cut off or could not be read */
+            bodyTruncated?: boolean | null;
+            /** @description Download link for the full message when the body was cut off */
+            rawUrl?: string | null;
+            /** @description SHA-256 of the raw object */
+            sha256: string;
+        };
+        /** @description Original message source as received (RFC 822) */
+        EmailMessageSourceDto: {
+            /** @description Headers and MIME body as text, up to 256 KB */
+            source: string;
+            /** @description Whether the source was cut at 256 KB; download the raw object for all of it */
+            truncated: boolean;
         };
         /** @description A single resolved entitlement for the organization */
         EntitlementDto: {
@@ -5183,6 +6550,84 @@ export interface components {
              */
             warnMs: number;
         };
+        /** @description Attachment metadata */
+        InboundEmailAttachment: {
+            /**
+             * Format: uuid
+             * @description Attachment id used on the download path
+             */
+            id: string;
+            /** @description Original filename from the MIME part */
+            filename: string;
+            /** @description MIME type of the attachment */
+            contentType: string;
+            /**
+             * Format: int32
+             * @description Attachment size in bytes
+             */
+            sizeBytes: number;
+            /** @description Spaces key for the attachment bytes */
+            objectKey: string;
+        };
+        /** @description Extracted links */
+        InboundEmailLink: {
+            /** @description Link URL extracted from the message */
+            href: string;
+            /** @description Visible link text when present */
+            text?: string | null;
+        };
+        /** @description Extracted one-time codes */
+        InboundOtpCode: {
+            /** @description Extracted one-time code digits */
+            value: string;
+            /**
+             * @description MIME part the code was found in (text or html)
+             * @enum {string}
+             */
+            source: "text" | "html";
+        };
+        /** @description Mock reply returned to the sender after ingest is stored */
+        InboundWebhookHttpResponse: {
+            /**
+             * Format: int32
+             * @description HTTP status of the mock reply (200–599, default 200)
+             */
+            status: number;
+            /** @description Headers on the mock reply */
+            headers: {
+                [key: string]: string;
+            };
+            /** @description Mock reply body (at most 65536 characters). Captured requests live in object storage */
+            body: string;
+            /** @description Content-Type of the mock reply (default text/plain) */
+            contentType: string;
+            /**
+             * Format: int32
+             * @description Milliseconds to wait before sending the mock reply (0–30000)
+             */
+            delayMs: number;
+        };
+        /** @description Partial mock reply returned to the sender after ingest */
+        InboundWebhookHttpResponsePatch: {
+            /**
+             * Format: int32
+             * @description HTTP status returned to the sender (200–599)
+             */
+            status?: number | null;
+            /** @description Headers on the mock reply */
+            headers?: {
+                [key: string]: string | null;
+            } | null;
+            /** @description Mock reply body (at most 65536 characters). Not the captured request */
+            body?: string | null;
+            /** @description Content-Type of the mock reply */
+            contentType?: string | null;
+            /**
+             * Format: int32
+             * @description Milliseconds to wait before sending the mock reply (0–30000)
+             */
+            delayMs?: number | null;
+        };
         /** @description Merged incident activity event (updates, dispatches, deliveries, forensics, SP updates) */
         IncidentActivityEventDto: {
             /**
@@ -5543,6 +6988,8 @@ export interface components {
              * @description Latest startedAt to include (inclusive, ISO 8601)
              */
             startedTo?: string | null;
+            /** @description Case-insensitive substring match on title or incident ID */
+            search?: string | null;
             /**
              * Format: int32
              * @description Zero-based page index (default: 0)
@@ -5721,6 +7168,38 @@ export interface components {
             notifySubscribers: boolean;
             /** Format: date-time */
             createdAt: string;
+        };
+        /** @description Inject a test email without SMTP */
+        InjectEmailMessageRequest: {
+            /** @description Recipient local-part or full mailbox */
+            to: string;
+            /** @description Sender mailbox */
+            from: string;
+            /** @description Subject line */
+            subject?: string | null;
+            /** @description Plain-text body */
+            text?: string | null;
+            /** @description HTML body */
+            html?: string | null;
+            /** @description Extra MIME headers as received */
+            headers?: {
+                [key: string]: (string | null)[] | null;
+            } | null;
+        };
+        /** @description Accepted inject; wait or get after persist */
+        InjectEmailMessageResponse: {
+            /**
+             * Format: uuid
+             * @description Ingest event id on the NATS pointer
+             */
+            eventId: string;
+            /**
+             * Format: date-time
+             * @description When the inject was accepted
+             */
+            receivedAt: string;
+            /** @description Inbox local-part parsed from to */
+            inbox: string;
         };
         IntegrationConfigSchemaDto: {
             connectionFields: components["schemas"]["IntegrationFieldDto"][];
@@ -6196,6 +7675,20 @@ export interface components {
             authType: "bearer" | "basic" | "header" | "api_key";
             config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
         };
+        /** @description Live overlay drift against the implied declared baseline */
+        MonitorDriftDto: {
+            /** @description Fields whose live overlay differs from the declared baseline */
+            fields: components["schemas"]["MonitorDriftFieldDto"][];
+        };
+        /** @description One field where live state differs from declared */
+        MonitorDriftFieldDto: {
+            /** @description Field name: enabled, muted, quarantine, or managedBy */
+            field: string;
+            /** @description Live value on the monitor */
+            live: string;
+            /** @description Implied declared / IaC baseline */
+            declared: string;
+        };
         /** @description Full monitor representation */
         MonitorDto: {
             /**
@@ -6248,13 +7741,116 @@ export interface components {
             incidentPolicy?: components["schemas"]["IncidentPolicyDto"] | null;
             /** @description Alert channel IDs linked to this monitor; populated on single-monitor responses */
             alertChannelIds?: string[] | null;
+            /** @description Status-page components that represent this monitor; omitted when none */
+            boundStatusPageComponents?: components["schemas"]["StatusPageBoundComponentDto"][] | null;
             /**
-             * @description Current operational state — UP, DOWN, DEGRADED, PAUSED, or UNKNOWN if no probe data yet
+             * @description Current operational state. One of UP, DOWN, DEGRADED, PAUSED, or UNKNOWN
              * @enum {string|null}
              */
             currentStatus?: "up" | "degraded" | "down" | "paused" | "unknown" | null;
+            /**
+             * @description List and header chip health; not currentStatus and not evaluation state
+             * @enum {string|null}
+             */
+            displayHealth?: "healthy" | "down" | "degraded" | "recovering" | "infra" | "flaky" | "blocked" | "paused" | "never_run" | "confirming" | null;
+            /**
+             * @description Secret binding state: ready, blocked, or not_applicable
+             * @enum {string|null}
+             */
+            bindingReadiness?: "ready" | "blocked" | "not_applicable" | null;
+            /** @description True when the monitor needs operator attention */
+            needsAttention?: boolean | null;
+            /**
+             * Format: uuid
+             * @description Open confirmed incident id
+             */
+            openIncident?: string | null;
+            /**
+             * Format: date-time
+             * @description When the latest code run was enqueued
+             */
+            lastRunAt?: string | null;
+            /**
+             * Format: uuid
+             * @description Latest code run id
+             */
+            lastRunId?: string | null;
+            /**
+             * Format: uuid
+             * @description Definition id for a browser or multi-step monitor. Null on probe monitors
+             */
+            definitionId?: string | null;
+            capturePolicy?: components["schemas"]["CapturePolicy"] | null;
+            /**
+             * Format: int32
+             * @description Fast-retry max attempts; null/0 = off
+             */
+            fastRetryMaxAttempts?: number | null;
+            /** @description When multiple locations are set, run all of them each interval. False rotates one location per interval */
+            runParallel?: boolean | null;
+            /** @description Whether alert delivery is muted */
+            muted: boolean;
+            /**
+             * Format: date-time
+             * @description Mute expiry; null means indefinite while muted
+             */
+            mutedUntil?: string | null;
+            /** @description Optional mute reason */
+            muteReason?: string | null;
+            /**
+             * Format: date-time
+             * @description When the monitor was paused
+             */
+            pausedAt?: string | null;
+            /** @description Optional pause reason */
+            pauseReason?: string | null;
+            /**
+             * Format: date-time
+             * @description Pause expiry
+             */
+            pauseExpiresAt?: string | null;
+            /** @description Quarantine person owner id */
+            quarantineOwnerId?: string | null;
+            /**
+             * Format: date-time
+             * @description Quarantine expiry; non-null means quarantined
+             */
+            quarantineUntil?: string | null;
+            /** @description Quarantine reason */
+            quarantineReason?: string | null;
+            upload?: components["schemas"]["PackageUploadDto"] | null;
         };
-        /** @description Monitors that reference this secret; null on create/update responses */
+        MonitorOverlayRequest: {
+            /** @description Optional human-readable reason (max 280) */
+            reason?: string | null;
+            /**
+             * Format: date-time
+             * @description When this overlay expires
+             */
+            expiresAt?: string | null;
+        };
+        /** @description New package zip metadata for this environment */
+        MonitorPackageSpec: {
+            /** @description SHA-256 hex digest of the package zip (64 characters) */
+            digest: string;
+            /** @description Entrypoint path inside the zip, e.g. tests/login.spec.ts */
+            entrypoint: string;
+            /** @description Relative file paths included in the zip */
+            files: string[];
+            /** @description Secret names the zip demanded. PUT: null preserves, [] clears */
+            keys?: string[] | null;
+            /** @description Commit SHA from the repo that produced this zip. Client-supplied provenance only */
+            gitSha?: string | null;
+            /** @description Commit message from the repo that produced this zip */
+            gitMessage?: string | null;
+            /** @description Path of the declaring file in that repo */
+            gitFile?: string | null;
+            /** @description Author attribution supplied with the package */
+            authoredBy?: string | null;
+            /** @description Per-key declaring file and location from package scan */
+            keyLocations?: components["schemas"]["DemandedKeyLocation"][] | null;
+        };
+        /** @description Monitors that reference this secret for authentication */
         MonitorReference: {
             /**
              * Format: uuid
@@ -6263,6 +7859,104 @@ export interface components {
             id: string;
             /** @description Monitor name */
             name: string;
+        };
+        MonitorRunListParams: {
+            /** @description Filter by run phase; omit to return every phase */
+            phase?: string | null;
+            /** @description Filter by outcome; passed is first-try only; passed_on_retry is a pass after retry */
+            outcome?: string | null;
+            /** @description Filter by probe region */
+            region?: string | null;
+            /** @description Filter by what triggered the run */
+            source?: string | null;
+            /** @description Substring match on headline */
+            q?: string | null;
+            /**
+             * Format: uuid
+             * @description Only runs for this published revision
+             */
+            revisionId?: string | null;
+            /** @description Opaque cursor from the previous page; results cover the last 90 days */
+            cursor?: string | null;
+            /**
+             * Format: int32
+             * @description Page size (1–100, default 25)
+             */
+            limit: number;
+        };
+        /** @description Environment and secret keys this monitor requires */
+        MonitorSecretRequestsDto: {
+            environment: components["schemas"]["EnvironmentDto"];
+            /** @description Secret keys this monitor requires and their resolve state */
+            requests: components["schemas"]["SecretRequestDto"][];
+        };
+        /** @description Cached sign-in session for a monitor */
+        MonitorSessionDto: {
+            /**
+             * @description Current session cache state
+             * @enum {string}
+             */
+            lifecycle: "active" | "expired" | "failed" | "revoked";
+            /**
+             * @description When the cached session is reused across runs
+             * @enum {string}
+             */
+            reusePolicy: "reuse" | "every_run" | "on_failure";
+            /** @description Setup file path inside the package zip */
+            setupFile: string;
+            /** @description Account this cache signed in as */
+            signsInAs?: string | null;
+            /**
+             * Format: date-time
+             * @description When the cached session expires
+             */
+            expiresAt?: string | null;
+            /** @description Cookie names in the cached session */
+            cookieNames: string[];
+            /** @description Storage key names in the cached session */
+            storageKeys: string[];
+            /**
+             * Format: int32
+             * @description Cached session size in bytes
+             */
+            sizeBytes?: number | null;
+            /**
+             * Format: uuid
+             * @description Run that last rejected this cache
+             */
+            lastRejectedRunId?: string | null;
+            /**
+             * Format: date-time
+             * @description When this session row was last written
+             */
+            updatedAt?: string | null;
+        };
+        /** @description Projected run volume and meter headroom for this monitor */
+        MonitorSettingsPreviewDto: {
+            /**
+             * Format: int64
+             * @description Estimated runs this month from frequency × regions
+             */
+            estimatedRunsPerMonth: number;
+            /** @description Usage meter this monitor bills: browser_runs or api_runs */
+            meter?: string | null;
+            /** @description True when the next run of this monitor would be refused */
+            capped: boolean;
+            /**
+             * Format: int64
+             * @description Included runs this period; null when the pool is unlimited
+             */
+            included?: number | null;
+            /**
+             * Format: int64
+             * @description Runs already counted this period
+             */
+            used: number;
+            /**
+             * Format: int64
+             * @description Included runs still left; null when the pool is unlimited
+             */
+            remaining?: number | null;
         };
         /** @description Dashboard summary counters for monitors */
         MonitorsSummaryDto: {
@@ -6366,6 +8060,114 @@ export interface components {
              * @description Timestamp when this version was recorded
              */
             createdAt: string;
+        };
+        /** @description Prior pass of this step in another region */
+        NearestOtherRegion: {
+            /**
+             * Format: uuid
+             * @description Run that holds the other-region shot
+             */
+            runId: string;
+            /** @description Region of that run */
+            region: string;
+            /**
+             * Format: uuid
+             * @description Screenshot on that run
+             */
+            artifactId: string;
+        };
+        /** @description One waterfall request row */
+        NetworkRowDto: {
+            /** @description Stable row id from capture */
+            id: string;
+            /** @description Step this request belonged to */
+            stepId?: string | null;
+            /** @description page for browser, request for API_CHECK */
+            source: string;
+            /** @description HTTP method */
+            method: string;
+            /** @description Request URL */
+            url: string;
+            /** @description Chromium type, or api for the request fixture */
+            resourceType: string;
+            /** @description Whether this request started a navigation */
+            isNavigation: boolean;
+            /**
+             * Format: int32
+             * @description HTTP status; null while pending
+             */
+            status?: number | null;
+            /**
+             * Format: int32
+             * @description Request duration in milliseconds
+             */
+            durationMs?: number | null;
+            /**
+             * Format: int32
+             * @description Encoded response body size in bytes
+             */
+            encodedBodySize?: number | null;
+            /**
+             * Format: int32
+             * @description Offset from case start for the waterfall bar
+             */
+            startedOffsetMs?: number | null;
+            /** @description Transport or protocol failure */
+            failure?: string | null;
+            /** @description URL this request redirected from */
+            redirectedFromUrl?: string | null;
+            timing?: components["schemas"]["NetworkTimingDto"] | null;
+            /** @description Redacted request headers */
+            requestHeaders: {
+                [key: string]: string;
+            };
+            /** @description Redacted response headers */
+            responseHeaders: {
+                [key: string]: string;
+            };
+            /** @description Request body preview, truncated at 256 KiB */
+            requestBody: string;
+            /** @description Response body preview, truncated at 256 KiB */
+            responseBody: string;
+            /** @description Whether requestBody was truncated */
+            requestBodyTruncated: boolean;
+            /** @description Whether responseBody was truncated */
+            responseBodyTruncated: boolean;
+            /** @description Copy-as-cURL from the redacted record */
+            curl: string;
+            /**
+             * Format: int32
+             * @description Playwright trace action index; null on API_CHECK
+             */
+            traceActionIndex?: number | null;
+        };
+        /** @description Request timing phases in milliseconds */
+        NetworkTimingDto: {
+            /**
+             * Format: int32
+             * @description DNS lookup time in milliseconds
+             */
+            dnsMs?: number | null;
+            /**
+             * Format: int32
+             * @description TCP connect time in milliseconds
+             */
+            connectMs?: number | null;
+            /**
+             * Format: int32
+             * @description TLS handshake time in milliseconds
+             */
+            tlsMs?: number | null;
+            /**
+             * Format: int32
+             * @description Time to first byte in milliseconds
+             */
+            waitingMs?: number | null;
+            /**
+             * Format: int32
+             * @description Response transfer time in milliseconds
+             */
+            transferMs?: number | null;
         };
         /** @description Inline tag creation — creates the tag if it does not already exist */
         NewTagRequest: {
@@ -6665,6 +8467,86 @@ export interface components {
             /** @description Organization name */
             name: string;
         };
+        /** @description One cell on the overview step last-30 strip */
+        OverviewStepCellDto: {
+            /** @description Stable cell id */
+            id: string;
+            /** @description Step outcome for that run */
+            outcome: string;
+            /** @description When that step settled */
+            at?: string | null;
+        };
+        /** @description One catalog step on the monitor overview table */
+        OverviewStepDto: {
+            /**
+             * Format: int32
+             * @description 0-based step index from the Head revision catalog
+             */
+            index: number;
+            /** @description Step title from the Head revision catalog */
+            name: string;
+            /**
+             * Format: double
+             * @description Median duration in ms; null until the step has settled timings
+             */
+            p50Ms?: number | null;
+            /**
+             * Format: double
+             * @description p95 duration in ms; null until the step has settled timings
+             */
+            p95Ms?: number | null;
+            /**
+             * Format: int64
+             * @description Failed first-attempt count in the window
+             */
+            failed: number;
+            /**
+             * Format: double
+             * @description First-try pass percent for this step; null when no settled attempts
+             */
+            firstTryPercent?: number | null;
+            /**
+             * Format: int32
+             * @description Retry attempts on this step; null when none
+             */
+            flakeRetries?: number | null;
+            /** @description Last 30 outcomes for this step, oldest first */
+            cells: components["schemas"]["OverviewStepCellDto"][];
+            /** @description Assertion expected from the latest failure */
+            expected?: string | null;
+            /** @description Assertion received from the latest failure */
+            received?: string | null;
+            /** @description Error text from the latest failure */
+            error?: string | null;
+            /** @description Region of the latest failure */
+            region?: string | null;
+            /** @description When the latest failure settled */
+            failedAt?: string | null;
+            /**
+             * Format: uuid
+             * @description Run that produced the latest failure
+             */
+            latestFailedRunId?: string | null;
+        };
+        /** @description Overview step catalog joined to run-step aggregates */
+        OverviewStepsDto: {
+            /** @description Rows in revision order; empty when the monitor has no step catalog */
+            steps: components["schemas"]["OverviewStepDto"][];
+        };
+        /** @description Signed package upload target */
+        PackageUploadDto: {
+            /** @description Presigned PUT URL for the zip bytes */
+            putUrl: string;
+            /**
+             * Format: date-time
+             * @description When the signed URL expires
+             */
+            expiresAt: string;
+            /** @description Must send Content-Type: application/zip and If-None-Match: * */
+            requiredHeaders: {
+                [key: string]: string;
+            };
+        };
         Pageable: {
             /** Format: int32 */
             page: number;
@@ -6714,6 +8596,24 @@ export interface components {
             voiceLanguage?: string | null;
             /** @description Preferred language for TTS and notifications (BCP-47, e.g. en-US, de-DE). Alias for voiceLanguage */
             preferredLanguage?: string | null;
+        };
+        /** @description Finished run offered as an alternate baseline */
+        PickerItem: {
+            /**
+             * Format: uuid
+             * @description Finished run identifier
+             */
+            runId: string;
+            /**
+             * Format: uuid
+             * @description Revision that run executed
+             */
+            revisionId: string;
+            /**
+             * Format: date-time
+             * @description When that run finished
+             */
+            finishedAt: string;
         };
         /** @description Billing plan and entitlement state */
         PlanInfo: {
@@ -6796,6 +8696,13 @@ export interface components {
             /** @description Starting price, e.g. '$0', '$25/mo', 'Custom' */
             priceFrom?: string | null;
         };
+        PublishRevisionRequest: {
+            /**
+             * Format: uuid
+             * @description Existing revision to activate as Head for this monitor's environment
+             */
+            revisionId: string;
+        };
         PublishStatusPageIncidentRequest: {
             /** @description Customer-facing title; null keeps draft value */
             title?: string | null;
@@ -6835,6 +8742,20 @@ export interface components {
             priority?: string | null;
             /** @description Notification sound override */
             sound?: string | null;
+        };
+        QuarantineMonitorRequest: {
+            /** @description Reason for this hold (max 280) */
+            reason: string;
+            /**
+             * Format: date-time
+             * @description When the hold expires
+             */
+            expiresAt: string;
+            /**
+             * Format: uuid
+             * @description Run that prompted this hold
+             */
+            fromRunId?: string | null;
         };
         /** @description Rate-limit quota for the current sliding window */
         RateLimitInfo: {
@@ -6923,6 +8844,8 @@ export interface components {
             timestamp: string;
             /** @description Severity hint: 'down' for hard failures, 'degraded' for warn-only failures, null when passing */
             severityHint?: string | null;
+            /** @description Why the last check failed; null when it passed */
+            failureReason?: string | null;
         };
         /** @description Related incidents sharing the same origin within a time window */
         RelatedIncidentsResponse: {
@@ -6933,6 +8856,14 @@ export interface components {
              * @description Total matching incidents in the window, excluding the current incident
              */
             total: number;
+        };
+        /** @description Attach or clear a remapped secret */
+        RemapSecretRequest: {
+            /**
+             * Format: uuid
+             * @description Secret to attach; null restores name-match
+             */
+            secretId?: string | null;
         };
         /** @description Request body for removing tags from a monitor */
         RemoveMonitorTagsRequest: {
@@ -6955,11 +8886,11 @@ export interface components {
             /** @description Optional resolution message or post-mortem notes */
             body?: string | null;
         };
-        /** @description Status-page component that references this resource group (blocks delete; public exposure) */
+        /** @description Status-page component that represents this resource group */
         ResourceGroupDeleteBlockerDto: {
             /**
              * Format: uuid
-             * @description Status page that owns the blocking component
+             * @description Status page that owns the component
              */
             statusPageId: string;
             /** @description Human-readable status page name */
@@ -6968,10 +8899,10 @@ export interface components {
             statusPageSlug: string;
             /**
              * Format: uuid
-             * @description Blocking GROUP-typed status page component ID
+             * @description GROUP-typed status page component ID
              */
             componentId: string;
-            /** @description Blocking component display name */
+            /** @description Component display name */
             componentName: string;
             /** @description Public hostname when a custom domain is configured; null otherwise */
             hostname?: string | null;
@@ -7036,7 +8967,7 @@ export interface components {
             health: components["schemas"]["ResourceGroupHealthDto"];
             /** @description Member list with individual statuses; populated on detail GET only */
             members?: components["schemas"]["ResourceGroupMemberDto"][] | null;
-            /** @description Status-page GROUP components that reference this group (delete blockers / public exposure); populated on detail GET only — omitted on list */
+            /** @description Status-page GROUP components that represent this group (removed with the group on delete); populated on detail GET only — omitted on list */
             deleteBlockedBy?: components["schemas"]["ResourceGroupDeleteBlockerDto"][] | null;
             openRegionIncident?: components["schemas"]["IncidentDto"] | null;
             /**
@@ -7249,6 +9180,11 @@ export interface components {
              * @example 99.8
              */
             uptimeWindow?: number | null;
+            /**
+             * Format: date-time
+             * @description Last heartbeat receipt on the current origin row; null after a miss
+             */
+            lastPingAt?: string | null;
         };
         /** @description Default retry strategy for member monitors; null clears */
         RetryStrategy: {
@@ -7265,6 +9201,87 @@ export interface components {
              */
             interval: number;
         };
+        /** @description Bounded comparison of two revisions */
+        RevisionDiffDto: {
+            left: components["schemas"]["RevisionDto"];
+            right: components["schemas"]["RevisionDto"];
+            /** @description File and field-level hunks (bounded) */
+            hunks: components["schemas"]["RevisionDiffHunkDto"][];
+        };
+        /** @description One bounded diff hunk between revisions */
+        RevisionDiffHunkDto: {
+            /** @description Path or field name (entrypoint, keys, or file path) */
+            path: string;
+            /**
+             * @description Whether this path was added, removed, or changed
+             * @enum {string}
+             */
+            change: "added" | "removed" | "changed";
+            /** @description Left value when present */
+            left?: string | null;
+            /** @description Right value when present */
+            right?: string | null;
+        };
+        /** @description Definition revision package */
+        RevisionDto: {
+            /**
+             * Format: uuid
+             * @description Revision identifier
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Parent definition
+             */
+            definitionId: string;
+            /**
+             * Format: int32
+             * @description Monotonic revision number within the definition
+             */
+            number: number;
+            /** @description SHA-256 hex digest of the zip */
+            digest: string;
+            /** @description Entrypoint file that runs */
+            entrypoint: string;
+            /** @description Paths present in the zip */
+            files: string[];
+            /** @description Secret key names the code demands */
+            keys: string[];
+            /**
+             * Format: date-time
+             * @description When package bytes expire for download
+             */
+            downloadUntil?: string | null;
+            /** @description Git commit SHA when sourced from Git */
+            gitSha?: string | null;
+            /** @description Git commit message */
+            gitMessage?: string | null;
+            /** @description Declaring Git file path */
+            gitFile?: string | null;
+            /** @description Who authored this package */
+            authoredBy?: string | null;
+            /**
+             * Format: date-time
+             * @description When the revision was minted
+             */
+            createdAt: string;
+        };
+        /** @description Consequence preview for rolling back Head in this environment */
+        RollbackPreviewDto: {
+            target: components["schemas"]["RevisionDto"];
+            current?: components["schemas"]["DefinitionHeadDto"] | null;
+            /** @description Monitors sharing this definition and environment */
+            affectedMonitors: components["schemas"]["MonitorDto"][];
+        };
+        RollbackRevisionRequest: {
+            /**
+             * Format: uuid
+             * @description Existing revision to restore as Head for this monitor's environment
+             */
+            revisionId: string;
+            /** @description Why this rollback was performed (1–280 chars) */
+            reason: string;
+        };
         RootlyChannelConfig: {
             /** @enum {string} */
             channelType: "rootly";
@@ -7272,6 +9289,36 @@ export interface components {
             apiKey: string;
             /** @description Severity slug override (e.g. sev0, sev1) */
             severity?: string | null;
+        };
+        /** @description One step compared to the baseline */
+        Row: {
+            /**
+             * Format: int32
+             * @description Zero-based step index
+             */
+            index: number;
+            /** @description Step title */
+            title: string;
+            /**
+             * Format: int32
+             * @description This run's step duration in milliseconds
+             */
+            thisDurationMs?: number | null;
+            /**
+             * Format: int32
+             * @description Baseline step duration in milliseconds
+             */
+            baselineDurationMs?: number | null;
+            /**
+             * Format: int32
+             * @description thisDurationMs minus baselineDurationMs
+             */
+            deltaMs?: number | null;
+            /**
+             * @description unchanged, much_slower, now_failing, or not_reached
+             * @enum {string}
+             */
+            verdict: "unchanged" | "much_slower" | "now_failing" | "not_reached";
         };
         /** @description All rule evaluations that ran for this check */
         RuleEvaluationDto: {
@@ -7324,6 +9371,627 @@ export interface components {
              */
             triggeringTransitionId?: string | null;
         };
+        /** @description Run evidence file */
+        RunArtifactDto: {
+            /**
+             * Format: uuid
+             * @description Unique artifact identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this artifact belongs to
+             */
+            organizationId: number;
+            /**
+             * Format: uuid
+             * @description Run this artifact belongs to
+             */
+            runId: string;
+            /**
+             * Format: uuid
+             * @description Step this screenshot belongs to; null for whole-run kinds
+             */
+            stepId?: string | null;
+            /**
+             * @description File kind
+             * @enum {string}
+             */
+            kind: "screenshot" | "video" | "trace" | "har" | "console" | "runner_log";
+            /**
+             * @description Whether bytes are available, processing, or gone
+             * @enum {string}
+             */
+            lifecycle: "available" | "processing" | "failed" | "not_captured" | "suppressed" | "never_reached" | "expired" | "no_browser";
+            /**
+             * @description Why this file was captured
+             * @enum {string|null}
+             */
+            captureReason?: "on_failure" | "named_step" | "customer" | null;
+            /**
+             * Format: int64
+             * @description Stored size in bytes
+             */
+            byteSize?: number | null;
+            /** @description MIME type of the stored file */
+            contentType?: string | null;
+            /**
+             * Format: int32
+             * @description Video duration in milliseconds
+             */
+            durationMs?: number | null;
+            viewport?: components["schemas"]["ArtifactViewport"] | null;
+            /**
+             * Format: date-time
+             * @description When stored bytes expire
+             */
+            expiresAt?: string | null;
+            /**
+             * Format: int64
+             * @description Expected size while a video is encoding
+             */
+            expectedByteSize?: number | null;
+            /**
+             * Format: int32
+             * @description Estimated remaining encode time in milliseconds
+             */
+            encodeEtaMs?: number | null;
+            traceMeta?: components["schemas"]["ArtifactTraceMeta"] | null;
+            /**
+             * Format: date-time
+             * @description When this file row was created
+             */
+            createdAt: string;
+        };
+        /** @description In-check attempt */
+        RunAttemptDto: {
+            /**
+             * Format: int32
+             * @description 1-based attempt number
+             */
+            attempt: number;
+            /**
+             * @description Attempt outcome; null while the case is open
+             * @enum {string|null}
+             */
+            outcome?: "passed" | "failed" | "execution_error" | "timed_out" | "passed_on_retry" | "cancelled" | "inconclusive" | null;
+            /**
+             * Format: date-time
+             * @description When this attempt started
+             */
+            startedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When this attempt finished
+             */
+            finishedAt?: string | null;
+        };
+        /** @description Run case with nested steps */
+        RunCaseDto: {
+            /**
+             * Format: uuid
+             * @description Case identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this case belongs to
+             */
+            organizationId: number;
+            /**
+             * Format: uuid
+             * @description Run this case belongs to
+             */
+            runId: string;
+            /**
+             * Format: int32
+             * @description Playwright in-case attempt number
+             */
+            attempt: number;
+            /**
+             * Format: int32
+             * @description Zero-based case index within the attempt
+             */
+            index: number;
+            /** @description Case title */
+            title: string;
+            /** @description Spec path inside the package */
+            file?: string | null;
+            /**
+             * @description Case status
+             * @enum {string}
+             */
+            status: "pending" | "running" | "passed" | "failed" | "timed_out" | "skipped" | "interrupted";
+            /**
+             * Format: date-time
+             * @description When the case started
+             */
+            startedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When the case finished
+             */
+            finishedAt?: string | null;
+            /**
+             * Format: int32
+             * @description Reporter duration in milliseconds
+             */
+            durationMs?: number | null;
+            /** @description Steps on this case */
+            steps: components["schemas"]["RunStepDto"][];
+        };
+        RunCaseListParams: {
+            /**
+             * Format: int32
+             * @description Only return cases for this Playwright attempt
+             */
+            attempt?: number | null;
+        };
+        /** @description Console groups or ungrouped lines */
+        RunConsoleDto: {
+            /** @description on for browser, no_browser for API_CHECK */
+            state: string;
+            /** @description Absence copy when state is no_browser */
+            reason?: string | null;
+            /** @description Grouped messages; empty when ungrouped or no_browser */
+            groups: components["schemas"]["ConsoleGroupDto"][];
+            /** @description Raw lines when ungrouped=true */
+            lines?: components["schemas"]["ConsoleLineDto"][] | null;
+        };
+        RunConsoleParams: {
+            /**
+             * Format: int32
+             * @description In-check attempt (default selected attempt)
+             */
+            attempt?: number | null;
+            /** @description Return chronological lines instead of groups */
+            ungrouped?: boolean | null;
+            /** @description Filter error, warning, or info */
+            level?: string | null;
+            /** @description raw downloads the ungrouped log as text/plain */
+            format?: string | null;
+        };
+        /** @description Step duration diff against a prior pass */
+        RunDiffDto: {
+            /**
+             * Format: uuid
+             * @description Baseline run; null when no prior pass
+             */
+            baselineRunId?: string | null;
+            /**
+             * @description How the baseline was chosen
+             * @enum {string}
+             */
+            baselineKind: "last_pass_same_revision_region" | "last_pass_any_revision" | "attempts_in_run" | "none";
+            /** @description Human-readable baseline sentence */
+            readsAs: string;
+            /** @description One row per step on this run */
+            rows: components["schemas"]["Row"][];
+            /** @description Other finished runs of this monitor for the picker */
+            picker: components["schemas"]["PickerItem"][];
+        };
+        /** @description Code-monitor run */
+        RunDto: {
+            /**
+             * Format: uuid
+             * @description Unique run identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this run belongs to
+             */
+            organizationId: number;
+            /**
+             * Format: uuid
+             * @description Monitor this run belongs to
+             */
+            monitorId: string;
+            /** @description Monitor display name */
+            monitorName?: string | null;
+            /**
+             * @description Monitor type
+             * @enum {string|null}
+             */
+            monitorType?: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT" | "BROWSER" | "MULTI_STEP_API" | null;
+            /** @description Target host from the environment BASE_URL */
+            host?: string | null;
+            /**
+             * Format: uuid
+             * @description Environment this run executed in
+             */
+            environmentId?: string | null;
+            /** @description Environment display name */
+            environmentName?: string | null;
+            /**
+             * Format: uuid
+             * @description Revision this run executed
+             */
+            revisionId: string;
+            /** @description Probe region for this run */
+            region: string;
+            /**
+             * @description What triggered this run
+             * @enum {string}
+             */
+            source: "schedule" | "run_now" | "ci" | "fast_retry" | "remote_validation" | "deployment_validation" | "session_renew";
+            /**
+             * Format: date-time
+             * @description When this run was enqueued
+             */
+            enqueuedAt: string;
+            /**
+             * Format: uuid
+             * @description Evaluation cycle grouping this run with retries
+             */
+            evaluationCycleId?: string | null;
+            /**
+             * Format: uuid
+             * @description Parent run when this is a fast retry
+             */
+            retryOfRunId?: string | null;
+            /**
+             * Format: uuid
+             * @description Fast-retry parent run
+             */
+            retriedFromRunId?: string | null;
+            /**
+             * @description Current run phase
+             * @enum {string}
+             */
+            phase: "created" | "queued" | "starting" | "running" | "finalizing" | "finished";
+            /** @description Whether cancel was requested */
+            cancelRequested: boolean;
+            /**
+             * @description Outcome; null until the run is finished
+             * @enum {string|null}
+             */
+            outcome?: "passed" | "failed" | "execution_error" | "timed_out" | "passed_on_retry" | "cancelled" | "inconclusive" | null;
+            /** @description Last control headline */
+            headline?: string | null;
+            /** @description Live execution one-liner */
+            executionLine?: string | null;
+            /** @description Server-composed header meta line */
+            metaLine?: string | null;
+            /** @description Package digest frozen at create */
+            bundleDigest: string;
+            /**
+             * Format: date-time
+             * @description When execution claimed a seat
+             */
+            startedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When the run finished
+             */
+            finishedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When the run row last changed
+             */
+            updatedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description Last supervisor heartbeat
+             */
+            lastHeartbeatAt?: string | null;
+            /** @description Who requested cancel */
+            cancelledBy?: string | null;
+            /**
+             * Format: date-time
+             * @description When artifact bytes expired
+             */
+            artifactsExpiredAt?: string | null;
+            /** @description Capture settings frozen at create */
+            capturePolicySnapshot: {
+                [key: string]: Record<string, never>;
+            };
+            /** @description Resolved secret key names frozen at create */
+            bindingVersionSnapshot: {
+                [key: string]: Record<string, never>;
+            };
+            /**
+             * Format: int64
+             * @description Wall time from claim to finish
+             */
+            durationMs?: number | null;
+            /**
+             * Format: int64
+             * @description Time spent waiting for a seat
+             */
+            queueWaitMs?: number | null;
+            /**
+             * Format: int32
+             * @description Live queue position; null when not queued
+             */
+            queuePosition?: number | null;
+            /**
+             * Format: int64
+             * @description Milliseconds since the last supervisor heartbeat
+             */
+            heartbeatAgeMs?: number | null;
+            /** @description True while the run is still live and clients may stream */
+            stream: boolean;
+            /** @description List evidence chips in SHOT → TRACE → VIDEO → NET order */
+            evidence: components["schemas"]["RunEvidenceDto"][];
+            tabCounts: components["schemas"]["RunTabCountsDto"];
+            live?: components["schemas"]["RunLiveDto"] | null;
+            /**
+             * Format: int32
+             * @description Selected in-check attempt (1-based)
+             */
+            attempt: number;
+            /**
+             * Format: int32
+             * @description In-check attempt count
+             */
+            attemptOf: number;
+            /** @description In-check attempts */
+            attempts: components["schemas"]["RunAttemptDto"][];
+            /**
+             * Format: uuid
+             * @description Open incident for this monitor
+             */
+            incidentId?: string | null;
+        };
+        /** @description Run control event */
+        RunEventDto: {
+            /**
+             * Format: uuid
+             * @description Event identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this event belongs to
+             */
+            organizationId: number;
+            /**
+             * Format: uuid
+             * @description Run this event belongs to
+             */
+            runId: string;
+            /**
+             * Format: int64
+             * @description Supervisor-monotonic sequence, starts at 1
+             */
+            seq: number;
+            /**
+             * @description Control event type
+             * @enum {string}
+             */
+            type: "phase" | "headline" | "case_started" | "case_finished" | "step_started" | "step_finished" | "artifact_ready" | "artifact_lifecycle" | "finished" | "stream_gap";
+            /**
+             * Format: uuid
+             * @description Case this event refers to
+             */
+            caseId?: string | null;
+            /**
+             * Format: uuid
+             * @description Step this event refers to
+             */
+            stepId?: string | null;
+            /**
+             * Format: uuid
+             * @description Artifact this event refers to
+             */
+            artifactId?: string | null;
+            /** @description Small typed payload for this event */
+            payload: {
+                [key: string]: Record<string, never>;
+            };
+            /**
+             * Format: date-time
+             * @description When the event was persisted
+             */
+            createdAt: string;
+        };
+        RunEventParams: {
+            /**
+             * Format: int64
+             * @description Replay events with seq greater than this value
+             */
+            after?: number | null;
+        };
+        /** @description List evidence chip */
+        RunEvidenceDto: {
+            /**
+             * @description Evidence kind in SHOT → TRACE → VIDEO → NET order
+             * @enum {string}
+             */
+            kind: "screenshot" | "trace" | "video" | "network";
+            /**
+             * @description Whether the artifact is usable
+             * @enum {string}
+             */
+            state: "present" | "bad" | "processing" | "expired";
+        };
+        RunListParams: {
+            /** @description Filter by run phase; omit to return every phase */
+            phase?: string | null;
+            /** @description Filter by outcome; passed is first-try only; passed_on_retry is a pass after retry */
+            outcome?: string | null;
+            /** @description Filter by probe region */
+            region?: string | null;
+            /** @description Filter by what triggered the run */
+            source?: string | null;
+            /**
+             * Format: uuid
+             * @description Only return runs whose monitor lives in this environment
+             */
+            environmentId?: string | null;
+            /**
+             * Format: date-time
+             * @description Inclusive enqueue lower bound (default last 30 minutes; clamped to 90 days)
+             */
+            from?: string | null;
+            /**
+             * Format: date-time
+             * @description Inclusive enqueue upper bound (default now)
+             */
+            to?: string | null;
+            /** @description Substring match on monitor name or headline */
+            q?: string | null;
+            /**
+             * Format: int32
+             * @description Page size (1–100, default 50)
+             */
+            size: number;
+            /**
+             * Format: int32
+             * @description Zero-based page index (default 0)
+             */
+            page: number;
+        };
+        /** @description Live run progress */
+        RunLiveDto: {
+            /**
+             * Format: int32
+             * @description Current step index
+             */
+            stepIndex?: number | null;
+            /** @description Current step title */
+            stepTitle?: string | null;
+            /**
+             * Format: int32
+             * @description Known step count for this attempt
+             */
+            stepCount: number;
+            /**
+             * Format: int32
+             * @description Artifacts already available
+             */
+            artifactsUploaded?: number | null;
+            /**
+             * Format: int32
+             * @description Artifacts expected for this run
+             */
+            artifactsExpected?: number | null;
+        };
+        /** @description Live runner-log line */
+        RunnerLogLiveEvent: {
+            /** @description Loki timestamp in nanoseconds */
+            ts: string;
+            /** @description One runner-log line */
+            line: string;
+        };
+        /** @description Network waterfall page */
+        RunNetworkDto: {
+            /** @description Waterfall rows on this page */
+            data: components["schemas"]["NetworkRowDto"][];
+            /**
+             * Format: int64
+             * @description Case wall time for waterfall bar scale
+             */
+            caseDurationMs?: number | null;
+            /** @description Opaque cursor for the next page */
+            nextCursor?: string | null;
+            /** @description Whether more rows exist beyond this page */
+            hasMore: boolean;
+        };
+        RunNetworkParams: {
+            /**
+             * Format: int32
+             * @description In-check attempt (default selected attempt)
+             */
+            attempt?: number | null;
+            /** @description Only rows with status >= 400 or a failure */
+            failed?: boolean | null;
+            /** @description Only rows with durationMs >= 1000 */
+            slow?: boolean | null;
+            /** @description Only rows for this step */
+            stepId?: string | null;
+            /** @description Only xhr, fetch, and api resource types */
+            xhr?: boolean | null;
+            /** @description page or request */
+            source?: string | null;
+            /** @description Opaque cursor from the previous page */
+            cursor?: string | null;
+        };
+        /** @description Run step */
+        RunStepDto: {
+            /**
+             * Format: uuid
+             * @description Step identifier
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description Organization this step belongs to
+             */
+            organizationId: number;
+            /**
+             * Format: uuid
+             * @description Run this step belongs to
+             */
+            runId: string;
+            /**
+             * Format: uuid
+             * @description Case this step belongs to
+             */
+            caseId: string;
+            /**
+             * Format: int32
+             * @description Playwright in-case attempt number
+             */
+            attempt: number;
+            /**
+             * Format: int32
+             * @description Zero-based index within the case attempt
+             */
+            index: number;
+            /** @description Step title */
+            title: string;
+            /**
+             * @description Step category
+             * @enum {string}
+             */
+            category: "named" | "assertion" | "browser_action";
+            /**
+             * @description Step status
+             * @enum {string}
+             */
+            status: "pending" | "running" | "passed" | "slow" | "failed" | "skipped" | "suppressed" | "never_reached" | "timed_out";
+            /**
+             * Format: date-time
+             * @description When the step started
+             */
+            startedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When the step finished
+             */
+            finishedAt?: string | null;
+            /**
+             * Format: int32
+             * @description Reporter duration in milliseconds
+             */
+            durationMs?: number | null;
+            /** @description Error when the step failed */
+            error?: string | null;
+            /** @description Assertion payload when this step is an assertion */
+            assertion?: {
+                [key: string]: Record<string, never> | null;
+            } | null;
+        };
+        /** @description Run detail tab counts */
+        RunTabCountsDto: {
+            /**
+             * Format: int32
+             * @description Step rows for the selected attempt
+             */
+            steps: number;
+            /**
+             * Format: int32
+             * @description Items across asset kinds, excluding dead no-browser rows
+             */
+            assets: number;
+            /**
+             * Format: int32
+             * @description 1 when a diff baseline exists or this run passed on retry
+             */
+            diff: number;
+        };
         /** @description A scheduled maintenance window from a vendor status page */
         ScheduledMaintenanceDto: {
             /**
@@ -7367,15 +10035,26 @@ export interface components {
             updates: components["schemas"]["MaintenanceUpdateDto"][];
         };
         ScriptMonitorConfig: {
-            /** @description Playwright test script source code */
-            script: string;
+            /** @description Legacy inline script on existing rows */
+            readonly script?: string | null;
             /**
              * Format: int32
-             * @description Maximum execution time in seconds (5–120)
+             * @description Maximum execution time in seconds (5–240)
              */
             timeoutSeconds?: number | null;
+            /** @description Runtime pin YYYY.MM; omit uses workspace default then sole available */
+            runtimeId?: string | null;
         };
-        /** @description Secret with change-detection hash; plaintext value is never returned */
+        /** @description Last update time and author for a secret */
+        SecretAuditDto: {
+            /**
+             * Format: date-time
+             * @description When this secret was last updated
+             */
+            updatedAt?: string | null;
+            updatedBy?: components["schemas"]["UserDto"] | null;
+        };
+        /** @description Organization secret and its change-detection hash */
         SecretDto: {
             /**
              * Format: uuid
@@ -7401,8 +10080,43 @@ export interface components {
              * @description Timestamp when the secret was last updated
              */
             updatedAt: string;
-            /** @description Monitors that reference this secret; null on create/update responses */
+            /** @description Monitors that reference this secret for authentication */
             usedByMonitors?: components["schemas"]["MonitorReference"][] | null;
+        };
+        /** @description Secret key a monitor requires and how it is fulfilled */
+        SecretRequestDto: {
+            /** @description Secret key this monitor requires */
+            key: string;
+            secret?: components["schemas"]["SecretDto"] | null;
+            /**
+             * @description Whether this key is resolved or missing
+             * @enum {string}
+             */
+            readiness: "resolved" | "missing";
+            /**
+             * @description Fulfilled from environment variables or a secret
+             * @enum {string|null}
+             */
+            fulfilledBy?: "env" | "secret" | null;
+            /** @description Declaring file path inside the package zip */
+            declaringFile?: string | null;
+            /** @description Call site from package scan, e.g. signIn(…) · line 6 */
+            declaringLocation?: string | null;
+            /**
+             * Format: date-time
+             * @description When a run last resolved this key
+             */
+            lastResolvedAt?: string | null;
+            /**
+             * Format: uuid
+             * @description Run that last resolved this key
+             */
+            lastResolvedRunId?: string | null;
+        };
+        /** @description Monitors that reference this secret */
+        SecretUsageDto: {
+            /** @description Monitors that reference this secret */
+            monitors: components["schemas"]["MonitorDto"][];
         };
         /** @description Admin-editable SEO metadata for pSEO pages */
         SeoMetadataDto: {
@@ -7779,6 +10493,8 @@ export interface components {
              * @description When the organization subscribed to this service
              */
             subscribedAt: string;
+            /** @description Status-page components that represent this dependency; omitted when none */
+            boundStatusPageComponents?: components["schemas"]["StatusPageBoundComponentDto"][] | null;
         };
         /** @description Uptime response with per-bucket breakdown and overall percentage for the period */
         ServiceUptimeResponse: {
@@ -7833,6 +10549,25 @@ export interface components {
              */
             expiresAt: string;
         };
+        /** @description Short-lived URL for a stored object */
+        SignedDownload: {
+            /** @description HTTPS URL that returns the object. Valid for 60 seconds */
+            url: string;
+            /**
+             * Format: date-time
+             * @description When the URL stops working
+             */
+            expiresAt: string;
+            /** @description Filename for the download */
+            filename: string;
+            /** @description Media type of the object */
+            contentType: string;
+            /**
+             * Format: int64
+             * @description Object size in bytes
+             */
+            sizeBytes: number;
+        };
         SingleValueResponseAcknowledgeAllIncidentsResponse: {
             data: components["schemas"]["AcknowledgeAllIncidentsResponse"];
         };
@@ -7857,17 +10592,35 @@ export interface components {
         SingleValueResponseBulkMonitorActionResult: {
             data: components["schemas"]["BulkMonitorActionResult"];
         };
+        SingleValueResponseCaptureCompareDto: {
+            data: components["schemas"]["CaptureCompareDto"];
+        };
         SingleValueResponseCheckTraceDto: {
             data: components["schemas"]["CheckTraceDto"];
         };
         SingleValueResponseDashboardOverviewDto: {
             data: components["schemas"]["DashboardOverviewDto"];
         };
+        SingleValueResponseDefinitionDetailDto: {
+            data: components["schemas"]["DefinitionDetailDto"];
+        };
+        SingleValueResponseDefinitionHeadDto: {
+            data: components["schemas"]["DefinitionHeadDto"];
+        };
         SingleValueResponseDekRotationResultDto: {
             data: components["schemas"]["DekRotationResultDto"];
         };
         SingleValueResponseDeployLockDto: {
             data: components["schemas"]["DeployLockDto"];
+        };
+        SingleValueResponseEmailDomainDto: {
+            data: components["schemas"]["EmailDomainDto"];
+        };
+        SingleValueResponseEmailMessageDto: {
+            data: components["schemas"]["EmailMessageDto"];
+        };
+        SingleValueResponseEmailMessageSourceDto: {
+            data: components["schemas"]["EmailMessageSourceDto"];
         };
         SingleValueResponseEnvironmentDto: {
             data: components["schemas"]["EnvironmentDto"];
@@ -7887,11 +10640,20 @@ export interface components {
         SingleValueResponseIncidentTriggerDto: {
             data: components["schemas"]["IncidentTriggerDto"];
         };
+        SingleValueResponseInjectEmailMessageResponse: {
+            data: components["schemas"]["InjectEmailMessageResponse"];
+        };
         SingleValueResponseInviteDto: {
             data: components["schemas"]["InviteDto"];
         };
+        SingleValueResponseListEmailDomainActivityDto: {
+            data: components["schemas"]["EmailDomainActivityDto"][];
+        };
         SingleValueResponseListUUID: {
             data: string[];
+        };
+        SingleValueResponseListWebhookInboxActivityDto: {
+            data: components["schemas"]["WebhookInboxActivityDto"][];
         };
         SingleValueResponseLong: {
             /** Format: int64 */
@@ -7906,14 +10668,29 @@ export interface components {
         SingleValueResponseMonitorAuthDto: {
             data: components["schemas"]["MonitorAuthDto"];
         };
+        SingleValueResponseMonitorDriftDto: {
+            data: components["schemas"]["MonitorDriftDto"];
+        };
         SingleValueResponseMonitorDto: {
             data: components["schemas"]["MonitorDto"];
+        };
+        SingleValueResponseMonitorSecretRequestsDto: {
+            data: components["schemas"]["MonitorSecretRequestsDto"];
+        };
+        SingleValueResponseMonitorSessionDto: {
+            data: components["schemas"]["MonitorSessionDto"];
+        };
+        SingleValueResponseMonitorSettingsPreviewDto: {
+            data: components["schemas"]["MonitorSettingsPreviewDto"];
         };
         SingleValueResponseMonitorTestResultDto: {
             data: components["schemas"]["MonitorTestResultDto"];
         };
         SingleValueResponseMonitorVersionDto: {
             data: components["schemas"]["MonitorVersionDto"];
+        };
+        SingleValueResponseNetworkRowDto: {
+            data: components["schemas"]["NetworkRowDto"];
         };
         SingleValueResponseNotificationDispatchDto: {
             data: components["schemas"]["NotificationDispatchDto"];
@@ -7923,6 +10700,12 @@ export interface components {
         };
         SingleValueResponseOrganizationDto: {
             data: components["schemas"]["OrganizationDto"];
+        };
+        SingleValueResponseOverviewStepsDto: {
+            data: components["schemas"]["OverviewStepsDto"];
+        };
+        SingleValueResponsePackageUploadDto: {
+            data: components["schemas"]["PackageUploadDto"];
         };
         SingleValueResponsePolicySnapshotDto: {
             data: components["schemas"]["PolicySnapshotDto"];
@@ -7939,8 +10722,32 @@ export interface components {
         SingleValueResponseResultSummaryDto: {
             data: components["schemas"]["ResultSummaryDto"];
         };
+        SingleValueResponseRevisionDiffDto: {
+            data: components["schemas"]["RevisionDiffDto"];
+        };
+        SingleValueResponseRevisionDto: {
+            data: components["schemas"]["RevisionDto"];
+        };
+        SingleValueResponseRollbackPreviewDto: {
+            data: components["schemas"]["RollbackPreviewDto"];
+        };
+        SingleValueResponseRunConsoleDto: {
+            data: components["schemas"]["RunConsoleDto"];
+        };
+        SingleValueResponseRunDiffDto: {
+            data: components["schemas"]["RunDiffDto"];
+        };
+        SingleValueResponseRunDto: {
+            data: components["schemas"]["RunDto"];
+        };
+        SingleValueResponseSecretAuditDto: {
+            data: components["schemas"]["SecretAuditDto"];
+        };
         SingleValueResponseSecretDto: {
             data: components["schemas"]["SecretDto"];
+        };
+        SingleValueResponseSecretUsageDto: {
+            data: components["schemas"]["SecretUsageDto"];
         };
         SingleValueResponseServiceDayDetailDto: {
             data: components["schemas"]["ServiceDayDetailDto"];
@@ -7962,6 +10769,9 @@ export interface components {
         };
         SingleValueResponseServiceUptimeResponse: {
             data: components["schemas"]["ServiceUptimeResponse"];
+        };
+        SingleValueResponseSignedDownload: {
+            data: components["schemas"]["SignedDownload"];
         };
         SingleValueResponseStatusPageComponentDto: {
             data: components["schemas"]["StatusPageComponentDto"];
@@ -8007,6 +10817,12 @@ export interface components {
         };
         SingleValueResponseWebhookEndpointDto: {
             data: components["schemas"]["WebhookEndpointDto"];
+        };
+        SingleValueResponseWebhookEventDto: {
+            data: components["schemas"]["WebhookEventDto"];
+        };
+        SingleValueResponseWebhookInboxDto: {
+            data: components["schemas"]["WebhookInboxDto"];
         };
         SingleValueResponseWebhookSigningSecretDto: {
             data: components["schemas"]["WebhookSigningSecretDto"];
@@ -8142,6 +10958,23 @@ export interface components {
             maintenance?: components["schemas"]["MaintenanceEventDto"] | null;
             component?: components["schemas"]["ComponentTransitionEventDto"] | null;
             orgAnnotation?: components["schemas"]["OrgIncidentAnnotationDto"] | null;
+        };
+        /** @description Status-page component that represents a monitor, group, or dependency */
+        StatusPageBoundComponentDto: {
+            /**
+             * Format: uuid
+             * @description Component identifier
+             */
+            componentId: string;
+            /** @description Component display name */
+            componentName: string;
+            /**
+             * Format: uuid
+             * @description Status page that owns this component
+             */
+            statusPageId: string;
+            /** @description Human-readable status page name */
+            statusPageName: string;
         };
         /** @description Updated branding configuration; null preserves current */
         StatusPageBranding: {
@@ -8550,7 +11383,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultAlertDeliveryDto: {
             data: components["schemas"]["AlertDeliveryDto"][];
@@ -8560,7 +11392,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultApiKeyDto: {
             data: components["schemas"]["ApiKeyDto"][];
@@ -8570,7 +11401,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultAuditEventDto: {
             data: components["schemas"]["AuditEventDto"][];
@@ -8580,7 +11410,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultCategoryDto: {
             data: components["schemas"]["CategoryDto"][];
@@ -8590,7 +11419,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultComponentUptimeDayDto: {
             data: components["schemas"]["ComponentUptimeDayDto"][];
@@ -8600,7 +11428,15 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
+        };
+        TableValueResultDefinitionDto: {
+            data: components["schemas"]["DefinitionDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
         };
         TableValueResultDeliveryAttemptDto: {
             data: components["schemas"]["DeliveryAttemptDto"][];
@@ -8610,7 +11446,15 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
+        };
+        TableValueResultEmailDomainDto: {
+            data: components["schemas"]["EmailDomainDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
         };
         TableValueResultEnvironmentDto: {
             data: components["schemas"]["EnvironmentDto"][];
@@ -8620,7 +11464,24 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
+        };
+        TableValueResultInboundEmailLink: {
+            data: components["schemas"]["InboundEmailLink"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
+        TableValueResultInboundOtpCode: {
+            data: components["schemas"]["InboundOtpCode"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
         };
         TableValueResultIncidentDto: {
             data: components["schemas"]["IncidentDto"][];
@@ -8630,7 +11491,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultIncidentStateTransitionDto: {
             data: components["schemas"]["IncidentStateTransitionDto"][];
@@ -8640,7 +11500,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultIntegrationDto: {
             data: components["schemas"]["IntegrationDto"][];
@@ -8650,7 +11509,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultInviteDto: {
             data: components["schemas"]["InviteDto"][];
@@ -8660,7 +11518,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultMaintenanceWindowDto: {
             data: components["schemas"]["MaintenanceWindowDto"][];
@@ -8670,7 +11527,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultMemberDto: {
             data: components["schemas"]["MemberDto"][];
@@ -8680,7 +11536,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultMonitorDto: {
             data: components["schemas"]["MonitorDto"][];
@@ -8690,7 +11545,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultMonitorVersionDto: {
             data: components["schemas"]["MonitorVersionDto"][];
@@ -8700,7 +11554,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultNotificationDispatchDto: {
             data: components["schemas"]["NotificationDispatchDto"][];
@@ -8710,7 +11563,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultNotificationDto: {
             data: components["schemas"]["NotificationDto"][];
@@ -8720,7 +11572,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultNotificationPolicyDto: {
             data: components["schemas"]["NotificationPolicyDto"][];
@@ -8730,7 +11581,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultResourceGroupDto: {
             data: components["schemas"]["ResourceGroupDto"][];
@@ -8740,7 +11590,15 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
+        };
+        TableValueResultRevisionDto: {
+            data: components["schemas"]["RevisionDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
         };
         TableValueResultRuleEvaluationDto: {
             data: components["schemas"]["RuleEvaluationDto"][];
@@ -8750,7 +11608,33 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
+        };
+        TableValueResultRunArtifactDto: {
+            data: components["schemas"]["RunArtifactDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
+        TableValueResultRunCaseDto: {
+            data: components["schemas"]["RunCaseDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
+        TableValueResultRunDto: {
+            data: components["schemas"]["RunDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
         };
         TableValueResultScheduledMaintenanceDto: {
             data: components["schemas"]["ScheduledMaintenanceDto"][];
@@ -8760,7 +11644,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultSecretDto: {
             data: components["schemas"]["SecretDto"][];
@@ -8770,7 +11653,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultServiceComponentDto: {
             data: components["schemas"]["ServiceComponentDto"][];
@@ -8780,7 +11662,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultServiceIncidentDto: {
             data: components["schemas"]["ServiceIncidentDto"][];
@@ -8790,7 +11671,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultServiceSubscriptionDto: {
             data: components["schemas"]["ServiceSubscriptionDto"][];
@@ -8800,7 +11680,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageComponentDto: {
             data: components["schemas"]["StatusPageComponentDto"][];
@@ -8810,7 +11689,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageComponentGroupDto: {
             data: components["schemas"]["StatusPageComponentGroupDto"][];
@@ -8820,7 +11698,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageCustomDomainDto: {
             data: components["schemas"]["StatusPageCustomDomainDto"][];
@@ -8830,7 +11707,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageDto: {
             data: components["schemas"]["StatusPageDto"][];
@@ -8840,7 +11716,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageIncidentDto: {
             data: components["schemas"]["StatusPageIncidentDto"][];
@@ -8850,7 +11725,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageNotificationDeliveryDto: {
             data: components["schemas"]["StatusPageNotificationDeliveryDto"][];
@@ -8860,7 +11734,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultStatusPageSubscriberDto: {
             data: components["schemas"]["StatusPageSubscriberDto"][];
@@ -8870,7 +11743,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultTagDto: {
             data: components["schemas"]["TagDto"][];
@@ -8880,7 +11752,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultTestChannelResult: {
             data: components["schemas"]["TestChannelResult"][];
@@ -8890,7 +11761,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultVoiceLanguageDto: {
             data: components["schemas"]["VoiceLanguageDto"][];
@@ -8900,7 +11770,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultWebhookDeliveryDto: {
             data: components["schemas"]["WebhookDeliveryDto"][];
@@ -8910,7 +11779,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         TableValueResultWebhookEndpointDto: {
             data: components["schemas"]["WebhookEndpointDto"][];
@@ -8920,7 +11788,15 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
+        };
+        TableValueResultWebhookInboxDto: {
+            data: components["schemas"]["WebhookInboxDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
         };
         TableValueResultWorkspaceDto: {
             data: components["schemas"]["WorkspaceDto"][];
@@ -8930,7 +11806,6 @@ export interface components {
             totalElements?: number | null;
             /** Format: int32 */
             totalPages?: number | null;
-            nextCursor?: string | null;
         };
         /** @description Tag for organizing and filtering monitors */
         TagDto: {
@@ -8958,6 +11833,10 @@ export interface components {
              * @description Timestamp when the tag was last updated
              */
             updatedAt: string;
+        };
+        TakeoverMonitorRequest: {
+            /** @description Overlay to clear: managedBy, enabled, muted, or quarantine */
+            field: string;
         };
         /** @description TCP check-type-specific details */
         Tcp: {
@@ -9158,6 +12037,42 @@ export interface components {
             /** @description Whether the chain validated against the OS trust store */
             chainValid?: boolean | null;
         };
+        /** @description Four doorways into the downloaded file */
+        TraceEntryPoint: {
+            /**
+             * @description Doorway id
+             * @enum {string}
+             */
+            id: "failing_action" | "failing_step" | "first_failed_request" | "case_start";
+            /**
+             * Format: int32
+             * @description Action index this doorway opens
+             */
+            actionIndex: number;
+            /** @description Label shown on the doorway */
+            label: string;
+            /** @description Short note for why this doorway exists */
+            note: string;
+        };
+        /** @description Actions around the failure, teardown labelled */
+        TraceNearbyAction: {
+            /**
+             * Format: int32
+             * @description Action index in the Playwright trace
+             */
+            actionIndex: number;
+            /** @description Playwright action kind */
+            kind: string;
+            /** @description Human title for this action */
+            title: string;
+            /**
+             * Format: int32
+             * @description Action duration in milliseconds
+             */
+            durationMs?: number | null;
+            /** @description Whether this action is teardown */
+            isTeardown: boolean;
+        };
         /** @description Array of trigger rules defining when an incident should be raised */
         TriggerRule: {
             /**
@@ -9248,6 +12163,14 @@ export interface components {
             channelType: "email";
             /** @description Email addresses to send notifications to */
             recipients: string[];
+        };
+        /** @description Patch an email testing domain. Omitted fields stay unchanged */
+        UpdateEmailDomainRequest: {
+            /**
+             * @description Domain lifecycle. Custom domains become active only via POST /verify
+             * @enum {string|null}
+             */
+            status?: "active" | "disabled" | "pending_dns" | "verification_failed" | null;
         };
         UpdateEnvironmentRequest: {
             /** @description New environment name; null preserves current */
@@ -9360,39 +12283,50 @@ export interface components {
             config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
         };
         UpdateMonitorRequest: {
-            /** @description New monitor name; null preserves current */
+            /** @description New monitor name. Null preserves current */
             name?: string | null;
             config?: (components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["ScriptMonitorConfig"] | components["schemas"]["TcpMonitorConfig"]) | null;
             /**
              * Format: int32
-             * @description New check frequency in seconds (10–86400); null preserves current
+             * @description New check frequency in seconds (10–86400). Null preserves current
              */
             frequencySeconds?: number | null;
-            /** @description Enable or disable the monitor; null preserves current */
+            /** @description Enable or disable the monitor (pause or resume). Null preserves current */
             enabled?: boolean | null;
-            /** @description New probe regions; null preserves current. Allowed values are deployment-dependent. */
+            /** @description New probe regions. Null preserves current. Allowed values are deployment-dependent */
             regions?: string[] | null;
             /**
-             * @description New ownership source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value
+             * @description New ownership source for probe monitors. Null preserves current. Code monitors use takeover
              * @enum {string|null}
              */
             managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
             /**
              * Format: uuid
-             * @description New environment ID; null preserves current (use clearEnvironmentId to unset)
+             * @description New environment; null preserves current
              */
             environmentId?: string | null;
             /** @description Set to true to remove the environment association */
             clearEnvironmentId?: boolean | null;
-            /** @description Replace all assertions; null preserves current */
+            /** @description Replace all assertions. Null preserves current */
             assertions?: components["schemas"]["CreateAssertionRequest"][] | null;
             auth?: Omit<components["schemas"]["MonitorAuthConfig"], "type"> | null;
             /** @description Set to true to remove authentication */
             clearAuth?: boolean | null;
             incidentPolicy?: components["schemas"]["UpdateIncidentPolicyRequest"] | null;
-            /** @description Replace alert channel list; null preserves current */
+            /** @description Replace alert channel list. Null preserves current */
             alertChannelIds?: string[] | null;
             tags?: components["schemas"]["AddMonitorTagsRequest"] | null;
+            capturePolicy?: components["schemas"]["CapturePolicy"] | null;
+            /**
+             * Format: int32
+             * @description Fast-retry attempts after failure. Null preserves current. 0 disables
+             */
+            fastRetryMaxAttempts?: number | null;
+            /** @description Run every location each interval; false rotates one. Null preserves current */
+            runParallel?: boolean | null;
+            package?: components["schemas"]["MonitorPackageSpec"] | null;
+            /** @description Not writable; use pause or resume */
+            status?: string | null;
         };
         /** @description Request body for updating a notification policy (null fields are preserved) */
         UpdateNotificationPolicyRequest: {
@@ -9723,6 +12657,29 @@ export interface components {
             /** @description Enable or disable delivery; null preserves current */
             enabled?: boolean | null;
         };
+        /** @description Patch a webhook testing inbox. Omitted fields stay unchanged */
+        UpdateWebhookInboxRequest: {
+            /** @description Human-readable name for this inbox */
+            name?: string | null;
+            /**
+             * @description Inbox lifecycle
+             * @enum {string|null}
+             */
+            status?: "active" | "disabled" | null;
+            httpResponse?: components["schemas"]["InboundWebhookHttpResponsePatch"] | null;
+            /** @description Allow browser callers on other origins to hit the ingest URL */
+            cors?: boolean | null;
+            /**
+             * Format: int32
+             * @description Days events are kept. Cannot exceed the testing plan
+             */
+            retentionDays?: number | null;
+            /**
+             * Format: int32
+             * @description Max stored events before ingest drops the oldest
+             */
+            maxEvents?: number | null;
+        };
         /** @description Update workspace details */
         UpdateWorkspaceRequest: {
             /** @description New workspace name */
@@ -9733,6 +12690,20 @@ export interface components {
             channelType: "zapier";
             /** @description Zapier/n8n/Make catch webhook URL */
             webhookUrl?: string | null;
+        };
+        UpsertMonitorSessionRequest: {
+            /**
+             * @description When to reuse the cached session across runs
+             * @enum {string}
+             */
+            reusePolicy: "reuse" | "every_run" | "on_failure";
+            /** @description Setup file path inside the package zip */
+            setupFile: string;
+            /**
+             * Format: date-time
+             * @description When the cached session expires; null preserves current
+             */
+            expiresAt?: string | null;
         };
         /** @description Uptime statistics for a single time bucket */
         UptimeBucketDto: {
@@ -9799,6 +12770,54 @@ export interface components {
              * @example 2
              */
             incidentCount: number;
+            /**
+             * Format: double
+             * @description First-try pass percent for settled parent runs in the window; null when the monitor has no run history
+             * @example 96.2
+             */
+            firstTryPercent?: number | null;
+            /**
+             * Format: int64
+             * @description Settled retry runs in the window; null when the monitor has no run history
+             * @example 12
+             */
+            retryCount?: number | null;
+        };
+        /** @description User account details */
+        UserDto: {
+            /**
+             * Format: int32
+             * @description Unique user identifier
+             */
+            id: number;
+            /** @description User email address */
+            email: string;
+            /** @description Whether the email address has been verified */
+            emailVerified: boolean;
+            /** @description Display name; null if not set */
+            name?: string | null;
+            /**
+             * @description Platform role: USER or SUPERADMIN
+             * @enum {string}
+             */
+            userRole: "SUPERADMIN" | "ADMIN" | "USER";
+            /**
+             * @description Current onboarding progress stage; null when completed
+             * @enum {string|null}
+             */
+            onboardingStage?: "WELCOME" | "FIRST_MONITOR" | "SETUP_COMPLETE" | "COMPLETED" | null;
+            /** @description Profile image URL; null if not set */
+            imageUrl?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp when the account was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the account was last updated
+             */
+            updatedAt: string;
         };
         /** @description Supported TTS voice language for phone call alerts */
         VoiceLanguageDto: {
@@ -9806,6 +12825,54 @@ export interface components {
             code: string;
             /** @description Human-readable label, e.g. English (US) */
             label: string;
+        };
+        /** @description Wait for the oldest matching captured email message */
+        WaitEmailMessageRequest: {
+            /**
+             * Format: int32
+             * @description How long to block in milliseconds (default: 30000, max: 120000)
+             */
+            timeoutMs?: number | null;
+            /**
+             * Format: date-time
+             * @description Oldest eligible receivedAt; default now minus 60 seconds
+             */
+            receivedAfter?: string | null;
+            /** @description Full address on POST /email/wait */
+            to?: string | null;
+            /** @description Subject must contain this substring */
+            subjectContains?: string | null;
+            /** @description Domain FQDN; required on POST /email/{localpart}/wait */
+            domain?: string | null;
+        };
+        /** @description Successful email message wait */
+        WaitEmailMessageResponse: {
+            message: components["schemas"]["EmailMessageDto"];
+        };
+        /** @description HTTP matchers for webhook event wait */
+        WaitHttpMatchers: {
+            /** @description HTTP method to match; omit matches any except OPTIONS */
+            method?: string | null;
+            /** @description Captured path must start with this prefix */
+            pathPrefix?: string | null;
+        };
+        /** @description Wait for the oldest matching captured HTTP event */
+        WaitWebhookEventRequest: {
+            /**
+             * Format: int32
+             * @description How long to block in milliseconds (default: 30000, max: 120000)
+             */
+            timeoutMs?: number | null;
+            /**
+             * Format: date-time
+             * @description Oldest eligible receivedAt; default now minus 60 seconds
+             */
+            receivedAfter?: string | null;
+            http?: components["schemas"]["WaitHttpMatchers"] | null;
+        };
+        /** @description Successful webhook event wait */
+        WaitWebhookEventResponse: {
+            event: components["schemas"]["WebhookEventDto"];
         };
         WebhookChannelConfig: {
             /** @enum {string} */
@@ -9896,476 +12963,6 @@ export interface components {
             /** @description List of all available webhook event types */
             data: components["schemas"]["WebhookEventCatalogEntry"][];
         };
-        WebhookSigningSecretDto: {
-            configured: boolean;
-            maskedSecret?: string | null;
-        };
-        WebhookTestResult: {
-            success: boolean;
-            /** Format: int32 */
-            statusCode?: number | null;
-            message: string;
-            /** Format: int64 */
-            durationMs?: number | null;
-        };
-        /** @description Workspace within an organization */
-        WorkspaceDto: {
-            /**
-             * Format: int32
-             * @description Unique workspace identifier
-             */
-            id: number;
-            /**
-             * Format: date-time
-             * @description Timestamp when the workspace was created
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @description Timestamp when the workspace was last updated
-             */
-            updatedAt: string;
-            /** @description Workspace name */
-            name: string;
-            /**
-             * Format: int32
-             * @description Organization this workspace belongs to
-             */
-            orgId: number;
-        };
-        ZapierChannelConfig: {
-            /** @enum {string} */
-            channelType: "zapier";
-            /** @description Zapier/n8n/Make catch webhook URL */
-            webhookUrl: string;
-        };
-        /** @description Create an email testing receive domain */
-        CreateEmailDomainRequest: {
-            /**
-             * @description assigned allocates a host under the DevHelm mail zone. custom uses name
-             * @enum {string|null}
-             */
-            kind?: "assigned" | "custom" | null;
-            /** @description Custom FQDN. Required when kind is custom */
-            name?: string | null;
-        };
-        /** @description Create a webhook testing inbox */
-        CreateWebhookInboxRequest: {
-            /** @description Human-readable name for this inbox */
-            name: string;
-            /**
-             * @description Inbox lifecycle (default: active)
-             * @enum {string|null}
-             */
-            status?: "active" | "disabled" | null;
-            httpResponse?: components["schemas"]["InboundWebhookHttpResponsePatch"] | null;
-            /** @description Allow browser callers on other origins to hit the ingest URL (default: true) */
-            cors?: boolean | null;
-            /**
-             * Format: int32
-             * @description Days events are kept. Omitted uses the testing plan. Cannot exceed the plan
-             */
-            retentionDays?: number | null;
-            /**
-             * Format: int32
-             * @description Max stored events before ingest drops the oldest (default: 10000)
-             */
-            maxEvents?: number | null;
-        };
-        /** @description Cursor-paginated response for time-series and append-only data */
-        CursorPageEmailMessageDto: {
-            /** @description Items on this page */
-            data: components["schemas"]["EmailMessageDto"][];
-            /** @description Opaque cursor for the next page; null when there are no more results */
-            nextCursor?: string | null;
-            /** @description Whether more results exist beyond this page */
-            hasMore: boolean;
-        };
-        /** @description Cursor-paginated response for time-series and append-only data */
-        CursorPageWebhookEventDto: {
-            /** @description Items on this page */
-            data: components["schemas"]["WebhookEventDto"][];
-            /** @description Opaque cursor for the next page; null when there are no more results */
-            nextCursor?: string | null;
-            /** @description Whether more results exist beyond this page */
-            hasMore: boolean;
-        };
-        /** @description Derived DNS record for an email testing domain */
-        EmailDnsRecordDto: {
-            /** @description Record purpose label */
-            label: string;
-            /** @description DNS record type */
-            type: string;
-            /** @description DNS owner name */
-            name: string;
-            /** @description Record value */
-            value: string;
-            /**
-             * Format: int32
-             * @description MX priority when type is MX
-             */
-            priority?: number | null;
-            /** @description Whether this record is required for verification */
-            required: boolean;
-        };
-        /** @description Email testing receive domain */
-        EmailDomainDto: {
-            /**
-             * Format: uuid
-             * @description Domain id
-             */
-            id: string;
-            /** @description FQDN mail is sent to */
-            name: string;
-            /**
-             * Format: int32
-             * @description Workspace this domain belongs to
-             */
-            workspaceId: number;
-            /**
-             * @description How the domain was obtained
-             * @enum {string}
-             */
-            kind: "assigned" | "custom";
-            /**
-             * @description Domain lifecycle
-             * @enum {string}
-             */
-            status: "active" | "disabled" | "pending_dns" | "verification_failed";
-            /** @description Whether MX currently matches the published exchange */
-            mxVerified: boolean;
-            /**
-             * Format: uuid
-             * @description Custom-domain verification token
-             */
-            verificationToken?: string | null;
-            /** @description Last verification error */
-            verificationError?: string | null;
-            /**
-             * Format: date-time
-             * @description When MX+TXT last passed
-             */
-            verifiedAt?: string | null;
-            /** @description Derived DNS records to publish; not stored */
-            dnsRecords: components["schemas"]["EmailDnsRecordDto"][];
-            /**
-             * Format: date-time
-             * @description When the domain was created
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @description When the domain was last updated
-             */
-            updatedAt: string;
-        };
-        /** @description Captured inbound email (preview, not RFC822 bytes) */
-        EmailMessageDto: {
-            /**
-             * Format: uuid
-             * @description Message id
-             */
-            id: string;
-            /**
-             * Format: uuid
-             * @description Parent domain id
-             */
-            domainId: string;
-            /** @description Local-part the message was addressed to */
-            inbox?: string | null;
-            /**
-             * Format: date-time
-             * @description When the message was received
-             */
-            receivedAt: string;
-            /**
-             * Format: int32
-             * @description Captured size in bytes
-             */
-            sizeBytes: number;
-            /** @description Sender mailbox */
-            from?: string | null;
-            /** @description Recipient mailboxes */
-            to?: string[] | null;
-            /** @description Subject */
-            subject?: string | null;
-            /** @description Captured MIME headers as received */
-            headers: {
-                [key: string]: string[];
-            };
-            /** @description Truncated body excerpt; full MIME lives in Spaces */
-            bodyPreview?: string | null;
-            /** @description Extracted one-time codes */
-            otp?: components["schemas"]["InboundOtpCode"][] | null;
-            /** @description Extracted links */
-            links?: components["schemas"]["InboundEmailLink"][] | null;
-            /** @description Attachment metadata */
-            attachments?: components["schemas"]["InboundEmailAttachment"][] | null;
-            /** @description SHA-256 of the raw object */
-            sha256: string;
-        };
-        /** @description Attachment metadata */
-        InboundEmailAttachment: {
-            /**
-             * Format: uuid
-             * @description Attachment id used on the download path
-             */
-            id: string;
-            /** @description Original filename from the MIME part */
-            filename: string;
-            /** @description MIME type of the attachment */
-            contentType: string;
-            /**
-             * Format: int32
-             * @description Attachment size in bytes
-             */
-            sizeBytes: number;
-            /** @description Spaces key for the attachment bytes */
-            objectKey: string;
-        };
-        /** @description Extracted links */
-        InboundEmailLink: {
-            /** @description Link URL extracted from the message */
-            href: string;
-            /** @description Visible link text when present */
-            text?: string | null;
-        };
-        /** @description Extracted one-time codes */
-        InboundOtpCode: {
-            /** @description Extracted one-time code digits */
-            value: string;
-            /**
-             * @description MIME part the code was found in (text or html)
-             * @enum {string}
-             */
-            source: "text" | "html";
-        };
-        /** @description Mock reply returned to the sender after ingest is stored */
-        InboundWebhookHttpResponse: {
-            /**
-             * Format: int32
-             * @description HTTP status of the mock reply (200–599, default 200)
-             */
-            status: number;
-            /** @description Headers on the mock reply */
-            headers: {
-                [key: string]: string;
-            };
-            /** @description Mock reply body (at most 65536 characters). Captured requests live in object storage */
-            body: string;
-            /** @description Content-Type of the mock reply (default text/plain) */
-            contentType: string;
-            /**
-             * Format: int32
-             * @description Milliseconds to wait before sending the mock reply (0–30000)
-             */
-            delayMs: number;
-        };
-        /** @description Partial mock reply returned to the sender after ingest */
-        InboundWebhookHttpResponsePatch: {
-            /**
-             * Format: int32
-             * @description HTTP status returned to the sender (200–599)
-             */
-            status?: number | null;
-            /** @description Headers on the mock reply */
-            headers?: {
-                [key: string]: string | null;
-            } | null;
-            /** @description Mock reply body (at most 65536 characters). Not the captured request */
-            body?: string | null;
-            /** @description Content-Type of the mock reply */
-            contentType?: string | null;
-            /**
-             * Format: int32
-             * @description Milliseconds to wait before sending the mock reply (0–30000)
-             */
-            delayMs?: number | null;
-        };
-        /** @description Inject a test email without SMTP */
-        InjectEmailMessageRequest: {
-            /** @description Recipient local-part or full mailbox */
-            to: string;
-            /** @description Sender mailbox */
-            from: string;
-            /** @description Subject line */
-            subject?: string | null;
-            /** @description Plain-text body */
-            text?: string | null;
-            /** @description HTML body */
-            html?: string | null;
-            /** @description Extra MIME headers as received */
-            headers?: {
-                [key: string]: (string | null)[] | null;
-            } | null;
-        };
-        /** @description Accepted inject; wait or get after persist */
-        InjectEmailMessageResponse: {
-            /**
-             * Format: uuid
-             * @description Ingest event id on the NATS pointer
-             */
-            eventId: string;
-            /**
-             * Format: date-time
-             * @description When the inject was accepted
-             */
-            receivedAt: string;
-            /** @description Inbox local-part parsed from to */
-            inbox: string;
-        };
-        /** @description Short-lived URL for a stored object */
-        SignedDownload: {
-            /** @description HTTPS URL that returns the object. Valid for 60 seconds */
-            url: string;
-            /**
-             * Format: date-time
-             * @description When the URL stops working
-             */
-            expiresAt: string;
-            /** @description Filename for the download */
-            filename: string;
-            /** @description Media type of the object */
-            contentType: string;
-            /**
-             * Format: int64
-             * @description Object size in bytes
-             */
-            sizeBytes: number;
-        };
-        SingleValueResponseEmailDomainDto: {
-            data: components["schemas"]["EmailDomainDto"];
-        };
-        SingleValueResponseEmailMessageDto: {
-            data: components["schemas"]["EmailMessageDto"];
-        };
-        SingleValueResponseInjectEmailMessageResponse: {
-            data: components["schemas"]["InjectEmailMessageResponse"];
-        };
-        SingleValueResponseSignedDownload: {
-            data: components["schemas"]["SignedDownload"];
-        };
-        SingleValueResponseWebhookEventDto: {
-            data: components["schemas"]["WebhookEventDto"];
-        };
-        SingleValueResponseWebhookInboxDto: {
-            data: components["schemas"]["WebhookInboxDto"];
-        };
-        TableValueResultEmailDomainDto: {
-            data: components["schemas"]["EmailDomainDto"][];
-            hasNext: boolean;
-            hasPrev: boolean;
-            /** Format: int64 */
-            totalElements?: number | null;
-            /** Format: int32 */
-            totalPages?: number | null;
-        };
-        TableValueResultInboundEmailLink: {
-            data: components["schemas"]["InboundEmailLink"][];
-            hasNext: boolean;
-            hasPrev: boolean;
-            /** Format: int64 */
-            totalElements?: number | null;
-            /** Format: int32 */
-            totalPages?: number | null;
-        };
-        TableValueResultInboundOtpCode: {
-            data: components["schemas"]["InboundOtpCode"][];
-            hasNext: boolean;
-            hasPrev: boolean;
-            /** Format: int64 */
-            totalElements?: number | null;
-            /** Format: int32 */
-            totalPages?: number | null;
-        };
-        TableValueResultWebhookInboxDto: {
-            data: components["schemas"]["WebhookInboxDto"][];
-            hasNext: boolean;
-            hasPrev: boolean;
-            /** Format: int64 */
-            totalElements?: number | null;
-            /** Format: int32 */
-            totalPages?: number | null;
-        };
-        /** @description Patch an email testing domain. Omitted fields stay unchanged */
-        UpdateEmailDomainRequest: {
-            /**
-             * @description Domain lifecycle. Custom domains become active only via POST /verify
-             * @enum {string|null}
-             */
-            status?: "active" | "disabled" | "pending_dns" | "verification_failed" | null;
-        };
-        /** @description Patch a webhook testing inbox. Omitted fields stay unchanged */
-        UpdateWebhookInboxRequest: {
-            /** @description Human-readable name for this inbox */
-            name?: string | null;
-            /**
-             * @description Inbox lifecycle
-             * @enum {string|null}
-             */
-            status?: "active" | "disabled" | null;
-            httpResponse?: components["schemas"]["InboundWebhookHttpResponsePatch"] | null;
-            /** @description Allow browser callers on other origins to hit the ingest URL */
-            cors?: boolean | null;
-            /**
-             * Format: int32
-             * @description Days events are kept. Cannot exceed the testing plan
-             */
-            retentionDays?: number | null;
-            /**
-             * Format: int32
-             * @description Max stored events before ingest drops the oldest
-             */
-            maxEvents?: number | null;
-        };
-        /** @description Wait for the oldest matching captured email message */
-        WaitEmailMessageRequest: {
-            /**
-             * Format: int32
-             * @description How long to block in milliseconds (default: 30000, max: 120000)
-             */
-            timeoutMs?: number | null;
-            /**
-             * Format: date-time
-             * @description Oldest eligible receivedAt; default now minus 60 seconds
-             */
-            receivedAfter?: string | null;
-            /** @description Full address on POST /email/wait */
-            to?: string | null;
-            /** @description Subject must contain this substring */
-            subjectContains?: string | null;
-            /** @description Domain FQDN; required on POST /email/{localpart}/wait */
-            domain?: string | null;
-        };
-        /** @description Successful email message wait */
-        WaitEmailMessageResponse: {
-            message: components["schemas"]["EmailMessageDto"];
-        };
-        /** @description HTTP matchers for webhook event wait */
-        WaitHttpMatchers: {
-            /** @description HTTP method to match; omit matches any except OPTIONS */
-            method?: string | null;
-            /** @description Captured path must start with this prefix */
-            pathPrefix?: string | null;
-        };
-        /** @description Wait for the oldest matching captured HTTP event */
-        WaitWebhookEventRequest: {
-            /**
-             * Format: int32
-             * @description How long to block in milliseconds (default: 30000, max: 120000)
-             */
-            timeoutMs?: number | null;
-            /**
-             * Format: date-time
-             * @description Oldest eligible receivedAt; default now minus 60 seconds
-             */
-            receivedAfter?: string | null;
-            http?: components["schemas"]["WaitHttpMatchers"] | null;
-        };
-        /** @description Successful webhook event wait */
-        WaitWebhookEventResponse: {
-            event: components["schemas"]["WebhookEventDto"];
-        };
         /** @description Captured HTTP ingest event (preview, not raw bytes) */
         WebhookEventDto: {
             /**
@@ -10408,10 +13005,37 @@ export interface components {
             host?: string | null;
             /** @description Body preview at most 2048 characters */
             bodyPreview?: string | null;
-            /** @description Captured body as UTF-8 text; null when listing events */
+            /** @description Request body as text, at most 256 KB */
             body?: string | null;
             /** @description SHA-256 of the raw object */
             sha256: string;
+            /** @description True when the returned body was cut off at 256 KB */
+            bodyTruncated?: boolean | null;
+            /** @description Download link for the full request when the body was cut off */
+            rawUrl?: string | null;
+        };
+        /** @description Received-request count for one UTC hour */
+        WebhookInboxActivityBucketDto: {
+            /**
+             * Format: date-time
+             * @description Start of the UTC hour (ISO 8601)
+             */
+            hour: string;
+            /**
+             * Format: int32
+             * @description Requests received in this hour
+             */
+            eventCount: number;
+        };
+        /** @description 24-hour received-request activity for one webhook inbox */
+        WebhookInboxActivityDto: {
+            /**
+             * Format: uuid
+             * @description Inbox id
+             */
+            inboxId: string;
+            /** @description Exactly 24 UTC-hour buckets, oldest first, zero-filled */
+            buckets: components["schemas"]["WebhookInboxActivityBucketDto"][];
         };
         /** @description Webhook testing inbox */
         WebhookInboxDto: {
@@ -10451,6 +13075,11 @@ export interface components {
             maxEvents: number;
             /**
              * Format: date-time
+             * @description When the inbox last received a request; null until the first one
+             */
+            lastEventAt?: string | null;
+            /**
+             * Format: date-time
              * @description When the inbox was created
              */
             createdAt: string;
@@ -10459,6 +13088,53 @@ export interface components {
              * @description When the inbox was last updated
              */
             updatedAt: string;
+        };
+        WebhookSigningSecretDto: {
+            configured: boolean;
+            maskedSecret?: string | null;
+        };
+        WebhookTestResult: {
+            success: boolean;
+            /** Format: int32 */
+            statusCode?: number | null;
+            message: string;
+            /** Format: int64 */
+            durationMs?: number | null;
+        };
+        /** @description Workspace within an organization */
+        WorkspaceDto: {
+            /**
+             * Format: int32
+             * @description Unique workspace identifier
+             */
+            id: number;
+            /**
+             * Format: date-time
+             * @description Timestamp when the workspace was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Timestamp when the workspace was last updated
+             */
+            updatedAt: string;
+            /** @description Workspace name */
+            name: string;
+            /**
+             * Format: int32
+             * @description Organization this workspace belongs to
+             */
+            orgId: number;
+        };
+        WriteSecretEnvironmentValueRequest: {
+            /** @description Plaintext value to encrypt for this environment */
+            value: string;
+        };
+        ZapierChannelConfig: {
+            /** @enum {string} */
+            channelType: "zapier";
+            /** @description Zapier/n8n/Make catch webhook URL */
+            webhookUrl: string;
         };
     };
     responses: never;
@@ -12087,7 +14763,106 @@ export interface operations {
             };
         };
     };
-    list_20: {
+    getArtifactContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Signed download Location */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Artifact bytes expired */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_22: {
         parameters: {
             query?: {
                 action?: string;
@@ -12390,6 +15165,286 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SingleValueResponseDashboardOverviewDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_21: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultDefinitionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_13: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseDefinitionDetailDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listRevisions_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultRevisionDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
@@ -12791,6 +15846,1840 @@ export interface operations {
             };
             /** @description Not found — the requested resource does not exist */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    waitForEmailByLocalpart: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                localpart: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["WaitEmailMessageRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WaitEmailMessageResponse"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Wait timed out — no match arrived (code WAIT_TIMEOUT) */
+            408: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listEmailDomains: {
+        parameters: {
+            query: {
+                /** @description Case-insensitive name search */
+                search?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultEmailDomainDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createEmailDomain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CreateEmailDomainRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseEmailDomainDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getEmailDomain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseEmailDomainDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteEmailDomain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateEmailDomain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateEmailDomainRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseEmailDomainDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteEmailInbox: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+                inbox: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listEmailMessages: {
+        parameters: {
+            query?: {
+                /** @description Only messages to this local-part, exact match */
+                inbox?: string;
+                /** @description Case-insensitive match on subject, sender, or recipient local-part */
+                q?: string;
+                cursor?: string;
+                after?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                domain: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CursorPageEmailMessageDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getEmailMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+                messageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseEmailMessageDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteEmailMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+                messageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getEmailMessageAttachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+                messageId: string;
+                attId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSignedDownload"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listEmailMessageLinks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+                messageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultInboundEmailLink"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listEmailMessageOtp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+                messageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultInboundOtpCode"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getEmailMessageRaw: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+                messageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSignedDownload"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getEmailMessageSource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+                messageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseEmailMessageSourceDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    injectEmailMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InjectEmailMessageRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseInjectEmailMessageResponse"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    verifyEmailDomain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                domain: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseEmailDomainDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listEmailDomainActivity: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated domain ids (1–100) */
+                domainIds?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseListEmailDomainActivityDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    waitForEmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WaitEmailMessageRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WaitEmailMessageResponse"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Wait timed out — no match arrived (code WAIT_TIMEOUT) */
+            408: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14945,7 +19834,672 @@ export interface operations {
             };
         };
     };
-    list_19: {
+    ingest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Public token that identifies the inbox */
+                publicToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    ingest_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Public token that identifies the inbox */
+                publicToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    ingest_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Public token that identifies the inbox */
+                publicToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    ingest_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Public token that identifies the inbox */
+                publicToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    ingest_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Public token that identifies the inbox */
+                publicToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    ingest_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Public token that identifies the inbox */
+                publicToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    ingest_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Public token that identifies the inbox */
+                publicToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_20: {
         parameters: {
             query?: never;
             header?: never;
@@ -15980,7 +21534,7 @@ export interface operations {
             };
         };
     };
-    list_18: {
+    list_19: {
         parameters: {
             query: {
                 pageable: components["schemas"]["Pageable"];
@@ -16377,6 +21931,12 @@ export interface operations {
                 search?: string;
                 /** @description Filter by environment ID */
                 environmentId?: string;
+                /** @description Filter by projected chip health */
+                displayHealth?: string;
+                /** @description When true, only monitors that need operator attention */
+                needsAttention?: boolean;
+                /** @description Filter by probe region */
+                region?: string;
                 pageable: components["schemas"]["Pageable"];
             };
             header?: never;
@@ -16848,7 +22408,590 @@ export interface operations {
             };
         };
     };
+    drift: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDriftDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    mute: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MonitorOverlayRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getMonitorOverviewSteps: {
+        parameters: {
+            query?: {
+                /** @description Time window for step aggregates */
+                window?: "24h" | "7d" | "30d" | "90d";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseOverviewStepsDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     pause: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MonitorOverlayRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    publish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishRevisionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseDefinitionHeadDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    quarantine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuarantineMonitorRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    releaseQuarantine: {
         parameters: {
             query?: never;
             header?: never;
@@ -17243,6 +23386,391 @@ export interface operations {
             };
         };
     };
+    listRevisions: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultRevisionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    testRevision: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                revisionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseRunDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    rollback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RollbackRevisionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseDefinitionHeadDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    rollbackPreview: {
+        parameters: {
+            query: {
+                revisionId: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseRollbackPreviewDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     rotateToken: {
         parameters: {
             query?: never;
@@ -17261,6 +23789,957 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listMonitorRuns: {
+        parameters: {
+            query: {
+                params: components["schemas"]["MonitorRunListParams"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CursorPageRunDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    runNow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseRunDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_18: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorSecretRequestsDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    remap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RemapSecretRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorSecretRequestsDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    rescan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorSecretRequestsDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorSessionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    putSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertMonitorSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorSessionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    renewSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseRunDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    revokeSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorSessionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    settingsPreview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorSettingsPreviewDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
@@ -17719,6 +25198,104 @@ export interface operations {
             };
         };
     };
+    takeover: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TakeoverMonitorRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     testExisting: {
         parameters: {
             query?: never;
@@ -17835,6 +25412,100 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["TableValueResultTestChannelResult"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    unmute: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
@@ -19165,6 +26836,102 @@ export interface operations {
             };
         };
     };
+    createPackageUpload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePackageUploadRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponsePackageUploadDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     testAdHoc: {
         parameters: {
             query?: never;
@@ -20136,7 +27903,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TableValueResultNotificationDispatchDto"];
+                    "*/*": components["schemas"]["CursorPageNotificationDispatchDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
@@ -21722,6 +29489,1619 @@ export interface operations {
             };
         };
     };
+    get_12: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseRevisionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    bundle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    diff: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                other: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseRevisionDiffDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listRuns: {
+        parameters: {
+            query: {
+                params: components["schemas"]["RunListParams"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultRunDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseRunDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listRunArtifacts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultRunArtifactDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    cancelRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseRunDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    compareRunCapture: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                artifactId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SingleValueResponseCaptureCompareDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listRunCases: {
+        parameters: {
+            query: {
+                params: components["schemas"]["RunCaseListParams"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultRunCaseDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getRunConsoleRaw: {
+        parameters: {
+            query: {
+                params: components["schemas"]["RunConsoleParams"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SingleValueResponseRunConsoleDto"];
+                    "text/plain": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getRunDiff: {
+        parameters: {
+            query?: {
+                baselineRunId?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SingleValueResponseRunDiffDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    streamRunEvents: {
+        parameters: {
+            query: {
+                params: components["schemas"]["RunEventParams"];
+            };
+            header?: {
+                "Last-Event-ID"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Server-sent persist control events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["RunEventDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    exportRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Zip of snapshot.json and available artifacts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/zip": unknown;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listRunNetwork: {
+        parameters: {
+            query: {
+                params: components["schemas"]["RunNetworkParams"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RunNetworkDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getRunNetworkRow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                rowId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseNetworkRowDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getRunRunnerLog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                    "*/*": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    streamRunRunnerLog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Server-sent runner-log lines */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["RunnerLogLiveEvent"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     list_5: {
         parameters: {
             query?: never;
@@ -22025,6 +31405,291 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    audit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSecretAuditDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    writeEnvironmentValue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+                environmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WriteSecretEnvironmentValueRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    usage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSecretUsageDto"];
+                };
             };
             /** @description Bad request — the payload failed validation */
             400: {
@@ -29348,6 +39013,1159 @@ export interface operations {
             };
         };
     };
+    listWebhookInboxes: {
+        parameters: {
+            query: {
+                /** @description Case-insensitive name search */
+                search?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultWebhookInboxDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createWebhookInbox: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWebhookInboxRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWebhookInboxDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getWebhookInbox: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inboxId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWebhookInboxDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteWebhookInbox: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inboxId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateWebhookInbox: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inboxId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWebhookInboxRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWebhookInboxDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listWebhookEvents: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                method?: string;
+                path?: string;
+                after?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                inboxId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CursorPageWebhookEventDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteWebhookEvents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inboxId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getWebhookEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inboxId: string;
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseWebhookEventDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteWebhookEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inboxId: string;
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getWebhookEventRaw: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inboxId: string;
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSignedDownload"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    waitForWebhookEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inboxId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["WaitWebhookEventRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WaitWebhookEventResponse"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Wait timed out — no match arrived (code WAIT_TIMEOUT) */
+            408: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listWebhookInboxActivity: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated inbox ids (1–100) */
+                inboxIds?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseListWebhookInboxActivityDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     list_2: {
         parameters: {
             query: {
@@ -30691,2670 +41509,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    waitForEmailByLocalpart: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                localpart: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["WaitEmailMessageRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["WaitEmailMessageResponse"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    listEmailDomains: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultEmailDomainDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    createEmailDomain: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["CreateEmailDomainRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseEmailDomainDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    getEmailDomain: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseEmailDomainDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    deleteEmailDomain: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    updateEmailDomain: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateEmailDomainRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseEmailDomainDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    deleteEmailInbox: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-                inbox: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    listEmailMessages: {
-        parameters: {
-            query?: {
-                inbox?: string;
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                domain: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CursorPageEmailMessageDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    getEmailMessage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-                messageId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseEmailMessageDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    deleteEmailMessage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-                messageId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    getEmailMessageAttachment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-                messageId: string;
-                attId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseSignedDownload"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    listEmailMessageLinks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-                messageId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultInboundEmailLink"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    listEmailMessageOtp: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-                messageId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultInboundOtpCode"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    getEmailMessageRaw: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-                messageId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseSignedDownload"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    injectEmailMessage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InjectEmailMessageRequest"];
-            };
-        };
-        responses: {
-            /** @description Accepted */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseInjectEmailMessageResponse"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    verifyEmailDomain: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                domain: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseEmailDomainDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    waitForEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["WaitEmailMessageRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["WaitEmailMessageResponse"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    listWebhookInboxes: {
-        parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultWebhookInboxDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    createWebhookInbox: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWebhookInboxRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWebhookInboxDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    getWebhookInbox: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inboxId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWebhookInboxDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    deleteWebhookInbox: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inboxId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    updateWebhookInbox: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inboxId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateWebhookInboxRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWebhookInboxDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    listWebhookEvents: {
-        parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                inboxId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CursorPageWebhookEventDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    deleteWebhookEvents: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inboxId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    getWebhookEvent: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inboxId: string;
-                eventId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseWebhookEventDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    deleteWebhookEvent: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inboxId: string;
-                eventId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    getWebhookEventRaw: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inboxId: string;
-                eventId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseSignedDownload"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    waitForWebhookEvent: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inboxId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["WaitWebhookEventRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["WaitWebhookEventResponse"];
-                };
             };
             /** @description Bad request — the payload failed validation */
             400: {

@@ -704,9 +704,10 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
 // ── Monitor ─────────────────────────────────────────────────────────────
 
 // Derived from UpdateMonitorRequest minus control-only fields (clearAuth,
-// clearEnvironmentId, managedBy) that are mutation signals, not state.
+// clearEnvironmentId, managedBy, status) and fields the YAML schema does not
+// author yet (package, capturePolicy, fastRetryMaxAttempts, runParallel).
 // auth and incidentPolicy need | null because monitors can lack them.
-type MonitorSnapshotBase = Required<Omit<Schemas['UpdateMonitorRequest'], 'clearEnvironmentId' | 'clearAuth' | 'managedBy'>>
+type MonitorSnapshotBase = Required<Omit<Schemas['UpdateMonitorRequest'], 'clearEnvironmentId' | 'clearAuth' | 'managedBy' | 'status' | 'package' | 'capturePolicy' | 'fastRetryMaxAttempts' | 'runParallel'>>
 type MonitorSnapshot = Omit<MonitorSnapshotBase, 'auth' | 'incidentPolicy'> & {
   auth: MonitorSnapshotBase['auth'] | null
   incidentPolicy: MonitorSnapshotBase['incidentPolicy'] | null
