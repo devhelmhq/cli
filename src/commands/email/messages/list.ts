@@ -9,6 +9,7 @@ export default class EmailMessagesList extends Command {
     to: Flags.string({description: 'Full mailbox address', required: true}),
     limit: Flags.integer({description: 'Page size'}),
     cursor: Flags.string({description: 'Cursor from a previous page'}),
+    query: Flags.string({description: 'Match subject, sender, or local-part'}),
   }
 
   async run() {
@@ -17,6 +18,7 @@ export default class EmailMessagesList extends Command {
     const query: Record<string, string | number> = {inbox: localPart}
     if (flags.limit) query.limit = flags.limit
     if (flags.cursor) query.cursor = flags.cursor
+    if (flags.query) query.q = flags.query
     const rows = await listTable(
       buildClient(flags),
       `/api/v1/email/domains/${encodeURIComponent(domain)}/messages`,

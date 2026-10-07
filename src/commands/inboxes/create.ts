@@ -1,6 +1,6 @@
 import {Command, Flags} from '@oclif/core'
 import {buildClient, globalFlags} from '../../lib/base-command.js'
-import {postRecord} from '../../lib/inbound.js'
+import {mockReply, postRecord} from '../../lib/inbound.js'
 
 export default class InboxesCreate extends Command {
   static description = 'Create an inbound HTTP capture URL'
@@ -16,22 +16,22 @@ export default class InboxesCreate extends Command {
     'response-body': Flags.string({description: 'Mock reply body'}),
     'response-content-type': Flags.string({description: 'Mock reply content type'}),
     'response-delay-ms': Flags.integer({description: 'Delay before the mock reply'}),
+    'response-header': Flags.string({
+      description: 'Header on the mock reply, as Name: value. Repeatable',
+      multiple: true,
+    }),
   }
 
   async run() {
     const {flags} = await this.parse(InboxesCreate)
     const client = buildClient(flags)
-    const httpResponse: Record<string, unknown> = {}
-    if (flags['response-status'] !== undefined) httpResponse.status = flags['response-status']
-    if (flags['response-body'] !== undefined) httpResponse.body = flags['response-body']
-    if (flags['response-content-type'] !== undefined) httpResponse.contentType = flags['response-content-type']
-    if (flags['response-delay-ms'] !== undefined) httpResponse.delayMs = flags['response-delay-ms']
+    const httpResponse = mockReply(flags)
     const body: Record<string, unknown> = {name: flags.name}
     if (flags.status) body.status = flags.status
     if (flags.cors !== undefined) body.cors = flags.cors
     if (flags['retention-days'] !== undefined) body.retentionDays = flags['retention-days']
     if (flags['max-events'] !== undefined) body.maxEvents = flags['max-events']
-    if (Object.keys(httpResponse).length > 0) body.httpResponse = httpResponse
+    if (httpResponse) body.httpResponse = httpResponse
     const inbox = await postRecord(client, '/api/v1/webhook/inboxes', body)
     if (flags.output === 'table') {
       this.log(String(inbox.httpUrl ?? ''))

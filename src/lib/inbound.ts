@@ -184,6 +184,54 @@ export async function postRecord(client: ApiClient, path: string, body?: object)
   return asRecord(unwrapData(await apiPost(client, path, body)))
 }
 
+export function responseHeaderMap(values: string | string[] | undefined): Record<string, string> | undefined {
+  if (values == null) return undefined
+  const list = Array.isArray(values) ? values : [values]
+  if (list.length === 0) return undefined
+  const headers: Record<string, string> = {}
+  for (const raw of list) {
+    const colon = raw.indexOf(':')
+    const name = colon < 0 ? '' : raw.slice(0, colon).trim()
+    if (colon < 0 || name.length === 0) {
+      throw new DevhelmValidationError(`Expected a header as Name: value, got '${raw}'.`)
+    }
+    if (Object.hasOwn(headers, name)) {
+      throw new DevhelmValidationError(`Header '${name}' was given twice.`)
+    }
+    headers[name] = raw.slice(colon + 1).trim()
+  }
+  return headers
+}
+
+export function mockReply(flags: {
+  'response-status'?: number
+  'response-body'?: string
+  'response-content-type'?: string
+  'response-delay-ms'?: number
+  'response-header'?: string | string[]
+}): Record<string, unknown> | undefined {
+  const httpResponse: Record<string, unknown> = {}
+  if (flags['response-status'] !== undefined) httpResponse.status = flags['response-status']
+  if (flags['response-body'] !== undefined) httpResponse.body = flags['response-body']
+  if (flags['response-content-type'] !== undefined) httpResponse.contentType = flags['response-content-type']
+  if (flags['response-delay-ms'] !== undefined) httpResponse.delayMs = flags['response-delay-ms']
+  const headers = responseHeaderMap(flags['response-header'])
+  if (headers) httpResponse.headers = headers
+  return Object.keys(httpResponse).length > 0 ? httpResponse : undefined
+}
+
+export function bucketTotal(row: Record<string, unknown>, countKey: string): string {
+  const buckets = row.buckets
+  if (!Array.isArray(buckets)) return '0'
+  let total = 0
+  for (const item of buckets) {
+    if (!item || typeof item !== 'object') continue
+    const count = (item as Record<string, unknown>)[countKey]
+    if (typeof count === 'number') total += count
+  }
+  return String(total)
+}
+
 export function dnsLines(domain: Record<string, unknown>): string {
   const records = domain.dnsRecords
   if (!Array.isArray(records) || records.length === 0) return 'No DNS records.'

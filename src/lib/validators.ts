@@ -33,6 +33,10 @@ export function uuidFlag(options: {description: string; required?: boolean}) {
   return Flags.string({...options, parse: parseUuid})
 }
 
+export function uuidMultiFlag(options: {description: string; required?: boolean}) {
+  return Flags.string({...options, multiple: true, parse: parseUuid})
+}
+
 export function urlFlag(options: {description: string; required?: boolean}) {
   return Flags.string({...options, parse: parseUrl})
 }
