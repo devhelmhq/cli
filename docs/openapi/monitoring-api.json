@@ -179,6 +179,10 @@
       "description": "Status page management"
     },
     {
+      "name": "Synthetics metrics",
+      "description": "Measured metrics for the BROWSER and MULTI_STEP_API family"
+    },
+    {
       "name": "Tags",
       "description": "Org-scoped tag management for monitors"
     },
@@ -3570,6 +3574,16 @@
               }
             }
           },
+          "408": {
+            "description": "Wait timed out — no match arrived (code WAIT_TIMEOUT)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "409": {
             "description": "Conflict — the request collides with current resource state",
             "content": {
@@ -3602,16 +3616,6 @@
           },
           "503": {
             "description": "Service unavailable — try again shortly",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "408": {
-            "description": "Wait timed out — no match arrived (code WAIT_TIMEOUT)",
             "content": {
               "application/json": {
                 "schema": {
@@ -5707,6 +5711,16 @@
               }
             }
           },
+          "408": {
+            "description": "Wait timed out — no match arrived (code WAIT_TIMEOUT)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "409": {
             "description": "Conflict — the request collides with current resource state",
             "content": {
@@ -5739,16 +5753,6 @@
           },
           "503": {
             "description": "Service unavailable — try again shortly",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "408": {
-            "description": "Wait timed out — no match arrived (code WAIT_TIMEOUT)",
             "content": {
               "application/json": {
                 "schema": {
@@ -10808,7 +10812,7 @@
           "Monitors"
         ],
         "summary": "List monitors for the authenticated org",
-        "description": "Supports filtering by `enabled`, `status` (alias active|paused for enabled), `type`, `managedBy`, `tag` / `tags`, `search`, `environmentId`, `displayHealth`, `needsAttention`, and `region`. Unrecognised query parameters are silently ignored (Spring's default binding behaviour) — pin to the documented set above.",
+        "description": "Supports filtering by `enabled`, `status` (alias active|paused for enabled), `type` or `types`, `managedBy`, `tag` / `tags`, `search`, `environmentId`, `displayHealth`, `needsAttention`, and `region`. Unrecognised query parameters are silently ignored (Spring's default binding behaviour) — pin to the documented set above.",
         "operationId": "list_8",
         "parameters": [
           {
@@ -10846,6 +10850,28 @@
                 "BROWSER",
                 "MULTI_STEP_API"
               ]
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "description": "Filter by monitor types, comma-separated; matches any listed type",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "HTTP",
+                  "DNS",
+                  "MCP_SERVER",
+                  "TCP",
+                  "ICMP",
+                  "HEARTBEAT",
+                  "BROWSER",
+                  "MULTI_STEP_API"
+                ]
+              }
             }
           },
           {
@@ -13472,6 +13498,119 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/SingleValueResponseRunDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monitors/{id}/runs/summary": {
+      "get": {
+        "tags": [
+          "Monitor Runs"
+        ],
+        "summary": "Summarize one monitor's execution durations",
+        "description": "Exact median of finished run durations enqueued in the rolling 30-day window.",
+        "operationId": "summarizeMonitorRuns",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseMonitorRunDurationSummaryDto"
                 }
               }
             }
@@ -22016,6 +22155,118 @@
               "text/event-stream": {
                 "schema": {
                   "$ref": "#/components/schemas/RunnerLogLiveEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/runs/summary": {
+      "get": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Summarize the filtered Runs population",
+        "description": "Uses the same enqueue-time window and filters as the Runs list; independent of pagination.",
+        "operationId": "summarizeRuns",
+        "parameters": [
+          {
+            "name": "params",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RunListParams"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseRunMetricsSummaryDto"
                 }
               }
             }
@@ -31491,6 +31742,224 @@
         }
       }
     },
+    "/api/v1/synthetics/metrics": {
+      "get": {
+        "tags": [
+          "Synthetics metrics"
+        ],
+        "summary": "Get whole-family Synthetics metrics",
+        "description": "Returns measured target availability for 30 days and distinct recovered monitors for 7 days.",
+        "operationId": "getSyntheticsFamilyMetrics",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseSyntheticsFamilyMetricsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/synthetics/metrics/run-durations": {
+      "get": {
+        "tags": [
+          "Synthetics metrics"
+        ],
+        "summary": "Get code-monitor duration percentiles",
+        "description": "Returns exact per-monitor p50 execution durations for the rolling 30-day window.",
+        "operationId": "getSyntheticsRunDurations",
+        "parameters": [
+          {
+            "name": "monitorIds",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseMonitorRunDurationBatchDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/tags": {
       "get": {
         "tags": [
@@ -33402,6 +33871,16 @@
               }
             }
           },
+          "408": {
+            "description": "Wait timed out — no match arrived (code WAIT_TIMEOUT)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "409": {
             "description": "Conflict — the request collides with current resource state",
             "content": {
@@ -33434,16 +33913,6 @@
           },
           "503": {
             "description": "Service unavailable — try again shortly",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "408": {
-            "description": "Wait timed out — no match arrived (code WAIT_TIMEOUT)",
             "content": {
               "application/json": {
                 "schema": {
@@ -43917,17 +44386,103 @@
         },
         "description": "Monitors that reference this secret for authentication"
       },
+      "MonitorRunDurationBatchDto": {
+        "required": [
+          "from",
+          "monitors",
+          "to"
+        ],
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Inclusive start of the enqueue-time window",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "description": "Exclusive end of the enqueue-time window",
+            "format": "date-time"
+          },
+          "monitors": {
+            "type": "array",
+            "description": "Measured duration results for requested code monitors",
+            "items": {
+              "$ref": "#/components/schemas/MonitorRunDurationMetricDto"
+            }
+          }
+        },
+        "description": "Run-duration percentiles for a batch of monitors"
+      },
+      "MonitorRunDurationMetricDto": {
+        "required": [
+          "monitorId",
+          "sampleCount"
+        ],
+        "type": "object",
+        "properties": {
+          "monitorId": {
+            "type": "string",
+            "description": "Monitor identifier",
+            "format": "uuid"
+          },
+          "sampleCount": {
+            "type": "integer",
+            "description": "Finished runs with a measured duration",
+            "format": "int64"
+          },
+          "p50DurationMs": {
+            "type": "number",
+            "description": "Median execution duration in milliseconds",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "description": "One monitor's measured run durations"
+      },
+      "MonitorRunDurationSummaryDto": {
+        "required": [
+          "from",
+          "to",
+          "sampleCount"
+        ],
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Inclusive start of the enqueue-time window",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "description": "Exclusive end of the enqueue-time window",
+            "format": "date-time"
+          },
+          "sampleCount": {
+            "type": "integer",
+            "description": "Number of finished runs with a measured execution duration",
+            "format": "int64"
+          },
+          "p50DurationMs": {
+            "type": "number",
+            "description": "Median execution duration in milliseconds; null when no durations were measured",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "description": "Per-monitor execution duration summary"
+      },
       "MonitorRunListParams": {
         "type": "object",
         "properties": {
           "phase": {
             "type": "string",
-            "description": "Filter by run phase; omit to return every phase",
+            "description": "Filter by run phase; not_finished excludes finished runs",
             "nullable": true
           },
           "outcome": {
             "type": "string",
-            "description": "Filter by outcome; passed is first-try only; passed_on_retry is a pass after retry",
+            "description": "Filter by outcome; not_passed also includes passed-on-retry runs",
             "nullable": true
           },
           "region": {
@@ -47738,12 +48293,12 @@
         "properties": {
           "phase": {
             "type": "string",
-            "description": "Filter by run phase; omit to return every phase",
+            "description": "Filter by run phase; not_finished excludes finished runs",
             "nullable": true
           },
           "outcome": {
             "type": "string",
-            "description": "Filter by outcome; passed is first-try only; passed_on_retry is a pass after retry",
+            "description": "Filter by outcome; not_passed also includes passed-on-retry runs",
             "nullable": true
           },
           "region": {
@@ -47834,6 +48389,116 @@
         "required": [
           "stepCount"
         ]
+      },
+      "RunMetricsSummaryDto": {
+        "required": [
+          "from",
+          "to",
+          "matchingRunCount",
+          "durationSampleCount",
+          "evidenceEligibleRunCount",
+          "evidenceUnknownPolicyRunCount"
+        ],
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Inclusive start of the enqueue-time window",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "description": "Inclusive end of the enqueue-time window",
+            "format": "date-time"
+          },
+          "matchingRunCount": {
+            "type": "integer",
+            "description": "Runs matching the complete list filter",
+            "format": "int64"
+          },
+          "durationSampleCount": {
+            "type": "integer",
+            "description": "Finished matching runs with a measured execution duration",
+            "format": "int64"
+          },
+          "p95DurationMs": {
+            "type": "number",
+            "description": "95th percentile execution duration in milliseconds; null when no durations were measured",
+            "format": "double",
+            "nullable": true
+          },
+          "evidenceEligibleRunCount": {
+            "type": "integer",
+            "description": "Runs with a known capture policy",
+            "format": "int64"
+          },
+          "evidenceUnknownPolicyRunCount": {
+            "type": "integer",
+            "description": "Runs with a missing or incomplete capture policy",
+            "format": "int64"
+          },
+          "evidenceIncompleteRunCount": {
+            "type": "integer",
+            "description": "Eligible runs with required evidence missing, processing, failed, or expired",
+            "format": "int64",
+            "nullable": true
+          },
+          "evidenceProcessingRunCount": {
+            "type": "integer",
+            "description": "Eligible runs with required evidence still processing",
+            "format": "int64",
+            "nullable": true
+          },
+          "evidenceNoEvidencePolicyRunCount": {
+            "type": "integer",
+            "description": "Eligible runs with no evidence required by their recorded policy",
+            "format": "int64",
+            "nullable": true
+          },
+          "evidenceCompleteRunCount": {
+            "type": "integer",
+            "description": "Eligible runs with all required evidence available",
+            "format": "int64",
+            "nullable": true
+          },
+          "availableArtifactCount": {
+            "type": "integer",
+            "description": "Required artifact records with an available unexpired object key",
+            "format": "int64",
+            "nullable": true
+          },
+          "processingArtifactCount": {
+            "type": "integer",
+            "description": "Required artifact records still processing",
+            "format": "int64",
+            "nullable": true
+          },
+          "failedArtifactCount": {
+            "type": "integer",
+            "description": "Required artifact records with a failed upload",
+            "format": "int64",
+            "nullable": true
+          },
+          "expiredArtifactCount": {
+            "type": "integer",
+            "description": "Required artifact records marked expired or past their expiry",
+            "format": "int64",
+            "nullable": true
+          },
+          "missingArtifactKindCount": {
+            "type": "integer",
+            "description": "Required evidence kinds with no artifact record after the run finished",
+            "format": "int64",
+            "nullable": true
+          },
+          "intentionalNoEvidenceArtifactCount": {
+            "type": "integer",
+            "description": "Required artifact records explicitly suppressed, not reached, or not captured",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "description": "Duration and evidence metrics for the filtered Runs population"
       },
       "RunnerLogLiveEvent": {
         "required": [
@@ -49803,6 +50468,28 @@
           }
         }
       },
+      "SingleValueResponseMonitorRunDurationBatchDto": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MonitorRunDurationBatchDto"
+          }
+        }
+      },
+      "SingleValueResponseMonitorRunDurationSummaryDto": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MonitorRunDurationSummaryDto"
+          }
+        }
+      },
       "SingleValueResponseMonitorSecretRequestsDto": {
         "required": [
           "data"
@@ -50045,6 +50732,17 @@
           }
         }
       },
+      "SingleValueResponseRunMetricsSummaryDto": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RunMetricsSummaryDto"
+          }
+        }
+      },
       "SingleValueResponseSecretAuditDto": {
         "required": [
           "data"
@@ -50273,6 +50971,17 @@
         "properties": {
           "data": {
             "type": "string"
+          }
+        }
+      },
+      "SingleValueResponseSyntheticsFamilyMetricsDto": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/SyntheticsFamilyMetricsDto"
           }
         }
       },
@@ -51777,6 +52486,74 @@
           }
         },
         "description": "Environment associated with this monitor; null when unassigned"
+      },
+      "SyntheticsFamilyMetricsDto": {
+        "required": [
+          "availabilityFrom",
+          "availabilityTo",
+          "flakyFrom",
+          "flakyTo",
+          "monitorCount",
+          "measuredMonitorCount",
+          "checkCount",
+          "passedCheckCount",
+          "flakyMonitorCount"
+        ],
+        "type": "object",
+        "properties": {
+          "availabilityFrom": {
+            "type": "string",
+            "description": "Inclusive start of the availability window",
+            "format": "date-time"
+          },
+          "availabilityTo": {
+            "type": "string",
+            "description": "Exclusive end of the availability window",
+            "format": "date-time"
+          },
+          "monitorCount": {
+            "type": "integer",
+            "description": "Number of non-deleted BROWSER and MULTI_STEP_API monitors",
+            "format": "int64"
+          },
+          "measuredMonitorCount": {
+            "type": "integer",
+            "description": "Number of family monitors with measured target checks",
+            "format": "int64"
+          },
+          "checkCount": {
+            "type": "integer",
+            "description": "Number of measured PASSED or FAILED target checks",
+            "format": "int64"
+          },
+          "passedCheckCount": {
+            "type": "integer",
+            "description": "Number of measured PASSED target checks",
+            "format": "int64"
+          },
+          "availabilityPercent": {
+            "type": "number",
+            "description": "Measured passed checks divided by all measured target checks; null when none were measured",
+            "format": "double",
+            "nullable": true
+          },
+          "flakyFrom": {
+            "type": "string",
+            "description": "Inclusive start of the recovery window",
+            "format": "date-time"
+          },
+          "flakyTo": {
+            "type": "string",
+            "description": "Exclusive end of the recovery window",
+            "format": "date-time"
+          },
+          "flakyMonitorCount": {
+            "type": "integer",
+            "description": "Distinct family monitors with a failed target recovered by a retry in the same cycle and region",
+            "format": "int64"
+          }
+        },
+        "description": "Measured availability and recovery metrics for code monitors"
       },
       "TableValueResultAlertChannelDto": {
         "required": [

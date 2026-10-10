@@ -1260,7 +1260,7 @@ export interface paths {
         };
         /**
          * List monitors for the authenticated org
-         * @description Supports filtering by `enabled`, `status` (alias active|paused for enabled), `type`, `managedBy`, `tag` / `tags`, `search`, `environmentId`, `displayHealth`, `needsAttention`, and `region`. Unrecognised query parameters are silently ignored (Spring's default binding behaviour) — pin to the documented set above.
+         * @description Supports filtering by `enabled`, `status` (alias active|paused for enabled), `type` or `types`, `managedBy`, `tag` / `tags`, `search`, `environmentId`, `displayHealth`, `needsAttention`, and `region`. Unrecognised query parameters are silently ignored (Spring's default binding behaviour) — pin to the documented set above.
          */
         get: operations["list_8"];
         put?: never;
@@ -1591,6 +1591,26 @@ export interface paths {
          * @description Persists a run in queued phase. 409 if no Head or any secret key is missing.
          */
         post: operations["runNow"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitors/{id}/runs/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Summarize one monitor's execution durations
+         * @description Exact median of finished run durations enqueued in the rolling 30-day window.
+         */
+        get: operations["summarizeMonitorRuns"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2724,6 +2744,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Summarize the filtered Runs population
+         * @description Uses the same enqueue-time window and filters as the Runs list; independent of pagination.
+         */
+        get: operations["summarizeRuns"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/secrets": {
         parameters: {
             query?: never;
@@ -3761,6 +3801,46 @@ export interface paths {
         post?: never;
         /** Remove a subscriber */
         delete: operations["removeSubscriber"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/synthetics/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get whole-family Synthetics metrics
+         * @description Returns measured target availability for 30 days and distinct recovered monitors for 7 days.
+         */
+        get: operations["getSyntheticsFamilyMetrics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/synthetics/metrics/run-durations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get code-monitor duration percentiles
+         * @description Returns exact per-monitor p50 execution durations for the rolling 30-day window.
+         */
+        get: operations["getSyntheticsRunDurations"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -7860,10 +7940,66 @@ export interface components {
             /** @description Monitor name */
             name: string;
         };
+        /** @description Run-duration percentiles for a batch of monitors */
+        MonitorRunDurationBatchDto: {
+            /**
+             * Format: date-time
+             * @description Inclusive start of the enqueue-time window
+             */
+            from: string;
+            /**
+             * Format: date-time
+             * @description Exclusive end of the enqueue-time window
+             */
+            to: string;
+            /** @description Measured duration results for requested code monitors */
+            monitors: components["schemas"]["MonitorRunDurationMetricDto"][];
+        };
+        /** @description One monitor's measured run durations */
+        MonitorRunDurationMetricDto: {
+            /**
+             * Format: uuid
+             * @description Monitor identifier
+             */
+            monitorId: string;
+            /**
+             * Format: int64
+             * @description Finished runs with a measured duration
+             */
+            sampleCount: number;
+            /**
+             * Format: double
+             * @description Median execution duration in milliseconds
+             */
+            p50DurationMs?: number | null;
+        };
+        /** @description Per-monitor execution duration summary */
+        MonitorRunDurationSummaryDto: {
+            /**
+             * Format: date-time
+             * @description Inclusive start of the enqueue-time window
+             */
+            from: string;
+            /**
+             * Format: date-time
+             * @description Exclusive end of the enqueue-time window
+             */
+            to: string;
+            /**
+             * Format: int64
+             * @description Number of finished runs with a measured execution duration
+             */
+            sampleCount: number;
+            /**
+             * Format: double
+             * @description Median execution duration in milliseconds; null when no durations were measured
+             */
+            p50DurationMs?: number | null;
+        };
         MonitorRunListParams: {
-            /** @description Filter by run phase; omit to return every phase */
+            /** @description Filter by run phase; not_finished excludes finished runs */
             phase?: string | null;
-            /** @description Filter by outcome; passed is first-try only; passed_on_retry is a pass after retry */
+            /** @description Filter by outcome; not_passed also includes passed-on-retry runs */
             outcome?: string | null;
             /** @description Filter by probe region */
             region?: string | null;
@@ -9807,9 +9943,9 @@ export interface components {
             state: "present" | "bad" | "processing" | "expired";
         };
         RunListParams: {
-            /** @description Filter by run phase; omit to return every phase */
+            /** @description Filter by run phase; not_finished excludes finished runs */
             phase?: string | null;
-            /** @description Filter by outcome; passed is first-try only; passed_on_retry is a pass after retry */
+            /** @description Filter by outcome; not_passed also includes passed-on-retry runs */
             outcome?: string | null;
             /** @description Filter by probe region */
             region?: string | null;
@@ -9867,6 +10003,94 @@ export interface components {
              * @description Artifacts expected for this run
              */
             artifactsExpected?: number | null;
+        };
+        /** @description Duration and evidence metrics for the filtered Runs population */
+        RunMetricsSummaryDto: {
+            /**
+             * Format: date-time
+             * @description Inclusive start of the enqueue-time window
+             */
+            from: string;
+            /**
+             * Format: date-time
+             * @description Inclusive end of the enqueue-time window
+             */
+            to: string;
+            /**
+             * Format: int64
+             * @description Runs matching the complete list filter
+             */
+            matchingRunCount: number;
+            /**
+             * Format: int64
+             * @description Finished matching runs with a measured execution duration
+             */
+            durationSampleCount: number;
+            /**
+             * Format: double
+             * @description 95th percentile execution duration in milliseconds; null when no durations were measured
+             */
+            p95DurationMs?: number | null;
+            /**
+             * Format: int64
+             * @description Runs with a known capture policy
+             */
+            evidenceEligibleRunCount: number;
+            /**
+             * Format: int64
+             * @description Runs with a missing or incomplete capture policy
+             */
+            evidenceUnknownPolicyRunCount: number;
+            /**
+             * Format: int64
+             * @description Eligible runs with required evidence missing, processing, failed, or expired
+             */
+            evidenceIncompleteRunCount?: number | null;
+            /**
+             * Format: int64
+             * @description Eligible runs with required evidence still processing
+             */
+            evidenceProcessingRunCount?: number | null;
+            /**
+             * Format: int64
+             * @description Eligible runs with no evidence required by their recorded policy
+             */
+            evidenceNoEvidencePolicyRunCount?: number | null;
+            /**
+             * Format: int64
+             * @description Eligible runs with all required evidence available
+             */
+            evidenceCompleteRunCount?: number | null;
+            /**
+             * Format: int64
+             * @description Required artifact records with an available unexpired object key
+             */
+            availableArtifactCount?: number | null;
+            /**
+             * Format: int64
+             * @description Required artifact records still processing
+             */
+            processingArtifactCount?: number | null;
+            /**
+             * Format: int64
+             * @description Required artifact records with a failed upload
+             */
+            failedArtifactCount?: number | null;
+            /**
+             * Format: int64
+             * @description Required artifact records marked expired or past their expiry
+             */
+            expiredArtifactCount?: number | null;
+            /**
+             * Format: int64
+             * @description Required evidence kinds with no artifact record after the run finished
+             */
+            missingArtifactKindCount?: number | null;
+            /**
+             * Format: int64
+             * @description Required artifact records explicitly suppressed, not reached, or not captured
+             */
+            intentionalNoEvidenceArtifactCount?: number | null;
         };
         /** @description Live runner-log line */
         RunnerLogLiveEvent: {
@@ -10674,6 +10898,12 @@ export interface components {
         SingleValueResponseMonitorDto: {
             data: components["schemas"]["MonitorDto"];
         };
+        SingleValueResponseMonitorRunDurationBatchDto: {
+            data: components["schemas"]["MonitorRunDurationBatchDto"];
+        };
+        SingleValueResponseMonitorRunDurationSummaryDto: {
+            data: components["schemas"]["MonitorRunDurationSummaryDto"];
+        };
         SingleValueResponseMonitorSecretRequestsDto: {
             data: components["schemas"]["MonitorSecretRequestsDto"];
         };
@@ -10740,6 +10970,9 @@ export interface components {
         SingleValueResponseRunDto: {
             data: components["schemas"]["RunDto"];
         };
+        SingleValueResponseRunMetricsSummaryDto: {
+            data: components["schemas"]["RunMetricsSummaryDto"];
+        };
         SingleValueResponseSecretAuditDto: {
             data: components["schemas"]["SecretAuditDto"];
         };
@@ -10802,6 +11035,9 @@ export interface components {
         };
         SingleValueResponseString: {
             data: string;
+        };
+        SingleValueResponseSyntheticsFamilyMetricsDto: {
+            data: components["schemas"]["SyntheticsFamilyMetricsDto"];
         };
         SingleValueResponseTagDto: {
             data: components["schemas"]["TagDto"];
@@ -11374,6 +11610,59 @@ export interface components {
             id: string;
             name: string;
             slug: string;
+        };
+        /** @description Measured availability and recovery metrics for code monitors */
+        SyntheticsFamilyMetricsDto: {
+            /**
+             * Format: date-time
+             * @description Inclusive start of the availability window
+             */
+            availabilityFrom: string;
+            /**
+             * Format: date-time
+             * @description Exclusive end of the availability window
+             */
+            availabilityTo: string;
+            /**
+             * Format: int64
+             * @description Number of non-deleted BROWSER and MULTI_STEP_API monitors
+             */
+            monitorCount: number;
+            /**
+             * Format: int64
+             * @description Number of family monitors with measured target checks
+             */
+            measuredMonitorCount: number;
+            /**
+             * Format: int64
+             * @description Number of measured PASSED or FAILED target checks
+             */
+            checkCount: number;
+            /**
+             * Format: int64
+             * @description Number of measured PASSED target checks
+             */
+            passedCheckCount: number;
+            /**
+             * Format: double
+             * @description Measured passed checks divided by all measured target checks; null when none were measured
+             */
+            availabilityPercent?: number | null;
+            /**
+             * Format: date-time
+             * @description Inclusive start of the recovery window
+             */
+            flakyFrom: string;
+            /**
+             * Format: date-time
+             * @description Exclusive end of the recovery window
+             */
+            flakyTo: string;
+            /**
+             * Format: int64
+             * @description Distinct family monitors with a failed target recovered by a retry in the same cycle and region
+             */
+            flakyMonitorCount: number;
         };
         TableValueResultAlertChannelDto: {
             data: components["schemas"]["AlertChannelDto"][];
@@ -21921,6 +22210,8 @@ export interface operations {
                 status?: string;
                 /** @description Filter by monitor type */
                 type?: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT" | "BROWSER" | "MULTI_STEP_API";
+                /** @description Filter by monitor types, comma-separated; matches any listed type */
+                types?: ("HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT" | "BROWSER" | "MULTI_STEP_API")[];
                 /** @description Filter by managed-by source */
                 managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
                 /** @description Filter by tag names, comma-separated (e.g. prod,critical); OR semantics */
@@ -23979,6 +24270,100 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SingleValueResponseRunDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    summarizeMonitorRuns: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorRunDurationSummaryDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
@@ -31026,6 +31411,100 @@ export interface operations {
                 };
                 content: {
                     "text/event-stream": components["schemas"]["RunnerLogLiveEvent"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    summarizeRuns: {
+        parameters: {
+            query: {
+                params: components["schemas"]["RunListParams"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseRunMetricsSummaryDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
@@ -38372,6 +38851,192 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getSyntheticsFamilyMetrics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSyntheticsFamilyMetricsDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getSyntheticsRunDurations: {
+        parameters: {
+            query: {
+                monitorIds: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseMonitorRunDurationBatchDto"];
+                };
             };
             /** @description Bad request — the payload failed validation */
             400: {
