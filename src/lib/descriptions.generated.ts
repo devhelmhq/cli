@@ -76,7 +76,8 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   },
   "CreateSecretRequest": {
     "key": "Unique secret key within the workspace (max 255 chars)",
-    "value": "Secret value, stored encrypted (max 32KB)"
+    "value": "Secret value, stored encrypted (max 32KB)",
+    "environmentId": "Environment to receive this value when creating the secret"
   },
   "UpdateSecretRequest": {
     "value": "New secret value, stored encrypted (max 32KB)"

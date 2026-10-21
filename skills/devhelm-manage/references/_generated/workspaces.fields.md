@@ -12,4 +12,5 @@
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the workspace was last updated |
 | `name` | string | ✓ |  | Workspace name |
 | `orgId` | integer (int32) | ✓ |  | Organization this workspace belongs to |
+| `runtimeProfile` | any |  | ✓ |  |
 

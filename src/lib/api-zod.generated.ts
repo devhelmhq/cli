@@ -24,6 +24,9 @@ const ErrorResponse = z
     timestamp: z.number().int(),
     requestId: z.string().nullish(),
     errors: z.array(ErrorEntry.nullable()).nullish(),
+    expiredAt: z.string().datetime({ offset: true }).nullish(),
+    policy: z.string().nullish(),
+    category: z.string().nullish(),
   })
   .passthrough();
 const DatadogChannelConfig = z
@@ -1562,6 +1565,7 @@ const CreateSecretRequest = z
   .object({
     key: z.string().min(0).max(255),
     value: z.string().min(0).max(32768),
+    environmentId: z.string().uuid().nullish(),
   })
   .strict();
 const UpdateSecretRequest = z
@@ -1995,6 +1999,17 @@ const TestWebhookEndpointRequest = z
 const CreateWorkspaceRequest = z.object({ name: z.string().min(1) }).strict();
 const UpdateWorkspaceRequest = z
   .object({ name: z.string().min(0).max(200) })
+  .strict();
+const UpdateWorkspaceRuntimeRequest = z
+  .object({
+    runtimeId: z
+      .string()
+      .min(0)
+      .max(32)
+      .regex(/^[A-Za-z0-9._-]+$/)
+      .nullable(),
+  })
+  .partial()
   .strict();
 const AlertDeliveryDto = z
   .object({
@@ -2667,6 +2682,47 @@ const RunAttemptDto = z
     finishedAt: z.string().datetime({ offset: true }).nullish(),
   })
   .passthrough();
+const RuntimeProfileDto = z
+  .object({
+    id: z.string().min(1),
+    nodeVersion: z.string().min(1),
+    playwrightVersion: z.string().min(1),
+    status: z.string(),
+    eolAt: z.string().datetime({ offset: true }).nullish(),
+  })
+  .passthrough();
+const HarnessReleaseDto = z
+  .object({
+    id: z.string().min(1),
+    sourceSha: z.string().nullish(),
+    provenance: z.string().min(1),
+    protocolMajor: z.number().int(),
+    compatibilityManifestSha256: z.string().nullish(),
+    createdAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const RunExecutionDto = z
+  .object({
+    id: z.string().uuid(),
+    runtime: RuntimeProfileDto,
+    harness: HarnessReleaseDto,
+    monitorType: z.string(),
+    imageDigest: z.string().min(1),
+    customerManifestSha256: z.string().nullish(),
+    buildManifestSha256: z.string().nullish(),
+    requiredCapabilities: z.array(z.string()),
+    createdAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const RunExecutionAttemptDto = z
+  .object({
+    runGeneration: z.number().int(),
+    supervisor: HarnessReleaseDto,
+    protocolMajor: z.number().int(),
+    capabilities: z.array(z.string()),
+    recordedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
 const RunDto = z
   .object({
     id: z.string().uuid(),
@@ -2711,6 +2767,8 @@ const RunDto = z
     attemptOf: z.number().int(),
     attempts: z.array(RunAttemptDto),
     incidentId: z.string().uuid().nullish(),
+    execution: RunExecutionDto.nullish(),
+    executionAttempts: z.array(RunExecutionAttemptDto),
   })
   .passthrough();
 const CursorPageRunDto = z
@@ -3441,6 +3499,28 @@ const MonitorDto = z
 const MonitorReference = z
   .object({ id: z.string().uuid(), name: z.string() })
   .strict();
+const MonitorRunDurationMetricDto = z
+  .object({
+    monitorId: z.string().uuid(),
+    sampleCount: z.number().int(),
+    p50DurationMs: z.number().nullish(),
+  })
+  .passthrough();
+const MonitorRunDurationBatchDto = z
+  .object({
+    from: z.string().datetime({ offset: true }),
+    to: z.string().datetime({ offset: true }),
+    monitors: z.array(MonitorRunDurationMetricDto),
+  })
+  .passthrough();
+const MonitorRunDurationSummaryDto = z
+  .object({
+    from: z.string().datetime({ offset: true }),
+    to: z.string().datetime({ offset: true }),
+    sampleCount: z.number().int(),
+    p50DurationMs: z.number().nullish(),
+  })
+  .passthrough();
 const MonitorRunListParams = z
   .object({
     phase: z.string().nullish(),
@@ -3916,6 +3996,27 @@ const RunListParams = z
     page: z.number().int().gte(0),
   })
   .strict();
+const RunMetricsSummaryDto = z
+  .object({
+    from: z.string().datetime({ offset: true }),
+    to: z.string().datetime({ offset: true }),
+    matchingRunCount: z.number().int(),
+    durationSampleCount: z.number().int(),
+    p95DurationMs: z.number().nullish(),
+    evidenceEligibleRunCount: z.number().int(),
+    evidenceUnknownPolicyRunCount: z.number().int(),
+    evidenceIncompleteRunCount: z.number().int().nullish(),
+    evidenceProcessingRunCount: z.number().int().nullish(),
+    evidenceNoEvidencePolicyRunCount: z.number().int().nullish(),
+    evidenceCompleteRunCount: z.number().int().nullish(),
+    availableArtifactCount: z.number().int().nullish(),
+    processingArtifactCount: z.number().int().nullish(),
+    failedArtifactCount: z.number().int().nullish(),
+    expiredArtifactCount: z.number().int().nullish(),
+    missingArtifactKindCount: z.number().int().nullish(),
+    intentionalNoEvidenceArtifactCount: z.number().int().nullish(),
+  })
+  .passthrough();
 const RunnerLogLiveEvent = z
   .object({ ts: z.string(), line: z.string().min(1) })
   .strict();
@@ -4299,6 +4400,12 @@ const SingleValueResponseMonitorDriftDto = z
   .object({ data: MonitorDriftDto })
   .passthrough();
 const SingleValueResponseMonitorDto = z.object({ data: MonitorDto }).passthrough();
+const SingleValueResponseMonitorRunDurationBatchDto = z
+  .object({ data: MonitorRunDurationBatchDto })
+  .passthrough();
+const SingleValueResponseMonitorRunDurationSummaryDto = z
+  .object({ data: MonitorRunDurationSummaryDto })
+  .passthrough();
 const SingleValueResponseMonitorSecretRequestsDto = z
   .object({ data: MonitorSecretRequestsDto })
   .passthrough();
@@ -4355,6 +4462,12 @@ const SingleValueResponseRollbackPreviewDto = z
   .object({ data: RollbackPreviewDto })
   .passthrough();
 const SingleValueResponseRunDto = z.object({ data: RunDto }).passthrough();
+const SingleValueResponseRunMetricsSummaryDto = z
+  .object({ data: RunMetricsSummaryDto })
+  .passthrough();
+const SingleValueResponseRuntimeProfileDto = z
+  .object({ data: RuntimeProfileDto })
+  .passthrough();
 const SingleValueResponseSecretAuditDto = z
   .object({ data: SecretAuditDto })
   .passthrough();
@@ -4593,6 +4706,23 @@ const SingleValueResponseStatusPageSubscriberDto = z
   .object({ data: StatusPageSubscriberDto })
   .passthrough();
 const SingleValueResponseString = z.object({ data: z.string() }).passthrough();
+const SyntheticsFamilyMetricsDto = z
+  .object({
+    availabilityFrom: z.string().datetime({ offset: true }),
+    availabilityTo: z.string().datetime({ offset: true }),
+    monitorCount: z.number().int(),
+    measuredMonitorCount: z.number().int(),
+    checkCount: z.number().int(),
+    passedCheckCount: z.number().int(),
+    availabilityPercent: z.number().nullish(),
+    flakyFrom: z.string().datetime({ offset: true }),
+    flakyTo: z.string().datetime({ offset: true }),
+    flakyMonitorCount: z.number().int(),
+  })
+  .passthrough();
+const SingleValueResponseSyntheticsFamilyMetricsDto = z
+  .object({ data: SyntheticsFamilyMetricsDto })
+  .passthrough();
 const SingleValueResponseTagDto = z.object({ data: TagDto }).passthrough();
 const TestChannelResult = z
   .object({ success: z.boolean(), message: z.string() })
@@ -4688,6 +4818,7 @@ const WorkspaceDto = z
     updatedAt: z.string().datetime({ offset: true }),
     name: z.string().min(1),
     orgId: z.number().int(),
+    runtimeProfile: RuntimeProfileDto.nullish(),
   })
   .passthrough();
 const SingleValueResponseWorkspaceDto = z
@@ -4948,6 +5079,15 @@ const TableValueResultRunCaseDto = z
 const TableValueResultRunDto = z
   .object({
     data: z.array(RunDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .passthrough();
+const TableValueResultRuntimeProfileDto = z
+  .object({
+    data: z.array(RuntimeProfileDto),
     hasNext: z.boolean(),
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
@@ -5375,6 +5515,7 @@ export const schemas = {
   TestWebhookEndpointRequest,
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
+  UpdateWorkspaceRuntimeRequest,
   AlertDeliveryDto,
   NotificationDispatchDto,
   SkippedDispatch,
@@ -5444,6 +5585,10 @@ export const schemas = {
   RunTabCountsDto,
   RunLiveDto,
   RunAttemptDto,
+  RuntimeProfileDto,
+  HarnessReleaseDto,
+  RunExecutionDto,
+  RunExecutionAttemptDto,
   RunDto,
   CursorPageRunDto,
   ServiceCatalogDto,
@@ -5506,6 +5651,9 @@ export const schemas = {
   PackageUploadDto,
   MonitorDto,
   MonitorReference,
+  MonitorRunDurationMetricDto,
+  MonitorRunDurationBatchDto,
+  MonitorRunDurationSummaryDto,
   MonitorRunListParams,
   SecretDto,
   SecretRequestDto,
@@ -5547,6 +5695,7 @@ export const schemas = {
   RunEventDto,
   RunEventParams,
   RunListParams,
+  RunMetricsSummaryDto,
   RunnerLogLiveEvent,
   RunNetworkDto,
   RunNetworkParams,
@@ -5607,6 +5756,8 @@ export const schemas = {
   SingleValueResponseMonitorAuthDto,
   SingleValueResponseMonitorDriftDto,
   SingleValueResponseMonitorDto,
+  SingleValueResponseMonitorRunDurationBatchDto,
+  SingleValueResponseMonitorRunDurationSummaryDto,
   SingleValueResponseMonitorSecretRequestsDto,
   SingleValueResponseMonitorSessionDto,
   SingleValueResponseMonitorSettingsPreviewDto,
@@ -5627,6 +5778,8 @@ export const schemas = {
   SingleValueResponseRevisionDto,
   SingleValueResponseRollbackPreviewDto,
   SingleValueResponseRunDto,
+  SingleValueResponseRunMetricsSummaryDto,
+  SingleValueResponseRuntimeProfileDto,
   SingleValueResponseSecretAuditDto,
   SingleValueResponseSecretDto,
   SingleValueResponseSecretUsageDto,
@@ -5660,6 +5813,8 @@ export const schemas = {
   StatusPageSubscriberDto,
   SingleValueResponseStatusPageSubscriberDto,
   SingleValueResponseString,
+  SyntheticsFamilyMetricsDto,
+  SingleValueResponseSyntheticsFamilyMetricsDto,
   SingleValueResponseTagDto,
   TestChannelResult,
   SingleValueResponseTestChannelResult,
@@ -5707,6 +5862,7 @@ export const schemas = {
   TableValueResultRunArtifactDto,
   TableValueResultRunCaseDto,
   TableValueResultRunDto,
+  TableValueResultRuntimeProfileDto,
   TableValueResultScheduledMaintenanceDto,
   TableValueResultSecretDto,
   TableValueResultServiceComponentDto,
