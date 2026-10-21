@@ -9,6 +9,7 @@
 |---|---|---|---|---|
 | `key` | string | ✓ |  | Unique secret key within the workspace (max 255 chars) |
 | `value` | string | ✓ |  | Secret value, stored encrypted (max 32KB) |
+| `environmentId` | string (uuid) |  | ✓ | Environment to receive this value when creating the secret |
 
 ## `UpdateSecretRequest`
 

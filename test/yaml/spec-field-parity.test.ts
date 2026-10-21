@@ -84,7 +84,9 @@ const API_ONLY_FIELDS: Record<string, string[]> = {
   webhook: ['enabled'],
   tag: [],
   environment: [],
-  secret: [],
+  // `environmentId` on create also writes the value as that environment's
+  // per-environment value. SecretDto does not return it, so YAML cannot diff it.
+  secret: ['environmentId'],
   triggerRule: [],
   confirmationPolicy: [],
   recoveryPolicy: [],
