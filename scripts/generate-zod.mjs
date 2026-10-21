@@ -12,7 +12,12 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { preprocessSpec, rewriteUnionsAsDiscriminated, relaxResponseStrict } from './lib/preprocess.mjs';
+import {
+  preprocessSpec,
+  rewriteUnionsAsDiscriminated,
+  relaxResponseEnums,
+  relaxResponseStrict,
+} from './lib/preprocess.mjs';
 import { generateZodClientFromOpenAPI } from 'openapi-zod-client';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -139,6 +144,7 @@ async function main() {
     inlinedDiscriminators,
     inlinedNullableDeductions,
     relaxedEnums,
+    tolerantSchemas,
   } = preprocessSpec(spec);
   console.log(`Preprocessed spec (${Object.keys(spec.components?.schemas ?? {}).length} schemas)`);
   if (flattened.length > 0) {
@@ -192,9 +198,12 @@ async function main() {
   // Post-process: convert `z.union([...])` → `z.discriminatedUnion("type", [...])`
   // for hierarchies the preprocessor inlined.
   clean = rewriteUnionsAsDiscriminated(clean, inlinedDiscriminators);
-  // Post-process: relax `.strict()` → `.passthrough()` on response-shape DTOs
-  // so new API fields don't break surfaces built against an older spec.
-  clean = relaxResponseStrict(clean);
+  // Post-process (Postel's Law): every schema reachable only from responses —
+  // not just `*Dto`-named ones, e.g. ErrorResponse → ErrorNext / ErrorCategory —
+  // decodes tolerantly (`.passthrough()`, `z.string()` enums). Request-reachable
+  // schemas stay `.strict()` so YAML / flag typos still fail locally.
+  clean = relaxResponseEnums(clean, tolerantSchemas);
+  clean = relaxResponseStrict(clean, tolerantSchemas);
   writeFileSync(OUTPUT_PATH, clean, 'utf8');
 
   const schemaCount = (clean.match(/^const /gm) || []).length;
