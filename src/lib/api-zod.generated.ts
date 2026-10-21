@@ -9,24 +9,44 @@ const pageable = z
     sort: z.array(z.string()),
   })
   .strict();
+const ErrorCategory = z.string();
 const ErrorEntry = z
   .object({
     code: z.string().min(1),
     field: z.string().nullish(),
     message: z.string().min(1),
   })
-  .strict();
+  .passthrough();
+const ErrorNext = z
+  .object({ command: z.string().nullable(), docs: z.string().nullable() })
+  .partial()
+  .passthrough();
 const ErrorResponse = z
   .object({
     status: z.number().int(),
     code: z.string(),
+    category: ErrorCategory,
+    retryable: z.boolean(),
     message: z.string(),
     timestamp: z.number().int(),
     requestId: z.string().nullish(),
     errors: z.array(ErrorEntry.nullable()).nullish(),
+    retryAfterSeconds: z.number().int().nullish(),
+    resource: z.string().nullish(),
+    used: z.number().int().nullish(),
+    limit: z.number().int().nullish(),
+    resetsAt: z.string().nullish(),
+    plan: z.string().nullish(),
+    upgradeUrl: z.string().nullish(),
+    canRaise: z.string().nullish(),
+    owner: z.string().nullish(),
+    required: z.string().nullish(),
+    have: z.number().int().nullish(),
+    reason: z.string().nullish(),
+    next: ErrorNext.nullish(),
+    details: z.object({}).partial().passthrough().passthrough().nullish(),
     expiredAt: z.string().datetime({ offset: true }).nullish(),
     policy: z.string().nullish(),
-    category: z.string().nullish(),
   })
   .passthrough();
 const DatadogChannelConfig = z
@@ -1180,6 +1200,13 @@ const QuarantineMonitorRequest = z
     fromRunId: z.string().uuid().nullish(),
   })
   .strict();
+const CodeTestTargetRequest = z
+  .object({
+    environmentId: z.string().uuid().nullable(),
+    region: z.string().nullable(),
+  })
+  .partial()
+  .strict();
 const RollbackRevisionRequest = z
   .object({ revisionId: z.string().uuid(), reason: z.string().min(0).max(280) })
   .strict();
@@ -1311,6 +1338,7 @@ const MonitorTestRequest = z
       TcpMonitorConfig,
     ]),
     assertions: z.array(CreateAssertionRequest).nullish(),
+    environmentId: z.string().uuid().nullish(),
   })
   .strict();
 const MatchRule = z
@@ -1466,7 +1494,7 @@ const NearestOtherRegion = z
     region: z.string(),
     artifactId: z.string().uuid(),
   })
-  .strict();
+  .passthrough();
 const CaptureCompareDto = z
   .object({
     thisArtifactId: z.string().uuid(),
@@ -1529,16 +1557,16 @@ const Row = z
     thisDurationMs: z.number().int().nullish(),
     baselineDurationMs: z.number().int().nullish(),
     deltaMs: z.number().int().nullish(),
-    verdict: z.enum(["unchanged", "much_slower", "now_failing", "not_reached"]),
+    verdict: z.string(),
   })
-  .strict();
+  .passthrough();
 const PickerItem = z
   .object({
     runId: z.string().uuid(),
     revisionId: z.string().uuid(),
     finishedAt: z.string().datetime({ offset: true }),
   })
-  .strict();
+  .passthrough();
 const RunDiffDto = z
   .object({
     baselineRunId: z.string().uuid().nullish(),
@@ -2056,17 +2084,10 @@ const NotificationDispatchDto = z
 const SkippedDispatch = z
   .object({
     id: z.string().uuid(),
-    status: z.enum([
-      "PENDING",
-      "DISPATCHING",
-      "DELIVERED",
-      "ESCALATING",
-      "ACKNOWLEDGED",
-      "COMPLETED",
-    ]),
+    status: z.string(),
     reason: z.string().min(1),
   })
-  .strict();
+  .passthrough();
 const AcknowledgeAllIncidentsResponse = z
   .object({
     acknowledged: z.array(NotificationDispatchDto),
@@ -2142,20 +2163,15 @@ const TraceNearbyAction = z
     durationMs: z.number().int().nullish(),
     isTeardown: z.boolean(),
   })
-  .strict();
+  .passthrough();
 const TraceEntryPoint = z
   .object({
-    id: z.enum([
-      "failing_action",
-      "failing_step",
-      "first_failed_request",
-      "case_start",
-    ]),
+    id: z.string(),
     actionIndex: z.number().int(),
     label: z.string().min(1),
     note: z.string().min(1),
   })
-  .strict();
+  .passthrough();
 const ArtifactTraceMeta = z
   .object({
     actionCount: z.number().int().nullable(),
@@ -2164,14 +2180,14 @@ const ArtifactTraceMeta = z
     entryPoints: z.array(TraceEntryPoint).nullable(),
   })
   .partial()
-  .strict();
+  .passthrough();
 const ArtifactViewport = z
   .object({
     width: z.number().int(),
     height: z.number().int(),
     dpr: z.number().int(),
   })
-  .strict();
+  .passthrough();
 const AssertionResultDto = z
   .object({
     type: z.string(),
@@ -2195,10 +2211,10 @@ const AssertionTestResultDto = z
 const MemberRoleChangedMetadata = z
   .object({
     kind: z.literal("member_role_changed"),
-    oldRole: z.enum(["OWNER", "ADMIN", "MEMBER"]),
-    newRole: z.enum(["OWNER", "ADMIN", "MEMBER"]),
+    oldRole: z.string(),
+    newRole: z.string(),
   })
-  .strict();
+  .passthrough();
 const AuditMetadata = MemberRoleChangedMetadata;
 const AuditEventDto = z
   .object({
@@ -2221,8 +2237,8 @@ const KeyInfo = z
     expiresAt: z.string().datetime({ offset: true }).nullish(),
     lastUsedAt: z.string().datetime({ offset: true }).nullish(),
   })
-  .strict();
-const OrgInfo = z.object({ id: z.number().int(), name: z.string() }).strict();
+  .passthrough();
+const OrgInfo = z.object({ id: z.number().int(), name: z.string() }).passthrough();
 const EntitlementDto = z
   .object({
     key: z.string(),
@@ -2233,21 +2249,21 @@ const EntitlementDto = z
   .passthrough();
 const PlanInfo = z
   .object({
-    tier: z.enum(["FREE", "STARTER", "PRO", "TEAM", "BUSINESS", "ENTERPRISE"]),
+    tier: z.string(),
     subscriptionStatus: z.string().nullish(),
     trialActive: z.boolean(),
     trialExpiresAt: z.string().datetime({ offset: true }).nullish(),
     entitlements: z.record(EntitlementDto),
     usage: z.record(z.number().int()),
   })
-  .strict();
+  .passthrough();
 const RateLimitInfo = z
   .object({
     requestsPerMinute: z.number().int(),
     remaining: z.number().int(),
     windowMs: z.number().int(),
   })
-  .strict();
+  .passthrough();
 const AuthMeResponse = z
   .object({
     key: KeyInfo,
@@ -2258,7 +2274,7 @@ const AuthMeResponse = z
   .passthrough();
 const IncidentRef = z
   .object({ id: z.string().uuid(), title: z.string(), impact: z.string() })
-  .strict();
+  .passthrough();
 const ComponentUptimeDayDto = z
   .object({
     date: z.string().datetime({ offset: true }),
@@ -2272,15 +2288,27 @@ const ComponentUptimeDayDto = z
 const BatchComponentUptimeDto = z
   .object({ components: z.record(z.array(ComponentUptimeDayDto)) })
   .passthrough();
+const BrowserCapabilityEnvelope = z
+  .object({
+    iframes: z.boolean(),
+    stripeElements: z.boolean(),
+    popups: z.boolean(),
+    downloads: z.boolean(),
+    viewport: z.boolean(),
+    geolocation: z.boolean(),
+    clipboard: z.boolean(),
+    upload: z.boolean(),
+  })
+  .passthrough();
 const FailureDetail = z
   .object({ monitorId: z.string().uuid(), reason: z.string() })
-  .strict();
+  .passthrough();
 const BulkMonitorActionResult = z
   .object({
     succeeded: z.array(z.string().uuid()),
     failed: z.array(FailureDetail),
   })
-  .strict();
+  .passthrough();
 const CategoryDto = z
   .object({ category: z.string(), serviceCount: z.number().int() })
   .passthrough();
@@ -2325,7 +2353,7 @@ const Http = z
     timing: TimingPhasesDto.nullish(),
     bodyTruncated: z.boolean().nullish(),
   })
-  .strict();
+  .passthrough();
 const Tcp = z
   .object({
     check_type: z.literal("tcp"),
@@ -2333,7 +2361,7 @@ const Tcp = z
     port: z.number().int(),
     connected: z.boolean(),
   })
-  .strict();
+  .passthrough();
 const Icmp = z
   .object({
     check_type: z.literal("icmp"),
@@ -2346,7 +2374,7 @@ const Icmp = z
     maxRttMs: z.number().nullish(),
     jitterMs: z.number().nullish(),
   })
-  .strict();
+  .passthrough();
 const Dns = z
   .object({
     check_type: z.literal("dns"),
@@ -2357,28 +2385,28 @@ const Dns = z
       .record(
         z
           .array(
-            z.record(z.object({}).partial().strict().nullable()).nullable()
+            z.record(z.object({}).partial().passthrough().nullable()).nullable()
           )
           .nullable()
       )
       .nullish(),
     attempts: z
-      .array(z.record(z.object({}).partial().strict().nullable()).nullable())
+      .array(z.record(z.object({}).partial().passthrough().nullable()).nullable())
       .nullish(),
     failureKind: z.string().nullish(),
   })
-  .strict();
+  .passthrough();
 const McpServer = z
   .object({
     check_type: z.literal("mcp_server"),
     url: z.string().nullish(),
     protocolVersion: z.string().nullish(),
-    serverInfo: z.record(z.object({}).partial().strict().nullable()).nullish(),
+    serverInfo: z.record(z.object({}).partial().passthrough().nullable()).nullish(),
     toolCount: z.number().int().nullish(),
     resourceCount: z.number().int().nullish(),
     promptCount: z.number().int().nullish(),
   })
-  .strict();
+  .passthrough();
 const CodeCheckStep = z
   .object({
     name: z.string(),
@@ -2386,7 +2414,7 @@ const CodeCheckStep = z
     durationMs: z.number().int().nullish(),
     error: z.string().nullish(),
   })
-  .strict();
+  .passthrough();
 const Code = z
   .object({
     check_type: z.literal("code"),
@@ -2397,7 +2425,7 @@ const Code = z
     failureKind: z.string().nullish(),
     timedOut: z.boolean().nullish(),
   })
-  .strict();
+  .passthrough();
 const CheckTypeDetailsDto = z.discriminatedUnion("check_type", [
   Http,
   Tcp,
@@ -2453,9 +2481,7 @@ const RuleEvaluationDto = z
     triggeringTransitionId: z.string().uuid().nullish(),
   })
   .passthrough();
-const StateTransitionDetails = z
-  .object({ source: z.enum(["pipeline", "public-api"]) })
-  .strict();
+const StateTransitionDetails = z.object({ source: z.string() }).passthrough();
 const IncidentStateTransitionDto = z
   .object({
     id: z.string().uuid(),
@@ -2499,7 +2525,7 @@ const ComponentImpact = z
     partialOutageSeconds: z.number().int(),
     majorOutageSeconds: z.number().int(),
   })
-  .strict();
+  .passthrough();
 const ComponentSample = z
   .object({
     componentId: z.string().uuid(),
@@ -2507,7 +2533,7 @@ const ComponentSample = z
     oldStatus: z.string().nullish(),
     newStatus: z.string(),
   })
-  .strict();
+  .passthrough();
 const ComponentsSummaryDto = z
   .object({
     totalCount: z.number().int(),
@@ -2540,7 +2566,7 @@ const CreditTier = z
     formula: z.string().nullish(),
     notes: z.string().nullish(),
   })
-  .strict();
+  .passthrough();
 const CreditPolicy = z
   .object({
     summary: z.string().nullable(),
@@ -2550,7 +2576,7 @@ const CreditPolicy = z
     tiers: z.array(CreditTier).nullable(),
   })
   .partial()
-  .strict();
+  .passthrough();
 const CursorPageCheckResultDto = z
   .object({
     data: z.array(CheckResultDto),
@@ -2559,11 +2585,11 @@ const CursorPageCheckResultDto = z
   })
   .passthrough();
 const InboundOtpCode = z
-  .object({ value: z.string().min(1), source: z.enum(["text", "html"]) })
-  .strict();
+  .object({ value: z.string().min(1), source: z.string() })
+  .passthrough();
 const InboundEmailLink = z
   .object({ href: z.string().min(1), text: z.string().nullish() })
-  .strict();
+  .passthrough();
 const InboundEmailAttachment = z
   .object({
     id: z.string().uuid(),
@@ -2572,7 +2598,7 @@ const InboundEmailAttachment = z
     sizeBytes: z.number().int(),
     objectKey: z.string().min(1),
   })
-  .strict();
+  .passthrough();
 const EmailMessageDto = z
   .object({
     id: z.string().uuid(),
@@ -2689,6 +2715,12 @@ const RuntimeProfileDto = z
     playwrightVersion: z.string().min(1),
     status: z.string(),
     eolAt: z.string().datetime({ offset: true }).nullish(),
+    availableAt: z.string().datetime({ offset: true }).nullish(),
+    deprecatedAt: z.string().datetime({ offset: true }).nullish(),
+    packages: z.record(z.string().nullable()).nullish(),
+    nodeBuiltins: z.array(z.string()).nullish(),
+    reservedBindings: z.array(z.string()).nullish(),
+    browser: BrowserCapabilityEnvelope.nullish(),
   })
   .passthrough();
 const HarnessReleaseDto = z
@@ -2736,6 +2768,7 @@ const RunDto = z
     revisionId: z.string().uuid(),
     region: z.string().min(1),
     source: z.string(),
+    countsTowardHealth: z.boolean(),
     enqueuedAt: z.string().datetime({ offset: true }),
     evaluationCycleId: z.string().uuid().nullish(),
     retryOfRunId: z.string().uuid().nullish(),
@@ -2941,15 +2974,15 @@ const DayIncident = z
   .object({
     id: z.string().uuid(),
     title: z.string(),
-    status: z.enum(["INVESTIGATING", "IDENTIFIED", "MONITORING", "RESOLVED"]),
-    impact: z.enum(["NONE", "MINOR", "MAJOR", "CRITICAL"]),
+    status: z.string(),
+    impact: z.string(),
     scheduled: z.boolean(),
     startedAt: z.string().datetime({ offset: true }).nullish(),
     resolvedAt: z.string().datetime({ offset: true }).nullish(),
     affectedComponentNames: z.array(z.string()),
     affectedComponentIds: z.array(z.string().uuid()),
   })
-  .strict();
+  .passthrough();
 const DefinitionDto = z
   .object({
     id: z.string().uuid(),
@@ -3017,7 +3050,7 @@ const DeleteChannelResult = z
     affectedPolicies: z.number().int(),
     disabledPolicies: z.number().int(),
   })
-  .strict();
+  .passthrough();
 const DeliveryAttemptDto = z
   .object({
     id: z.string().uuid(),
@@ -3310,7 +3343,7 @@ const InviteDto = z
   .passthrough();
 const MaintenanceComponentRef = z
   .object({ id: z.string().uuid(), name: z.string(), status: z.string() })
-  .strict();
+  .passthrough();
 const MaintenanceUpdateDto = z
   .object({
     id: z.string().uuid(),
@@ -3428,7 +3461,7 @@ const Summary = z
     name: z.string().min(1),
     slug: z.string().min(1),
   })
-  .strict();
+  .passthrough();
 const StatusPageBoundComponentDto = z
   .object({
     componentId: z.string().uuid(),
@@ -3442,6 +3475,19 @@ const PackageUploadDto = z
     putUrl: z.string().min(1),
     expiresAt: z.string().datetime({ offset: true }),
     requiredHeaders: z.record(z.string()),
+  })
+  .passthrough();
+const MonitorUsageProjectionDto = z
+  .object({
+    meter: z.string().nullish(),
+    projectedMonthlyRuns: z.number().int(),
+    includedRunsLeft: z.number().int().nullish(),
+    reserveRuns: z.number().int(),
+    scheduledUsageEatsReserve: z.boolean(),
+    wouldHitHardStop: z.boolean(),
+    wouldHitSpendCap: z.boolean(),
+    projectedOverageRuns: z.number().int(),
+    projectedOverageCents: z.number().int().nullish(),
   })
   .passthrough();
 const MonitorDto = z
@@ -3494,11 +3540,12 @@ const MonitorDto = z
     quarantineUntil: z.string().datetime({ offset: true }).nullish(),
     quarantineReason: z.string().nullish(),
     upload: PackageUploadDto.nullish(),
+    usageProjection: MonitorUsageProjectionDto.nullish(),
   })
   .passthrough();
 const MonitorReference = z
   .object({ id: z.string().uuid(), name: z.string() })
-  .strict();
+  .passthrough();
 const MonitorRunDurationMetricDto = z
   .object({
     monitorId: z.string().uuid(),
@@ -3656,7 +3703,7 @@ const NoSlaContext = z
     enterpriseNote: z.string().nullable(),
   })
   .partial()
-  .strict();
+  .passthrough();
 const NotificationDto = z
   .object({
     id: z.number().int(),
@@ -3711,7 +3758,7 @@ const OfficialSla = z
     notCovered: z.string().nullable(),
   })
   .partial()
-  .strict();
+  .passthrough();
 const OrganizationDto = z
   .object({
     id: z.number().int(),
@@ -3769,7 +3816,7 @@ const PricingTier = z
     slaPercentage: z.string().nullish(),
     priceFrom: z.string().nullish(),
   })
-  .strict();
+  .passthrough();
 const RegionStatusDto = z
   .object({
     region: z.string(),
@@ -4019,7 +4066,7 @@ const RunMetricsSummaryDto = z
   .passthrough();
 const RunnerLogLiveEvent = z
   .object({ ts: z.string(), line: z.string().min(1) })
-  .strict();
+  .passthrough();
 const RunNetworkDto = z
   .object({
     data: z.array(NetworkRowDto),
@@ -4092,7 +4139,7 @@ const ServiceBreakdown = z
     scope: z.string().nullish(),
     notes: z.string().nullish(),
   })
-  .strict();
+  .passthrough();
 const ServiceComponentDto = z
   .object({
     id: z.string().uuid(),
@@ -4165,7 +4212,7 @@ const SourceUrls = z
     allSlasPage: z.string().nullable(),
   })
   .partial()
-  .strict();
+  .passthrough();
 const SlaDataDto = z
   .object({
     slaType: z.string().nullable(),
@@ -4293,7 +4340,7 @@ const SignedDownload = z
     contentType: z.string().min(1),
     sizeBytes: z.number().int(),
   })
-  .strict();
+  .passthrough();
 const SingleValueResponseAcknowledgeAllIncidentsResponse = z
   .object({ data: AcknowledgeAllIncidentsResponse })
   .passthrough();
@@ -4417,6 +4464,9 @@ const SingleValueResponseMonitorSettingsPreviewDto = z
   .passthrough();
 const SingleValueResponseMonitorTestResultDto = z
   .object({ data: MonitorTestResultDto })
+  .passthrough();
+const SingleValueResponseMonitorUsageProjectionDto = z
+  .object({ data: MonitorUsageProjectionDto })
   .passthrough();
 const SingleValueResponseMonitorVersionDto = z
   .object({ data: MonitorVersionDto })
@@ -4726,7 +4776,7 @@ const SingleValueResponseSyntheticsFamilyMetricsDto = z
 const SingleValueResponseTagDto = z.object({ data: TagDto }).passthrough();
 const TestChannelResult = z
   .object({ success: z.boolean(), message: z.string() })
-  .strict();
+  .passthrough();
 const SingleValueResponseTestChannelResult = z
   .object({ data: TestChannelResult })
   .passthrough();
@@ -4736,7 +4786,7 @@ const TestMatchResult = z
     matchedRules: z.array(z.string()),
     unmatchedRules: z.array(z.string()),
   })
-  .strict();
+  .passthrough();
 const SingleValueResponseTestMatchResult = z
   .object({ data: TestMatchResult })
   .passthrough();
@@ -4807,7 +4857,7 @@ const WebhookTestResult = z
     message: z.string(),
     durationMs: z.number().int().nullish(),
   })
-  .strict();
+  .passthrough();
 const SingleValueResponseWebhookTestResult = z
   .object({ data: WebhookTestResult })
   .passthrough();
@@ -5292,14 +5342,16 @@ const WaitEmailMessageResponse = z
 const WaitWebhookEventResponse = z.object({ event: WebhookEventDto }).passthrough();
 const WebhookEventCatalogEntry = z
   .object({ type: z.string(), surface: z.string(), description: z.string() })
-  .strict();
+  .passthrough();
 const WebhookEventCatalogResponse = z
   .object({ data: z.array(WebhookEventCatalogEntry) })
   .passthrough();
 
 export const schemas = {
   pageable,
+  ErrorCategory,
   ErrorEntry,
+  ErrorNext,
   ErrorResponse,
   DatadogChannelConfig,
   DiscordChannelConfig,
@@ -5437,6 +5489,7 @@ export const schemas = {
   MonitorOverlayRequest,
   PublishRevisionRequest,
   QuarantineMonitorRequest,
+  CodeTestTargetRequest,
   RollbackRevisionRequest,
   params__2,
   RemapSecretRequest,
@@ -5542,6 +5595,7 @@ export const schemas = {
   IncidentRef,
   ComponentUptimeDayDto,
   BatchComponentUptimeDto,
+  BrowserCapabilityEnvelope,
   FailureDetail,
   BulkMonitorActionResult,
   CategoryDto,
@@ -5649,6 +5703,7 @@ export const schemas = {
   Summary,
   StatusPageBoundComponentDto,
   PackageUploadDto,
+  MonitorUsageProjectionDto,
   MonitorDto,
   MonitorReference,
   MonitorRunDurationMetricDto,
@@ -5762,6 +5817,7 @@ export const schemas = {
   SingleValueResponseMonitorSessionDto,
   SingleValueResponseMonitorSettingsPreviewDto,
   SingleValueResponseMonitorTestResultDto,
+  SingleValueResponseMonitorUsageProjectionDto,
   SingleValueResponseMonitorVersionDto,
   SingleValueResponseNetworkRowDto,
   SingleValueResponseNotificationDispatchDto,

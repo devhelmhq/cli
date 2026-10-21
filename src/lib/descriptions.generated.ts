@@ -159,7 +159,8 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   },
   "MonitorTestRequest": {
     "type": "Monitor protocol type to test",
-    "assertions": "Optional assertions to evaluate against the test result"
+    "assertions": "Optional assertions to evaluate against the test result",
+    "environmentId": "Environment to test against; null uses the monitor environment"
   },
   "AcquireDeployLockRequest": {
     "lockedBy": "Identity of the lock requester (e.g. hostname, CI job ID)",

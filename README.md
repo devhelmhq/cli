@@ -84,6 +84,7 @@ Every resource supports `list`, `get`, `create`, `update`, and `delete` subcomma
 | Resource | Commands | API Path |
 |----------|----------|----------|
 | `monitors` | list, get, create, update, delete, pause, resume, test, results | `/api/v1/monitors` |
+| `monitors test <id> [--environment-id <uuid>] [--region <region>]` | test a saved monitor once: uptime monitors print the probe result; browser and multi-step API monitors queue a validation run that does not affect health and print the run | `/api/v1/monitors/{id}/test` |
 | `monitors test --config <file>` | validate a YAML/JSON CreateMonitorRequest before saving | `/api/v1/monitors/test` |
 | `maintenance-windows` | list, get, create, update, cancel | `/api/v1/maintenance-windows` |
 | `incidents` | list, get, create, update, delete, resolve | `/api/v1/incidents` |

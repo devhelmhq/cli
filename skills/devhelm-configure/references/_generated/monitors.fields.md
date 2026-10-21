@@ -94,4 +94,5 @@
 | `quarantineUntil` | string (date-time) |  | ✓ | Quarantine expiry; non-null means quarantined |
 | `quarantineReason` | string |  | ✓ | Quarantine reason |
 | `upload` | any |  | ✓ |  |
+| `usageProjection` | any |  | ✓ |  |
 

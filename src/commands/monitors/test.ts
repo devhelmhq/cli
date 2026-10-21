@@ -3,17 +3,20 @@ import {extname, resolve} from 'node:path'
 import {Args, Command, Flags} from '@oclif/core'
 import {parse as parseYaml} from 'yaml'
 import {globalFlags, buildClient, display} from '../../lib/base-command.js'
-import {checkedFetch, unwrapData} from '../../lib/api-client.js'
+import {checkedFetch, checkedFetchWithStatus, unwrapData} from '../../lib/api-client.js'
 import {schemas as apiSchemas} from '../../lib/api-zod.generated.js'
 import {DevhelmValidationError, EXIT_CODES} from '../../lib/errors.js'
+import {buildCodeTestTarget, queuedRunFrom} from '../../lib/monitor-test.js'
+import {uuidFlag} from '../../lib/validators.js'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export default class MonitorsTest extends Command {
   static description =
-    'Run an ad-hoc test for a monitor. Pass an existing id, or use --config <file> to validate a proposed config (YAML or JSON) without persisting it.'
+    'Run an ad-hoc test for a monitor. Pass an existing id, or use --config <file> to validate a proposed config (YAML or JSON) without persisting it. Uptime monitors print the probe result; browser and multi-step API monitors queue a validation run that does not affect health and print the run.'
   static examples = [
     '<%= config.bin %> monitors test 42',
+    '<%= config.bin %> monitors test 42 --region eu-west',
     '<%= config.bin %> monitors test --config monitor.yml',
     '<%= config.bin %> monitors test --config monitor.json --output json',
   ]
@@ -30,6 +33,14 @@ export default class MonitorsTest extends Command {
       description:
         'Path to a YAML or JSON file containing a CreateMonitorRequest payload to validate (and dry-run, when no id is given)',
     }),
+    'environment-id': uuidFlag({
+      description:
+        "Browser / multi-step API monitors: environment for the validation run (default: the monitor's environment)",
+    }),
+    region: Flags.string({
+      description:
+        "Browser / multi-step API monitors: region for the validation run (default: the monitor's first region)",
+    }),
   }
 
   async run() {
@@ -41,6 +52,11 @@ export default class MonitorsTest extends Command {
         'Pass either a monitor id (live test against an existing monitor) or --config <file> (validate a proposed config), not both.',
         {exit: EXIT_CODES.VALIDATION},
       )
+    }
+    if (flags.config && (flags['environment-id'] !== undefined || flags.region !== undefined)) {
+      this.error('--environment-id and --region apply to a saved monitor id, not --config.', {
+        exit: EXIT_CODES.VALIDATION,
+      })
     }
     if (!id && !flags.config) {
       this.error(
@@ -63,11 +79,21 @@ export default class MonitorsTest extends Command {
       )
     }
 
+    const target = buildCodeTestTarget(flags)
     this.log('Running test...')
-    const resp = await checkedFetch(
-      client.POST('/api/v1/monitors/{id}/test', {params: {path: {id: id as string}}}),
+    const {status, data} = await checkedFetchWithStatus(
+      client.POST('/api/v1/monitors/{id}/test', {
+        params: {path: {id: id as string}},
+        ...(target ? {body: target} : {}),
+      }),
     )
-    display(this, unwrapData(resp), flags.output)
+    const run = queuedRunFrom(status, data, `POST /api/v1/monitors/${id}/test`)
+    if (run) {
+      this.logToStderr(
+        `Queued validation run ${run.id} in ${run.region}. It does not affect monitor health.`,
+      )
+    }
+    display(this, unwrapData(data), flags.output)
   }
 
   // Validates the file locally against `CreateMonitorRequest`; if the

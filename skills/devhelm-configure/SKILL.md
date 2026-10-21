@@ -143,6 +143,9 @@ Read `@references/mac-terraform.md` for the full recipe. Core loop:
 
 - Monitors: `devhelm monitors test <id>` immediately after create,
   then `devhelm monitors get <id>` a few seconds later to show status.
+  Uptime monitors print the probe result. Browser and multi-step API
+  monitors print a queued validation run (it does not affect health);
+  report its id.
 - Alert channels: `devhelm alert-channels test <id>`.
 - Webhooks: `devhelm webhooks test <id>`.
 - Everything else: `devhelm <resource> get <id>`.
