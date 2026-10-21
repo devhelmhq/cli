@@ -145,6 +145,16 @@ export type ApiClient = ReturnType<typeof createApiClient>
 export async function checkedFetch<TData>(
   promise: Promise<{data?: TData; error?: unknown; response: Response}>,
 ): Promise<TData | undefined> {
+  return (await checkedFetchWithStatus(promise)).data
+}
+
+/**
+ * Same as {@link checkedFetch}, but also returns the 2xx status code for
+ * endpoints whose success body depends on it (e.g. 200 vs 202).
+ */
+export async function checkedFetchWithStatus<TData>(
+  promise: Promise<{data?: TData; error?: unknown; response: Response}>,
+): Promise<{status: number; data: TData | undefined}> {
   let result: {data?: TData; error?: unknown; response: Response}
   try {
     result = await promise
@@ -156,7 +166,7 @@ export async function checkedFetch<TData>(
   if (error || !response.ok) {
     throw errorFromResponse(error, response)
   }
-  return data
+  return {status: response.status, data}
 }
 
 // ── Dynamic-path helpers ────────────────────────────────────────────────
