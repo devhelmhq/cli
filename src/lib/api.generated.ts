@@ -6443,7 +6443,6 @@ export interface components {
          *       "status": 404,
          *       "code": "NOT_FOUND",
          *       "category": "not_found",
-         *       "retryable": false,
          *       "message": "Monitor not found",
          *       "timestamp": 1737302400000,
          *       "requestId": "5b6f7a8c-1234-4d5e-9f0a-1b2c3d4e5f6a"
@@ -6544,11 +6543,10 @@ export interface components {
              * @enum {string|null}
              */
             reason?: "scope" | "role" | null;
-            /** @description Command and docs that fix this error */
             next?: components["schemas"]["ErrorNext"] | null;
             /** @description Extra fields for this error, such as a missing secret key and environment */
             details?: {
-                [key: string]: unknown;
+                [key: string]: Record<string, never> | null;
             } | null;
             /**
              * Format: date-time
@@ -10655,7 +10653,7 @@ export interface components {
              * @description Maximum execution time in seconds (5–240)
              */
             timeoutSeconds?: number | null;
-            /** @description Runtime pin such as 2026.11; omit to pin the current runtime at create */
+            /** @description Runtime pin such as 2026.11; omit to pin the newest runtime that can run */
             runtimeId?: string | null;
         };
         /** @description Last update time and author for a secret */
@@ -13888,6 +13886,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -13908,6 +13915,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -13984,6 +14009,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14004,6 +14038,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14078,6 +14130,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14098,6 +14159,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14176,6 +14255,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14196,6 +14284,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14270,6 +14376,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14290,6 +14405,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14364,6 +14497,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14384,6 +14526,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14462,6 +14622,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14482,6 +14651,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14556,6 +14743,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14576,6 +14772,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14652,6 +14866,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14672,6 +14895,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14746,6 +14987,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14766,6 +15016,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14840,6 +15108,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14860,6 +15137,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14932,6 +15227,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -14952,6 +15256,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15028,6 +15350,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15048,6 +15379,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15120,6 +15469,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15140,6 +15498,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15218,6 +15594,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15238,6 +15623,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15312,6 +15715,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15332,6 +15744,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15406,6 +15836,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15426,6 +15865,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15498,6 +15955,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15531,6 +15997,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
             };
             /** @description Internal server error — see the message field for details */
             500: {
@@ -15605,6 +16080,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15625,6 +16109,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15697,6 +16199,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15717,6 +16228,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15792,6 +16321,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15812,6 +16350,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15884,6 +16440,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15904,6 +16469,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15976,6 +16559,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -15996,6 +16588,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16070,6 +16680,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -16090,6 +16709,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16164,6 +16801,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -16184,6 +16830,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16256,6 +16920,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -16276,6 +16949,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16352,6 +17043,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -16372,6 +17072,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16444,6 +17162,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -16464,6 +17191,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16534,6 +17279,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -16554,6 +17308,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16632,6 +17404,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -16661,6 +17442,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16737,6 +17536,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -16757,6 +17565,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16833,6 +17659,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -16853,6 +17688,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16927,6 +17780,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -16947,6 +17809,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17019,6 +17899,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17039,6 +17928,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17117,6 +18024,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17137,6 +18053,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17210,6 +18144,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17230,6 +18173,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17312,6 +18273,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17332,6 +18302,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17407,6 +18395,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17427,6 +18424,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17500,6 +18515,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17520,6 +18544,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17596,6 +18638,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17616,6 +18667,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17691,6 +18760,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17711,6 +18789,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17786,6 +18882,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17806,6 +18911,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17881,6 +19004,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17901,6 +19033,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17976,6 +19126,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -17996,6 +19155,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18074,6 +19251,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -18094,6 +19280,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18168,6 +19372,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -18188,6 +19401,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18263,6 +19494,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -18283,6 +19523,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18359,6 +19617,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -18388,6 +19655,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18460,6 +19745,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -18480,6 +19774,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18556,6 +19868,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -18576,6 +19897,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18650,6 +19989,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -18670,6 +20018,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18748,6 +20114,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -18768,6 +20143,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18840,6 +20233,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -18860,6 +20262,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18934,6 +20354,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -18954,6 +20383,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19035,6 +20482,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -19055,6 +20511,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19133,6 +20607,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -19153,6 +20636,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19227,6 +20728,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -19247,6 +20757,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19321,6 +20849,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -19341,6 +20878,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19416,6 +20971,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -19436,6 +21000,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19517,6 +21099,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -19537,6 +21128,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19611,6 +21220,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -19631,6 +21249,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19707,6 +21343,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -19727,6 +21372,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19801,6 +21464,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -19821,6 +21493,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19899,6 +21589,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -19919,6 +21618,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19993,6 +21710,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20013,6 +21739,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20090,6 +21834,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20110,6 +21863,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20187,6 +21958,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20207,6 +21987,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20285,6 +22083,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20305,6 +22112,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20379,6 +22204,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20399,6 +22233,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20477,6 +22329,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20497,6 +22358,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20572,6 +22451,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20592,6 +22480,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20667,6 +22573,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20687,6 +22602,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20762,6 +22695,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20782,6 +22724,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20857,6 +22817,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20877,6 +22846,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20952,6 +22939,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -20972,6 +22968,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21047,6 +23061,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -21067,6 +23090,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21142,6 +23183,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -21162,6 +23212,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21234,6 +23302,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -21254,6 +23331,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21326,6 +23421,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -21346,6 +23450,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21418,6 +23540,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -21438,6 +23569,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21514,6 +23663,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -21534,6 +23692,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21608,6 +23784,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -21628,6 +23813,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21700,6 +23903,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -21720,6 +23932,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21797,6 +24027,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -21817,6 +24056,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21893,6 +24150,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -21913,6 +24179,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21987,6 +24271,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22007,6 +24300,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22085,6 +24396,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22105,6 +24425,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22177,6 +24515,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22197,6 +24544,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22271,6 +24636,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22291,6 +24665,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22363,6 +24755,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22383,6 +24784,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22459,6 +24878,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22479,6 +24907,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22555,6 +25001,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22575,6 +25030,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22673,6 +25146,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22693,6 +25175,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22769,6 +25269,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22789,6 +25298,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22863,6 +25390,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22883,6 +25419,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22961,6 +25515,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -22981,6 +25544,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -23053,6 +25634,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -23073,6 +25663,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -23147,6 +25755,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -23167,6 +25784,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -23245,6 +25880,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -23265,6 +25909,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -23342,6 +26004,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -23362,6 +26033,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -23440,6 +26129,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -23460,6 +26158,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -23538,6 +26254,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -23558,6 +26283,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -23636,6 +26379,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -23656,6 +26408,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -23730,6 +26500,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -23750,6 +26529,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -23840,6 +26637,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Monitor does not belong to the caller's org */
             403: {
                 headers: {
@@ -23860,6 +26666,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -23937,6 +26761,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Monitor does not belong to the caller's org */
             403: {
                 headers: {
@@ -23957,6 +26790,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24031,6 +26882,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -24051,6 +26911,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24127,6 +27005,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -24147,6 +27034,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24226,6 +27131,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -24246,6 +27160,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24324,6 +27256,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -24344,6 +27285,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24420,6 +27379,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -24440,6 +27408,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24514,6 +27500,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -24534,6 +27529,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24610,6 +27623,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -24630,6 +27652,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24704,6 +27744,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -24724,6 +27773,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24798,6 +27865,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -24818,6 +27894,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24892,6 +27986,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -24912,6 +28015,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -24991,6 +28112,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25011,6 +28141,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -25085,6 +28233,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25105,6 +28262,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -25179,6 +28354,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25199,6 +28383,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -25277,6 +28479,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25297,6 +28508,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -25371,6 +28600,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25391,6 +28629,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -25465,6 +28721,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25485,6 +28750,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -25559,6 +28842,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25579,6 +28871,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -25653,6 +28963,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25673,6 +28992,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -25747,6 +29084,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25767,6 +29113,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -25845,6 +29209,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25865,6 +29238,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -25941,6 +29332,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -25961,6 +29361,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -26039,6 +29457,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -26059,6 +29486,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -26146,6 +29591,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -26166,6 +29620,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -26244,6 +29716,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -26264,6 +29745,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -26338,6 +29837,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -26358,6 +29866,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -26435,6 +29961,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Monitor does not belong to the caller's org */
             403: {
                 headers: {
@@ -26455,6 +29990,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -26533,6 +30086,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -26553,6 +30115,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -26629,6 +30209,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -26649,6 +30238,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -26724,6 +30331,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -26744,6 +30360,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -26822,6 +30456,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -26842,6 +30485,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -26920,6 +30581,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -26940,6 +30610,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27019,6 +30707,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27039,6 +30736,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27112,6 +30827,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27132,6 +30856,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27210,6 +30952,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27230,6 +30981,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27308,6 +31077,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27328,6 +31106,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27400,6 +31196,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27420,6 +31225,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27495,6 +31318,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27515,6 +31347,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27594,6 +31444,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27614,6 +31473,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27690,6 +31567,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27710,6 +31596,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27786,6 +31690,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27806,6 +31719,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27882,6 +31813,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27902,6 +31842,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -27978,6 +31936,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -27998,6 +31965,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -28073,6 +32058,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -28093,6 +32087,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -28167,6 +32179,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -28187,6 +32208,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -28261,6 +32300,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -28281,6 +32329,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -28355,6 +32421,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -28375,6 +32450,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -28447,6 +32540,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -28467,6 +32569,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -28543,6 +32663,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -28563,6 +32692,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -28637,6 +32784,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -28657,6 +32813,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -28735,6 +32909,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -28755,6 +32938,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -28827,6 +33028,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -28847,6 +33057,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -28930,6 +33158,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -28950,6 +33187,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29028,6 +33283,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29048,6 +33312,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29124,6 +33406,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29144,6 +33435,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29216,6 +33525,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29236,6 +33554,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29306,6 +33642,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29326,6 +33671,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29398,6 +33761,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29418,6 +33790,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29490,6 +33880,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29510,6 +33909,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29586,6 +34003,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29606,6 +34032,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29678,6 +34122,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29698,6 +34151,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29774,6 +34245,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29794,6 +34274,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29870,6 +34368,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29890,6 +34397,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29968,6 +34493,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -29988,6 +34522,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -30060,6 +34612,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -30080,6 +34641,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -30154,6 +34733,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -30174,6 +34762,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -30248,6 +34854,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -30268,6 +34883,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -30346,6 +34979,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -30366,6 +35008,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -30439,6 +35099,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -30459,6 +35128,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -30533,6 +35220,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -30553,6 +35249,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -30625,6 +35339,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -30645,6 +35368,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -30719,6 +35460,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -30739,6 +35489,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -30814,6 +35582,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -30834,6 +35611,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -30908,6 +35703,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -30928,6 +35732,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31002,6 +35824,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31022,6 +35853,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31096,6 +35945,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31116,6 +35974,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31190,6 +36066,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31210,6 +36095,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31285,6 +36188,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31305,6 +36217,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31381,6 +36311,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31401,6 +36340,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31478,6 +36435,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31498,6 +36464,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31574,6 +36558,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31594,6 +36587,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31672,6 +36683,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31692,6 +36712,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31766,6 +36804,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31786,6 +36833,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31862,6 +36927,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31882,6 +36956,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -31957,6 +37049,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -31977,6 +37078,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32052,6 +37171,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -32072,6 +37200,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32146,6 +37292,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -32166,6 +37321,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32240,6 +37413,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -32260,6 +37442,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32332,6 +37532,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -32352,6 +37561,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32428,6 +37655,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -32448,6 +37684,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32526,6 +37780,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -32546,6 +37809,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32618,6 +37899,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -32638,6 +37928,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32712,6 +38020,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -32732,6 +38049,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32809,6 +38144,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -32829,6 +38173,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32903,6 +38265,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -32923,6 +38294,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -32995,6 +38384,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -33015,6 +38413,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33089,6 +38505,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -33109,6 +38534,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33181,6 +38624,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -33201,6 +38653,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33279,6 +38749,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -33299,6 +38778,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33377,6 +38874,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -33397,6 +38903,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33486,6 +39010,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -33506,6 +39039,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33585,6 +39136,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -33605,6 +39165,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33688,6 +39266,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -33708,6 +39295,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33790,6 +39395,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -33810,6 +39424,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33893,6 +39525,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -33913,6 +39554,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33989,6 +39648,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34009,6 +39677,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -34089,6 +39775,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34109,6 +39804,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -34184,6 +39897,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34204,6 +39926,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -34278,6 +40018,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34298,6 +40047,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -34375,6 +40142,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34395,6 +40171,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -34474,6 +40268,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34494,6 +40297,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -34571,6 +40392,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34591,6 +40421,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -34678,6 +40526,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34698,6 +40555,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -34777,6 +40652,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34797,6 +40681,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -34877,6 +40779,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34897,6 +40808,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -34972,6 +40901,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -34992,6 +40930,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35064,6 +41020,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -35084,6 +41049,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35160,6 +41143,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -35180,6 +41172,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35254,6 +41264,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -35274,6 +41293,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35352,6 +41389,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -35372,6 +41418,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35444,6 +41508,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -35464,6 +41537,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35538,6 +41629,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -35558,6 +41658,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35636,6 +41754,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -35656,6 +41783,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35735,6 +41880,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -35755,6 +41909,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35828,6 +42000,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -35848,6 +42029,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35925,6 +42124,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -35945,6 +42153,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36024,6 +42250,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36044,6 +42279,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36119,6 +42372,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36139,6 +42401,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36216,6 +42496,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36236,6 +42525,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36312,6 +42619,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36332,6 +42648,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36406,6 +42740,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36426,6 +42769,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36504,6 +42865,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36524,6 +42894,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36597,6 +42985,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36617,6 +43014,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36692,6 +43107,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36712,6 +43136,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36787,6 +43229,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36807,6 +43258,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36881,6 +43350,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36901,6 +43379,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -36979,6 +43475,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -36999,6 +43504,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -37078,6 +43601,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -37098,6 +43630,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -37171,6 +43721,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -37191,6 +43750,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -37268,6 +43845,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -37288,6 +43874,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -37366,6 +43970,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -37386,6 +43999,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -37461,6 +44092,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -37481,6 +44121,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -37560,6 +44218,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -37580,6 +44247,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -37653,6 +44338,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -37673,6 +44367,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -37746,6 +44458,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -37766,6 +44487,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -37845,6 +44584,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -37865,6 +44613,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -37944,6 +44710,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -37964,6 +44739,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -38044,6 +44837,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -38064,6 +44866,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -38140,6 +44960,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -38160,6 +44989,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -38237,6 +45084,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -38257,6 +45113,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -38335,6 +45209,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -38355,6 +45238,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -38430,6 +45331,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -38450,6 +45360,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -38529,6 +45457,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -38549,6 +45486,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -38622,6 +45577,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -38642,6 +45606,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -38715,6 +45697,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -38735,6 +45726,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -38814,6 +45823,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -38834,6 +45852,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -38913,6 +45949,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -38933,6 +45978,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39013,6 +46076,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39033,6 +46105,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39110,6 +46200,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39130,6 +46229,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39205,6 +46322,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39225,6 +46351,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39300,6 +46444,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39320,6 +46473,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39396,6 +46567,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39416,6 +46596,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39494,6 +46692,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39514,6 +46721,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39587,6 +46812,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39607,6 +46841,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39679,6 +46931,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39699,6 +46960,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39773,6 +47052,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39793,6 +47081,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39865,6 +47171,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39885,6 +47200,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -39959,6 +47292,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -39979,6 +47321,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40053,6 +47413,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -40073,6 +47442,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40149,6 +47536,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -40169,6 +47565,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40243,6 +47657,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -40263,6 +47686,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40341,6 +47782,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -40361,6 +47811,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40433,6 +47901,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -40453,6 +47930,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40525,6 +48020,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -40545,6 +48049,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40621,6 +48143,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -40641,6 +48172,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40717,6 +48266,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -40737,6 +48295,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40811,6 +48387,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -40831,6 +48416,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -40903,6 +48506,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -40923,6 +48535,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41001,6 +48631,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41021,6 +48660,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41101,6 +48758,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41121,6 +48787,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41193,6 +48877,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41213,6 +48906,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41288,6 +48999,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41308,6 +49028,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41381,6 +49119,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41401,6 +49148,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41476,6 +49241,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41496,6 +49270,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41574,6 +49366,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41603,6 +49404,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41678,6 +49497,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41698,6 +49526,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41772,6 +49618,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41792,6 +49647,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41868,6 +49741,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41888,6 +49770,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -41962,6 +49862,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -41982,6 +49891,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42060,6 +49987,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -42080,6 +50016,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42152,6 +50106,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -42172,6 +50135,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42248,6 +50229,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -42268,6 +50258,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42346,6 +50354,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -42366,6 +50383,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42438,6 +50473,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -42458,6 +50502,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42530,6 +50592,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -42550,6 +50621,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42622,6 +50711,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -42642,6 +50740,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42716,6 +50832,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -42736,6 +50861,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42812,6 +50955,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -42832,6 +50984,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42906,6 +51076,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -42926,6 +51105,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -43004,6 +51201,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -43024,6 +51230,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -43096,6 +51320,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -43116,6 +51349,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -43194,6 +51445,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Forbidden — the actor lacks permission for this resource */
             403: {
                 headers: {
@@ -43214,6 +51474,24 @@ export interface operations {
             };
             /** @description Conflict — the request collides with current resource state */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
