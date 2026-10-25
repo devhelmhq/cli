@@ -16,7 +16,7 @@ describe('skill example checker', () => {
   })
 
   test('refuses a topic used as a command and unknown flags', () => {
-    expect(check('audit --since 1h')?.problem).toMatch(/unknown command "devhelm audit"/)
+    expect(check('audit --since 1h')?.problem).toMatch(/"devhelm audit" is a topic/)
     expect(check('runs')?.problem).toMatch(/is a topic/)
     expect(check('incidents reopen <id>')?.problem).toMatch(/unknown command/)
     expect(check('secrets create --bogus=x KEY')?.problem).toMatch(/unknown flag --bogus/)
