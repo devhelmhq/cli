@@ -1,67 +1,179 @@
+import {createHash, randomUUID} from 'node:crypto'
 import createClient, {type Middleware} from 'openapi-fetch'
 import type {PathsWithMethod} from 'openapi-typescript-helpers'
 import type {ZodType} from 'zod'
 import type {paths, components} from './api.generated.js'
-import {
-  DevhelmApiError,
-  DevhelmAuthError,
-  DevhelmNotFoundError,
-  DevhelmTransportError,
-  type DevhelmApiErrorOptions,
-} from './errors.js'
+import {Devhelm, errorFromResponse as sdkErrorFromResponse, parseRetryAfter as sdkParseRetryAfter} from '@devhelm/sdk'
+import {DevhelmError, TransportError} from './errors.js'
 import {parseSingle, parsePage, parseCursorPage, type Page, type CursorPage as ValidatedCursorPage} from './response-validation.js'
-import {buildSurfaceHeaders} from './surface-telemetry.js'
+import {buildSurfaceHeaders, CLI_VERSION} from './surface-telemetry.js'
 
 export type {paths, components}
 
+// ── Error envelope parsing ─────────────────────────────────────────────
+
 /**
- * Build a `DevhelmApiError` (or appropriate subclass) from the openapi-fetch
- * `error` body and the raw `Response`. Pulls `code` and `requestId` from the
- * canonical `ErrorResponse` envelope; the `X-Request-Id` response header
- * always wins so we still get the id even when the body is non-conforming.
+ * The typed error for a non-2xx response: the SDK's mapper (one class per
+ * `ErrorResponse` category, every field carried; a body without a
+ * category gets one from the status). `body` is the parsed JSON or text.
  */
-function errorFromResponse(rawError: unknown, response: Response): DevhelmApiError {
-  const headerRequestId = response.headers.get('x-request-id') ?? undefined
+export function errorFromResponse(body: unknown, response: Response): DevhelmError {
+  const text = typeof body === 'string' ? body : body === undefined ? '' : JSON.stringify(body)
+  return sdkErrorFromResponse(response.status, text, {
+    requestId: response.headers.get('x-request-id') ?? undefined,
+    retryAfter: response.headers.get('retry-after') ?? undefined,
+  })
+}
 
-  let code: string | undefined
-  let bodyRequestId: string | undefined
-  let detail: string | undefined
-  let message = response.statusText || `HTTP ${response.status}`
+// ── Invocation context: idempotency keys and client header ─────────────
 
-  if (rawError && typeof rawError === 'object') {
-    const body = rawError as Record<string, unknown>
-    if (typeof body.message === 'string' && body.message.length > 0) {
-      message = body.message
-      detail = body.message
-    } else if (typeof body.error === 'string' && body.error.length > 0) {
-      message = body.error
-      detail = body.error
+/**
+ * One CLI invocation. `Idempotency-Key` values are derived from it so a
+ * transport retry of the same request replays, while every logical POST
+ * in the invocation gets its own key (doc 32 D-7): in GitHub Actions the
+ * seed is `sha256(GITHUB_RUN_ID, GITHUB_RUN_ATTEMPT, command)`, elsewhere a
+ * random UUID per invocation. `--idempotency-key` pins the first POST's
+ * key; later POSTs in the same invocation append an ordinal.
+ */
+interface InvocationContext {
+  command: string
+  seed: string
+  explicitKey?: string
+  counter: Map<string, number>
+  posts: number
+}
+
+let invocation: InvocationContext = newInvocation('cli')
+
+function newInvocation(command: string, explicitKey?: string): InvocationContext {
+  const runId = process.env.GITHUB_RUN_ID
+  const attempt = process.env.GITHUB_RUN_ATTEMPT
+  const seed = runId
+    ? createHash('sha256').update(`${runId}\n${attempt ?? '1'}\n${command}`).digest('hex')
+    : randomUUID()
+  return {command, seed, explicitKey, counter: new Map(), posts: 0}
+}
+
+/** Called once per command invocation (from the base command's init). */
+export function beginInvocation(command: string, explicitKey?: string): void {
+  invocation = newInvocation(command, explicitKey)
+}
+
+/** Next `Idempotency-Key` for a POST to `target` in this invocation. */
+export function nextIdempotencyKey(method: string, target: string): string {
+  const n = invocation.posts++
+  if (invocation.explicitKey) return n === 0 ? invocation.explicitKey : `${invocation.explicitKey}-${n}`
+  const k = `${method} ${target}`
+  const occurrence = invocation.counter.get(k) ?? 0
+  invocation.counter.set(k, occurrence + 1)
+  return createHash('sha256').update(`${invocation.seed}\n${k}\n${occurrence}`).digest('hex')
+}
+
+export const CLIENT_HEADER = `cli/${CLI_VERSION}`
+
+// ── Retries (doc 42 §5.2) ──────────────────────────────────────────────
+
+export const MAX_ATTEMPTS = 5
+const RETRY_CAP_MS = 30_000
+
+/** Overridable sleep so tests don't wait for real backoff. */
+export const retryClock = {
+  sleep: (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
+  baseMs: Number(process.env.DEVHELM_RETRY_BASE_MS ?? 500),
+}
+
+/** `Retry-After` in milliseconds (the SDK parser gives seconds). */
+export function parseRetryAfter(value: string | null): number | undefined {
+  const seconds = sdkParseRetryAfter(value)
+  return seconds === null ? undefined : seconds * 1000
+}
+
+function backoffMs(attempt: number, retryAfterMs: number | undefined): number {
+  if (retryAfterMs !== undefined) return Math.min(RETRY_CAP_MS, retryAfterMs)
+  const exp = retryClock.baseMs * 2 ** (attempt - 1)
+  const jitter = Math.random() * retryClock.baseMs
+  return Math.min(RETRY_CAP_MS, exp + jitter)
+}
+
+const RETRYABLE_CONFLICTS = new Set(['DEPLOY_LOCKED', 'IDEMPOTENCY_KEY_IN_PROGRESS'])
+
+async function isRetryableConflict(res: Response): Promise<boolean> {
+  try {
+    const body = (await res.clone().json()) as Record<string, unknown>
+    return body.retryable === true || (typeof body.code === 'string' && RETRYABLE_CONFLICTS.has(body.code))
+  } catch {
+    return false
+  }
+}
+
+/** Header that tells the retry layer to leave 409 handling to the caller. */
+export const NO_CONFLICT_RETRY_HEADER = 'x-devhelm-cli-no-conflict-retry'
+
+/**
+ * `fetch` with the D-7 retry policy: 429 and 503, plus `retryable: true`
+ * 409s (`DEPLOY_LOCKED`, `IDEMPOTENCY_KEY_IN_PROGRESS`), honouring
+ * `Retry-After`, at most 5 attempts with jitter. A POST is retried only
+ * with an idempotency key. A transport failure surfaces at once as
+ * `TransportError` (exit 12).
+ */
+export async function fetchWithRetry(request: Request): Promise<Response> {
+  const method = request.method.toUpperCase()
+  const replayable = method !== 'POST' || request.headers.has('Idempotency-Key')
+  const noConflictRetry = request.headers.has(NO_CONFLICT_RETRY_HEADER)
+  const headers = new Headers(request.headers)
+  headers.delete(NO_CONFLICT_RETRY_HEADER)
+  // Buffer the body once so every attempt sends a fresh Request.
+  const body = method === 'GET' || method === 'HEAD' ? undefined : await request.arrayBuffer()
+  const build = () => new Request(request.url, {method, headers, body, signal: request.signal})
+  for (let attempt = 1; ; attempt++) {
+    const last = attempt >= MAX_ATTEMPTS || !replayable
+    let res: Response
+    try {
+      res = await fetch(build())
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : String(cause)
+      throw new TransportError(`${method} ${new URL(request.url).pathname}: ${message}`, {cause: cause instanceof Error ? cause : undefined})
     }
-    if (typeof body.code === 'string' && body.code.length > 0) code = body.code
-    if (typeof body.requestId === 'string' && body.requestId.length > 0) {
-      bodyRequestId = body.requestId
-    } else if (typeof body.request_id === 'string' && body.request_id.length > 0) {
-      bodyRequestId = body.request_id
+    if (last) return res
+    const retry =
+      res.status === 429 || res.status === 503 ||
+      (res.status === 409 && !noConflictRetry && (await isRetryableConflict(res)))
+    if (!retry) return res
+    await retryClock.sleep(backoffMs(attempt, parseRetryAfter(res.headers.get('retry-after'))))
+  }
+}
+
+export interface ApiClientOptions {
+  baseUrl: string
+  token: string
+  orgId?: string
+  workspaceId?: string
+  verbose?: boolean
+}
+
+/** Headers every call carries: auth, scope, client and telemetry. */
+export function baseHeaders(opts: ApiClientOptions): Record<string, string> {
+  const workspaceId = opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${opts.token}`,
+    'x-phelm-org-id': opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
+    'X-DevHelm-Client': CLIENT_HEADER,
+    // Devtool surface telemetry — see lib/surface-telemetry.ts and
+    // https://devhelm.io/telemetry. Empty object when the user has set
+    // DEVHELM_TELEMETRY=0; otherwise four short identification headers.
+    ...buildSurfaceHeaders(),
+  }
+  if (workspaceId) headers['x-phelm-workspace-id'] = workspaceId
+  return headers
+}
+
+const idempotencyMiddleware: Middleware = {
+  async onRequest({request}) {
+    if (request.method.toUpperCase() === 'POST' && !request.headers.has('Idempotency-Key')) {
+      request.headers.set('Idempotency-Key', nextIdempotencyKey('POST', new URL(request.url).pathname))
     }
-  } else if (typeof rawError === 'string' && rawError.length > 0) {
-    message = rawError
-    detail = rawError
-  }
-
-  const opts: DevhelmApiErrorOptions = {
-    code,
-    requestId: headerRequestId ?? bodyRequestId,
-    detail,
-    rawBody: rawError,
-  }
-
-  if (response.status === 401 || response.status === 403) {
-    return new DevhelmAuthError(message, response.status, opts)
-  }
-  if (response.status === 404) {
-    return new DevhelmNotFoundError(message, response.status, opts)
-  }
-  return new DevhelmApiError(message, response.status, opts)
+    return request
+  },
 }
 
 // Backward-compatible wrapper types matching the API response shapes
@@ -81,29 +193,13 @@ export interface SingleResponse<T> {
   data: T
 }
 
-export function createApiClient(opts: {
-  baseUrl: string
-  token: string
-  orgId?: string
-  workspaceId?: string
-  verbose?: boolean
-}) {
-  const workspaceId = opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${opts.token}`,
-    'Content-Type': 'application/json',
-    'x-phelm-org-id': opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
-    // Devtool surface telemetry — see lib/surface-telemetry.ts and
-    // https://devhelm.io/telemetry. Empty object when the user has set
-    // DEVHELM_TELEMETRY=0; otherwise four short identification headers.
-    ...buildSurfaceHeaders(),
-  }
-  if (workspaceId) headers['x-phelm-workspace-id'] = workspaceId
-
+export function createApiClient(opts: ApiClientOptions) {
   const client = createClient<paths>({
     baseUrl: opts.baseUrl.replace(/\/$/, ''),
-    headers,
+    headers: {...baseHeaders(opts), 'Content-Type': 'application/json'},
+    fetch: fetchWithRetry,
   })
+  client.use(idempotencyMiddleware)
 
   if (opts.verbose) {
     const logger: Middleware = {
@@ -115,7 +211,7 @@ export function createApiClient(opts: {
     client.use(logger)
   }
 
-  return client
+  return Object.assign(client, {options: opts})
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>
@@ -124,10 +220,10 @@ export type ApiClient = ReturnType<typeof createApiClient>
  * Unwrap an openapi-fetch response. On a 2xx, returns whatever
  * openapi-fetch decoded into `data` — typed as `TData` because the
  * generic flows from the input promise's `data?: TData` field. On a
- * non-2xx response, throws a typed `DevhelmApiError` (or
- * `DevhelmAuthError` / `DevhelmNotFoundError` for 401–403 / 404). When
- * the request never produced a response (DNS, timeout, TLS, connection
- * reset) it throws `DevhelmTransportError`.
+ * non-2xx response, throws the category error for the `ErrorResponse`
+ * (`ValidationError`, `NotFoundError`, `ConflictError`, …). When the
+ * request never produced a response (DNS, timeout, TLS, connection
+ * reset) it throws `TransportError`.
  *
  * Why the generic matters: without it, callers — especially the YAML
  * apply handlers — were forced to wrap every result in
@@ -159,8 +255,9 @@ export async function checkedFetchWithStatus<TData>(
   try {
     result = await promise
   } catch (cause) {
+    if (cause instanceof DevhelmError) throw cause
     const message = cause instanceof Error ? cause.message : String(cause)
-    throw new DevhelmTransportError(message, {cause})
+    throw new TransportError(message, {cause: cause instanceof Error ? cause : undefined})
   }
   const {data, error, response} = result
   if (error || !response.ok) {
@@ -259,4 +356,29 @@ export async function apiGetCursorPage<T>(
   params?: object,
 ): Promise<ValidatedCursorPage<T>> {
   return parseCursorPage(schema, await apiGet(client, path, params), `GET ${path}`)
+}
+
+const sdkClients = new WeakMap<ApiClient, Devhelm>()
+
+/**
+ * The SDK client for the same token, URL, org and workspace, for the parts
+ * the CLI takes from the SDK (run waiting). Its POSTs use this
+ * invocation's idempotency keys and it identifies as the CLI.
+ */
+export function sdkClientFor(client: ApiClient): Devhelm {
+  const hit = sdkClients.get(client)
+  if (hit) return hit
+  const o = client.options
+  const sdk = new Devhelm({
+    token: o.token,
+    baseUrl: o.baseUrl,
+    orgId: o.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
+    workspaceId: o.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID,
+    client: CLIENT_HEADER,
+    surface: 'cli',
+    surfaceVersion: CLI_VERSION,
+    idempotencyKey: ({method, url}) => nextIdempotencyKey(method, new URL(url).pathname),
+  })
+  sdkClients.set(client, sdk)
+  return sdk
 }

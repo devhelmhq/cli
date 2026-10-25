@@ -28,6 +28,7 @@
  *   3. Adding it to HANDLER_MAP (TypeScript errors if you forget)
  */
 import {createHash} from 'node:crypto'
+import {isCodeMonitorType} from '@devhelm/sdk'
 import isEqual from 'lodash-es/isEqual.js'
 import type {components} from '../api.generated.js'
 import type {ApiClient} from '../api-client.js'
@@ -70,6 +71,8 @@ function idToString(id: string | number | null | undefined): string | undefined 
 import type {ChildCollectionDef} from './child-reconciler.js'
 import {diffChildren, applyChildDiff} from './child-reconciler.js'
 import {PartialApplyError} from './apply-error.js'
+import {projectContext} from './project-context.js'
+import {applyCodeMonitorCreate, applyCodeMonitorUpdate} from './code-apply.js'
 import type {ChildStateEntry} from './state.js'
 
 type Schemas = components['schemas']
@@ -704,41 +707,45 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
 // ── Monitor ─────────────────────────────────────────────────────────────
 
 // Derived from UpdateMonitorRequest minus control-only fields (clearAuth,
-// clearEnvironmentId, managedBy, status, acknowledgeRollback, expectedUpdatedAt)
-// and fields the YAML schema does not author yet. auth and incidentPolicy
-// need | null because monitors can lack them.
+// clearEnvironmentId, managedBy, status, acknowledgeRollback, expectedUpdatedAt,
+// ownerEnforced, ownerProject, enabled — pause is an overlay, F14). `code`
+// is replaced by the closure digest the live revision runs. auth and
+// incidentPolicy need | null because monitors can lack them.
 type MonitorSnapshotBase = Required<Omit<Schemas['UpdateMonitorRequest'],
-  'clearEnvironmentId' | 'clearAuth' | 'managedBy' | 'status' | 'package' | 'capturePolicy'
-  | 'fastRetryMaxAttempts' | 'runParallel' | 'ownerEnforced' | 'ownerProject' | 'code'
-  | 'acknowledgeRollback' | 'expectedUpdatedAt' | 'secretKeys'>>
+  'clearEnvironmentId' | 'clearAuth' | 'managedBy' | 'status' | 'enabled'
+  | 'ownerEnforced' | 'ownerProject' | 'code'
+  | 'acknowledgeRollback' | 'expectedUpdatedAt'>>
 type MonitorSnapshot = Omit<MonitorSnapshotBase, 'auth' | 'incidentPolicy'> & {
   auth: MonitorSnapshotBase['auth'] | null
   incidentPolicy: MonitorSnapshotBase['incidentPolicy'] | null
+  /** Closure digest: local for code monitors, live otherwise. */
+  codeDigest: string | null
 }
 
-const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], MonitorSnapshot>({
-  resourceType: 'monitor',
-  refType: 'monitors',
-  configKey: 'monitors',
-  listPath: '/api/v1/monitors',
+const isCodeType = isCodeMonitorType
 
-  getRefKey: (yaml) => yaml.name,
-  getApiRefKey: (api) => api.name ?? '',
-  getApiId: (api) => String(api.id ?? ''),
-  getManagedBy: (api) => api.managedBy,
+function desiredMonitorConfig(yaml: YamlMonitor, api: Schemas['MonitorDto']): MonitorSnapshot['config'] {
+  // Code monitors: config is optional and the server pins the runtime at
+  // create, so only the keys the YAML spells out are compared.
+  if (isCodeType(yaml.type)) {
+    if (yaml.config === undefined) return stripNullish(api.config) as MonitorSnapshot['config']
+    return {...stripNullish(api.config), ...stripNullish(yaml.config)} as unknown as MonitorSnapshot['config']
+  }
+  // The API echoes back JSONB configs with every optional field expanded
+  // to null; the user's YAML almost never spells those out. Normalize both
+  // sides by stripping null/undefined so we don't loop on phantom drift.
+  // SAFETY: yaml.config is pre-validated by the Zod monitor config schema
+  // (dispatched by monitor.type), so it structurally matches the API config
+  // union. The double-cast bridges the YAML config type to the API snapshot
+  // config type which TS can't prove equivalent.
+  return stripNullish(yaml.config) as unknown as MonitorSnapshot['config']
+}
 
-  toDesiredSnapshot: (yaml, api, refs) => ({
+function monitorDesiredSnapshot(yaml: YamlMonitor, api: Schemas['MonitorDto'], refs: ResolvedRefs): MonitorSnapshot {
+  return {
     name: yaml.name,
-    // The API echoes back JSONB configs with every optional field expanded
-    // to null; the user's YAML almost never spells those out. Normalize both
-    // sides by stripping null/undefined so we don't loop on phantom drift.
-    // SAFETY: yaml.config is pre-validated by the Zod monitor config schema
-    // (dispatched by monitor.type), so it structurally matches the API config
-    // union. The double-cast bridges the YAML config type to the API snapshot
-    // config type which TS can't prove equivalent.
-    config: stripNullish(yaml.config) as unknown as MonitorSnapshot['config'],
+    config: desiredMonitorConfig(yaml, api),
     frequencySeconds: yaml.frequencySeconds ?? api.frequencySeconds ?? null,
-    enabled: yaml.enabled ?? api.enabled ?? null,
     regions: yaml.regions !== undefined
       ? sortedIds(yaml.regions)
       : (api.regions ? sortedIds(api.regions) : null),
@@ -767,12 +774,25 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
         newTags: yaml.tags.filter((n) => !refs.resolve('tags', n)).map((n) => ({name: n})),
       }
       : apiTagsToSnapshot(api),
-  }),
-  toCurrentSnapshot: (api) => ({
+    capturePolicy: yaml.capturePolicy !== undefined
+      ? (stripNullish(yaml.capturePolicy) as MonitorSnapshot['capturePolicy'])
+      : (stripNullish(api.capturePolicy ?? null) as MonitorSnapshot['capturePolicy']),
+    fastRetryMaxAttempts: yaml.fastRetryMaxAttempts ?? api.fastRetryMaxAttempts ?? null,
+    runParallel: yaml.runParallel ?? api.runParallel ?? null,
+    secretKeys: yaml.secretKeys !== undefined
+      ? sortedIds(yaml.secretKeys)
+      : (api.secretKeys ? sortedIds(nonNullStrings(api.secretKeys)) : null),
+    codeDigest: isCodeType(yaml.type)
+      ? (projectContext().code.get(yaml.name)?.prepared?.digest ?? api.liveRevisionDigest ?? null)
+      : null,
+  }
+}
+
+function monitorCurrentSnapshot(api: Schemas['MonitorDto']): MonitorSnapshot {
+  return {
     name: api.name ?? null,
     config: stripNullish(api.config) as MonitorSnapshot['config'],
     frequencySeconds: api.frequencySeconds ?? null,
-    enabled: api.enabled ?? null,
     regions: api.regions ? sortedIds(api.regions) : null,
     environmentId: api.environment?.id ?? null,
     assertions: apiAssertionsToSnapshot(api.assertions),
@@ -780,15 +800,58 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
     incidentPolicy: apiIncidentPolicyToSnapshot(api.incidentPolicy),
     alertChannelIds: api.alertChannelIds ? sortedIds(nonNullStrings(api.alertChannelIds)) : null,
     tags: apiTagsToSnapshot(api),
-  }),
+    capturePolicy: stripNullish(api.capturePolicy ?? null) as MonitorSnapshot['capturePolicy'],
+    fastRetryMaxAttempts: api.fastRetryMaxAttempts ?? null,
+    runParallel: api.runParallel ?? null,
+    secretKeys: api.secretKeys ? sortedIds(nonNullStrings(api.secretKeys)) : null,
+    codeDigest: isCodeType(api.type) ? (api.liveRevisionDigest ?? null) : null,
+  }
+}
+
+/** Snapshot keys that make up the settings half of a code monitor change. */
+export function monitorSettingsChanged(yaml: YamlMonitor, api: Schemas['MonitorDto'], refs: ResolvedRefs): boolean {
+  const desired = {...monitorDesiredSnapshot(yaml, api, refs), codeDigest: null}
+  const current = {...monitorCurrentSnapshot(api), codeDigest: null}
+  return !isEqual(desired, current)
+}
+
+export function monitorCodeChanged(yaml: YamlMonitor, api: Schemas['MonitorDto']): boolean {
+  if (!isCodeType(yaml.type)) return false
+  const local = projectContext().code.get(yaml.name)?.prepared?.digest
+  return local !== undefined && local !== (api.liveRevisionDigest ?? null)
+}
+
+const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], MonitorSnapshot>({
+  resourceType: 'monitor',
+  refType: 'monitors',
+  configKey: 'monitors',
+  listPath: '/api/v1/monitors',
+
+  getRefKey: (yaml) => yaml.name,
+  getApiRefKey: (api) => api.name ?? '',
+  getApiId: (api) => String(api.id ?? ''),
+  getManagedBy: (api) => api.managedBy,
+
+  toDesiredSnapshot: monitorDesiredSnapshot,
+  toCurrentSnapshot: monitorCurrentSnapshot,
 
   fetchAll: (client) => fetchPaginated<Schemas['MonitorDto']>(client, '/api/v1/monitors'),
 
   async applyCreate(yaml, refs, client) {
+    if (isCodeType(yaml.type)) return applyCodeMonitorCreate(yaml, refs, client)
     const resp = await checkedFetch(client.POST('/api/v1/monitors', {body: toCreateMonitorRequest(yaml, refs)}))
     return idToString(resp?.data?.id)
   },
   async applyUpdate(yaml, id, refs, client) {
+    if (isCodeType(yaml.type)) {
+      const current = refs.get('monitors', yaml.name)?.raw as Schemas['MonitorDto'] | undefined
+      await applyCodeMonitorUpdate(yaml, id, refs, client, {
+        settingsChanged: current ? monitorSettingsChanged(yaml, current, refs) : true,
+        codeChanged: current ? monitorCodeChanged(yaml, current) : true,
+        current,
+      })
+      return
+    }
     // YAML `auth: null` / `environment: null` signals an explicit clear,
     // which `toUpdateMonitorRequest` translates into the API's
     // `clearAuth` / `clearEnvironmentId` flags. Omitting the field

@@ -21,12 +21,13 @@ export async function fetchPaginated<TItem>(
   client: ApiClient,
   path: string,
   pageSize = DEFAULT_PAGE_SIZE,
+  query: Record<string, string | number | boolean> = {},
 ): Promise<TItem[]> {
   const results: TItem[] = []
   let page = 0
 
   while (true) {
-    const resp = (await apiGet(client, path, {query: {page, size: pageSize}})) as PageResponse<TItem>
+    const resp = (await apiGet(client, path, {query: {...query, page, size: pageSize}})) as PageResponse<TItem>
     results.push(...(resp.data ?? []))
     if (resp.hasNext !== true) break
     page++

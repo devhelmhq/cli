@@ -49,11 +49,17 @@
     ],
     "topicSeparator": " ",
     "topics": {
+      "account": {
+        "description": "Show plan entitlements and synthetics usage"
+      },
       "alert-channels": {
         "description": "Manage alert channels (slack, webhook, email, pagerduty, opsgenie, teams, discord)"
       },
       "api-keys": {
         "description": "Manage API keys for the DevHelm public API"
+      },
+      "audit": {
+        "description": "Read the audit log"
       },
       "auth": {
         "description": "Manage CLI authentication, contexts, and current identity"
@@ -83,7 +89,19 @@
         "description": "Schedule downtime windows that suppress alerts during planned changes"
       },
       "monitors": {
-        "description": "Manage HTTP, TCP, DNS, ICMP, MCP, and heartbeat monitors"
+        "description": "Manage monitors: HTTP, TCP, DNS, ICMP, MCP, heartbeat, browser and multi-step API"
+      },
+      "monitors:revisions": {
+        "description": "Inspect, test, and manage code revisions of browser and multi-step API monitors"
+      },
+      "monitors:secret-requests": {
+        "description": "See which secret keys a code monitor needs and how they are fulfilled"
+      },
+      "monitors:sessions": {
+        "description": "Manage signed-in sessions reused by browser monitors"
+      },
+      "monitors:trash": {
+        "description": "List monitors in Trash (restorable for 90 days)"
       },
       "monitors:versions": {
         "description": "Inspect historical monitor configuration versions"
@@ -91,11 +109,23 @@
       "notification-policies": {
         "description": "Manage escalation policies that route incidents to alert channels"
       },
+      "regions": {
+        "description": "List check regions and egress IPs"
+      },
       "resource-groups": {
         "description": "Manage resource groups bundling monitors and services for shared health rollups"
       },
+      "runs": {
+        "description": "Inspect, wait for, cancel, pin and purge browser and multi-step API runs"
+      },
+      "runtimes": {
+        "description": "List synthetics runtimes (Node, Playwright, packages, lifecycle)"
+      },
       "secrets": {
         "description": "Manage workspace secrets used in monitor configurations and headers"
+      },
+      "secrets:values": {
+        "description": "Set or delete a secret value per environment"
       },
       "services": {
         "description": "Browse the status-data service catalog and query service health"
@@ -129,6 +159,9 @@
       },
       "webhooks": {
         "description": "Manage outbound webhook subscriptions for monitor and incident lifecycle events"
+      },
+      "workspaces": {
+        "description": "List workspaces"
       }
     }
   },
@@ -144,6 +177,7 @@
     "devops"
   ],
   "dependencies": {
+    "@devhelm/sdk": "github:devhelmhq/sdk-js#2d2b03c44242d2683539680633107819ff88fd90",
     "@oclif/core": "^4.10.5",
     "@oclif/plugin-help": "^6.2.43",
     "@oclif/plugin-not-found": "^3.2.80",

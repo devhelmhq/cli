@@ -5,7 +5,7 @@ import {stat} from 'node:fs/promises'
 import {Command} from '@oclif/core'
 import {apiDelete, apiGet, apiPatch, apiPost, checkedFetch, unwrapData, type ApiClient} from './api-client.js'
 import {display} from './base-command.js'
-import {DevhelmApiError, DevhelmTransportError, DevhelmValidationError, EXIT_CODES} from './errors.js'
+import {DevhelmError, DevhelmTransportError, DevhelmValidationError, EXIT_CODES} from './errors.js'
 import type {ColumnDef} from './output.js'
 
 const WAIT_SLACK_MS = 10_000
@@ -95,7 +95,7 @@ export async function waitOrExplain(
   try {
     return await run()
   } catch (err) {
-    if (err instanceof DevhelmApiError && err.status === 408) {
+    if (err instanceof DevhelmError && err.status === 408) {
       command.error(`${err.message} (${label})`, {exit: EXIT_CODES.API})
     }
     throw err
@@ -146,7 +146,7 @@ export async function downloadToFile(
     response = await fetch(url)
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause)
-    throw new DevhelmTransportError(message, {cause})
+    throw new DevhelmTransportError(message, {cause: cause instanceof Error ? cause : undefined})
   }
   if (!response.ok) {
     throw new DevhelmTransportError(`Download failed with status ${response.status}`)

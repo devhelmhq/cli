@@ -109,6 +109,53 @@ Every resource supports `list`, `get`, `create`, `update`, and `delete` subcomma
 --verbose, -v  Show verbose output
 ```
 
+## Synthetics: browser and multi-step API checks
+
+```yaml
+project: acme/web
+monitors:
+  - name: Checkout
+    type: BROWSER                       # or MULTI_STEP_API
+    environment: production
+    code: synthetics/checkout.spec.ts   # or { entrypoint, include: [fixtures/**] }
+    frequencySeconds: 600
+    regions: [us-east, eu-west]
+```
+
+```bash
+devhelm init --browser Checkout        # starter check + devhelm.yml entry
+devhelm validate --online              # every error in one pass, plus plan fit and missing secrets
+devhelm test --reporter github         # validation runs from local files
+devhelm deploy --yes                   # new: test then create; changed: draft → test → publish
+devhelm trigger --tag smoke --region all --max-runs 8
+```
+
+`--env <slug>` narrows any project command. Monitors take an id or an exact name everywhere (`devhelm monitors pause Checkout --env production`).
+
+### Exit codes
+
+| Code | Meaning |
+|---|---|
+| 0 | OK (a flaky pass is 0 with `flaky: true`) |
+| 2 | Usage error |
+| 4 | Invalid config/files/flags, `NO_TOKEN`, unknown or ambiguous monitor, missing secret value |
+| 10 | Plan has changes (`--detailed-exitcode`) |
+| 11 | API failed (5xx, 429 after retries) |
+| 12 | Network error |
+| 13 | `deploy`: something did not land |
+| 14 | A run or probe failed |
+| 15 | Confirmation required (`changes[]` and `confirmCommand` in the JSON) |
+| 16 | Plan, entitlement or quota refusal |
+| 17 | Auth, permission or ownership refusal |
+| 18 | Conflict (lock held, stale live revision, rollback marker, …) |
+| 19 | No verdict (execution error, platform, `--timeout`) |
+| 20 | Evidence or run expired |
+| 130 | Interrupted (queued runs started by the command are cancelled) |
+
+### Output
+
+`-o json|yaml|table`. Commands added in 1.12 print one JSON document — `{ok, exit, data | error, warnings, skipped, meta}` — and default to JSON when stdout is not a terminal (`DEVHELM_OUTPUT` overrides). Commands that existed before 1.12 keep their bare JSON document and table default until 2027-01-31; set `DEVHELM_JSON_ENVELOPE=1` to get the wrapper from them now.
+
 ## AI Agents & Coding Assistants
 
 DevHelm is designed to work seamlessly with AI coding agents:

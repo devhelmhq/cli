@@ -1,35 +1,28 @@
-import {Command, Flags} from '@oclif/core'
-import {globalFlags, buildClient, display} from '../../lib/base-command.js'
-import {fetchCursorPaginated} from '../../lib/typed-api.js'
-import type {components} from '../../lib/api.generated.js'
-import {uuidArg} from '../../lib/validators.js'
+import {DevhelmCommand, commonFlags} from '../../lib/cli/command.js'
+import {monitorArg, parseSince} from '../../lib/cli/flags.js'
+import {table} from '../../lib/monitors/columns.js'
+import {HISTORY_COLUMNS, fetchHistory} from '../../lib/monitors/history.js'
+import {resolveMonitor} from '../../lib/monitors/resolve.js'
+import {historyFlags} from './history.js'
 
-type CheckResultDto = components['schemas']['CheckResultDto']
-
-export default class MonitorsResults extends Command {
-  static description = 'Show recent check results for a monitor'
-  static examples = ['<%= config.bin %> monitors results 42']
-  static args = {id: uuidArg({description: 'Monitor ID', required: true})}
-  static flags = {
-    ...globalFlags,
-    limit: Flags.integer({description: 'Maximum number of results to show (1–1000)', default: 20}),
-  }
+/**
+ * @deprecated since 1.12, removed 2027-01-31 — use `monitors history`.
+ */
+export default class MonitorsResults extends DevhelmCommand {
+  static legacyOutput = true
+  static description = 'Deprecated alias of `monitors history` (removed 2027-01-31)'
+  static examples = ['<%= config.bin %> monitors history <id>']
+  static args = {id: monitorArg}
+  static flags = {...commonFlags, ...historyFlags}
 
   async run() {
     const {args, flags} = await this.parse(MonitorsResults)
-    const client = buildClient(flags)
-    const items = await fetchCursorPaginated<CheckResultDto>(
-      client,
-      `/api/v1/monitors/${args.id}/results`,
-      {maxItems: flags.limit},
-    )
-    display(this, items, flags.output, [
-      {header: 'ID', get: (r: CheckResultDto) => String(r.id ?? '')},
-      {header: 'PASSED', get: (r: CheckResultDto) => (r.passed == null ? '' : r.passed ? 'Pass' : 'Fail')},
-      {header: 'RESPONSE TIME', get: (r: CheckResultDto) => (r.responseTimeMs != null ? `${r.responseTimeMs}ms` : '')},
-      {header: 'CODE', get: (r: CheckResultDto) => String(r.details?.statusCode ?? '')},
-      {header: 'REGION', get: (r: CheckResultDto) => String(r.region ?? '')},
-      {header: 'TIMESTAMP', get: (r: CheckResultDto) => String(r.timestamp ?? '')},
-    ])
+    process.stderr.write('warning: `monitors results` is @deprecated since 1.12, removed 2027-01-31; use `monitors history`\n')
+    const client = this.client()
+    const monitor = await resolveMonitor(client, args.id, {env: flags.env})
+    const rows = await fetchHistory(client, monitor.id, {
+      failed: flags.failed, region: flags.region, since: flags.since ? parseSince(flags.since) : undefined, limit: flags.limit,
+    })
+    await this.finish({data: rows, human: () => this.log(table(rows, HISTORY_COLUMNS))})
   }
 }

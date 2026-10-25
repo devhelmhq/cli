@@ -4,6 +4,7 @@
  * Zod schemas validate the raw YAML parse output — unknown keys and type
  * mismatches are rejected with clear, path-qualified error messages.
  */
+import {isCodeMonitorType} from '@devhelm/sdk'
 import {readFileSync, existsSync, statSync, readdirSync} from 'node:fs'
 import {join, resolve} from 'node:path'
 import {parse as parseYaml} from 'yaml'
@@ -11,12 +12,24 @@ import {parse as parseYaml} from 'yaml'
 import type {DevhelmConfig, YamlMonitor, YamlMonitorDefaults} from './schema.js'
 import {YAML_SECTION_KEYS} from './schema.js'
 import {interpolateObject, findMissingVariablesInObject} from './interpolation.js'
-import {DevhelmConfigSchema, formatZodErrors} from './zod-schemas.js'
+import {DevhelmConfigSchema, formatZodErrors, formatZodPath} from './zod-schemas.js'
+
+export interface ParseIssue {
+  path: string
+  message: string
+}
 
 export class ParseError extends Error {
-  constructor(message: string, public readonly file?: string) {
+  /** Every schema issue, for reporters that list them one per line. */
+  readonly issues: ParseIssue[]
+  /** The parsed (interpolated) document when the YAML itself was readable. */
+  readonly raw: unknown
+
+  constructor(message: string, public readonly file?: string, issues: ParseIssue[] = [], raw?: unknown) {
     super(file ? `${file}: ${message}` : message)
     this.name = 'ParseError'
+    this.issues = issues
+    this.raw = raw
   }
 }
 
@@ -57,9 +70,12 @@ export function parseConfigFile(filePath: string, resolveEnv = true): DevhelmCon
   const result = DevhelmConfigSchema.safeParse(parsed)
   if (!result.success) {
     const messages = formatZodErrors(result.error)
+    const issues = result.error.issues.map((issue) => ({path: formatZodPath(issue.path), message: issue.message}))
     throw new ParseError(
       `Schema validation failed:\n  ${messages.join('\n  ')}`,
       filePath,
+      issues,
+      parsed,
     )
   }
 
@@ -119,12 +135,21 @@ function mergeConfigs(configs: DevhelmConfig[]): DevhelmConfig {
 
   for (const cfg of configs) {
     if (cfg.version !== undefined) merged.version = cfg.version
+    for (const key of ['project', 'org', 'workspace'] as const) {
+      const value = cfg[key]
+      if (value === undefined) continue
+      if (merged[key] !== undefined && merged[key] !== value) {
+        throw new ParseError(`Conflicting "${key}" values across config files: "${merged[key]}" and "${value}"`)
+      }
+      merged[key] = value
+    }
 
     if (cfg.defaults) {
       merged.defaults = merged.defaults ?? {}
       if (cfg.defaults.monitors) {
         merged.defaults.monitors = {...merged.defaults.monitors, ...cfg.defaults.monitors}
       }
+      if (cfg.defaults.runtimeId !== undefined) merged.defaults.runtimeId = cfg.defaults.runtimeId
     }
 
     for (const key of YAML_SECTION_KEYS) {
@@ -144,22 +169,29 @@ function mergeConfigs(configs: DevhelmConfig[]): DevhelmConfig {
  * Shallow merge: if monitor defines a field, it wins entirely (no deep merge).
  */
 function applyDefaults(config: DevhelmConfig): DevhelmConfig {
-  const defaults = config.defaults?.monitors
-  if (!defaults || !config.monitors?.length) return config
+  const defaults = config.defaults?.monitors ?? {}
+  const runtimeId = config.defaults?.runtimeId
+  if ((!config.defaults?.monitors && !runtimeId) || !config.monitors?.length) return config
 
   return {
     ...config,
-    monitors: config.monitors.map((m) => applyMonitorDefaults(m, defaults)),
+    monitors: config.monitors.map((m) => applyMonitorDefaults(m, defaults, runtimeId)),
   }
 }
 
-function applyMonitorDefaults(monitor: YamlMonitor, defaults: YamlMonitorDefaults): YamlMonitor {
-  return {
-    ...monitor,
-    frequencySeconds: monitor.frequencySeconds ?? defaults.frequencySeconds,
-    enabled: monitor.enabled ?? defaults.enabled,
-    regions: monitor.regions ?? defaults.regions,
-    alertChannels: monitor.alertChannels ?? defaults.alertChannels,
-    incidentPolicy: monitor.incidentPolicy ?? defaults.incidentPolicy,
+
+function applyMonitorDefaults(monitor: YamlMonitor, defaults: YamlMonitorDefaults, runtimeId: string | undefined): YamlMonitor {
+  const out: YamlMonitor = {...monitor}
+  const fill = <K extends 'frequencySeconds' | 'regions' | 'alertChannels' | 'incidentPolicy'>(key: K) => {
+    if (out[key] === undefined && defaults[key] !== undefined) out[key] = defaults[key] as YamlMonitor[K]
   }
+  fill('frequencySeconds')
+  fill('regions')
+  fill('alertChannels')
+  fill('incidentPolicy')
+  if (runtimeId && isCodeMonitorType(monitor.type)) {
+    const cfg = (monitor.config ?? {}) as {runtimeId?: string | null; timeoutSeconds?: number | null}
+    if (!cfg.runtimeId) out.config = {...cfg, runtimeId}
+  }
+  return out
 }

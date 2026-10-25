@@ -9,11 +9,14 @@ import {allHandlers} from '../../lib/yaml/handlers.js'
 import {fetchPaginated} from '../../lib/typed-api.js'
 import {writeState, buildState, readState, StateFileCorruptError} from '../../lib/yaml/state.js'
 import type {ChildStateEntry} from '../../lib/yaml/state.js'
+import {existsSync} from 'node:fs'
+import {loadProject} from '../../lib/project/project.js'
+import {isGitOwner} from '../../lib/yaml/project-context.js'
 
 type Schemas = components['schemas']
 
 export default class StatePull extends Command {
-  static description = 'Reconstruct the state file from the current API state'
+  static description = 'Reconstruct the state file from the API: monitors this project owns, plus the other resources'
 
   static examples = [
     '<%= config.bin %> state pull',
@@ -21,6 +24,7 @@ export default class StatePull extends Command {
   ]
 
   static flags = {
+    file: Flags.string({char: 'f', description: 'devhelm.yml whose project scopes the monitors pulled', default: 'devhelm.yml'}),
     'dry-run': Flags.boolean({description: 'Show what would be written without saving', default: false}),
     'api-url': urlFlag({description: 'Override API base URL'}),
     'api-token': Flags.string({description: 'Override API token'}),
@@ -55,8 +59,16 @@ export default class StatePull extends Command {
       children?: Record<string, ChildStateEntry>
     }> = []
 
+    // Monitors: only the ones this project owns (ownerProject == project).
+    // Pulling the whole org would turn `deploy --prune` into prune-all.
+    const project = existsSync(flags.file) ? loadProject([flags.file]).config?.project : undefined
+    if (!project) this.warn(`No "project:" in ${flags.file}; no monitors are pulled (they are scoped to a project)`)
     for (const handler of handlers) {
       for (const entry of refs.allEntries(handler.refType)) {
+        if (handler.resourceType === 'monitor') {
+          const raw = entry.raw as Schemas['MonitorDto']
+          if (!project || !isGitOwner(raw.owner?.type ?? raw.managedBy) || raw.owner?.project !== project) continue
+        }
         let children: Record<string, ChildStateEntry> | undefined
         if (handler.resourceType === 'statusPage') {
           children = await this.pullStatusPageChildren(client, entry.id)

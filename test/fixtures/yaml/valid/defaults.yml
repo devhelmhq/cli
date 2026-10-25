@@ -1,7 +1,6 @@
 defaults:
   monitors:
     frequencySeconds: 120
-    enabled: true
     regions: [us-east, eu-west]
 
 monitors:

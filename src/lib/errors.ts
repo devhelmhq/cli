@@ -1,119 +1,154 @@
 /**
- * Error taxonomy for the DevHelm CLI (P4 — see
- * `mono/cowork/design/040-codegen-policies.md`).
+ * Errors for the DevHelm CLI.
  *
- *   DevhelmValidationError → exit 4 — local schema mismatch (request/response
- *                                     validation, YAML parse, missing config)
- *   DevhelmApiError        → exit 11 — HTTP 4xx/5xx from the API. Carries
- *                                      `status`, `code`, `requestId`
- *   DevhelmTransportError  → exit 12 — network failure (DNS, timeout, TLS)
+ * The typed errors are the SDK's (`@devhelm/sdk`): one class per
+ * `ErrorResponse` category, each carrying every field. This module adds
+ * only what is CLI-specific: the process exit codes, the frozen category →
+ * exit mapping (doc 32 D-2, via the SDK's `exitCodeForCategory`), and the
+ * few exits that are not a category (a wait deadline, an interrupt).
  *
- * Sub-types may extend any of the three roots; their exit code defaults to
- * the root's. CLI-only operational sentinels (CHANGES_PENDING,
- * PARTIAL_FAILURE) live alongside but are NOT error classes — they are
- * normal program-flow signals from `plan` / `deploy`.
+ *   validation, blocked, not_found        → 4
+ *   auth, permission, ownership           → 17
+ *   plan, quota                           → 16
+ *   confirmation_required                 → 15
+ *   conflict                              → 18
+ *   gone                                  → 20
+ *   rate_limit, platform                  → 11 (19 while admitting a run)
+ *   transport                             → 12
  */
+import {
+  DevhelmError,
+  ValidationError,
+  BlockedError,
+  AuthError,
+  PermissionError,
+  OwnershipError,
+  PlanLimitError,
+  QuotaError,
+  RateLimitError,
+  ConflictError,
+  ConfirmationRequiredError,
+  NotFoundError,
+  GoneError,
+  PlatformError,
+  TransportError,
+  WaitTimeoutError,
+  ERROR_CATEGORIES,
+  exitCodeForCategory,
+  type ErrorCategory,
+  type ErrorEntry,
+  type ErrorFields,
+  type ErrorNext,
+  type JsonObject,
+  type JsonValue,
+} from '@devhelm/sdk'
+
+export {
+  DevhelmError, ValidationError, BlockedError, AuthError, PermissionError, OwnershipError, PlanLimitError,
+  QuotaError, RateLimitError, ConflictError, ConfirmationRequiredError, NotFoundError, GoneError, PlatformError,
+  TransportError, WaitTimeoutError, ERROR_CATEGORIES, exitCodeForCategory,
+}
+export type {ErrorCategory, ErrorEntry, ErrorFields, ErrorNext, JsonObject, JsonValue}
+
+/** Pre-1.12 names used across the CLI. */
+export {ValidationError as DevhelmValidationError, TransportError as DevhelmTransportError}
 
 export const EXIT_CODES = {
   SUCCESS: 0,
   GENERAL: 1,
+  USAGE: 2,
   VALIDATION: 4,
   CHANGES_PENDING: 10,
   API: 11,
   TRANSPORT: 12,
   PARTIAL_FAILURE: 13,
+  CHECK_FAILED: 14,
+  CONFIRMATION_REQUIRED: 15,
+  PLAN: 16,
+  PERMISSION: 17,
+  CONFLICT: 18,
+  NO_VERDICT: 19,
+  GONE: 20,
+  INTERRUPTED: 130,
 } as const
 
 export type ExitCode = (typeof EXIT_CODES)[keyof typeof EXIT_CODES]
 
-/** Umbrella class — every typed CLI error inherits from this. */
-export class DevhelmError extends Error {
-  constructor(
-    message: string,
-    public exitCode: number = EXIT_CODES.GENERAL,
-  ) {
-    super(message)
-    this.name = 'DevhelmError'
-  }
+export function isErrorCategory(value: string): value is ErrorCategory {
+  return (ERROR_CATEGORIES as readonly string[]).includes(value)
 }
 
 /**
- * Local validation failed before, or instead of, an HTTP exchange. Examples:
- * malformed YAML, a Zod-validated request body that doesn't match the spec,
- * or a missing API token (precondition for talking to the API at all).
+ * An error whose exit is not its category's: a run that is still going
+ * when `--timeout` passes is 19, an interrupt is 130, a re-thrown oclif
+ * error keeps its own code.
  */
-export class DevhelmValidationError extends DevhelmError {
-  constructor(message: string) {
-    super(message, EXIT_CODES.VALIDATION)
-    this.name = 'DevhelmValidationError'
+export class CliExitError extends DevhelmError {
+  readonly exit: number
+
+  constructor(message: string, category: ErrorCategory, exit: number, fields: ErrorFields = {}) {
+    super(message, {...fields, message, category, code: fields.code ?? 'CLI_EXIT'})
+    this.name = 'CliExitError'
+    this.exit = exit
   }
 }
 
-export interface DevhelmApiErrorOptions {
-  /** Coarse machine-readable category from `ErrorResponse.code`. */
-  code?: string
-  /**
-   * Per-request id from the API's `X-Request-Id` response header
-   * (mirrored in `ErrorResponse.requestId`). Always include this when
-   * filing a support ticket.
-   */
-  requestId?: string
-  /** Human-readable detail extracted from the response body, if any. */
-  detail?: string
-  /** Raw parsed body for debugging non-conforming responses. */
-  rawBody?: unknown
+/** Platform codes raised while admitting or executing a run. */
+const RUN_ADMISSION_CODES = new Set(['RUNTIME_UNAVAILABLE', 'NO_SEAT', 'RUN_START_DEADLINE'])
+
+/** Process exit code for an error (D-2). */
+export function exitCodeOf(err: DevhelmError): number {
+  if (err instanceof CliExitError) return err.exit
+  if (err instanceof WaitTimeoutError) return EXIT_CODES.NO_VERDICT
+  // A platform refusal while admitting a run is "no verdict", not an API failure (D-2).
+  if (err.category === 'platform' && RUN_ADMISSION_CODES.has(err.code)) return EXIT_CODES.NO_VERDICT
+  return exitCodeForCategory(err.category)
 }
 
-/**
- * The API returned a non-2xx response. Always carries the HTTP status code;
- * `code` and `requestId` are populated when the server returns the canonical
- * `ErrorResponse` envelope (the standard for every DevHelm API endpoint).
- */
-export class DevhelmApiError extends DevhelmError {
-  readonly status: number
-  readonly code: string | undefined
-  readonly requestId: string | undefined
-  readonly detail: string | undefined
-  readonly rawBody: unknown
+type CategoryClass = new (message: string, fields?: ErrorFields) => DevhelmError
 
-  constructor(message: string, status: number, options?: DevhelmApiErrorOptions) {
-    super(message, EXIT_CODES.API)
-    this.name = 'DevhelmApiError'
-    this.status = status
-    this.code = options?.code
-    this.requestId = options?.requestId
-    this.detail = options?.detail
-    this.rawBody = options?.rawBody
-  }
+const CATEGORY_CLASSES: Readonly<Record<ErrorCategory, CategoryClass>> = {
+  validation: ValidationError,
+  blocked: BlockedError,
+  auth: AuthError,
+  permission: PermissionError,
+  ownership: OwnershipError,
+  plan: PlanLimitError,
+  quota: QuotaError,
+  rate_limit: RateLimitError,
+  conflict: ConflictError,
+  confirmation_required: ConfirmationRequiredError,
+  not_found: NotFoundError,
+  gone: GoneError,
+  platform: PlatformError,
+  transport: TransportError,
 }
 
-/** 401 or 403 from the API. Surfaced separately for ergonomics. */
-export class DevhelmAuthError extends DevhelmApiError {
-  constructor(message: string, status: number, options?: DevhelmApiErrorOptions) {
-    super(message, status, options)
-    this.name = 'DevhelmAuthError'
-  }
+/** The SDK class for a category. */
+export function errorForCategory(message: string, category: ErrorCategory, fields: ErrorFields = {}): DevhelmError {
+  return new CATEGORY_CLASSES[category](message, fields)
 }
 
-/** 404 from the API. */
-export class DevhelmNotFoundError extends DevhelmApiError {
-  constructor(message: string, status: number, options?: DevhelmApiErrorOptions) {
-    super(message, status, options)
-    this.name = 'DevhelmNotFoundError'
-  }
+/** Client-side `NO_TOKEN` (validation, exit 4), with the fork-PR hint in CI. */
+export function noTokenError(): ValidationError {
+  const forkPr = process.env.GITHUB_EVENT_NAME === 'pull_request'
+  const hint = forkPr
+    ? ' Pull requests from forks get no repository secrets: run `devhelm validate` (offline) there instead.'
+    : ''
+  return new ValidationError(
+    `No API token configured. Set DEVHELM_API_TOKEN or run \`devhelm auth login\`.${hint}`,
+    {code: 'NO_TOKEN', next: {command: 'devhelm auth login', docs: null}},
+  )
 }
 
-/**
- * The HTTP request never produced a server response — DNS failure, connection
- * refused, TLS handshake failure, request/read timeout, etc. Wraps the
- * underlying fetch/network error on `cause`.
- */
-export class DevhelmTransportError extends DevhelmError {
-  constructor(message: string, options?: {cause?: unknown}) {
-    super(message, EXIT_CODES.TRANSPORT)
-    this.name = 'DevhelmTransportError'
-    if (options?.cause !== undefined) {
-      ;(this as {cause?: unknown}).cause = options.cause
-    }
-  }
+/** oclif's handler reads `oclif.exit`, `code`, `ref` and `suggestions` (bin/ uses it for every command). */
+export function forOclif(err: DevhelmError): Error & {oclif: {exit: number}; ref?: string; suggestions?: string[]} {
+  return Object.assign(new Error(err.message), {
+    name: err.name,
+    stack: err.stack,
+    code: err.code,
+    oclif: {exit: exitCodeOf(err)},
+    ref: err.requestId ? `request ${err.requestId}` : undefined,
+    suggestions: err.next?.command ? [err.next.command] : undefined,
+  })
 }

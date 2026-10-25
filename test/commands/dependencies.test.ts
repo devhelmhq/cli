@@ -57,7 +57,7 @@ describe('dependencies topic', () => {
   })
 
   test('update errors without --alert-sensitivity', () => {
-    const out = run('dependencies update 11111111-1111-1111-1111-111111111111')
+    const out = run('dependencies update 11111111-1111-4111-8111-111111111111')
     expect(out).toContain('Missing required flag alert-sensitivity')
   })
 

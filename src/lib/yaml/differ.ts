@@ -19,6 +19,7 @@ import type {Change, Changeset, DiffOptions, PruneScope} from './types.js'
 import {RESOURCE_ORDER} from './types.js'
 import type {DeployState} from './state.js'
 import {resourceAddress} from './state.js'
+import {isGitOwner, projectContext} from './project-context.js'
 import type {ResourceType} from './types.js'
 
 type ResourceGroupDto = components['schemas']['ResourceGroupDto']
@@ -217,6 +218,7 @@ function diffSection(
 
       const address = resourceAddress(handler.resourceType as ResourceType, entry.refKey)
       const scope = classifyDeleteScope(handler, entry, stateAddresses, address)
+      if (!scope) continue
 
       // Decide whether to include this delete based on the requested
       // prune flag(s). State-scoped deletes are the safe default and
@@ -242,45 +244,23 @@ function diffSection(
 
 function classifyDeleteScope(
   handler: ResourceHandler,
-  entry: {refKey: string; managedBy?: string | null},
+  entry: {refKey: string; managedBy?: string | null; raw?: unknown},
   stateAddresses: ReadonlySet<string>,
   address: string,
-): PruneScope {
+): PruneScope | undefined {
   if (stateAddresses.has(address)) return 'state'
-  // Monitors carry an explicit `managedBy`; non-CLI monitors are
-  // foreign (dashboard / Terraform / MCP / API) and only `--prune-all`
-  // is allowed to touch them.
+  // Monitors are pruned only when this project owns them: Git-owned with
+  // `ownerProject == project` (doc 42 §6.3). Nothing else is ever a prune
+  // candidate — `--prune-org-cli` / `--prune-all` were removed because
+  // their deletion scope crossed teams.
   if (handler.resourceType === 'monitor') {
-    return entry.managedBy === 'CLI' ? 'org-cli' : 'org-all'
+    const project = projectContext().project
+    const raw = entry.raw as {owner?: {type?: string; project?: string | null} | null; managedBy?: string} | undefined
+    const type = raw?.owner?.type ?? raw?.managedBy ?? entry.managedBy ?? undefined
+    if (project && isGitOwner(type) && raw?.owner?.project === project) return 'state'
   }
-  // Other resource types lack a managedBy concept on the API, so the
-  // legacy `--prune` semantic was "delete anything not in YAML" — keep
-  // that under `--prune-org-cli` for parity, and reserve `--prune-all`
-  // for an unambiguous "everything".
-  return 'org-cli'
+  return undefined
 }
-
-// ── Membership diff ────────────────────────────────────────────────────
-//
-// Why memberships do **not** use the generic `ChildCollectionDef` machinery
-// in `child-reconciler.ts`:
-//
-//   1. **Heterogeneous children.** A resource group has *two* concurrent
-//      child types (monitor, service) that share an addressing space and a
-//      single membership endpoint. ChildCollectionDef is parameterised over
-//      one child type per parent.
-//   2. **Additive-by-default semantics.** Memberships are intentionally
-//      additive without an explicit `--prune` / `--prune-all` flag — we
-//      never silently remove members someone added via the dashboard. The
-//      generic reconciler always performs a full create/update/delete cycle
-//      and would change this UX.
-//   3. **No update phase.** Memberships only have create/delete; there is
-//      no per-member attribute update to diff (membership is a join row).
-//
-// If/when these constraints change (e.g. a future API exposes membership
-// attributes worth diffing), revisit migrating this onto the generic
-// reconciler. Until then, the duplication is intentional and worth its
-// weight in tailored UX.
 
 function memberKey(memberType: string, nameOrSlug: string): string {
   return `${memberType}:${nameOrSlug}`

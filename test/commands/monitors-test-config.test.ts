@@ -56,7 +56,7 @@ describe('monitors test --config', () => {
       'name: x\ntype: HTTP\nmanagedBy: CLI\nconfig:\n  url: https://example.com\n  method: GET\n',
     )
     const out = run(
-      `monitors test 11111111-1111-1111-1111-111111111111 --config ${cfg} --api-token devhelm-dev-token --api-url http://127.0.0.1:9999`,
+      `monitors test 11111111-1111-4111-8111-111111111111 --config ${cfg} --api-token devhelm-dev-token --api-url http://127.0.0.1:9999`,
     )
     expect(out).toContain('Pass either a monitor id')
   })

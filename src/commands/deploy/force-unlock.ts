@@ -1,7 +1,7 @@
 import {Command, Flags} from '@oclif/core'
 import {createApiClient, apiDelete} from '../../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
-import {DevhelmApiError, EXIT_CODES} from '../../lib/errors.js'
+import {DevhelmError, EXIT_CODES} from '../../lib/errors.js'
 import {urlFlag} from '../../lib/validators.js'
 
 export default class DeployForceUnlock extends Command {
@@ -58,9 +58,9 @@ export default class DeployForceUnlock extends Command {
       this.log('Deploy lock released.')
     } catch (err) {
       // Branch on the typed error rather than substring-matching the message:
-      // the canonical DevhelmApiError carries a real HTTP status, so 404
+      // the typed error carries its category, so not_found
       // ("no lock to release") is unambiguous and we exit successfully.
-      if (err instanceof DevhelmApiError && err.status === 404) {
+      if (err instanceof DevhelmError && err.category === 'not_found') {
         this.log('No active deploy lock found.')
         return
       }

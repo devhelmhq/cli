@@ -3,7 +3,7 @@ import type {ZodType} from 'zod'
 import {globalFlags, buildClient, display} from './base-command.js'
 import {fetchPaginatedValidated} from './typed-api.js'
 import {apiDelete, apiGetSingle, apiPostSingle, apiPutSingle, type ApiClient} from './api-client.js'
-import {DevhelmAuthError, DevhelmNotFoundError, EXIT_CODES} from './errors.js'
+import {DevhelmError, EXIT_CODES} from './errors.js'
 import type {ColumnDef} from './output.js'
 import {parse as parseSchema} from './response-validation.js'
 import {uuidArg} from './validators.js'
@@ -340,7 +340,7 @@ async function promptForDeletion<T>(
     const name = extractEntityLabel(value)
     if (name) label = `'${name}' (${id})`
   } catch (err) {
-    if (err instanceof DevhelmAuthError || err instanceof DevhelmNotFoundError) throw err
+    if (err instanceof DevhelmError && ['auth', 'permission', 'not_found'].includes(err.category)) throw err
   }
 
   const {createInterface} = await import('node:readline')

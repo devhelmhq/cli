@@ -2570,7 +2570,7 @@ export interface paths {
         put?: never;
         /**
          * Ad-hoc monitor test
-         * @description Uptime monitors run once from an inline config and return a probe result (200). Browser and multi-step API monitors with code admit a queued validation run (202) when that bundle is already saved on a monitor. Inline code without a bundle is refused.
+         * @description Uptime monitors run once from an inline config and return a probe result (200). Browser and multi-step API code admits a queued validation run (202) with no monitor: send an uploaded bundle as code, plus environmentId. The run is billed, never votes on health, and is listed by GET /runs only with adhoc=true.
          */
         post: operations["testAdHoc"];
         delete?: never;
@@ -5247,10 +5247,10 @@ export interface components {
             /** @description SHA-256 hash of the channel config; use for change detection */
             configHash?: string | null;
             /**
-             * @description Source that created/owns this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on channels created before this attribution column existed.
+             * @description Source that created/owns this channel: DASHBOARD, GIT, TERRAFORM, MCP or API. Null on channels created before this attribution column existed.
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
             /**
              * Format: date-time
              * @description Timestamp of the most recent delivery attempt
@@ -5368,7 +5368,7 @@ export interface components {
              * @description Tool this key writes as on owner-enforced monitors; null means API
              * @enum {string|null}
              */
-            tool?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            tool?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
         };
         /** @description API key for programmatic access to the DevHelm API */
         ApiKeyDto: {
@@ -5412,7 +5412,7 @@ export interface components {
              * @description Tool this key writes as on owner-enforced monitors; null means API
              * @enum {string|null}
              */
-            tool?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            tool?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
         };
         /** @description Signed, short-lived download link for one run artifact */
         ArtifactDownloadDto: {
@@ -5664,7 +5664,7 @@ export interface components {
             newTags?: components["schemas"]["NewTagRequest"][] | null;
             /**
              * Format: int32
-             * @description New check frequency in seconds (10–86400), required for UPDATE_SCHEDULE
+             * @description Check frequency in seconds for UPDATE_SCHEDULE; minimum depends on plan
              */
             frequencySeconds?: number | null;
             overlay?: components["schemas"]["MonitorOverlayRequest"] | null;
@@ -6166,10 +6166,10 @@ export interface components {
             name: string;
             config: components["schemas"]["DatadogChannelConfig"] | components["schemas"]["DiscordChannelConfig"] | components["schemas"]["EmailChannelConfig"] | components["schemas"]["GitLabChannelConfig"] | components["schemas"]["GoogleChatChannelConfig"] | components["schemas"]["IncidentIoChannelConfig"] | components["schemas"]["JiraChannelConfig"] | components["schemas"]["LinearChannelConfig"] | components["schemas"]["MattermostChannelConfig"] | components["schemas"]["OpsGenieChannelConfig"] | components["schemas"]["PagerDutyChannelConfig"] | components["schemas"]["PhoneCallChannelConfig"] | components["schemas"]["PushbulletChannelConfig"] | components["schemas"]["PushoverChannelConfig"] | components["schemas"]["RootlyChannelConfig"] | components["schemas"]["SlackChannelConfig"] | components["schemas"]["SmsChannelConfig"] | components["schemas"]["SplunkOnCallChannelConfig"] | components["schemas"]["TeamsChannelConfig"] | components["schemas"]["TelegramChannelConfig"] | components["schemas"]["WebhookChannelConfig"] | components["schemas"]["ZapierChannelConfig"];
             /**
-             * @description Source creating this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted.
+             * @description Source creating this channel: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31). Defaults to API when omitted.
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
         };
         CreateApiKeyRequest: {
             /** @description Human-readable name to identify this API key */
@@ -6184,10 +6184,10 @@ export interface components {
             /** @description Scopes to grant (default: full) */
             scopes?: string[] | null;
             /**
-             * @description Tool this key writes as on owner-enforced monitors (default: API)
+             * @description Tool this key writes as on owner-enforced monitors (default: API; CLI = GIT until 2027-01-31)
              * @enum {string|null}
              */
-            tool?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            tool?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
         };
         /** @description Replace all assertions. Null preserves current */
         CreateAssertionRequest: {
@@ -6207,6 +6207,8 @@ export interface components {
             entrypoint?: string | null;
             /** @description Runtime used to refuse imports. Omit for the newest runtime that can run */
             runtimeId?: string | null;
+            /** @description Files to keep even when no import reaches them, e.g. fixtures */
+            include?: string[] | null;
         };
         CreateDemoBookingRequest: {
             /**
@@ -6354,7 +6356,7 @@ export interface components {
             config?: (components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["ScriptMonitorConfig"] | components["schemas"]["TcpMonitorConfig"]) | null;
             /**
              * Format: int32
-             * @description Check frequency in seconds (10–86400). Null defaults to the plan minimum
+             * @description Check frequency in seconds; minimum depends on plan (default: plan minimum)
              */
             frequencySeconds?: number | null;
             /** @description Whether the monitor is active (default: true) */
@@ -6362,10 +6364,10 @@ export interface components {
             /** @description Probe regions to run checks from. Allowed values are deployment-dependent. Production: us-east, us-west, eu-west, ap-south */
             regions?: string[] | null;
             /**
-             * @description Source that created this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API
+             * @description Source that created this monitor: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31). Defaults to API
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
             /** @description Only the managedBy tool may change configuration (default: false) */
             ownerEnforced?: boolean | null;
             /** @description Project the owning tool declares for this monitor, e.g. acme/web */
@@ -6467,10 +6469,10 @@ export interface components {
              */
             recoveryCooldownMinutes?: number | null;
             /**
-             * @description Source creating this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted.
+             * @description Source creating this group: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31). Defaults to API when omitted.
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
         };
         CreateSecretRequest: {
             /** @description Unique secret key within the workspace (max 255 chars) */
@@ -6632,10 +6634,10 @@ export interface components {
              */
             incidentMode?: "MANUAL" | "REVIEW" | "AUTOMATIC" | null;
             /**
-             * @description Source creating this page: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted.
+             * @description Source creating this page: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31). Defaults to API when omitted.
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
         };
         /** @description Request body for creating a tag */
         CreateTagRequest: {
@@ -8460,77 +8462,6 @@ export interface components {
              */
             membershipId?: string | null;
         };
-        IncidentFilterParams: {
-            /**
-             * @description Filter by incident lifecycle status; null returns every status
-             * @enum {string|null}
-             */
-            status?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED" | null;
-            /**
-             * @description Filter by severity; null returns every severity
-             * @enum {string|null}
-             */
-            severity?: "DOWN" | "DEGRADED" | "MAINTENANCE" | null;
-            /**
-             * @description Filter by where the incident originated (auto, manual, third-party)
-             * @enum {string|null}
-             */
-            source?: "AUTOMATIC" | "MANUAL" | "MONITORS" | "STATUS_DATA" | "RESOURCE_GROUP" | null;
-            /**
-             * Format: uuid
-             * @description Only return incidents tied to this monitor ID
-             */
-            monitorId?: string | null;
-            /**
-             * Format: uuid
-             * @description Only return incidents tied to this service ID (third-party services)
-             */
-            serviceId?: string | null;
-            /**
-             * Format: uuid
-             * @description Only return incidents owned by this resource group (incidents.resource_group_id)
-             */
-            resourceGroupId?: string | null;
-            /**
-             * Format: uuid
-             * @description Only return incidents whose monitor carries this tag
-             */
-            tagId?: string | null;
-            /**
-             * Format: uuid
-             * @description Only return incidents whose monitor lives in this environment
-             */
-            environmentId?: string | null;
-            /**
-             * Format: uuid
-             * @description Exclude this incident ID from results (related-incident lists)
-             */
-            excludeId?: string | null;
-            /**
-             * Format: date-time
-             * @description Earliest startedAt to include (inclusive, ISO 8601)
-             */
-            startedFrom?: string | null;
-            /**
-             * Format: date-time
-             * @description Latest startedAt to include (inclusive, ISO 8601)
-             */
-            startedTo?: string | null;
-            /** @description Case-insensitive substring match on title or incident ID */
-            search?: string | null;
-            /**
-             * Format: int32
-             * @description Zero-based page index (default: 0)
-             * @example 0
-             */
-            page: number;
-            /**
-             * Format: int32
-             * @description Number of incidents per page (1–200, default: 10)
-             * @example 10
-             */
-            size: number;
-        };
         IncidentIoChannelConfig: {
             /** @enum {string} */
             channelType: "incident_io";
@@ -8865,6 +8796,11 @@ export interface components {
             lastUsedAt?: string | null;
             /** @description Scopes this key is allowed to call; full grants everything */
             scopes: string[];
+            /**
+             * @description Tool this key writes as on owner-enforced monitors
+             * @enum {string|null}
+             */
+            tool?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
         };
         LinearChannelConfig: {
             /** @enum {string} */
@@ -9393,7 +9329,7 @@ export interface components {
             config: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["ScriptMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
             /**
              * Format: int32
-             * @description Check frequency in seconds (30–86400)
+             * @description Check frequency in seconds; minimum depends on plan
              */
             frequencySeconds: number;
             /** @description Whether the monitor is active */
@@ -9401,10 +9337,10 @@ export interface components {
             /** @description Probe regions where checks are executed */
             regions: string[];
             /**
-             * @description Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API
+             * @description Source that created/owns this monitor: DASHBOARD, GIT, TERRAFORM, MCP or API
              * @enum {string}
              */
-            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
+            managedBy: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT";
             /** @description Whether only the managedBy tool may change this monitor's configuration */
             ownerEnforced: boolean;
             /**
@@ -9610,7 +9546,7 @@ export interface components {
              * @description Owning tool for a project facet value
              * @enum {string|null}
              */
-            owner?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            owner?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
         };
         /** @description One non-secret setting changed by a monitor action */
         MonitorFieldChange: {
@@ -9735,10 +9671,10 @@ export interface components {
         /** @description Tool that owns a monitor and the project it declares */
         MonitorOwnerDto: {
             /**
-             * @description Owning tool: DASHBOARD, CLI, TERRAFORM, MCP, or API
+             * @description Owning tool: DASHBOARD, GIT, TERRAFORM, MCP or API
              * @enum {string}
              */
-            type: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
+            type: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT";
             /** @description Project the owning tool declares; null when it declares none */
             project?: string | null;
             /** @description Resource address declared by the owning tool */
@@ -9762,12 +9698,12 @@ export interface components {
              * @description Owning tool before the change
              * @enum {string|null}
              */
-            fromOwner?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            fromOwner?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
             /**
              * @description Owning tool after the change
              * @enum {string|null}
              */
-            toOwner?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            toOwner?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
             /** @description Reason the caller gave */
             reason?: string | null;
         };
@@ -9867,72 +9803,6 @@ export interface components {
              * @description Median execution duration in milliseconds; null when no durations were measured
              */
             p50DurationMs?: number | null;
-        };
-        MonitorRunListParams: {
-            /** @description Filter by run phase; not_finished excludes finished runs */
-            phase?: string | null;
-            /** @description Outcomes, repeated or comma-separated; not_passed includes retries */
-            outcome?: string | null;
-            /** @description Filter by probe region */
-            region?: string | null;
-            /** @description Filter by what triggered the run */
-            source?: string | null;
-            /** @description Substring match on headline */
-            q?: string | null;
-            /**
-             * Format: uuid
-             * @description Only runs for this published revision
-             */
-            revisionId?: string | null;
-            /**
-             * Format: date-time
-             * @description Inclusive enqueue lower bound (clamped to 90 days)
-             */
-            from?: string | null;
-            /**
-             * Format: date-time
-             * @description Inclusive enqueue upper bound (default now)
-             */
-            to?: string | null;
-            /** @description Opaque cursor from the previous page; results cover the last 90 days */
-            cursor?: string | null;
-            /**
-             * Format: int32
-             * @description Page size (1–100, default 25)
-             */
-            limit: number;
-            /** @description Monitor type: BROWSER or MULTI_STEP_API */
-            monitorType?: string | null;
-            /**
-             * Format: uuid
-             * @description Runs in the incident window, intersected with from and to
-             */
-            incidentId?: string | null;
-            /** @description Exact branch from revision provenance */
-            branch?: string | null;
-            /** @description Select monitors currently flaky over the last seven days */
-            flaky?: boolean | null;
-            /** @description Caller-provided CI session identifier */
-            sessionId?: string | null;
-            /**
-             * Format: uuid
-             * @description Only runs in this evaluation cycle, including retries
-             */
-            evaluationCycleId?: string | null;
-            /** @description Exclude this source; omitted preserves all sources */
-            excludeSource?: string | null;
-            /** @description Enqueue order: asc or desc (default: desc) */
-            sort?: string | null;
-            /**
-             * Format: int32
-             * @description Zero-based failed step index; requires monitor and caseIndex
-             */
-            step?: number | null;
-            /**
-             * Format: int32
-             * @description Zero-based case index qualifying the failed step
-             */
-            caseIndex?: number | null;
         };
         /** @description Execution chart and target-health cycles, read directly from retained runs. Health retries are reduced before assigning a cycle to its initial enqueue bucket; execution durations use their own enqueue window. Both comparison windows use the same current retained-cycle evidence */
         MonitorRunSeriesDto: {
@@ -10116,16 +9986,18 @@ export interface components {
              * @enum {string}
              */
             type: "HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT" | "BROWSER" | "MULTI_STEP_API";
-            config: components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["ScriptMonitorConfig"] | components["schemas"]["TcpMonitorConfig"];
+            config?: (components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["ScriptMonitorConfig"] | components["schemas"]["TcpMonitorConfig"]) | null;
             /** @description Optional assertions to evaluate against the test result */
             assertions?: components["schemas"]["CreateAssertionRequest"][] | null;
             /**
              * Format: uuid
-             * @description Environment to test against; null uses the monitor environment
+             * @description Environment to run in; required for browser and multi-step API code
              */
             environmentId?: string | null;
             code?: components["schemas"]["MonitorCodeSpec"] | null;
             session?: components["schemas"]["RunSessionContext"] | null;
+            /** @description Probe region for a code-bundle test (default: us-east) */
+            region?: string | null;
         };
         MonitorTestResultDto: {
             passed: boolean;
@@ -10162,29 +10034,6 @@ export interface components {
             restoreBlockers: string[];
             /** @description Status-page bindings retained for restoration */
             deletedBindings: components["schemas"]["RestorableBinding"][];
-        };
-        MonitorTriageParams: {
-            /** @description Exact monitor name, ignoring case and surrounding spaces */
-            name?: string | null;
-            /** @description Whether a confirmed incident is open */
-            openIncident?: boolean | null;
-            /** @description Whether alert delivery is currently muted */
-            muted?: boolean | null;
-            /** @description Whether quarantine has not expired */
-            quarantined?: boolean | null;
-            /**
-             * Format: date-time
-             * @description Only monitors paused before this timestamp
-             */
-            pausedBefore?: string | null;
-            /** @description Whether recent completed cycles recovered on retry */
-            flaky?: boolean | null;
-            /** @description List group: failing, not_running, passing, or paused */
-            group?: string | null;
-            /** @description Exact project declared by the owning tool */
-            ownerProject?: string | null;
-            /** @description Use state for group and streak ordering */
-            sort?: string | null;
         };
         /** @description Usage grouped by monitor and meter, including deleted monitors */
         MonitorUsage: {
@@ -10327,10 +10176,10 @@ export interface components {
              */
             changedById?: number | null;
             /**
-             * @description Change source (DASHBOARD, CLI, API)
+             * @description Change source: API, DASHBOARD, GIT, TERRAFORM or MCP
              * @enum {string}
              */
-            changedVia: "API" | "DASHBOARD" | "CLI" | "TERRAFORM";
+            changedVia: "API" | "DASHBOARD" | "CLI" | "TERRAFORM" | "GIT" | "MCP";
             /** @description Human-readable description of what changed */
             changeSummary?: string | null;
             /**
@@ -10822,13 +10671,6 @@ export interface components {
             address?: string | null;
             /** @description Display label declared by the owning client */
             label?: string | null;
-        };
-        Pageable: {
-            /** Format: int32 */
-            page: number;
-            /** Format: int32 */
-            size: number;
-            sort: string[];
         };
         PagerDutyChannelConfig: {
             /** @enum {string} */
@@ -11376,10 +11218,10 @@ export interface components {
             deleteBlockedBy?: components["schemas"]["ResourceGroupDeleteBlockerDto"][] | null;
             openRegionIncident?: components["schemas"]["IncidentDto"] | null;
             /**
-             * @description Source that created/owns this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on groups created before this attribution column existed.
+             * @description Source that created/owns this group: DASHBOARD, GIT, TERRAFORM, MCP or API. Null on groups created before this attribution column existed.
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
             /**
              * Format: date-time
              * @description Timestamp when the group was created
@@ -12012,13 +11854,6 @@ export interface components {
             /** @description Steps on this case */
             steps: components["schemas"]["RunStepDto"][];
         };
-        RunCaseListParams: {
-            /**
-             * Format: int32
-             * @description Only return cases for this Playwright attempt
-             */
-            attempt?: number | null;
-        };
         /** @description Console groups or ungrouped lines */
         RunConsoleDto: {
             /** @description on for browser, no_browser for API_CHECK */
@@ -12029,19 +11864,6 @@ export interface components {
             groups: components["schemas"]["ConsoleGroupDto"][];
             /** @description Raw lines when ungrouped=true */
             lines?: components["schemas"]["ConsoleLineDto"][] | null;
-        };
-        RunConsoleParams: {
-            /**
-             * Format: int32
-             * @description In-check attempt (default selected attempt)
-             */
-            attempt?: number | null;
-            /** @description Return chronological lines instead of groups */
-            ungrouped?: boolean | null;
-            /** @description Filter error, warning, or info */
-            level?: string | null;
-            /** @description raw downloads the ungrouped log as text/plain */
-            format?: string | null;
         };
         /** @description Step duration diff against a prior pass */
         RunDiffDto: {
@@ -12077,9 +11899,9 @@ export interface components {
             organizationId: number;
             /**
              * Format: uuid
-             * @description Monitor this run belongs to
+             * @description Monitor this run belongs to; null for an ad-hoc validation run
              */
-            monitorId: string;
+            monitorId?: string | null;
             /** @description Monitor display name */
             monitorName?: string | null;
             /**
@@ -12148,6 +11970,8 @@ export interface components {
              * @enum {string|null}
              */
             outcome?: "passed" | "failed" | "execution_error" | "timed_out" | "passed_on_retry" | "cancelled" | "inconclusive" | null;
+            /** @description Whether the run passed only after at least one fast retry */
+            flaky: boolean;
             /** @description Last control headline */
             headline?: string | null;
             /** @description Live execution one-liner */
@@ -12323,13 +12147,6 @@ export interface components {
              */
             createdAt: string;
         };
-        RunEventParams: {
-            /**
-             * Format: int64
-             * @description Replay events with seq greater than this value
-             */
-            after?: number | null;
-        };
         /** @description List evidence chip */
         RunEvidenceDto: {
             /**
@@ -12432,84 +12249,6 @@ export interface components {
             start: string;
             /** @description Health-voting run attempt counts */
             counts: components["schemas"]["RunOutcomeCountDto"][];
-        };
-        RunListParams: {
-            /** @description Filter by run phase; not_finished excludes finished runs */
-            phase?: string | null;
-            /** @description Outcomes, repeated or comma-separated; not_passed includes retries */
-            outcome?: string | null;
-            /** @description Filter by probe region */
-            region?: string | null;
-            /** @description Filter by what triggered the run */
-            source?: string | null;
-            /**
-             * Format: uuid
-             * @description Only return runs executed in this environment
-             */
-            environmentId?: string | null;
-            /**
-             * Format: date-time
-             * @description Inclusive enqueue lower bound (default last 24 hours; clamped to 90 days)
-             */
-            from?: string | null;
-            /**
-             * Format: date-time
-             * @description Inclusive enqueue upper bound (default now)
-             */
-            to?: string | null;
-            /** @description Substring match on monitor name or headline */
-            q?: string | null;
-            /** @description Opaque cursor from the previous page */
-            cursor?: string | null;
-            /**
-             * Format: int32
-             * @description Page size (1–100, default 50)
-             */
-            limit: number;
-            /**
-             * Format: uuid
-             * @description Only runs for this monitor
-             */
-            monitorId?: string | null;
-            /**
-             * Format: uuid
-             * @description Only runs for this revision
-             */
-            revisionId?: string | null;
-            /** @description Monitor type: BROWSER or MULTI_STEP_API */
-            monitorType?: string | null;
-            /**
-             * Format: uuid
-             * @description Runs in the incident window, intersected with from and to
-             */
-            incidentId?: string | null;
-            /** @description Exact branch from revision provenance */
-            branch?: string | null;
-            /** @description Select monitors currently flaky over the last seven days */
-            flaky?: boolean | null;
-            /** @description Caller-provided CI session identifier */
-            sessionId?: string | null;
-            /**
-             * Format: uuid
-             * @description Only runs in this evaluation cycle, including retries
-             */
-            evaluationCycleId?: string | null;
-            /** @description Exclude this source; omitted preserves all sources */
-            excludeSource?: string | null;
-            /** @description Enqueue order: asc or desc (default: desc) */
-            sort?: string | null;
-            /**
-             * Format: int32
-             * @description Zero-based failed step index; requires monitor and caseIndex
-             */
-            step?: number | null;
-            /**
-             * Format: int32
-             * @description Zero-based case index qualifying the failed step
-             */
-            caseIndex?: number | null;
-            /** @description Histogram width: 30m, 1h or 1d; at most 1000 buckets */
-            bucket?: string | null;
         };
         /** @description Live run progress */
         RunLiveDto: {
@@ -12717,25 +12456,6 @@ export interface components {
             /** @description Whether more rows exist beyond this page */
             hasMore: boolean;
         };
-        RunNetworkParams: {
-            /**
-             * Format: int32
-             * @description In-check attempt (default selected attempt)
-             */
-            attempt?: number | null;
-            /** @description Only rows with status >= 400 or a failure */
-            failed?: boolean | null;
-            /** @description Only rows with durationMs >= 1000 */
-            slow?: boolean | null;
-            /** @description Only rows for this step */
-            stepId?: string | null;
-            /** @description Only xhr, fetch, and api resource types */
-            xhr?: boolean | null;
-            /** @description page or request */
-            source?: string | null;
-            /** @description Opaque cursor from the previous page */
-            cursor?: string | null;
-        };
         /** @description Per-outcome attempt counts; populated for region facets */
         RunOutcomeCountDto: {
             /** @description Projected run outcome */
@@ -12802,37 +12522,6 @@ export interface components {
             missingKeys: string[];
             /** @description Environment recorded when ticks were skipped */
             environment?: string | null;
-        };
-        RunSkippedListParams: {
-            /**
-             * Format: date-time
-             * @description Inclusive window start; default last 24 hours, clamped to 90 days
-             */
-            from?: string | null;
-            /**
-             * Format: date-time
-             * @description Inclusive window end; default now
-             */
-            to?: string | null;
-            /**
-             * Format: uuid
-             * @description Only entries for this monitor
-             */
-            monitorId?: string | null;
-            /** @description Opaque cursor returned by this endpoint */
-            cursor?: string | null;
-            /**
-             * Format: int32
-             * @description Page size (1–100, default 50)
-             */
-            limit: number;
-            /**
-             * Format: uuid
-             * @description Current monitor environment; historical ticks retain their snapshot
-             */
-            environmentId?: string | null;
-            /** @description Monitor type: BROWSER or MULTI_STEP_API */
-            monitorType?: string | null;
         };
         /** @description Run step */
         RunStepDto: {
@@ -12973,30 +12662,6 @@ export interface components {
             text: string;
             /** @description Whether any section was cut to the cap */
             truncated: boolean;
-        };
-        RunWindowListParams: {
-            /**
-             * Format: date-time
-             * @description Inclusive window start; default last 24 hours, clamped to 90 days
-             */
-            from?: string | null;
-            /**
-             * Format: date-time
-             * @description Inclusive window end; default now
-             */
-            to?: string | null;
-            /**
-             * Format: uuid
-             * @description Only entries for this monitor
-             */
-            monitorId?: string | null;
-            /** @description Opaque cursor returned by this endpoint */
-            cursor?: string | null;
-            /**
-             * Format: int32
-             * @description Page size (1–100, default 50)
-             */
-            limit: number;
         };
         /** @description A scheduled maintenance window from a vendor status page */
         ScheduledMaintenanceDto: {
@@ -14276,10 +13941,10 @@ export interface components {
             overallStatus?: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE" | null;
             openIncident?: components["schemas"]["StatusPageOpenIncidentSummaryDto"] | null;
             /**
-             * @description Source that created/owns this status page: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on pages created before this attribution column existed.
+             * @description Source that created/owns this status page: DASHBOARD, GIT, TERRAFORM, MCP or API. Null on pages created before this attribution column existed.
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -15294,10 +14959,10 @@ export interface components {
         };
         TransferMonitorRequest: {
             /**
-             * @description New owning tool: DASHBOARD, CLI, TERRAFORM, MCP, or API
+             * @description New owning tool: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31)
              * @enum {string}
              */
-            to: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
+            to: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT";
             /** @description Why ownership is moving (recorded in the audit log) */
             reason: string;
             /** @description Project the new owner declares for this monitor; null clears it */
@@ -15386,10 +15051,10 @@ export interface components {
             name: string;
             config: components["schemas"]["UpdateDatadogChannelConfig"] | components["schemas"]["UpdateDiscordChannelConfig"] | components["schemas"]["UpdateEmailChannelConfig"] | components["schemas"]["UpdateGitLabChannelConfig"] | components["schemas"]["UpdateGoogleChatChannelConfig"] | components["schemas"]["UpdateIncidentIoChannelConfig"] | components["schemas"]["UpdateJiraChannelConfig"] | components["schemas"]["UpdateLinearChannelConfig"] | components["schemas"]["UpdateMattermostChannelConfig"] | components["schemas"]["UpdateOpsGenieChannelConfig"] | components["schemas"]["UpdatePagerDutyChannelConfig"] | components["schemas"]["UpdatePhoneCallChannelConfig"] | components["schemas"]["UpdatePushbulletChannelConfig"] | components["schemas"]["UpdatePushoverChannelConfig"] | components["schemas"]["UpdateRootlyChannelConfig"] | components["schemas"]["UpdateSlackChannelConfig"] | components["schemas"]["UpdateSmsChannelConfig"] | components["schemas"]["UpdateSplunkOnCallChannelConfig"] | components["schemas"]["UpdateTeamsChannelConfig"] | components["schemas"]["UpdateTelegramChannelConfig"] | components["schemas"]["UpdateWebhookChannelConfig"] | components["schemas"]["UpdateZapierChannelConfig"];
             /**
-             * @description New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value.
+             * @description New attribution source: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31); null preserves current value.
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
             /** @description Whether this channel is enabled (default: true); null preserves current value */
             enabled?: boolean | null;
         };
@@ -15558,7 +15223,7 @@ export interface components {
             config?: (components["schemas"]["DnsMonitorConfig"] | components["schemas"]["HeartbeatMonitorConfig"] | components["schemas"]["HttpMonitorConfig"] | components["schemas"]["IcmpMonitorConfig"] | components["schemas"]["McpServerMonitorConfig"] | components["schemas"]["ScriptMonitorConfig"] | components["schemas"]["TcpMonitorConfig"]) | null;
             /**
              * Format: int32
-             * @description New check frequency in seconds (10–86400). Null preserves current
+             * @description Check frequency in seconds; minimum depends on plan. Null preserves current
              */
             frequencySeconds?: number | null;
             /** @description Enable or disable the monitor (pause or resume). Null preserves current */
@@ -15569,7 +15234,7 @@ export interface components {
              * @description New ownership source for probe monitors. Null preserves current. Code monitors use takeover
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
             /** @description Only the managedBy tool may change configuration. Null preserves current */
             ownerEnforced?: boolean | null;
             /** @description Project the owning tool declares; null preserves current */
@@ -15742,10 +15407,10 @@ export interface components {
              */
             recoveryCooldownMinutes?: number | null;
             /**
-             * @description New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value.
+             * @description New attribution source: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31); null preserves current value.
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
         };
         UpdateRootlyChannelConfig: {
             /** @enum {string} */
@@ -15892,10 +15557,10 @@ export interface components {
              */
             incidentMode?: "MANUAL" | "REVIEW" | "AUTOMATIC" | null;
             /**
-             * @description New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value.
+             * @description New attribution source: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31); null preserves current value.
              * @enum {string|null}
              */
-            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | null;
+            managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
         };
         /** @description Request body for updating a tag; null fields are left unchanged */
         UpdateTagRequest: {
@@ -16457,16 +16122,24 @@ export type $defs = Record<string, never>;
 export interface operations {
     list_15: {
         parameters: {
-            query: {
+            query?: {
                 /** @description Filter by channel integration type (e.g. SLACK, WEBHOOK, EMAIL) */
                 type?: "email" | "webhook" | "slack" | "pagerduty" | "opsgenie" | "teams" | "discord" | "telegram" | "google_chat" | "pushover" | "mattermost" | "splunk_oncall" | "pushbullet" | "linear" | "incident_io" | "rootly" | "zapier" | "datadog" | "jira" | "gitlab" | "sms" | "phone_call";
-                /** @description Filter by managed-by source (DASHBOARD, CLI, TERRAFORM, MCP, API) */
-                managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
+                /** @description Filter by managed-by source (DASHBOARD, GIT, TERRAFORM, MCP, API; CLI = GIT until 2027-01-31) */
+                managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT";
                 /** @description Case-insensitive contains-match on the channel name */
                 search?: string;
-                pageable: components["schemas"]["Pageable"];
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -16585,7 +16258,12 @@ export interface operations {
     create_16: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -16708,7 +16386,10 @@ export interface operations {
     get_8: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -16829,7 +16510,10 @@ export interface operations {
     update_14: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -16954,7 +16638,10 @@ export interface operations {
     delete_10: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -17075,7 +16762,10 @@ export interface operations {
     listDeliveries_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -17196,7 +16886,10 @@ export interface operations {
     setEnabled: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -17321,7 +17014,12 @@ export interface operations {
     test_2: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -17442,7 +17140,12 @@ export interface operations {
     testConfig: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -17565,7 +17268,10 @@ export interface operations {
     listAttempts: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -17686,7 +17392,12 @@ export interface operations {
     retry: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -17807,7 +17518,10 @@ export interface operations {
     list_14: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -17926,7 +17640,12 @@ export interface operations {
     create_15: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -18049,7 +17768,10 @@ export interface operations {
     delete_12: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: number;
             };
@@ -18168,7 +17890,10 @@ export interface operations {
     update_17: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: number;
             };
@@ -18293,7 +18018,12 @@ export interface operations {
     regenerate: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: number;
             };
@@ -18414,7 +18144,12 @@ export interface operations {
     revoke_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: number;
             };
@@ -18535,7 +18270,10 @@ export interface operations {
     getArtifactContent: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -18652,7 +18390,10 @@ export interface operations {
     getArtifactDownload: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -18774,7 +18515,10 @@ export interface operations {
                 page?: number;
                 size?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -18906,7 +18650,10 @@ export interface operations {
                 /** @description Latest event time */
                 to?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19025,7 +18772,10 @@ export interface operations {
     start_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19148,7 +18898,10 @@ export interface operations {
     token: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19271,7 +19024,10 @@ export interface operations {
     me_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19392,8 +19148,15 @@ export interface operations {
             query?: {
                 entrypoint?: string;
                 runtimeId?: string;
+                /** @description Files to keep even when no import reaches them, e.g. fixtures */
+                include?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19517,7 +19280,12 @@ export interface operations {
     check: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19643,7 +19411,10 @@ export interface operations {
                 /** @description Count only published services (curated public pSEO set); default false */
                 publishedOnly?: boolean;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19762,7 +19533,10 @@ export interface operations {
     overview: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -19881,7 +19655,10 @@ export interface operations {
     list_23: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -20000,7 +19777,10 @@ export interface operations {
     get_14: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -20121,7 +19901,10 @@ export interface operations {
     listRevisions_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -20246,7 +20029,10 @@ export interface operations {
                 timezone: string;
                 days?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -20365,7 +20151,12 @@ export interface operations {
     createDashboardDemoBooking: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -20488,7 +20279,10 @@ export interface operations {
     getDashboardDemoBooking: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -20609,7 +20403,12 @@ export interface operations {
     closeUnsavedDashboardDemoBooking: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -20730,7 +20529,10 @@ export interface operations {
     current: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -20849,7 +20651,12 @@ export interface operations {
     acquire: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -20972,7 +20779,10 @@ export interface operations {
     release: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 lockId: string;
             };
@@ -21094,7 +20904,10 @@ export interface operations {
                 /** @description Why the lock is being broken (recorded in the audit log) */
                 reason?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -21211,7 +21024,12 @@ export interface operations {
     waitForEmailByLocalpart: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 localpart: string;
             };
@@ -21344,12 +21162,20 @@ export interface operations {
     };
     listEmailDomains: {
         parameters: {
-            query: {
+            query?: {
                 /** @description Case-insensitive name search */
                 search?: string;
-                pageable: components["schemas"]["Pageable"];
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -21468,7 +21294,12 @@ export interface operations {
     createEmailDomain: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -21591,7 +21422,10 @@ export interface operations {
     getEmailDomain: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
             };
@@ -21712,7 +21546,10 @@ export interface operations {
     deleteEmailDomain: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
             };
@@ -21831,7 +21668,10 @@ export interface operations {
     updateEmailDomain: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
             };
@@ -21956,7 +21796,10 @@ export interface operations {
     deleteEmailInbox: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
                 inbox: string;
@@ -22084,7 +21927,10 @@ export interface operations {
                 after?: string;
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
             };
@@ -22205,7 +22051,10 @@ export interface operations {
     getEmailMessage: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
                 messageId: string;
@@ -22327,7 +22176,10 @@ export interface operations {
     deleteEmailMessage: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
                 messageId: string;
@@ -22447,7 +22299,10 @@ export interface operations {
     getEmailMessageAttachment: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
                 messageId: string;
@@ -22570,7 +22425,10 @@ export interface operations {
     listEmailMessageLinks: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
                 messageId: string;
@@ -22692,7 +22550,10 @@ export interface operations {
     listEmailMessageOtp: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
                 messageId: string;
@@ -22814,7 +22675,10 @@ export interface operations {
     getEmailMessageRaw: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
                 messageId: string;
@@ -22936,7 +22800,10 @@ export interface operations {
     getEmailMessageSource: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
                 messageId: string;
@@ -23058,7 +22925,12 @@ export interface operations {
     injectEmailMessage: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
             };
@@ -23183,7 +23055,12 @@ export interface operations {
     verifyEmailDomain: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 domain: string;
             };
@@ -23307,7 +23184,10 @@ export interface operations {
                 /** @description Comma-separated domain ids (1–100) */
                 domainIds?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -23426,7 +23306,12 @@ export interface operations {
     waitForEmail: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -23558,7 +23443,10 @@ export interface operations {
     getCurrentEntitlements: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -23677,7 +23565,10 @@ export interface operations {
     list_13: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -23796,7 +23687,12 @@ export interface operations {
     create_14: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -23919,7 +23815,10 @@ export interface operations {
     get_7: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slug: string;
             };
@@ -24040,7 +23939,10 @@ export interface operations {
     update_13: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slug: string;
             };
@@ -24165,7 +24067,10 @@ export interface operations {
     delete_9: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slug: string;
             };
@@ -24284,7 +24189,10 @@ export interface operations {
     getTimeline: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -24404,15 +24312,23 @@ export interface operations {
     };
     listMonitorRuleEvaluations: {
         parameters: {
-            query: {
+            query?: {
                 ruleType?: string;
                 region?: string;
                 onlyMatched?: boolean;
                 from?: string;
                 to?: string;
-                pageable: components["schemas"]["Pageable"];
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -24532,12 +24448,20 @@ export interface operations {
     };
     listMonitorTransitions: {
         parameters: {
-            query: {
+            query?: {
                 from?: string;
                 to?: string;
-                pageable: components["schemas"]["Pageable"];
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -24658,7 +24582,10 @@ export interface operations {
     getPolicySnapshot: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 hashHex: string;
             };
@@ -24779,7 +24706,10 @@ export interface operations {
     getTrace: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 checkId: string;
             };
@@ -24900,7 +24830,10 @@ export interface operations {
     pingGet: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Ping endpoint token for the heartbeat monitor */
                 token: string;
@@ -25022,7 +24955,10 @@ export interface operations {
     pingPost: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Ping endpoint token for the heartbeat monitor */
                 token: string;
@@ -25149,10 +25085,46 @@ export interface operations {
     };
     list_12: {
         parameters: {
-            query: {
-                params: components["schemas"]["IncidentFilterParams"];
+            query?: {
+                /** @description Filter by incident lifecycle status; null returns every status */
+                status?: "WATCHING" | "TRIGGERED" | "CONFIRMED" | "RESOLVED";
+                /** @description Filter by severity; null returns every severity */
+                severity?: "DOWN" | "DEGRADED" | "MAINTENANCE";
+                /** @description Filter by where the incident originated (auto, manual, third-party) */
+                source?: "AUTOMATIC" | "MANUAL" | "MONITORS" | "STATUS_DATA" | "RESOURCE_GROUP";
+                /** @description Only return incidents tied to this monitor ID */
+                monitorId?: string;
+                /** @description Only return incidents tied to this service ID (third-party services) */
+                serviceId?: string;
+                /** @description Only return incidents owned by this resource group (incidents.resource_group_id) */
+                resourceGroupId?: string;
+                /** @description Only return incidents whose monitor carries this tag */
+                tagId?: string;
+                /** @description Only return incidents whose monitor lives in this environment */
+                environmentId?: string;
+                /** @description Exclude this incident ID from results (related-incident lists) */
+                excludeId?: string;
+                /** @description Earliest startedAt to include (inclusive, ISO 8601) */
+                startedFrom?: string;
+                /** @description Latest startedAt to include (inclusive, ISO 8601) */
+                startedTo?: string;
+                /** @description Case-insensitive substring match on title or incident ID */
+                search?: string;
+                /**
+                 * @description Zero-based page index (default: 0)
+                 * @example 0
+                 */
+                page?: number;
+                /**
+                 * @description Number of incidents per page (1–200, default: 10)
+                 * @example 10
+                 */
+                size?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -25271,7 +25243,12 @@ export interface operations {
     create_13: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -25394,7 +25371,10 @@ export interface operations {
     get_9: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -25515,7 +25495,10 @@ export interface operations {
     update_16: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -25640,7 +25623,12 @@ export interface operations {
     acknowledgeAll: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -25764,7 +25752,10 @@ export interface operations {
                 cursor?: string;
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -25888,7 +25879,10 @@ export interface operations {
                 windowDays?: number;
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -26009,7 +26003,12 @@ export interface operations {
     resolve: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -26137,7 +26136,10 @@ export interface operations {
                 cursor?: string;
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -26258,7 +26260,10 @@ export interface operations {
     getTrigger: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -26379,7 +26384,12 @@ export interface operations {
     addUpdate: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -26504,7 +26514,10 @@ export interface operations {
     ingest: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Public token that identifies the inbox */
                 publicToken: string;
@@ -26626,7 +26639,10 @@ export interface operations {
     ingest_2: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Public token that identifies the inbox */
                 publicToken: string;
@@ -26748,7 +26764,10 @@ export interface operations {
     ingest_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Public token that identifies the inbox */
                 publicToken: string;
@@ -26870,7 +26889,10 @@ export interface operations {
     ingest_3: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Public token that identifies the inbox */
                 publicToken: string;
@@ -26992,7 +27014,10 @@ export interface operations {
     ingest_6: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Public token that identifies the inbox */
                 publicToken: string;
@@ -27114,7 +27139,10 @@ export interface operations {
     ingest_5: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Public token that identifies the inbox */
                 publicToken: string;
@@ -27236,7 +27264,10 @@ export interface operations {
     ingest_4: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Public token that identifies the inbox */
                 publicToken: string;
@@ -27358,7 +27389,10 @@ export interface operations {
     list_22: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -27477,7 +27511,10 @@ export interface operations {
     listVoiceLanguages: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -27596,7 +27633,10 @@ export interface operations {
     list_11: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -27715,7 +27755,12 @@ export interface operations {
     create_12: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -27838,7 +27883,12 @@ export interface operations {
     resend_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inviteId: number;
             };
@@ -27959,7 +28009,12 @@ export interface operations {
     revoke: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inviteId: number;
             };
@@ -28083,7 +28138,10 @@ export interface operations {
                 /** @description Filter by status: 'active' or 'upcoming' */
                 filter?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -28202,7 +28260,12 @@ export interface operations {
     create_11: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -28325,7 +28388,10 @@ export interface operations {
     getById_2: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -28446,7 +28512,10 @@ export interface operations {
     update_12: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -28571,7 +28640,10 @@ export interface operations {
     delete_8: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -28689,10 +28761,18 @@ export interface operations {
     };
     list_21: {
         parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
+            query?: {
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -28811,7 +28891,10 @@ export interface operations {
     remove_2: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 userId: number;
             };
@@ -28930,7 +29013,10 @@ export interface operations {
     changeRole: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 userId: number;
             };
@@ -29053,7 +29139,10 @@ export interface operations {
     changeStatus: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 userId: number;
             };
@@ -29175,7 +29264,7 @@ export interface operations {
     };
     list_9: {
         parameters: {
-            query: {
+            query?: {
                 /** @description Filter by enabled state (true/false) */
                 enabled?: boolean;
                 /** @description Lifecycle status alias: 'active' (enabled=true) or 'paused' (enabled=false). Ignored when ?enabled is also supplied. */
@@ -29185,7 +29274,7 @@ export interface operations {
                 /** @description Filter by monitor types, comma-separated; matches any listed type */
                 types?: ("HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT" | "BROWSER" | "MULTI_STEP_API")[];
                 /** @description Filter by managed-by source */
-                managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
+                managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT";
                 /** @description Filter by tag names, comma-separated (e.g. prod,critical); OR semantics */
                 tags?: string;
                 /** @description Filter by a single tag name (alias for ?tags=); merged with ?tags using OR semantics */
@@ -29200,10 +29289,33 @@ export interface operations {
                 needsAttention?: boolean;
                 /** @description Filter by probe region */
                 region?: string;
-                triage: components["schemas"]["MonitorTriageParams"];
-                pageable: components["schemas"]["Pageable"];
+                /** @description Exact, case-sensitive monitor name */
+                name?: string;
+                /** @description Whether a confirmed incident is open */
+                openIncident?: boolean;
+                /** @description Whether alert delivery is currently muted */
+                muted?: boolean;
+                /** @description Whether quarantine has not expired */
+                quarantined?: boolean;
+                /** @description Only monitors paused before this timestamp */
+                pausedBefore?: string;
+                /** @description Whether recent completed cycles recovered on retry */
+                flaky?: boolean;
+                /** @description List group: failing, not_running, passing, or paused */
+                group?: string;
+                /** @description Exact project declared by the owning tool */
+                ownerProject?: string;
+                /** @description Use state for group and streak ordering */
+                sort?: string;
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -29322,7 +29434,12 @@ export interface operations {
     create_10: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -29445,7 +29562,10 @@ export interface operations {
     get_6: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -29566,7 +29686,10 @@ export interface operations {
     update_11: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -29691,7 +29814,10 @@ export interface operations {
     delete_7: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -29810,7 +29936,10 @@ export interface operations {
     drift: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -29934,7 +30063,10 @@ export interface operations {
                 cursor?: string;
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -30055,7 +30187,12 @@ export interface operations {
     mute: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -30187,7 +30324,10 @@ export interface operations {
                 /** @description Latest settled runs, 1–30; ignores the window within retention */
                 lastRuns?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -30308,7 +30448,12 @@ export interface operations {
     pause: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -30433,7 +30578,12 @@ export interface operations {
     publish: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -30558,7 +30708,12 @@ export interface operations {
     quarantine: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -30683,7 +30838,12 @@ export interface operations {
     releaseQuarantine: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -30804,7 +30964,12 @@ export interface operations {
     restore: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -30945,7 +31110,10 @@ export interface operations {
                 /** @description Filter by pass/fail status */
                 passed?: boolean;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -31071,7 +31239,10 @@ export interface operations {
                 /** @description Limit to one of the monitor's regions (e.g. us-east) */
                 region?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -31195,7 +31366,10 @@ export interface operations {
                 /** @description Chart window: 24h returns hourly buckets, 7d/30d/90d return daily buckets */
                 chartWindow?: "24h" | "7d" | "30d" | "90d";
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -31316,7 +31490,12 @@ export interface operations {
     resume: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -31436,12 +31615,20 @@ export interface operations {
     };
     listRevisions: {
         parameters: {
-            query: {
+            query?: {
                 /** @description Comma-separated draft, tested_passed, tested_failed, live, previous, discarded, or all; default live,previous */
                 state?: string;
-                pageable: components["schemas"]["Pageable"];
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -31563,7 +31750,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
                 "X-DevHelm-Client"?: string;
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
             };
             path: {
                 id: string;
@@ -31689,7 +31879,10 @@ export interface operations {
     discardDraft: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 revisionId: string;
@@ -31809,7 +32002,12 @@ export interface operations {
     keepDraft: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 revisionId: string;
@@ -31931,7 +32129,12 @@ export interface operations {
     testRevision: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 revisionId: string;
@@ -32057,7 +32260,12 @@ export interface operations {
     rollback: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -32185,7 +32393,10 @@ export interface operations {
                 /** @description Revision to preview; null previews the previous live revision */
                 revisionId?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -32306,7 +32517,12 @@ export interface operations {
     rotateToken: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -32426,10 +32642,52 @@ export interface operations {
     };
     listMonitorRuns: {
         parameters: {
-            query: {
-                params: components["schemas"]["MonitorRunListParams"];
+            query?: {
+                /** @description Filter by run phase; not_finished excludes finished runs */
+                phase?: string;
+                /** @description Outcomes, repeated or comma-separated; not_passed includes retries */
+                outcome?: string;
+                /** @description Filter by probe region */
+                region?: string;
+                /** @description Filter by what triggered the run */
+                source?: string;
+                /** @description Substring match on headline */
+                q?: string;
+                /** @description Only runs for this published revision */
+                revisionId?: string;
+                /** @description Inclusive enqueue lower bound (clamped to 90 days) */
+                from?: string;
+                /** @description Inclusive enqueue upper bound (default now) */
+                to?: string;
+                /** @description Opaque cursor from the previous page; results cover the last 90 days */
+                cursor?: string;
+                /** @description Page size (1–100, default 25) */
+                limit?: number;
+                /** @description Monitor type: BROWSER or MULTI_STEP_API */
+                monitorType?: string;
+                /** @description Runs in the incident window, intersected with from and to */
+                incidentId?: string;
+                /** @description Exact branch from revision provenance */
+                branch?: string;
+                /** @description Select monitors currently flaky over the last seven days */
+                flaky?: boolean;
+                /** @description Caller-provided CI session identifier */
+                sessionId?: string;
+                /** @description Only runs in this evaluation cycle, including retries */
+                evaluationCycleId?: string;
+                /** @description Exclude this source; omitted preserves all sources */
+                excludeSource?: string;
+                /** @description Enqueue order: asc or desc (default: desc) */
+                sort?: string;
+                /** @description Zero-based failed step index; requires monitor and caseIndex */
+                step?: number;
+                /** @description Zero-based case index qualifying the failed step */
+                caseIndex?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -32551,7 +32809,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
                 "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
             };
             path: {
                 id: string;
@@ -32673,7 +32934,10 @@ export interface operations {
     health: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -32794,7 +33058,10 @@ export interface operations {
     schedule: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -32922,7 +33189,10 @@ export interface operations {
                 /** @description Limit chart samples to one configured region */
                 region?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -33043,7 +33313,10 @@ export interface operations {
     summarizeMonitorRuns: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -33167,7 +33440,10 @@ export interface operations {
                 /** @description Revision whose key demand to preview; null uses live */
                 revisionId?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -33288,7 +33564,10 @@ export interface operations {
     remap: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 key: string;
@@ -33414,7 +33693,12 @@ export interface operations {
     rescan: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -33535,7 +33819,10 @@ export interface operations {
     getSession: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -33656,7 +33943,10 @@ export interface operations {
     putSession: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -33781,7 +34071,12 @@ export interface operations {
     renewSession: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -33902,7 +34197,12 @@ export interface operations {
     revokeSession: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -34023,7 +34323,10 @@ export interface operations {
     listMonitorSetupSessions: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -34144,7 +34447,10 @@ export interface operations {
     upsertMonitorSetupSession: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -34272,7 +34578,12 @@ export interface operations {
                 /** @description Setup file to capture */
                 setupFile: string;
             };
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -34396,7 +34707,12 @@ export interface operations {
                 /** @description Setup file to revoke */
                 setupFile: string;
             };
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -34517,7 +34833,10 @@ export interface operations {
     settingsPreview: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -34638,7 +34957,10 @@ export interface operations {
     listStatusPagesForMonitor: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -34759,7 +35081,10 @@ export interface operations {
     getMonitorTags: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -34880,7 +35205,12 @@ export interface operations {
     addMonitorTags: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -35005,7 +35335,10 @@ export interface operations {
     removeMonitorTags: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -35128,7 +35461,12 @@ export interface operations {
     takeover: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -35253,7 +35591,12 @@ export interface operations {
     testExisting: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -35387,7 +35730,12 @@ export interface operations {
     testNotifications: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -35512,7 +35860,12 @@ export interface operations {
     transfer: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -35638,7 +35991,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
                 "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
             };
             path: {
                 id: string;
@@ -35764,7 +36120,12 @@ export interface operations {
     unmute: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -35888,7 +36249,10 @@ export interface operations {
                 /** @description Time window for uptime calculation */
                 window?: "24h" | "7d" | "30d" | "90d";
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -36009,7 +36373,12 @@ export interface operations {
     previewUsage: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -36133,10 +36502,18 @@ export interface operations {
     };
     listVersions: {
         parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
+            query?: {
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -36257,7 +36634,10 @@ export interface operations {
     getVersion: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 version: number;
@@ -36379,7 +36759,10 @@ export interface operations {
     setChannels: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 monitorId: string;
             };
@@ -36504,7 +36887,12 @@ export interface operations {
     add: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 monitorId: string;
             };
@@ -36629,7 +37017,10 @@ export interface operations {
     update_10: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 monitorId: string;
                 assertionId: string;
@@ -36755,7 +37146,10 @@ export interface operations {
     remove_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 monitorId: string;
                 assertionId: string;
@@ -36875,7 +37269,10 @@ export interface operations {
     update_9: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 monitorId: string;
             };
@@ -37000,7 +37397,12 @@ export interface operations {
     set: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 monitorId: string;
             };
@@ -37125,7 +37527,10 @@ export interface operations {
     remove: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 monitorId: string;
             };
@@ -37244,7 +37649,10 @@ export interface operations {
     get_5: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Monitor UUID */
                 monitorId: string;
@@ -37366,7 +37774,10 @@ export interface operations {
     update_8: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 /** @description Monitor UUID */
                 monitorId: string;
@@ -37499,7 +37910,10 @@ export interface operations {
                 /** @description Return 48 display-only history buckets */
                 density?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -37618,7 +38032,12 @@ export interface operations {
     bulkAction: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -37743,7 +38162,10 @@ export interface operations {
             query: {
                 ids: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -37861,7 +38283,7 @@ export interface operations {
     };
     facets: {
         parameters: {
-            query: {
+            query?: {
                 /** @description Filter by enabled state (true/false) */
                 enabled?: boolean;
                 /** @description Lifecycle status alias: 'active' (enabled=true) or 'paused' (enabled=false). Ignored when ?enabled is also supplied. */
@@ -37871,7 +38293,7 @@ export interface operations {
                 /** @description Filter by monitor types, comma-separated; matches any listed type */
                 types?: ("HTTP" | "DNS" | "MCP_SERVER" | "TCP" | "ICMP" | "HEARTBEAT" | "BROWSER" | "MULTI_STEP_API")[];
                 /** @description Filter by managed-by source */
-                managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API";
+                managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT";
                 /** @description Filter by tag names, comma-separated (e.g. prod,critical); OR semantics */
                 tags?: string;
                 /** @description Filter by a single tag name (alias for ?tags=); merged with ?tags using OR semantics */
@@ -37886,9 +38308,29 @@ export interface operations {
                 needsAttention?: boolean;
                 /** @description Filter by probe region */
                 region?: string;
-                triage: components["schemas"]["MonitorTriageParams"];
+                /** @description Exact, case-sensitive monitor name */
+                name?: string;
+                /** @description Whether a confirmed incident is open */
+                openIncident?: boolean;
+                /** @description Whether alert delivery is currently muted */
+                muted?: boolean;
+                /** @description Whether quarantine has not expired */
+                quarantined?: boolean;
+                /** @description Only monitors paused before this timestamp */
+                pausedBefore?: string;
+                /** @description Whether recent completed cycles recovered on retry */
+                flaky?: boolean;
+                /** @description List group: failing, not_running, passing, or paused */
+                group?: string;
+                /** @description Exact project declared by the owning tool */
+                ownerProject?: string;
+                /** @description Use state for group and streak ordering */
+                sort?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -38007,7 +38449,12 @@ export interface operations {
     testAdHoc: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -38138,10 +38585,18 @@ export interface operations {
     };
     listTrash: {
         parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
+            query?: {
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -38260,7 +38715,12 @@ export interface operations {
     previewUsage_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -38383,7 +38843,12 @@ export interface operations {
     validateMonitors: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -38509,7 +38974,10 @@ export interface operations {
                 /** @description UUID of the incident to inspect */
                 incident_id: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -38628,7 +39096,10 @@ export interface operations {
     getById_3: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -38749,7 +39220,12 @@ export interface operations {
     acknowledge: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -38870,7 +39346,12 @@ export interface operations {
     unacknowledge: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -38991,7 +39472,10 @@ export interface operations {
     list_8: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -39110,7 +39594,12 @@ export interface operations {
     create_9: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -39233,7 +39722,10 @@ export interface operations {
     getById_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -39354,7 +39846,10 @@ export interface operations {
     update_7: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -39479,7 +39974,10 @@ export interface operations {
     delete_6: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -39607,7 +40105,10 @@ export interface operations {
                 /** @description Page size 1–100 when windowing/paginating (default 50) */
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -39728,7 +40229,12 @@ export interface operations {
     test_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -39857,7 +40363,10 @@ export interface operations {
                 page?: number;
                 size?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -39976,7 +40485,10 @@ export interface operations {
     markRead: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: number;
             };
@@ -40095,7 +40607,10 @@ export interface operations {
     markAllRead: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -40212,7 +40727,10 @@ export interface operations {
     unreadCount: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -40331,7 +40849,10 @@ export interface operations {
     get_4: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -40450,7 +40971,10 @@ export interface operations {
     update_6: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -40573,7 +41097,10 @@ export interface operations {
     listRegions: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -40692,7 +41219,10 @@ export interface operations {
     list_7: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -40811,7 +41341,12 @@ export interface operations {
     create_8: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -40936,7 +41471,10 @@ export interface operations {
             query?: {
                 includeMetrics?: boolean;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -41057,7 +41595,10 @@ export interface operations {
     update_5: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -41182,7 +41723,10 @@ export interface operations {
     delete_5: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -41301,7 +41845,10 @@ export interface operations {
     getHealth: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -41422,7 +41969,10 @@ export interface operations {
     listMatchedPolicies: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -41543,7 +42093,12 @@ export interface operations {
     addMember_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -41668,7 +42223,10 @@ export interface operations {
     removeMember_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 memberId: string;
@@ -41788,7 +42346,10 @@ export interface operations {
     get_13: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -41909,7 +42470,10 @@ export interface operations {
     bundle: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -42028,7 +42592,10 @@ export interface operations {
     bundleContent: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -42149,7 +42716,10 @@ export interface operations {
     diff: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 other: string;
@@ -42271,7 +42841,10 @@ export interface operations {
     files: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -42392,7 +42965,12 @@ export interface operations {
     purgeRevision: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -42516,10 +43094,60 @@ export interface operations {
     };
     listRuns: {
         parameters: {
-            query: {
-                params: components["schemas"]["RunListParams"];
+            query?: {
+                /** @description Filter by run phase; not_finished excludes finished runs */
+                phase?: string;
+                /** @description Outcomes, repeated or comma-separated; not_passed includes retries */
+                outcome?: string;
+                /** @description Filter by probe region */
+                region?: string;
+                /** @description Filter by what triggered the run */
+                source?: string;
+                /** @description Only return runs executed in this environment */
+                environmentId?: string;
+                /** @description Inclusive enqueue lower bound (default last 24 hours; clamped to 90 days) */
+                from?: string;
+                /** @description Inclusive enqueue upper bound (default now) */
+                to?: string;
+                /** @description Substring match on monitor name or headline */
+                q?: string;
+                /** @description Opaque cursor from the previous page */
+                cursor?: string;
+                /** @description Page size (1–100, default 50) */
+                limit?: number;
+                /** @description Only runs for this monitor */
+                monitorId?: string;
+                /** @description Only runs for this revision */
+                revisionId?: string;
+                /** @description Monitor type: BROWSER or MULTI_STEP_API */
+                monitorType?: string;
+                /** @description Runs in the incident window, intersected with from and to */
+                incidentId?: string;
+                /** @description Exact branch from revision provenance */
+                branch?: string;
+                /** @description Select monitors currently flaky over the last seven days */
+                flaky?: boolean;
+                /** @description Caller-provided CI session identifier */
+                sessionId?: string;
+                /** @description Only runs in this evaluation cycle, including retries */
+                evaluationCycleId?: string;
+                /** @description Exclude this source; omitted preserves all sources */
+                excludeSource?: string;
+                /** @description Enqueue order: asc or desc (default: desc) */
+                sort?: string;
+                /** @description Zero-based failed step index; requires monitor and caseIndex */
+                step?: number;
+                /** @description Zero-based case index qualifying the failed step */
+                caseIndex?: number;
+                /** @description Include ad-hoc validation runs that have no monitor (default: false) */
+                adhoc?: boolean;
+                /** @description Histogram width: 30m, 1h or 1d; at most 1000 buckets */
+                bucket?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -42638,7 +43266,10 @@ export interface operations {
     getRun: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -42759,7 +43390,10 @@ export interface operations {
     listRunArtifacts: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -42880,7 +43514,12 @@ export interface operations {
     cancelRun: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -43001,7 +43640,10 @@ export interface operations {
     compareRunCapture: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 artifactId: string;
@@ -43122,10 +43764,14 @@ export interface operations {
     };
     listRunCases: {
         parameters: {
-            query: {
-                params: components["schemas"]["RunCaseListParams"];
+            query?: {
+                /** @description Only return cases for this Playwright attempt */
+                attempt?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -43245,10 +43891,20 @@ export interface operations {
     };
     getRunConsoleRaw: {
         parameters: {
-            query: {
-                params: components["schemas"]["RunConsoleParams"];
+            query?: {
+                /** @description In-check attempt (default selected attempt) */
+                attempt?: number;
+                /** @description Return chronological lines instead of groups */
+                ungrouped?: boolean;
+                /** @description Filter error, warning, or info */
+                level?: string;
+                /** @description raw downloads the ungrouped log as text/plain */
+                format?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -43372,7 +44028,10 @@ export interface operations {
             query?: {
                 baselineRunId?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -43492,11 +44151,14 @@ export interface operations {
     };
     streamRunEvents: {
         parameters: {
-            query: {
-                params: components["schemas"]["RunEventParams"];
+            query?: {
+                /** @description Replay events with seq greater than this value */
+                after?: number;
             };
             header?: {
                 "Last-Event-ID"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
             };
             path: {
                 id: string;
@@ -43618,7 +44280,10 @@ export interface operations {
     exportRun: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -43738,10 +44403,26 @@ export interface operations {
     };
     listRunNetwork: {
         parameters: {
-            query: {
-                params: components["schemas"]["RunNetworkParams"];
+            query?: {
+                /** @description In-check attempt (default selected attempt) */
+                attempt?: number;
+                /** @description Only rows with status >= 400 or a failure */
+                failed?: boolean;
+                /** @description Only rows with durationMs >= 1000 */
+                slow?: boolean;
+                /** @description Only rows for this step */
+                stepId?: string;
+                /** @description Only xhr, fetch, and api resource types */
+                xhr?: boolean;
+                /** @description page or request */
+                source?: string;
+                /** @description Opaque cursor from the previous page */
+                cursor?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -43862,7 +44543,10 @@ export interface operations {
     getRunNetworkRow: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 rowId: string;
@@ -43984,7 +44668,12 @@ export interface operations {
     pinRun: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -44105,7 +44794,10 @@ export interface operations {
     unpinRun: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -44226,7 +44918,12 @@ export interface operations {
     purgeRun: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -44351,7 +45048,10 @@ export interface operations {
     getRunRunnerLog: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -44473,7 +45173,10 @@ export interface operations {
     streamRunRunnerLog: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -44594,7 +45297,10 @@ export interface operations {
     getRunTraceSummary: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -44714,10 +45420,60 @@ export interface operations {
     };
     exportRuns: {
         parameters: {
-            query: {
-                params: components["schemas"]["RunListParams"];
+            query?: {
+                /** @description Filter by run phase; not_finished excludes finished runs */
+                phase?: string;
+                /** @description Outcomes, repeated or comma-separated; not_passed includes retries */
+                outcome?: string;
+                /** @description Filter by probe region */
+                region?: string;
+                /** @description Filter by what triggered the run */
+                source?: string;
+                /** @description Only return runs executed in this environment */
+                environmentId?: string;
+                /** @description Inclusive enqueue lower bound (default last 24 hours; clamped to 90 days) */
+                from?: string;
+                /** @description Inclusive enqueue upper bound (default now) */
+                to?: string;
+                /** @description Substring match on monitor name or headline */
+                q?: string;
+                /** @description Opaque cursor from the previous page */
+                cursor?: string;
+                /** @description Page size (1–100, default 50) */
+                limit?: number;
+                /** @description Only runs for this monitor */
+                monitorId?: string;
+                /** @description Only runs for this revision */
+                revisionId?: string;
+                /** @description Monitor type: BROWSER or MULTI_STEP_API */
+                monitorType?: string;
+                /** @description Runs in the incident window, intersected with from and to */
+                incidentId?: string;
+                /** @description Exact branch from revision provenance */
+                branch?: string;
+                /** @description Select monitors currently flaky over the last seven days */
+                flaky?: boolean;
+                /** @description Caller-provided CI session identifier */
+                sessionId?: string;
+                /** @description Only runs in this evaluation cycle, including retries */
+                evaluationCycleId?: string;
+                /** @description Exclude this source; omitted preserves all sources */
+                excludeSource?: string;
+                /** @description Enqueue order: asc or desc (default: desc) */
+                sort?: string;
+                /** @description Zero-based failed step index; requires monitor and caseIndex */
+                step?: number;
+                /** @description Zero-based case index qualifying the failed step */
+                caseIndex?: number;
+                /** @description Include ad-hoc validation runs that have no monitor (default: false) */
+                adhoc?: boolean;
+                /** @description Histogram width: 30m, 1h or 1d; at most 1000 buckets */
+                bucket?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -44835,10 +45591,22 @@ export interface operations {
     };
     getRunMonitorStrip: {
         parameters: {
-            query: {
-                params: components["schemas"]["RunWindowListParams"];
+            query?: {
+                /** @description Inclusive window start; default last 24 hours, clamped to 90 days */
+                from?: string;
+                /** @description Inclusive window end; default now */
+                to?: string;
+                /** @description Only entries for this monitor */
+                monitorId?: string;
+                /** @description Opaque cursor returned by this endpoint */
+                cursor?: string;
+                /** @description Page size (1–100, default 50) */
+                limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -44956,10 +45724,22 @@ export interface operations {
     };
     listRunRevisionMarkers: {
         parameters: {
-            query: {
-                params: components["schemas"]["RunWindowListParams"];
+            query?: {
+                /** @description Inclusive window start; default last 24 hours, clamped to 90 days */
+                from?: string;
+                /** @description Inclusive window end; default now */
+                to?: string;
+                /** @description Only entries for this monitor */
+                monitorId?: string;
+                /** @description Opaque cursor returned by this endpoint */
+                cursor?: string;
+                /** @description Page size (1–100, default 50) */
+                limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -45077,10 +45857,26 @@ export interface operations {
     };
     listSkippedRuns: {
         parameters: {
-            query: {
-                params: components["schemas"]["RunSkippedListParams"];
+            query?: {
+                /** @description Current monitor environment; historical ticks retain their snapshot */
+                environmentId?: string;
+                /** @description Monitor type: BROWSER or MULTI_STEP_API */
+                monitorType?: string;
+                /** @description Inclusive window start; default last 24 hours, clamped to 90 days */
+                from?: string;
+                /** @description Inclusive window end; default now */
+                to?: string;
+                /** @description Only entries for this monitor */
+                monitorId?: string;
+                /** @description Opaque cursor returned by this endpoint */
+                cursor?: string;
+                /** @description Page size (1–100, default 50) */
+                limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -45198,10 +45994,60 @@ export interface operations {
     };
     summarizeRuns: {
         parameters: {
-            query: {
-                params: components["schemas"]["RunListParams"];
+            query?: {
+                /** @description Filter by run phase; not_finished excludes finished runs */
+                phase?: string;
+                /** @description Outcomes, repeated or comma-separated; not_passed includes retries */
+                outcome?: string;
+                /** @description Filter by probe region */
+                region?: string;
+                /** @description Filter by what triggered the run */
+                source?: string;
+                /** @description Only return runs executed in this environment */
+                environmentId?: string;
+                /** @description Inclusive enqueue lower bound (default last 24 hours; clamped to 90 days) */
+                from?: string;
+                /** @description Inclusive enqueue upper bound (default now) */
+                to?: string;
+                /** @description Substring match on monitor name or headline */
+                q?: string;
+                /** @description Opaque cursor from the previous page */
+                cursor?: string;
+                /** @description Page size (1–100, default 50) */
+                limit?: number;
+                /** @description Only runs for this monitor */
+                monitorId?: string;
+                /** @description Only runs for this revision */
+                revisionId?: string;
+                /** @description Monitor type: BROWSER or MULTI_STEP_API */
+                monitorType?: string;
+                /** @description Runs in the incident window, intersected with from and to */
+                incidentId?: string;
+                /** @description Exact branch from revision provenance */
+                branch?: string;
+                /** @description Select monitors currently flaky over the last seven days */
+                flaky?: boolean;
+                /** @description Caller-provided CI session identifier */
+                sessionId?: string;
+                /** @description Only runs in this evaluation cycle, including retries */
+                evaluationCycleId?: string;
+                /** @description Exclude this source; omitted preserves all sources */
+                excludeSource?: string;
+                /** @description Enqueue order: asc or desc (default: desc) */
+                sort?: string;
+                /** @description Zero-based failed step index; requires monitor and caseIndex */
+                step?: number;
+                /** @description Zero-based case index qualifying the failed step */
+                caseIndex?: number;
+                /** @description Include ad-hoc validation runs that have no monitor (default: false) */
+                adhoc?: boolean;
+                /** @description Histogram width: 30m, 1h or 1d; at most 1000 buckets */
+                bucket?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -45323,7 +46169,10 @@ export interface operations {
                 /** @description Environment whose value metadata to show */
                 environmentId?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -45442,7 +46291,12 @@ export interface operations {
     create_7: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -45565,7 +46419,10 @@ export interface operations {
     update_4: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 key: string;
             };
@@ -45690,7 +46547,10 @@ export interface operations {
     delete_4: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 key: string;
             };
@@ -45809,7 +46669,10 @@ export interface operations {
     audit: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 key: string;
             };
@@ -45930,7 +46793,10 @@ export interface operations {
     writeEnvironmentValue: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 key: string;
                 environmentId: string;
@@ -46054,7 +46920,10 @@ export interface operations {
     deleteEnvironmentValue: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 key: string;
                 environmentId: string;
@@ -46174,7 +47043,10 @@ export interface operations {
     usage: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 key: string;
             };
@@ -46295,7 +47167,10 @@ export interface operations {
     list_18: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -46414,7 +47289,10 @@ export interface operations {
     get_12: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -46535,7 +47413,10 @@ export interface operations {
     unsubscribe_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -46654,7 +47535,10 @@ export interface operations {
     updateAlertSensitivity: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -46779,7 +47663,12 @@ export interface operations {
     subscribe_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slug: string;
             };
@@ -46921,7 +47810,10 @@ export interface operations {
                 /** @description Page size (1–100, default 20) */
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -47045,7 +47937,10 @@ export interface operations {
                 /** @description Resolve only published services (curated public pSEO set); 404 otherwise. Default false */
                 publishedOnly?: boolean;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
             };
@@ -47175,7 +48070,10 @@ export interface operations {
                 /** @description Page size (default 25, max 100) */
                 size?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
             };
@@ -47303,7 +48201,10 @@ export interface operations {
                 /** @description Explicit window end (ISO date); defaults to today */
                 to?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
                 componentId: string;
@@ -47434,7 +48335,10 @@ export interface operations {
                 /** @description Component ids to include (max 100); omit for every component */
                 componentIds?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
             };
@@ -47555,7 +48459,10 @@ export interface operations {
     getServiceDayDetail: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
                 /** @description UTC calendar day in ISO format (YYYY-MM-DD) */
@@ -47677,14 +48584,22 @@ export interface operations {
     };
     listIncidents_1: {
         parameters: {
-            query: {
+            query?: {
                 /** @description Earliest start date (ISO 8601 date) */
                 from?: string;
                 /** @description Filter: active (unresolved), resolved, or omit for all */
                 status?: "active" | "resolved";
-                pageable: components["schemas"]["Pageable"];
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
             };
@@ -47805,7 +48720,10 @@ export interface operations {
     getIncident_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
                 incidentId: string;
@@ -47927,7 +48845,10 @@ export interface operations {
     getServiceLiveStatus: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
             };
@@ -48051,7 +48972,10 @@ export interface operations {
                 /** @description Filter by status (e.g. scheduled, in_progress, verifying, completed) */
                 status?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
             };
@@ -48177,7 +49101,10 @@ export interface operations {
                 /** @description Page size (1–100, default 50) */
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
             };
@@ -48301,7 +49228,10 @@ export interface operations {
                 /** @description Time window */
                 window?: "24h" | "7d" | "30d";
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
             };
@@ -48435,7 +49365,10 @@ export interface operations {
                 /** @description Page size (1–100, default 50) */
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
             };
@@ -48561,7 +49494,10 @@ export interface operations {
                 /** @description Bucket granularity */
                 granularity?: "hourly" | "daily" | "monthly";
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 slugOrId: string;
             };
@@ -48681,16 +49617,24 @@ export interface operations {
     };
     listCrossServiceIncidents: {
         parameters: {
-            query: {
+            query?: {
                 /** @description Earliest start date (ISO 8601 date) */
                 from?: string;
                 /** @description Filter: active (unresolved), resolved, or omit for all */
                 status?: "active" | "resolved";
                 /** @description Filter by service category */
                 category?: string;
-                pageable: components["schemas"]["Pageable"];
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -48812,7 +49756,10 @@ export interface operations {
                 /** @description Aggregate only published services (curated public pSEO set); default false */
                 publishedOnly?: boolean;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -48931,7 +49878,10 @@ export interface operations {
     list_5: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -49050,7 +50000,12 @@ export interface operations {
     create_6: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -49173,7 +50128,10 @@ export interface operations {
     get_2: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -49294,7 +50252,10 @@ export interface operations {
     update_3: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -49419,7 +50380,10 @@ export interface operations {
     delete_3: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -49538,7 +50502,10 @@ export interface operations {
     listComponents: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -49659,7 +50626,12 @@ export interface operations {
     createComponent: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -49784,7 +50756,10 @@ export interface operations {
     updateComponent: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 componentId: string;
@@ -49910,7 +50885,10 @@ export interface operations {
     deleteComponent: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 componentId: string;
@@ -50032,7 +51010,10 @@ export interface operations {
             query?: {
                 days?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 componentId: string;
@@ -50154,7 +51135,10 @@ export interface operations {
     setComponentOverride: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 componentId: string;
@@ -50280,7 +51264,10 @@ export interface operations {
     clearComponentOverride: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 componentId: string;
@@ -50404,7 +51391,10 @@ export interface operations {
             query?: {
                 days?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 componentId: string;
@@ -50526,7 +51516,10 @@ export interface operations {
     reorderComponents: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -50649,7 +51642,10 @@ export interface operations {
     listDomains: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -50770,7 +51766,12 @@ export interface operations {
     addDomain: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -50895,7 +51896,10 @@ export interface operations {
     removeDomain: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 domainId: string;
@@ -51015,7 +52019,12 @@ export interface operations {
     setPrimaryDomain: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 domainId: string;
@@ -51137,7 +52146,12 @@ export interface operations {
     verifyDomain: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 domainId: string;
@@ -51259,7 +52273,10 @@ export interface operations {
     listGroups: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -51380,7 +52397,12 @@ export interface operations {
     createGroup: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -51505,7 +52527,10 @@ export interface operations {
     updateGroup: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 groupId: string;
@@ -51631,7 +52656,10 @@ export interface operations {
     deleteGroup: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 groupId: string;
@@ -51750,11 +52778,19 @@ export interface operations {
     };
     listIncidents: {
         parameters: {
-            query: {
+            query?: {
                 status?: ("INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED")[];
-                pageable: components["schemas"]["Pageable"];
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -51875,7 +52911,12 @@ export interface operations {
     createIncident: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -52000,7 +53041,10 @@ export interface operations {
     getIncident: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 incidentId: string;
@@ -52122,7 +53166,10 @@ export interface operations {
     updateIncident: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 incidentId: string;
@@ -52248,7 +53295,10 @@ export interface operations {
     deleteIncident: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 incidentId: string;
@@ -52368,7 +53418,12 @@ export interface operations {
     dismissIncident: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 incidentId: string;
@@ -52488,7 +53543,12 @@ export interface operations {
     publishIncident: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 incidentId: string;
@@ -52614,7 +53674,12 @@ export interface operations {
     postIncidentUpdate: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 incidentId: string;
@@ -52740,7 +53805,10 @@ export interface operations {
     patchIncidentUpdate: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 incidentId: string;
@@ -52867,7 +53935,10 @@ export interface operations {
     reorderLayout: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -52989,11 +54060,19 @@ export interface operations {
     };
     listMaintenance: {
         parameters: {
-            query: {
+            query?: {
                 status?: ("INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED")[];
-                pageable: components["schemas"]["Pageable"];
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -53114,7 +54193,12 @@ export interface operations {
     createMaintenance: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -53239,7 +54323,10 @@ export interface operations {
     getMaintenance: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 windowId: string;
@@ -53361,7 +54448,10 @@ export interface operations {
     updateMaintenance: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 windowId: string;
@@ -53487,7 +54577,10 @@ export interface operations {
     deleteMaintenance: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 windowId: string;
@@ -53607,7 +54700,12 @@ export interface operations {
     dismissMaintenance: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 windowId: string;
@@ -53727,7 +54825,12 @@ export interface operations {
     publishMaintenance: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 windowId: string;
@@ -53853,7 +54956,12 @@ export interface operations {
     postMaintenanceUpdate: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 windowId: string;
@@ -53979,7 +55087,10 @@ export interface operations {
     patchMaintenanceUpdate: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 windowId: string;
@@ -54109,7 +55220,10 @@ export interface operations {
                 incidentId?: string;
                 eventType?: "SUBSCRIPTION_CONFIRMATION" | "INCIDENT_CREATED" | "INCIDENT_UPDATED" | "INCIDENT_RESOLVED";
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -54230,7 +55344,10 @@ export interface operations {
     getNotificationDelivery: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 deliveryId: string;
@@ -54352,7 +55469,12 @@ export interface operations {
     retryNotificationDelivery: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 deliveryId: string;
@@ -54473,10 +55595,18 @@ export interface operations {
     };
     listSubscribers: {
         parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
+            query?: {
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -54597,7 +55727,12 @@ export interface operations {
     addSubscriber: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -54722,7 +55857,10 @@ export interface operations {
     removeSubscriber: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
                 subscriberId: string;
@@ -54844,7 +55982,10 @@ export interface operations {
             query?: {
                 window?: string;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -54963,7 +56104,10 @@ export interface operations {
     getSyntheticsFamilyMetrics: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -55084,7 +56228,10 @@ export interface operations {
             query: {
                 monitorIds: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -55203,7 +56350,10 @@ export interface operations {
     regions: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -55322,7 +56472,10 @@ export interface operations {
     list_17: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -55441,7 +56594,10 @@ export interface operations {
     get_11: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -55562,7 +56718,10 @@ export interface operations {
     getCurrentSyntheticsUsage: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -55680,10 +56839,18 @@ export interface operations {
     };
     list_4: {
         parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
+            query?: {
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -55802,7 +56969,12 @@ export interface operations {
     create_5: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -55925,7 +57097,10 @@ export interface operations {
     getById: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -56046,7 +57221,10 @@ export interface operations {
     update_2: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -56171,7 +57349,10 @@ export interface operations {
     delete_2: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -56290,7 +57471,12 @@ export interface operations {
     rotateDek: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -56408,12 +57594,20 @@ export interface operations {
     };
     listWebhookInboxes: {
         parameters: {
-            query: {
+            query?: {
                 /** @description Case-insensitive name search */
                 search?: string;
-                pageable: components["schemas"]["Pageable"];
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -56532,7 +57726,12 @@ export interface operations {
     createWebhookInbox: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -56655,7 +57854,10 @@ export interface operations {
     getWebhookInbox: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inboxId: string;
             };
@@ -56776,7 +57978,10 @@ export interface operations {
     deleteWebhookInbox: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inboxId: string;
             };
@@ -56895,7 +58100,10 @@ export interface operations {
     updateWebhookInbox: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inboxId: string;
             };
@@ -57026,7 +58234,10 @@ export interface operations {
                 after?: string;
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inboxId: string;
             };
@@ -57147,7 +58358,10 @@ export interface operations {
     deleteWebhookEvents: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inboxId: string;
             };
@@ -57266,7 +58480,10 @@ export interface operations {
     getWebhookEvent: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inboxId: string;
                 eventId: string;
@@ -57388,7 +58605,10 @@ export interface operations {
     deleteWebhookEvent: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inboxId: string;
                 eventId: string;
@@ -57508,7 +58728,10 @@ export interface operations {
     getWebhookEventRaw: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inboxId: string;
                 eventId: string;
@@ -57630,7 +58853,12 @@ export interface operations {
     waitForWebhookEvent: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 inboxId: string;
             };
@@ -57767,7 +58995,10 @@ export interface operations {
                 /** @description Comma-separated inbox ids (1–100) */
                 inboxIds?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -57885,10 +59116,18 @@ export interface operations {
     };
     list_3: {
         parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
+            query?: {
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -58007,7 +59246,12 @@ export interface operations {
     create_4: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -58130,7 +59374,10 @@ export interface operations {
     get_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -58251,7 +59498,10 @@ export interface operations {
     update_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -58376,7 +59626,10 @@ export interface operations {
     delete_1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -58497,7 +59750,10 @@ export interface operations {
             query?: {
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -58618,7 +59874,12 @@ export interface operations {
     test: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 id: string;
             };
@@ -58743,7 +60004,10 @@ export interface operations {
     listEvents: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -58862,7 +60126,10 @@ export interface operations {
     getSigningSecretInfo: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -58981,7 +60248,12 @@ export interface operations {
     rotateSigningSecret: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -59099,10 +60371,18 @@ export interface operations {
     };
     list_2: {
         parameters: {
-            query: {
-                pageable: components["schemas"]["Pageable"];
+            query?: {
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
             };
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -59221,7 +60501,12 @@ export interface operations {
     create_3: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -59344,7 +60629,10 @@ export interface operations {
     get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 workspaceId: number;
             };
@@ -59465,7 +60753,10 @@ export interface operations {
     update: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 workspaceId: number;
             };
@@ -59590,7 +60881,10 @@ export interface operations {
     delete: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 workspaceId: number;
             };
@@ -59709,7 +61003,10 @@ export interface operations {
     updateRuntime: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
             path: {
                 workspaceId: number;
             };

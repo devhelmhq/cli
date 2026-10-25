@@ -7,6 +7,8 @@ const AuthContextSchema = z.object({
   name: z.string(),
   apiUrl: z.string(),
   token: z.string(),
+  orgId: z.number().int().optional(),
+  workspaceId: z.number().int().optional(),
 })
 
 const ContextsFileSchema = z.object({

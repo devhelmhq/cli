@@ -2,7 +2,7 @@ import {Command, Flags} from '@oclif/core'
 import type {ZodType} from 'zod'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
 import {apiDelete, apiGetSingle} from '../../lib/api-client.js'
-import {DevhelmAuthError, DevhelmNotFoundError, EXIT_CODES} from '../../lib/errors.js'
+import {DevhelmError, EXIT_CODES} from '../../lib/errors.js'
 import {schemas as apiSchemas} from '../../lib/api-zod.generated.js'
 import type {components} from '../../lib/api.generated.js'
 import {uuidArg} from '../../lib/validators.js'
@@ -69,7 +69,7 @@ async function promptForCancel(
     // Surface auth/not-found before the destructive action; swallow
     // anything else so we still prompt with the bare id rather than
     // blocking a cancel that would otherwise succeed.
-    if (err instanceof DevhelmAuthError || err instanceof DevhelmNotFoundError) throw err
+    if (err instanceof DevhelmError && ['auth', 'permission', 'not_found'].includes(err.category)) throw err
   }
 
   const {createInterface} = await import('node:readline')

@@ -667,6 +667,8 @@ export const API_KEYS: CreatableResource<ApiKeyDto, ApiKeyCreateResponse> = {
     {header: 'ID', get: (r) => String(r.id ?? '')},
     {header: 'NAME', get: (r) => r.name ?? ''},
     {header: 'KEY', get: (r) => r.key ?? ''},
+    {header: 'SCOPES', get: (r) => (r.scopes ?? []).join(',')},
+    {header: 'EXPIRES', get: (r) => r.expiresAt ?? ''},
     {header: 'LAST USED', get: (r) => r.lastUsedAt ?? ''},
     {header: 'CREATED', get: (r) => r.createdAt ?? ''},
   ],

@@ -17,9 +17,15 @@ describe('DevhelmConfigSchema', () => {
     it('accepts version and defaults', () => {
       const result = DevhelmConfigSchema.safeParse({
         version: '2',
-        defaults: {monitors: {frequencySeconds: 60, enabled: true}},
+        defaults: {monitors: {frequencySeconds: 60}, runtimeId: '2026.11'},
       })
       expect(result.success).toBe(true)
+    })
+
+    it('refuses enabled in defaults.monitors and names the verbs', () => {
+      const result = DevhelmConfigSchema.safeParse({defaults: {monitors: {enabled: true}}})
+      expect(result.success).toBe(false)
+      expect(JSON.stringify(result.error?.issues)).toContain('devhelm monitors pause')
     })
   })
 

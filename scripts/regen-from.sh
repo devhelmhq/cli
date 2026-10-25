@@ -2,20 +2,23 @@
 #
 # Regenerate generated code from an arbitrary OpenAPI spec file.
 #
-# Usage: scripts/regen-from.sh <path-to-spec.json>
+# Usage: scripts/regen-from.sh <path-to-spec.json> [<path-to-bundle-vectors.json>]
 #
 # Per-artifact entry point for the spec-evolution harness
 # (`mono/tests/surfaces/evolution/`). The harness handles backup/restore.
 #
 # Behavior:
 #   - copies <path-to-spec.json> over docs/openapi/monitoring-api.json
+#   - copies the bundle conformance vectors (mono docs/contracts/bundle-vectors.json,
+#     given as the second argument or found next to a mono checkout's spec)
+#     to docs/contracts/bundle-vectors.json
 #   - runs typegen + zodgen + descgen + tsc to rebuild dist/
 #   - prints absolute path to src/lib/api.generated.ts on stdout
 #
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-  echo "usage: $0 <path-to-spec.json>" >&2
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+  echo "usage: $0 <path-to-spec.json> [<path-to-bundle-vectors.json>]" >&2
   exit 1
 fi
 
@@ -36,6 +39,15 @@ INPUT_ABS="$(cd "$(dirname "$INPUT_SPEC")" && pwd)/$(basename "$INPUT_SPEC")"
 TARGET_ABS="$(cd "$(dirname "$TARGET_SPEC")" && pwd)/$(basename "$TARGET_SPEC")"
 if [[ "$INPUT_ABS" != "$TARGET_ABS" ]]; then
   cp "$INPUT_SPEC" "$TARGET_SPEC"
+fi
+
+VECTORS="${2:-$(cd "$(dirname "$INPUT_SPEC")" && pwd)/../contracts/bundle-vectors.json}"
+if [[ -f "$VECTORS" ]]; then
+  mkdir -p "$ROOT_DIR/docs/contracts"
+  VECTORS_ABS="$(cd "$(dirname "$VECTORS")" && pwd)/$(basename "$VECTORS")"
+  if [[ "$VECTORS_ABS" != "$ROOT_DIR/docs/contracts/bundle-vectors.json" ]]; then
+    cp "$VECTORS" "$ROOT_DIR/docs/contracts/bundle-vectors.json"
+  fi
 fi
 
 cd "$ROOT_DIR"

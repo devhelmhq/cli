@@ -15,7 +15,7 @@ const require = createRequire(import.meta.url)
 const pkg = require('../../package.json') as {version?: string}
 
 const SURFACE = 'cli'
-const CLI_VERSION: string = pkg.version ?? 'unknown'
+export const CLI_VERSION: string = pkg.version ?? 'unknown'
 
 /**
  * Tag for the OS+arch the CLI is running on. We deliberately keep the

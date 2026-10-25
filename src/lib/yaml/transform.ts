@@ -2,6 +2,7 @@
  * Type-checked transforms: YAML config types → API request types.
  * Every function here is compile-time verified against both sides.
  */
+import {isCodeMonitorType} from '@devhelm/sdk'
 import type {components} from '../api.generated.js'
 import type {
   YamlMonitor, YamlAlertChannel, YamlNotificationPolicy,
@@ -11,6 +12,7 @@ import type {
   YamlStatusPage, YamlStatusPageBranding,
 } from './schema.js'
 import type {ResolvedRefs} from './resolver.js'
+import {OWNER_TOOL, ownerAddress, projectContext} from './project-context.js'
 
 type Schemas = components['schemas']
 
@@ -145,6 +147,10 @@ export function toCreateResourceGroupRequest(
  * as unrelated types. Zod validation at config load time guarantees the
  * shapes match before this function is reached.
  */
+export function isCodeMonitor(monitor: Pick<YamlMonitor, 'type'>): boolean {
+  return isCodeMonitorType(monitor.type)
+}
+
 function toMonitorConfig(
   monitor: YamlMonitor,
 ): Schemas['CreateMonitorRequest']['config'] {
@@ -158,54 +164,127 @@ function toMonitorConfig(
     case 'MCP_SERVER': return cfg as Schemas['McpServerMonitorConfig']
     case 'BROWSER':
     case 'MULTI_STEP_API':
-      return cfg as Schemas['ScriptMonitorConfig']
+      return cfg === undefined ? undefined : cfg as Schemas['ScriptMonitorConfig']
   }
+}
+
+function tagsRequest(tags: string[], refs: ResolvedRefs): Schemas['AddMonitorTagsRequest'] {
+  return {
+    tagIds: tags.map((n) => refs.resolve('tags', n)).filter((id): id is string => id !== undefined),
+    newTags: tags.filter((n) => !refs.resolve('tags', n)).map((n) => ({name: n})),
+  }
+}
+
+/**
+ * Code-monitor fields that YAML authors explicitly. Omitted keys are left
+ * out of the body so the server keeps (or defaults) them.
+ */
+function codeMonitorFields(monitor: YamlMonitor): Partial<Schemas['CreateMonitorRequest']> {
+  const out: Partial<Schemas['CreateMonitorRequest']> = {}
+  if (monitor.runParallel !== undefined) out.runParallel = monitor.runParallel
+  if (monitor.fastRetryMaxAttempts !== undefined) out.fastRetryMaxAttempts = monitor.fastRetryMaxAttempts
+  if (monitor.capturePolicy !== undefined) out.capturePolicy = monitor.capturePolicy
+  if (monitor.secretKeys !== undefined) out.secretKeys = monitor.secretKeys
+  return out
 }
 
 export function toCreateMonitorRequest(
   monitor: YamlMonitor,
   refs: ResolvedRefs,
 ): Schemas['CreateMonitorRequest'] {
-  return {
+  const ctx = projectContext()
+  const environmentId = monitor.environment ? refs.resolve('environments', monitor.environment) ?? null : null
+  const alertChannelIds = monitor.alertChannels?.map((n) => refs.require('alertChannels', n)) ?? null
+  if (isCodeMonitor(monitor)) {
+    const state = ctx.code.get(monitor.name)
+    const body: Schemas['CreateMonitorRequest'] = {
+      name: monitor.name,
+      type: monitor.type,
+      managedBy: OWNER_TOOL,
+      ownerEnforced: true,
+      environmentId,
+      ...codeMonitorFields(monitor),
+    }
+    const config = toMonitorConfig(monitor)
+    if (config !== undefined) body.config = config
+    if (ctx.project) {
+      body.ownerProject = ctx.project
+      body.ownerDeclaration = {address: ownerAddress(ctx.project, monitor.key ?? monitor.name) ?? null, label: monitor.name}
+    }
+    if (monitor.frequencySeconds !== undefined) body.frequencySeconds = monitor.frequencySeconds
+    if (monitor.regions !== undefined) body.regions = monitor.regions
+    if (alertChannelIds) body.alertChannelIds = alertChannelIds
+    if (monitor.tags) body.tags = tagsRequest(monitor.tags, refs)
+    if (monitor.incidentPolicy) body.incidentPolicy = toIncidentPolicy(monitor.incidentPolicy)
+    if (state?.code) body.code = state.code
+    return body
+  }
+  const body: Schemas['CreateMonitorRequest'] = {
     name: monitor.name,
     type: monitor.type,
     config: toMonitorConfig(monitor),
-    managedBy: 'CLI',
+    managedBy: OWNER_TOOL,
     frequencySeconds: monitor.frequencySeconds,
-    enabled: monitor.enabled,
     regions: monitor.regions ?? null,
-    environmentId: monitor.environment ? refs.resolve('environments', monitor.environment) ?? null : null,
+    environmentId,
     assertions: monitor.assertions?.map(toCreateAssertionRequest) ?? null,
     auth: monitor.auth ? toAuthConfig(monitor.auth, refs) : undefined,
     incidentPolicy: monitor.incidentPolicy ? toIncidentPolicy(monitor.incidentPolicy) : undefined,
-    alertChannelIds: monitor.alertChannels?.map((n) => refs.require('alertChannels', n)) ?? null,
-    tags: monitor.tags ? {
-      tagIds: monitor.tags.map((n) => refs.resolve('tags', n)).filter((id): id is string => id !== undefined),
-      newTags: monitor.tags
-        .filter((n) => !refs.resolve('tags', n))
-        .map((n) => ({name: n})),
-    } : undefined,
+    alertChannelIds,
+    tags: monitor.tags ? tagsRequest(monitor.tags, refs) : undefined,
   }
+  if (ctx.project) body.ownerProject = ctx.project
+  return body
 }
 
+/**
+ * Settings update. `enabled` is never sent: pause is an overlay deploy
+ * leaves alone (F14). For code monitors `managedBy` is never sent (code
+ * monitors change owner through transfer) and the code half travels
+ * separately (draft → test → publish), unless `--no-test` puts it on this
+ * call (`withCode`).
+ */
 export function toUpdateMonitorRequest(
   monitor: YamlMonitor,
   refs: ResolvedRefs,
+  opts: {withCode?: boolean} = {},
 ): Schemas['UpdateMonitorRequest'] {
   // YAML null means "explicitly clear" (parallels Terraform's clear_* flags
   // and the API's clearAuth/clearEnvironmentId fields). Omitting the key
   // entirely means "preserve current API value". The snapshot in
   // handlers.ts mirrors this distinction so the diff phase emits an update
   // only when the user actually changed something.
+  const ctx = projectContext()
+  if (isCodeMonitor(monitor)) {
+    const body: Schemas['UpdateMonitorRequest'] = {
+      name: monitor.name,
+      ...codeMonitorFields(monitor),
+    }
+    const config = toMonitorConfig(monitor)
+    if (config !== undefined) body.config = config as Schemas['UpdateMonitorRequest']['config']
+    if (monitor.frequencySeconds !== undefined) body.frequencySeconds = monitor.frequencySeconds
+    if (monitor.regions !== undefined) body.regions = monitor.regions
+    if (monitor.environment) body.environmentId = refs.resolve('environments', monitor.environment) ?? null
+    if (monitor.alertChannels) body.alertChannelIds = monitor.alertChannels.map((n) => refs.require('alertChannels', n))
+    if (monitor.tags) body.tags = tagsRequest(monitor.tags, refs)
+    if (monitor.incidentPolicy) body.incidentPolicy = toIncidentPolicy(monitor.incidentPolicy)
+    if (ctx.project) body.ownerProject = ctx.project
+    const state = ctx.code.get(monitor.name)
+    if (opts.withCode && state?.code) {
+      body.code = state.code
+      if (state.acknowledgeRollback) body.acknowledgeRollback = state.acknowledgeRollback
+    }
+    return body
+  }
+
   const clearAuth = monitor.auth === null
   const clearEnvironmentId = monitor.environment === null
 
   const body: Schemas['UpdateMonitorRequest'] = {
     name: monitor.name,
     config: toMonitorConfig(monitor) as Schemas['UpdateMonitorRequest']['config'],
-    managedBy: 'CLI',
+    managedBy: OWNER_TOOL,
     frequencySeconds: monitor.frequencySeconds ?? null,
-    enabled: monitor.enabled ?? null,
     regions: monitor.regions ?? null,
     environmentId: monitor.environment
       ? refs.resolve('environments', monitor.environment) ?? null
@@ -216,13 +295,9 @@ export function toUpdateMonitorRequest(
       ? toIncidentPolicy(monitor.incidentPolicy)
       : undefined,
     alertChannelIds: monitor.alertChannels?.map((n) => refs.require('alertChannels', n)) ?? null,
-    tags: monitor.tags ? {
-      tagIds: monitor.tags.map((n) => refs.resolve('tags', n)).filter((id): id is string => id !== undefined),
-      newTags: monitor.tags
-        .filter((n) => !refs.resolve('tags', n))
-        .map((n) => ({name: n})),
-    } : {tagIds: null, newTags: null},
+    tags: monitor.tags ? tagsRequest(monitor.tags, refs) : {tagIds: null, newTags: null},
   }
+  if (ctx.project) body.ownerProject = ctx.project
 
   if (clearAuth) body.clearAuth = true
   if (clearEnvironmentId) body.clearEnvironmentId = true

@@ -1,8 +1,8 @@
-import {Command, Args, Flags} from '@oclif/core'
+import {Args, Flags} from '@oclif/core'
+import {DevhelmCommand, commonFlags, yesFlag} from '../lib/cli/command.js'
 import type {components} from '../lib/api.generated.js'
 import {createApiClient} from '../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../lib/auth.js'
-import {urlFlag} from '../lib/validators.js'
 import {fetchAllRefs} from '../lib/yaml/resolver.js'
 import {allHandlers} from '../lib/yaml/handlers.js'
 import {fetchPaginated} from '../lib/typed-api.js'
@@ -10,6 +10,7 @@ import {readState, writeState, emptyState, upsertStateEntry, resourceAddress, St
 import type {ChildStateEntry} from '../lib/yaml/state.js'
 import type {HandledResourceType} from '../lib/yaml/types.js'
 import {EXIT_CODES} from '../lib/errors.js'
+import {importMonitor} from '../lib/project/import-monitor.js'
 
 type Schemas = components['schemas']
 
@@ -18,7 +19,8 @@ const VALID_TYPES = [
   'notificationPolicy', 'webhook', 'resourceGroup', 'dependency', 'statusPage',
 ] as const
 
-export default class Import extends Command {
+export default class Import extends DevhelmCommand {
+  static legacyOutput = true
   static description = 'Import an existing API resource into the deploy state (adopt without recreating)'
 
   static examples = [
@@ -39,9 +41,10 @@ export default class Import extends Command {
   }
 
   static flags = {
-    'api-url': urlFlag({description: 'Override API base URL'}),
-    'api-token': Flags.string({description: 'Override API token'}),
-    verbose: Flags.boolean({char: 'v', description: 'Show verbose output', default: false}),
+    env: Flags.string({description: 'monitor: environment slug, when the name repeats across environments'}),
+    file: Flags.string({char: 'f', description: 'monitor: devhelm.yml to add the entry to (default devhelm.yml)', default: 'devhelm.yml'}),
+    ...commonFlags,
+    ...yesFlag,
   }
 
   async run() {
@@ -55,6 +58,15 @@ export default class Import extends Command {
     }
 
     const resourceType = args.type as HandledResourceType
+    if (resourceType === 'monitor') {
+      const result = await importMonitor({
+        client: this.client(),
+        confirm: (o) => this.confirm(o),
+        log: (m) => this.human(m),
+      }, args.name, {env: flags.env, file: flags.file, yes: flags.yes})
+      await this.finish({data: result})
+      return
+    }
 
     const token = flags['api-token'] ?? resolveToken()
     if (!token) {

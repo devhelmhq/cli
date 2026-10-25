@@ -9,7 +9,7 @@
 |---|---|---|---|---|
 | `name` | string | ✓ |  | Human-readable name for this alert channel |
 | `config` | any | ✓ |  |  |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Source creating this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted. |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" \| "GIT" |  | ✓ | Source creating this channel: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31). Defaults to API when omitted. |
 
 ## `UpdateAlertChannelRequest`
 
@@ -17,7 +17,7 @@
 |---|---|---|---|---|
 | `name` | string | ✓ |  | New channel name (full replacement, not partial update) |
 | `config` | any | ✓ |  |  |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value. |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" \| "GIT" |  | ✓ | New attribution source: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31); null preserves current value. |
 | `enabled` | boolean |  | ✓ | Whether this channel is enabled (default: true); null preserves current value |
 
 ## `AlertChannelDto` (response shape)
@@ -32,7 +32,7 @@
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the channel was created |
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the channel was last updated |
 | `configHash` | string |  | ✓ | SHA-256 hash of the channel config; use for change detection |
-| `managedBy` | string |  | ✓ | Source that created/owns this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Null on channels created before this attribution column existed. |
+| `managedBy` | string |  | ✓ | Source that created/owns this channel: DASHBOARD, GIT, TERRAFORM, MCP or API. Null on channels created before this attribution column existed. |
 | `lastDeliveryAt` | string (date-time) |  | ✓ | Timestamp of the most recent delivery attempt |
 | `lastDeliveryStatus` | string |  | ✓ | Outcome of the most recent delivery (SUCCESS, FAILED, etc.) |
 

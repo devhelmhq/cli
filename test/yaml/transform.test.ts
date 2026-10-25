@@ -315,7 +315,7 @@ describe('transforms', () => {
       const req = toCreateMonitorRequest(monitor, refs)
       expect(req.name).toBe('Test')
       expect(req.type).toBe('HTTP')
-      expect(req.managedBy).toBe('CLI')
+      expect(req.managedBy).toBe('GIT')
       expect(req.frequencySeconds).toBe(60)
       expect(req.regions).toEqual(['us-east'])
       expect(req.alertChannelIds).toEqual(['ch-123'])
@@ -419,14 +419,14 @@ describe('transforms', () => {
   })
 
   describe('toUpdateMonitorRequest', () => {
-    it('includes managedBy CLI', () => {
+    it('includes managedBy GIT (R13)', () => {
       const refs = emptyRefs()
       const monitor: YamlMonitor = {
         name: 'Test', type: 'HTTP',
         config: {url: 'https://x.com', method: 'GET'},
       }
       const req = toUpdateMonitorRequest(monitor, refs)
-      expect(req.managedBy).toBe('CLI')
+      expect(req.managedBy).toBe('GIT')
     })
 
     it('preserves all fields same as create', () => {
