@@ -9,6 +9,9 @@
 |---|---|---|---|---|
 | `name` | string | ✓ |  | Human-readable name to identify this API key |
 | `expiresAt` | string (date-time) |  | ✓ | Optional expiration timestamp in ISO 8601 format |
+| `preset` | string |  | ✓ | Preset expanded into scopes: ci-pr, ci-deploy, agent-responder, agent-author |
+| `scopes` | string[] |  | ✓ | Scopes to grant (default: full) |
+| `tool` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Tool this key writes as on owner-enforced monitors (default: API) |
 
 ## `UpdateApiKeyRequest`
 
@@ -28,4 +31,6 @@
 | `lastUsedAt` | string (date-time) |  | ✓ | Timestamp of the most recent API call; null if never used |
 | `revokedAt` | string (date-time) |  | ✓ | Timestamp when the key was revoked; null if active |
 | `expiresAt` | string (date-time) |  | ✓ | Timestamp when the key expires; null if no expiration |
+| `scopes` | string[] | ✓ |  | Scopes this key is allowed to call; full grants everything |
+| `tool` | string |  | ✓ | Tool this key writes as on owner-enforced monitors; null means API |
 

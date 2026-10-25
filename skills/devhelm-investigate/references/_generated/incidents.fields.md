@@ -47,6 +47,7 @@
 | `resourceGroupId` | string (uuid) |  | ✓ | Resource group that owns this incident; null when not group-managed |
 | `resourceGroupName` | string |  | ✓ | Name of the resource group; populated on list responses. Omitted from JSON (undefined to SDKs) on detail responses, treat missing as null. |
 | `triggeringCheckId` | string (uuid) |  | ✓ | Scheduler-minted check execution ID whose result confirmed this incident; joins to check_results, rule_evaluations, and incident_state_transitions. Omitted from JSON (undefined to SDKs) when null, treat missing as null. |
+| `triggeringRunId` | string (uuid) |  | ✓ | Code-monitor run whose failing tick confirmed this incident; null for uptime |
 | `triggeredByRuleSnapshotHashHex` | string |  | ✓ | Hex SHA-256 of the canonical policy snapshot that fired; combined with triggeredByRuleIndex points to the exact TriggerRule. Omitted from JSON when null, treat missing as null. |
 | `triggeredByRuleIndex` | integer (int32) |  | ✓ | Index of the fired rule inside the policy's trigger_rules array. Omitted from JSON when null, treat missing as null. |
 | `engineVersion` | string |  | ✓ | Detection engine semver that evaluated the rule. Omitted from JSON when null, treat missing as null. |

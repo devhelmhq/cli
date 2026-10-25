@@ -44,7 +44,7 @@ const ErrorResponse = z
     have: z.number().int().nullish(),
     reason: z.string().nullish(),
     next: ErrorNext.nullish(),
-    details: z.object({}).partial().passthrough().passthrough().nullish(),
+    details: z.record(z.object({}).partial().passthrough().nullable()).nullish(),
     expiredAt: z.string().datetime({ offset: true }).nullish(),
     policy: z.string().nullish(),
   })
@@ -468,10 +468,45 @@ const CreateApiKeyRequest = z
   .object({
     name: z.string().min(0).max(200),
     expiresAt: z.string().datetime({ offset: true }).nullish(),
+    preset: z.string().nullish(),
+    scopes: z.array(z.string()).nullish(),
+    tool: z.enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"]).nullish(),
   })
   .strict();
 const UpdateApiKeyRequest = z
   .object({ name: z.string().min(0).max(200) })
+  .strict();
+const CreateDeviceAuthorizationRequest = z
+  .object({ clientName: z.string().min(0).max(190) })
+  .strict();
+const DeviceTokenRequest = z
+  .object({ deviceCode: z.string().min(0).max(128) })
+  .strict();
+const CreateBundleRequest = z
+  .object({
+    files: z.record(z.string()),
+    entrypoint: z.string().min(0).max(512).nullish(),
+    runtimeId: z.string().min(0).max(32).nullish(),
+  })
+  .strict();
+const CreateDemoBookingRequest = z
+  .object({
+    leadId: z.string().uuid(),
+    attemptId: z.string().uuid(),
+    fullName: z.string().min(0).max(150),
+    email: z.string().min(0).max(254).email(),
+    companyUrl: z
+      .string()
+      .min(0)
+      .max(2048)
+      .regex(/^$|https?:\/\/[^\s]+/),
+    product: z.string().min(0).max(100),
+    message: z.string().min(0).max(3000),
+    startTime: z.string().datetime({ offset: true }),
+    timezone: z.string().min(0).max(100),
+    slotToken: z.string().min(0).max(512),
+    attribution: z.record(z.string()),
+  })
   .strict();
 const AcquireDeployLockRequest = z
   .object({
@@ -633,6 +668,20 @@ const ChangeStatusRequest = z
     ]),
   })
   .strict();
+const triage = z
+  .object({
+    name: z.string().nullable(),
+    openIncident: z.boolean().nullable(),
+    muted: z.boolean().nullable(),
+    quarantined: z.boolean().nullable(),
+    pausedBefore: z.string().datetime({ offset: true }).nullable(),
+    flaky: z.boolean().nullable(),
+    group: z.string().nullable(),
+    ownerProject: z.string().nullable(),
+    sort: z.string().nullable(),
+  })
+  .partial()
+  .strict();
 const DnsMonitorConfig = z
   .object({
     hostname: z.string().min(1),
@@ -691,7 +740,6 @@ const McpServerMonitorConfig = z
   .strict();
 const ScriptMonitorConfig = z
   .object({
-    script: z.string().min(0).max(65536).nullable(),
     timeoutSeconds: z.number().int().gte(5).lte(240).nullable(),
     runtimeId: z
       .string()
@@ -1081,28 +1129,36 @@ const CapturePolicy = z
     screenshots: z.enum(["always", "on_failure", "off"]).nullable(),
     trace: z.enum(["always", "on_failure", "off"]).nullable(),
     video: z.enum(["always", "on_failure", "off"]).nullable(),
+    network: z.enum(["always", "on_failure", "off"]).nullable(),
   })
   .partial()
   .strict();
-const DemandedKeyLocation = z
+const CodeSource = z
   .object({
-    key: z.string().min(0).max(255),
-    declaringFile: z.string().min(0).max(512).nullish(),
-    declaringLocation: z.string().min(0).max(255).nullish(),
+    repo: z.string().min(0).max(512).nullable(),
+    branch: z.string().min(0).max(255).nullable(),
+    commit: z.string().min(0).max(64).nullable(),
+    file: z.string().min(0).max(512).nullable(),
+  })
+  .partial()
+  .strict();
+const MonitorCodeSpec = z
+  .object({
+    bundle: z
+      .string()
+      .min(0)
+      .max(80)
+      .regex(/^sha256:[a-f0-9]{64}$/),
+    entrypoint: z.string().min(0).max(512),
+    source: CodeSource.nullish(),
   })
   .strict();
-const MonitorPackageSpec = z
+const OwnerDeclaration = z
   .object({
-    digest: z.string().min(64).max(64),
-    entrypoint: z.string().min(0).max(512),
-    files: z.array(z.string().min(0).max(512)).max(256),
-    keys: z.array(z.string().min(0).max(255)).max(64).nullish(),
-    gitSha: z.string().min(0).max(64).nullish(),
-    gitMessage: z.string().min(0).max(1024).nullish(),
-    gitFile: z.string().min(0).max(512).nullish(),
-    authoredBy: z.string().min(0).max(255).nullish(),
-    keyLocations: z.array(DemandedKeyLocation).max(64).nullish(),
+    address: z.string().min(0).max(512).nullable(),
+    label: z.string().min(0).max(255).nullable(),
   })
+  .partial()
   .strict();
 const CreateMonitorRequest = z
   .object({
@@ -1134,6 +1190,8 @@ const CreateMonitorRequest = z
     managedBy: z
       .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
       .nullish(),
+    ownerEnforced: z.boolean().nullish(),
+    ownerProject: z.string().min(0).max(255).nullish(),
     environmentId: z.string().uuid().nullish(),
     assertions: z.array(CreateAssertionRequest).nullish(),
     auth: MonitorAuthConfig.nullish(),
@@ -1144,7 +1202,9 @@ const CreateMonitorRequest = z
     fastRetryMaxAttempts: z.number().int().gte(0).lte(10).nullish(),
     runParallel: z.boolean().nullish(),
     definitionId: z.string().uuid().nullish(),
-    package: MonitorPackageSpec.nullish(),
+    code: MonitorCodeSpec.nullish(),
+    ownerDeclaration: OwnerDeclaration.nullish(),
+    secretKeys: z.array(z.string().min(0).max(255)).max(256).nullish(),
   })
   .strict();
 const UpdateMonitorRequest = z
@@ -1167,6 +1227,8 @@ const UpdateMonitorRequest = z
     managedBy: z
       .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"])
       .nullable(),
+    ownerEnforced: z.boolean().nullable(),
+    ownerProject: z.string().min(0).max(255).nullable(),
     environmentId: z.string().uuid().nullable(),
     clearEnvironmentId: z.boolean().nullable(),
     assertions: z.array(CreateAssertionRequest).nullable(),
@@ -1178,8 +1240,11 @@ const UpdateMonitorRequest = z
     capturePolicy: CapturePolicy.nullable(),
     fastRetryMaxAttempts: z.number().int().gte(0).lte(10).nullable(),
     runParallel: z.boolean().nullable(),
-    package: MonitorPackageSpec.nullable(),
+    code: MonitorCodeSpec.nullable(),
+    acknowledgeRollback: z.string().nullable(),
     status: z.string().nullable(),
+    expectedUpdatedAt: z.string().datetime({ offset: true }).nullable(),
+    secretKeys: z.array(z.string().min(0).max(255)).max(256).nullable(),
   })
   .partial()
   .strict();
@@ -1191,7 +1256,14 @@ const MonitorOverlayRequest = z
   .partial()
   .strict();
 const PublishRevisionRequest = z
-  .object({ revisionId: z.string().uuid() })
+  .object({
+    revisionId: z.string().uuid(),
+    expectedLiveRevisionId: z.string().uuid().nullish(),
+    requireTested: z.boolean().nullish(),
+    force: z.boolean().nullish(),
+    acknowledgeRollback: z.string().nullish(),
+    note: z.string().min(0).max(280).nullish(),
+  })
   .strict();
 const QuarantineMonitorRequest = z
   .object({
@@ -1200,15 +1272,41 @@ const QuarantineMonitorRequest = z
     fromRunId: z.string().uuid().nullish(),
   })
   .strict();
+const RestoreMonitorRequest = z
+  .object({ environmentId: z.string().uuid().nullable() })
+  .partial()
+  .strict();
+const CreateDraftRevisionRequest = z.object({ code: MonitorCodeSpec }).strict();
+const RunSessionContext = z
+  .object({
+    id: z.string().min(0).max(255),
+    label: z.string().min(0).max(255).nullish(),
+    commit: z.string().min(0).max(64).nullish(),
+    branch: z.string().min(0).max(255).nullish(),
+    url: z
+      .string()
+      .min(0)
+      .max(2048)
+      .regex(/^[hH][tT][tT][pP][sS]?:\/\/\S+$/)
+      .nullish(),
+  })
+  .strict();
 const CodeTestTargetRequest = z
   .object({
     environmentId: z.string().uuid().nullable(),
     region: z.string().nullable(),
+    code: MonitorCodeSpec.nullable(),
+    session: RunSessionContext.nullable(),
   })
   .partial()
   .strict();
 const RollbackRevisionRequest = z
-  .object({ revisionId: z.string().uuid(), reason: z.string().min(0).max(280) })
+  .object({
+    revisionId: z.string().uuid().nullish(),
+    reason: z.string().min(0).max(280),
+    emergency: z.boolean().nullish(),
+    expectedLiveRevisionId: z.string().uuid().nullish(),
+  })
   .strict();
 const params__2 = z
   .object({
@@ -1218,8 +1316,20 @@ const params__2 = z
     source: z.string().nullish(),
     q: z.string().nullish(),
     revisionId: z.string().uuid().nullish(),
+    from: z.string().datetime({ offset: true }).nullish(),
+    to: z.string().datetime({ offset: true }).nullish(),
     cursor: z.string().nullish(),
     limit: z.number().int().gte(1).lte(100),
+    monitorType: z.string().nullish(),
+    incidentId: z.string().uuid().nullish(),
+    branch: z.string().nullish(),
+    flaky: z.boolean().nullish(),
+    sessionId: z.string().nullish(),
+    evaluationCycleId: z.string().uuid().nullish(),
+    excludeSource: z.string().nullish(),
+    sort: z.string().nullish(),
+    step: z.number().int().gte(0).nullish(),
+    caseIndex: z.number().int().gte(0).nullish(),
   })
   .strict();
 const RemapSecretRequest = z
@@ -1242,6 +1352,22 @@ const TestMonitorNotificationsRequest = z
     channelIds: z.array(z.string().uuid()).nullish(),
     includeResolved: z.boolean(),
   })
+  .strict();
+const TransferMonitorRequest = z
+  .object({
+    to: z.enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API"]),
+    reason: z.string().min(0).max(280),
+    project: z.string().min(0).max(255).nullish(),
+    ownerDeclaration: OwnerDeclaration.nullish(),
+  })
+  .strict();
+const TriggerRunRequest = z
+  .object({
+    regions: z.array(z.string()).nullable(),
+    signal: z.boolean().nullable(),
+    session: RunSessionContext.nullable(),
+  })
+  .partial()
   .strict();
 const SetAlertChannelsRequest = z
   .object({ channelIds: z.array(z.string().uuid()) })
@@ -1308,13 +1434,23 @@ const SetMonitorAuthRequest = z
 const BulkMonitorActionRequest = z
   .object({
     monitorIds: z.array(z.string().uuid()).max(200),
-    action: z.enum(["PAUSE", "RESUME", "DELETE", "ADD_TAG", "REMOVE_TAG"]),
+    action: z.enum([
+      "PAUSE",
+      "RESUME",
+      "DELETE",
+      "ADD_TAG",
+      "REMOVE_TAG",
+      "UPDATE_SCHEDULE",
+      "RUN",
+      "MUTE",
+      "UNMUTE",
+      "ACKNOWLEDGE",
+    ]),
     tagIds: z.array(z.string().uuid()).nullish(),
     newTags: z.array(NewTagRequest).nullish(),
+    frequencySeconds: z.number().int().gte(10).lte(86400).nullish(),
+    overlay: MonitorOverlayRequest.nullish(),
   })
-  .strict();
-const CreatePackageUploadRequest = z
-  .object({ digest: z.string().min(64).max(64) })
   .strict();
 const MonitorTestRequest = z
   .object({
@@ -1339,7 +1475,12 @@ const MonitorTestRequest = z
     ]),
     assertions: z.array(CreateAssertionRequest).nullish(),
     environmentId: z.string().uuid().nullish(),
+    code: MonitorCodeSpec.nullish(),
+    session: RunSessionContext.nullish(),
   })
+  .strict();
+const ValidateMonitorsRequest = z
+  .object({ monitors: z.array(CreateMonitorRequest).min(1).max(100) })
   .strict();
 const MatchRule = z
   .object({
@@ -1474,6 +1615,9 @@ const AddResourceGroupMemberRequest = z
     memberId: z.string().uuid(),
   })
   .strict();
+const EvidencePurgeRequest = z
+  .object({ reason: z.string().min(0).max(500) })
+  .strict();
 const params__3 = z
   .object({
     phase: z.string().nullish(),
@@ -1484,15 +1628,28 @@ const params__3 = z
     from: z.string().datetime({ offset: true }).nullish(),
     to: z.string().datetime({ offset: true }).nullish(),
     q: z.string().nullish(),
-    size: z.number().int().gte(1).lte(100),
-    page: z.number().int().gte(0),
+    cursor: z.string().nullish(),
+    limit: z.number().int().gte(1).lte(100),
+    monitorId: z.string().uuid().nullish(),
+    revisionId: z.string().uuid().nullish(),
+    monitorType: z.string().nullish(),
+    incidentId: z.string().uuid().nullish(),
+    branch: z.string().nullish(),
+    flaky: z.boolean().nullish(),
+    sessionId: z.string().nullish(),
+    evaluationCycleId: z.string().uuid().nullish(),
+    excludeSource: z.string().nullish(),
+    sort: z.string().nullish(),
+    step: z.number().int().gte(0).nullish(),
+    caseIndex: z.number().int().gte(0).nullish(),
+    bucket: z.string().nullish(),
   })
   .strict();
 const NearestOtherRegion = z
   .object({
     runId: z.string().uuid(),
-    region: z.string(),
-    artifactId: z.string().uuid(),
+    region: z.string().min(1),
+    finishedAt: z.string().datetime({ offset: true }),
   })
   .passthrough();
 const CaptureCompareDto = z
@@ -1560,11 +1717,46 @@ const Row = z
     verdict: z.string(),
   })
   .passthrough();
+const RevisionLiveStatsDto = z
+  .object({ runs: z.number().int(), failed: z.number().int() })
+  .passthrough();
+const RevisionReferenceDto = z
+  .object({ id: z.string().uuid(), number: z.number().int() })
+  .passthrough();
+const RevisionDto = z
+  .object({
+    id: z.string().uuid(),
+    definitionId: z.string().uuid(),
+    number: z.number().int(),
+    digest: z.string().min(1),
+    entrypoint: z.string().min(1),
+    files: z.array(z.string()),
+    keys: z.array(z.string()),
+    downloadUntil: z.string().datetime({ offset: true }).nullish(),
+    purgedAt: z.string().datetime({ offset: true }).nullish(),
+    gitSha: z.string().nullish(),
+    gitMessage: z.string().nullish(),
+    gitFile: z.string().nullish(),
+    authoredBy: z.string().nullish(),
+    source: CodeSource.nullish(),
+    createdAt: z.string().datetime({ offset: true }),
+    state: z.string().nullish(),
+    testRunId: z.string().uuid().nullish(),
+    testOutcome: z.string().nullish(),
+    liveStats: RevisionLiveStatsDto.nullish(),
+    expiresAt: z.string().datetime({ offset: true }).nullish(),
+    createdByKind: z.string().nullish(),
+    baseRevision: RevisionReferenceDto.nullish(),
+  })
+  .passthrough();
 const PickerItem = z
   .object({
     runId: z.string().uuid(),
     revisionId: z.string().uuid(),
     finishedAt: z.string().datetime({ offset: true }),
+    region: z.string().nullish(),
+    outcome: z.string().nullish(),
+    revision: RevisionDto.nullish(),
   })
   .passthrough();
 const RunDiffDto = z
@@ -1574,6 +1766,7 @@ const RunDiffDto = z
     readsAs: z.string().min(1),
     rows: z.array(Row),
     picker: z.array(PickerItem),
+    nearestOtherRegion: NearestOtherRegion.nullish(),
   })
   .passthrough();
 const SingleValueResponseRunDiffDto = z.object({ data: RunDiffDto }).passthrough();
@@ -1588,6 +1781,26 @@ const params__5 = z
     cursor: z.string().nullable(),
   })
   .partial()
+  .strict();
+const params__6 = z
+  .object({
+    from: z.string().datetime({ offset: true }).nullish(),
+    to: z.string().datetime({ offset: true }).nullish(),
+    monitorId: z.string().uuid().nullish(),
+    cursor: z.string().nullish(),
+    limit: z.number().int().gte(1).lte(100),
+  })
+  .strict();
+const params__7 = z
+  .object({
+    from: z.string().datetime({ offset: true }).nullish(),
+    to: z.string().datetime({ offset: true }).nullish(),
+    monitorId: z.string().uuid().nullish(),
+    cursor: z.string().nullish(),
+    limit: z.number().int().gte(1).lte(100),
+    environmentId: z.string().uuid().nullish(),
+    monitorType: z.string().nullish(),
+  })
   .strict();
 const CreateSecretRequest = z
   .object({
@@ -2094,6 +2307,26 @@ const AcknowledgeAllIncidentsResponse = z
     skipped: z.array(SkippedDispatch),
   })
   .passthrough();
+const UserDto = z
+  .object({
+    id: z.number().int(),
+    email: z.string(),
+    emailVerified: z.boolean(),
+    name: z.string().nullish(),
+    userRole: z.string(),
+    onboardingStage: z.string().nullish(),
+    imageUrl: z.string().nullish(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const ActorDisplayDto = z
+  .object({
+    identity: z.string(),
+    user: UserDto.nullish(),
+    keyName: z.string().nullish(),
+  })
+  .passthrough();
 const AlertChannelDisplayConfig = z
   .object({
     recipients: z.array(z.string()).nullable(),
@@ -2141,6 +2374,8 @@ const ApiKeyCreateResponse = z
     key: z.string().min(1),
     createdAt: z.string().datetime({ offset: true }),
     expiresAt: z.string().datetime({ offset: true }).nullish(),
+    scopes: z.array(z.string()),
+    tool: z.string().nullish(),
   })
   .passthrough();
 const ApiKeyDto = z
@@ -2153,7 +2388,12 @@ const ApiKeyDto = z
     lastUsedAt: z.string().datetime({ offset: true }).nullish(),
     revokedAt: z.string().datetime({ offset: true }).nullish(),
     expiresAt: z.string().datetime({ offset: true }).nullish(),
+    scopes: z.array(z.string()),
+    tool: z.string().nullish(),
   })
+  .passthrough();
+const ArtifactDownloadDto = z
+  .object({ url: z.string(), expiresAt: z.string().datetime({ offset: true }) })
   .passthrough();
 const TraceNearbyAction = z
   .object({
@@ -2215,7 +2455,29 @@ const MemberRoleChangedMetadata = z
     newRole: z.string(),
   })
   .passthrough();
-const AuditMetadata = MemberRoleChangedMetadata;
+const EvidencePurgedMetadata = z
+  .object({ kind: z.literal("evidence_purged"), reason: z.string().min(1) })
+  .passthrough();
+const MonitorOwnershipMetadata = z
+  .object({
+    kind: z.literal("monitor_ownership"),
+    fromOwner: z.string().nullish(),
+    toOwner: z.string().nullish(),
+    reason: z.string().nullish(),
+  })
+  .passthrough();
+const AuditMetadata = z.discriminatedUnion("kind", [
+  MemberRoleChangedMetadata,
+  EvidencePurgedMetadata,
+  MonitorOwnershipMetadata,
+]);
+const MonitorFieldChange = z
+  .object({
+    field: z.string().min(1),
+    from: z.string().nullish(),
+    to: z.string().nullish(),
+  })
+  .passthrough();
 const AuditEventDto = z
   .object({
     id: z.number().int(),
@@ -2227,6 +2489,7 @@ const AuditEventDto = z
     resourceName: z.string().nullish(),
     metadata: AuditMetadata.nullish(),
     createdAt: z.string().datetime({ offset: true }),
+    changes: z.array(MonitorFieldChange).nullish(),
   })
   .passthrough();
 const KeyInfo = z
@@ -2236,6 +2499,7 @@ const KeyInfo = z
     createdAt: z.string().datetime({ offset: true }),
     expiresAt: z.string().datetime({ offset: true }).nullish(),
     lastUsedAt: z.string().datetime({ offset: true }).nullish(),
+    scopes: z.array(z.string()),
   })
   .passthrough();
 const OrgInfo = z.object({ id: z.number().int(), name: z.string() }).passthrough();
@@ -2300,13 +2564,48 @@ const BrowserCapabilityEnvelope = z
     upload: z.boolean(),
   })
   .passthrough();
+const Bucket = z
+  .object({
+    start: z.string().datetime({ offset: true }),
+    passed: z.number().int(),
+    failed: z.number().int(),
+    timedOut: z.number().int(),
+    couldntRun: z.number().int(),
+    passedOnRetry: z.number().int(),
+    durationSamples: z.number().int(),
+    p50Ms: z.number().nullish(),
+    p95Ms: z.number().nullish(),
+  })
+  .passthrough();
 const FailureDetail = z
-  .object({ monitorId: z.string().uuid(), reason: z.string() })
+  .object({
+    monitorId: z.string().uuid(),
+    reason: z.string(),
+    code: z.string().nullish(),
+  })
   .passthrough();
 const BulkMonitorActionResult = z
   .object({
     succeeded: z.array(z.string().uuid()),
     failed: z.array(FailureDetail),
+  })
+  .passthrough();
+const Finding = z
+  .object({
+    code: z.string(),
+    file: z.string().nullish(),
+    line: z.number().int().nullish(),
+    message: z.string(),
+  })
+  .passthrough();
+const BundleCheckResultDto = z.object({ findings: z.array(Finding) }).passthrough();
+const BundleDto = z
+  .object({
+    digest: z.string().min(1),
+    uploadDigest: z.string().min(1),
+    files: z.array(z.string()),
+    keys: z.array(z.string()),
+    size: z.number().int(),
   })
   .passthrough();
 const CategoryDto = z
@@ -2559,6 +2858,9 @@ const ComponentUptimeSummaryDto = z
     source: z.string(),
   })
   .passthrough();
+const CreateDraftRevisionResponse = z
+  .object({ revision: RevisionDto, evicted: RevisionDto.nullish() })
+  .passthrough();
 const CreditTier = z
   .object({
     uptimeRange: z.string(),
@@ -2674,6 +2976,26 @@ const CursorPageIncidentActivityEventDto = z
     hasMore: z.boolean(),
   })
   .passthrough();
+const MonitorHistoryEntryDto = z
+  .object({
+    kind: z.string(),
+    monitorId: z.string().uuid(),
+    region: z.string().nullish(),
+    reason: z.string(),
+    from: z.string().datetime({ offset: true }),
+    to: z.string().datetime({ offset: true }),
+    count: z.number().int(),
+    missingKeys: z.array(z.string()).nullish(),
+    environment: z.string().nullish(),
+  })
+  .passthrough();
+const CursorPageMonitorHistoryEntryDto = z
+  .object({
+    data: z.array(MonitorHistoryEntryDto),
+    nextCursor: z.string().nullish(),
+    hasMore: z.boolean(),
+  })
+  .passthrough();
 const CursorPageNotificationDispatchDto = z
   .object({
     data: z.array(NotificationDispatchDto),
@@ -2755,6 +3077,16 @@ const RunExecutionAttemptDto = z
     recordedAt: z.string().datetime({ offset: true }),
   })
   .passthrough();
+const RunFailureDto = z
+  .object({
+    kind: z.string(),
+    step: z.string().nullish(),
+    message: z.string().nullish(),
+    file: z.string().nullish(),
+    line: z.number().int().nullish(),
+    index: z.number().int().nullish(),
+  })
+  .passthrough();
 const RunDto = z
   .object({
     id: z.string().uuid(),
@@ -2766,10 +3098,12 @@ const RunDto = z
     environmentId: z.string().uuid().nullish(),
     environmentName: z.string().nullish(),
     revisionId: z.string().uuid(),
+    revision: RevisionDto.nullish(),
     region: z.string().min(1),
     source: z.string(),
     countsTowardHealth: z.boolean(),
     enqueuedAt: z.string().datetime({ offset: true }),
+    startDeadlineAt: z.string().datetime({ offset: true }).nullish(),
     evaluationCycleId: z.string().uuid().nullish(),
     retryOfRunId: z.string().uuid().nullish(),
     retriedFromRunId: z.string().uuid().nullish(),
@@ -2786,6 +3120,8 @@ const RunDto = z
     lastHeartbeatAt: z.string().datetime({ offset: true }).nullish(),
     cancelledBy: z.string().nullish(),
     artifactsExpiredAt: z.string().datetime({ offset: true }).nullish(),
+    pinnedAt: z.string().datetime({ offset: true }).nullish(),
+    purgedAt: z.string().datetime({ offset: true }).nullish(),
     capturePolicySnapshot: z.record(z.object({}).partial().passthrough()),
     bindingVersionSnapshot: z.record(z.object({}).partial().passthrough()),
     durationMs: z.number().int().nullish(),
@@ -2802,11 +3138,367 @@ const RunDto = z
     incidentId: z.string().uuid().nullish(),
     execution: RunExecutionDto.nullish(),
     executionAttempts: z.array(RunExecutionAttemptDto),
+    url: z.string().nullish(),
+    triggerId: z.string().uuid().nullish(),
+    session: RunSessionContext.nullish(),
+    runtimeId: z.string().nullish(),
+    cause: z.string().nullish(),
+    billable: z.boolean(),
+    failure: RunFailureDto.nullish(),
+    artifactsExpireAt: z.string().datetime({ offset: true }).nullish(),
   })
   .passthrough();
 const CursorPageRunDto = z
   .object({
     data: z.array(RunDto),
+    nextCursor: z.string().nullish(),
+    hasMore: z.boolean(),
+  })
+  .passthrough();
+const MonitorAssertionDto = z
+  .object({
+    id: z.string().uuid(),
+    monitorId: z.string().uuid(),
+    assertionType: z.string(),
+    config: z.union([
+      BodyContainsAssertion,
+      DnsExpectedCnameAssertion,
+      DnsExpectedIpsAssertion,
+      DnsMaxAnswersAssertion,
+      DnsMinAnswersAssertion,
+      DnsRecordContainsAssertion,
+      DnsRecordEqualsAssertion,
+      DnsResolvesAssertion,
+      DnsResponseTimeAssertion,
+      DnsResponseTimeWarnAssertion,
+      DnsTtlHighAssertion,
+      DnsTtlLowAssertion,
+      DnsTxtContainsAssertion,
+      HeaderValueAssertion,
+      HeartbeatIntervalDriftAssertion,
+      HeartbeatMaxIntervalAssertion,
+      HeartbeatPayloadContainsAssertion,
+      HeartbeatReceivedAssertion,
+      IcmpPacketLossAssertion,
+      IcmpReachableAssertion,
+      IcmpResponseTimeAssertion,
+      IcmpResponseTimeWarnAssertion,
+      JsonPathAssertion,
+      McpConnectsAssertion,
+      McpHasCapabilityAssertion,
+      McpMinToolsAssertion,
+      McpProtocolVersionAssertion,
+      McpResponseTimeAssertion,
+      McpResponseTimeWarnAssertion,
+      McpToolAvailableAssertion,
+      McpToolCountChangedAssertion,
+      RedirectCountAssertion,
+      RedirectTargetAssertion,
+      RegexBodyAssertion,
+      ResponseSizeAssertion,
+      ResponseTimeAssertion,
+      ResponseTimeWarnAssertion,
+      SslExpiryAssertion,
+      StatusCodeAssertion,
+      TcpConnectsAssertion,
+      TcpResponseTimeAssertion,
+      TcpResponseTimeWarnAssertion,
+    ]),
+    severity: z.string(),
+  })
+  .passthrough();
+const TagDto = z
+  .object({
+    id: z.string().uuid(),
+    organizationId: z.number().int(),
+    name: z.string().min(1),
+    color: z.string().min(1),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const Summary = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string().min(1),
+    slug: z.string().min(1),
+  })
+  .passthrough();
+const IncidentPolicyDto = z
+  .object({
+    id: z.string().uuid(),
+    monitorId: z.string().uuid(),
+    triggerRules: z.array(TriggerRule),
+    confirmation: ConfirmationPolicy,
+    recovery: RecoveryPolicy,
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+    monitorRegionCount: z.number().int().nullish(),
+    checkFrequencySeconds: z.number().int().nullish(),
+  })
+  .passthrough();
+const StatusPageBoundComponentDto = z
+  .object({
+    componentId: z.string().uuid(),
+    componentName: z.string().min(1),
+    statusPageId: z.string().uuid(),
+    statusPageName: z.string().min(1),
+  })
+  .passthrough();
+const MonitorCappedDto = z
+  .object({
+    resumesAt: z.string().datetime({ offset: true }).nullable(),
+    kind: z.string().nullable(),
+  })
+  .partial()
+  .passthrough();
+const MonitorOwnerDto = z
+  .object({
+    type: z.string(),
+    project: z.string().nullish(),
+    address: z.string().nullish(),
+    label: z.string().nullish(),
+    labeledAt: z.string().datetime({ offset: true }).nullish(),
+  })
+  .passthrough();
+const MonitorRegionHealthDto = z
+  .object({ region: z.string().min(1), verdict: z.string() })
+  .passthrough();
+const MonitorUsageProjectionDto = z
+  .object({
+    meter: z.string().nullish(),
+    projectedMonthlyRuns: z.number().int(),
+    includedRunsLeft: z.number().int().nullish(),
+    reserveRuns: z.number().int(),
+    scheduledUsageEatsReserve: z.boolean(),
+    wouldHitHardStop: z.boolean(),
+    wouldHitSpendCap: z.boolean(),
+    projectedOverageRuns: z.number().int(),
+    projectedOverageCents: z.number().int().nullish(),
+  })
+  .passthrough();
+const IncidentFailingMemberSnapshotDto = z
+  .object({
+    memberType: z.string(),
+    monitorId: z.string().uuid().nullish(),
+    serviceId: z.string().uuid().nullish(),
+    name: z.string().min(1),
+    membershipId: z.string().uuid().nullish(),
+  })
+  .passthrough();
+const IncidentDto = z
+  .object({
+    id: z.string().uuid(),
+    monitorId: z.string().uuid().nullish(),
+    organizationId: z.number().int(),
+    source: z.string(),
+    status: z.string(),
+    severity: z.string(),
+    title: z.string().nullish(),
+    triggeredByRule: z.string().nullish(),
+    affectedRegions: z.array(z.string()),
+    reopenCount: z.number().int(),
+    createdByUserId: z.number().int().nullish(),
+    statusPageVisible: z.boolean(),
+    suppressDispatch: z.boolean(),
+    serviceIncidentId: z.string().uuid().nullish(),
+    serviceId: z.string().uuid().nullish(),
+    externalRef: z.string().nullish(),
+    affectedComponents: z.array(z.string()).nullish(),
+    shortlink: z.string().nullish(),
+    resolutionReason: z.string().nullish(),
+    resolutionNote: z.string().nullish(),
+    startedAt: z.string().datetime({ offset: true }).nullish(),
+    confirmedAt: z.string().datetime({ offset: true }).nullish(),
+    resolvedAt: z.string().datetime({ offset: true }).nullish(),
+    cooldownUntil: z.string().datetime({ offset: true }).nullish(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+    monitorName: z.string().nullish(),
+    serviceName: z.string().nullish(),
+    serviceSlug: z.string().nullish(),
+    monitorType: z.string().nullish(),
+    resourceGroupId: z.string().uuid().nullish(),
+    resourceGroupName: z.string().nullish(),
+    triggeringCheckId: z.string().uuid().nullish(),
+    triggeringRunId: z.string().uuid().nullish(),
+    triggeredByRuleSnapshotHashHex: z.string().nullish(),
+    triggeredByRuleIndex: z.number().int().nullish(),
+    engineVersion: z.string().nullish(),
+    displayKey: z.string().nullish(),
+    alertCollapsedByResourceGroupIds: z.array(z.string().uuid()).nullish(),
+    peakFailingMemberCount: z.number().int().nullish(),
+    failingMembersAtPeak: z.array(IncidentFailingMemberSnapshotDto).nullish(),
+  })
+  .passthrough();
+const Flakiness = z
+  .object({
+    from: z.string().datetime({ offset: true }),
+    to: z.string().datetime({ offset: true }),
+    cycleCount: z.number().int(),
+    flakyCycleCount: z.number().int(),
+  })
+  .passthrough();
+const StatusPageOpenIncidentSummaryDto = z
+  .object({
+    id: z.string().uuid().nullish(),
+    title: z.string().min(1),
+    status: z.string(),
+    startedAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const StatusPageDto = z
+  .object({
+    id: z.string().uuid(),
+    organizationId: z.number().int(),
+    workspaceId: z.number().int(),
+    name: z.string().min(1),
+    slug: z.string().min(1),
+    description: z.string().nullish(),
+    branding: StatusPageBranding,
+    visibility: z.string(),
+    enabled: z.boolean(),
+    incidentMode: z.string(),
+    componentCount: z.number().int().nullish(),
+    subscriberCount: z.number().int().nullish(),
+    overallStatus: z.string().nullish(),
+    openIncident: StatusPageOpenIncidentSummaryDto.nullish(),
+    managedBy: z.string().nullish(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const StatusPageBindingSnapshot = z
+  .object({
+    name: z.string().min(1),
+    description: z.string().nullish(),
+    groupId: z.string().uuid().nullish(),
+    showUptime: z.boolean(),
+    displayOrder: z.number().int(),
+    excludeFromOverall: z.boolean(),
+    startDate: z.string().nullish(),
+  })
+  .passthrough();
+const RestorableBinding = z
+  .object({ statusPage: StatusPageDto, component: StatusPageBindingSnapshot })
+  .passthrough();
+const MonitorTriageDto = z
+  .object({
+    lastCheckAt: z.string().datetime({ offset: true }).nullish(),
+    latestRun: RunDto.nullish(),
+    latestHealthRun: RunDto.nullish(),
+    incident: IncidentDto.nullish(),
+    pausedBy: UserDto.nullish(),
+    flakiness: Flakiness.nullish(),
+    restoreBlockers: z.array(z.string()),
+    deletedBindings: z.array(RestorableBinding),
+  })
+  .passthrough();
+const MonitorDto = z
+  .object({
+    id: z.string().uuid(),
+    organizationId: z.number().int(),
+    name: z.string().min(1),
+    type: z.string(),
+    config: z.union([
+      DnsMonitorConfig,
+      HeartbeatMonitorConfig,
+      HttpMonitorConfig,
+      IcmpMonitorConfig,
+      McpServerMonitorConfig,
+      ScriptMonitorConfig,
+      TcpMonitorConfig,
+    ]),
+    frequencySeconds: z.number().int(),
+    enabled: z.boolean(),
+    regions: z.array(z.string()),
+    managedBy: z.string(),
+    ownerEnforced: z.boolean(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+    assertions: z.array(MonitorAssertionDto).nullish(),
+    tags: z.array(TagDto).nullish(),
+    pingUrl: z.string().nullish(),
+    environment: Summary.nullish(),
+    auth: MonitorAuthConfig.nullish(),
+    incidentPolicy: IncidentPolicyDto.nullish(),
+    alertChannelIds: z.array(z.string().uuid()).nullish(),
+    boundStatusPageComponents: z.array(StatusPageBoundComponentDto).nullish(),
+    currentStatus: z.string().nullish(),
+    displayHealth: z.string().nullish(),
+    bindingReadiness: z.string().nullish(),
+    needsAttention: z.boolean().nullish(),
+    openIncident: z.string().uuid().nullish(),
+    lastRunAt: z.string().datetime({ offset: true }).nullish(),
+    lastRunId: z.string().uuid().nullish(),
+    resumesAt: z.string().datetime({ offset: true }).nullish(),
+    capped: MonitorCappedDto.nullish(),
+    missingKeys: z.array(z.string()).nullish(),
+    blockedKeys: z.array(z.string()).nullish(),
+    owner: MonitorOwnerDto.nullish(),
+    flakyRate: z.number().nullish(),
+    flakySince: z.string().datetime({ offset: true }).nullish(),
+    flakySeverity: z.string().nullish(),
+    lastCheckOutcome: z.string().nullish(),
+    lastCheckRegion: z.string().nullish(),
+    lastFailureSummary: z.string().nullish(),
+    lastStateChangeAt: z.string().datetime({ offset: true }).nullish(),
+    regionHealth: z.array(MonitorRegionHealthDto).nullish(),
+    definitionId: z.string().uuid().nullish(),
+    capturePolicy: CapturePolicy.nullish(),
+    secretKeys: z.array(z.string()).nullish(),
+    fastRetryMaxAttempts: z.number().int().nullish(),
+    runParallel: z.boolean().nullish(),
+    muted: z.boolean(),
+    mutedUntil: z.string().datetime({ offset: true }).nullish(),
+    muteReason: z.string().nullish(),
+    pausedAt: z.string().datetime({ offset: true }).nullish(),
+    pauseReason: z.string().nullish(),
+    pauseExpiresAt: z.string().datetime({ offset: true }).nullish(),
+    quarantineOwnerId: z.string().nullish(),
+    quarantineUntil: z.string().datetime({ offset: true }).nullish(),
+    quarantineReason: z.string().nullish(),
+    usageProjection: MonitorUsageProjectionDto.nullish(),
+    liveRevisionId: z.string().uuid().nullish(),
+    liveRevisionDigest: z.string().nullish(),
+    triage: MonitorTriageDto.nullish(),
+    deletedAt: z.string().datetime({ offset: true }).nullish(),
+    deletedBy: UserDto.nullish(),
+    createdVia: z.string().nullish(),
+  })
+  .passthrough();
+const RunRevisionMarkerDto = z
+  .object({
+    monitor: MonitorDto,
+    revision: RevisionDto,
+    activatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const CursorPageRunRevisionMarkerDto = z
+  .object({
+    data: z.array(RunRevisionMarkerDto),
+    nextCursor: z.string().nullish(),
+    hasMore: z.boolean(),
+  })
+  .passthrough();
+const RunSkippedEntryDto = z
+  .object({
+    id: z.string().uuid().nullish(),
+    kind: z.string(),
+    monitor: MonitorDto.nullish(),
+    reason: z.string(),
+    region: z.string().nullish(),
+    from: z.string().datetime({ offset: true }),
+    to: z.string().datetime({ offset: true }),
+    count: z.number().int().nullish(),
+    missingKeys: z.array(z.string()),
+    environment: z.string().nullish(),
+  })
+  .passthrough();
+const CursorPageRunSkippedEntryDto = z
+  .object({
+    data: z.array(RunSkippedEntryDto),
     nextCursor: z.string().nullish(),
     hasMore: z.boolean(),
   })
@@ -3006,21 +3698,12 @@ const EnvironmentDto = z
     isDefault: z.boolean(),
   })
   .passthrough();
-const RevisionDto = z
+const LinkedIncidentDto = z
   .object({
     id: z.string().uuid(),
-    definitionId: z.string().uuid(),
-    number: z.number().int(),
-    digest: z.string().min(1),
-    entrypoint: z.string().min(1),
-    files: z.array(z.string()),
-    keys: z.array(z.string()),
-    downloadUntil: z.string().datetime({ offset: true }).nullish(),
-    gitSha: z.string().nullish(),
-    gitMessage: z.string().nullish(),
-    gitFile: z.string().nullish(),
-    authoredBy: z.string().nullish(),
-    createdAt: z.string().datetime({ offset: true }),
+    monitorId: z.string().uuid(),
+    status: z.string(),
+    title: z.string().nullish(),
   })
   .passthrough();
 const DefinitionHeadDto = z
@@ -3031,6 +3714,10 @@ const DefinitionHeadDto = z
     activatedAt: z.string().datetime({ offset: true }),
     activatedBy: z.string().nullish(),
     reason: z.string().nullish(),
+    rolledBackDigest: z.string().nullish(),
+    linkedIncidents: z.array(LinkedIncidentDto).nullish(),
+    note: z.string().nullish(),
+    activatedByActor: ActorDisplayDto.nullish(),
   })
   .passthrough();
 const DefinitionDetailDto = z
@@ -3067,12 +3754,53 @@ const DeliveryAttemptDto = z
     attemptedAt: z.string().datetime({ offset: true }),
   })
   .passthrough();
+const Slot = z
+  .object({
+    startTime: z.string().datetime({ offset: true }),
+    token: z.string(),
+  })
+  .passthrough();
+const DemoAvailabilityDto = z.object({ slots: z.array(Slot) }).passthrough();
+const DemoBookingDto = z
+  .object({
+    id: z.string().uuid(),
+    state: z.string(),
+    startTime: z.string().datetime({ offset: true }),
+    timezone: z.string(),
+    meetingUrl: z.string().nullish(),
+    cancelUrl: z.string().nullish(),
+    rescheduleUrl: z.string().nullish(),
+    errorCode: z.string().nullish(),
+  })
+  .passthrough();
+const DemoBookingRecoveryDto = z
+  .object({ closed: z.boolean(), booking: DemoBookingDto.nullish() })
+  .passthrough();
 const DeployLockDto = z
   .object({
     id: z.string().uuid(),
     lockedBy: z.string().min(1),
     lockedAt: z.string().datetime({ offset: true }),
     expiresAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const DeviceAuthorizationDto = z
+  .object({
+    deviceCode: z.string().min(1),
+    userCode: z.string().min(1),
+    verificationUri: z.string().min(1),
+    verificationUriComplete: z.string().min(1),
+    expiresIn: z.number().int(),
+    interval: z.number().int(),
+  })
+  .passthrough();
+const DeviceTokenDto = z
+  .object({
+    status: z.string(),
+    interval: z.number().int(),
+    apiKey: z.string().nullish(),
+    organizationId: z.number().int().nullish(),
+    workspaceId: z.number().int().nullish(),
   })
   .passthrough();
 const EmailDnsRecordDto = z
@@ -3120,6 +3848,19 @@ const EmailDomainDto = z
 const EmailMessageSourceDto = z
   .object({ source: z.string(), truncated: z.boolean() })
   .passthrough();
+const EntitlementResponse = z
+  .object({
+    tier: z.string(),
+    entitlements: z.record(EntitlementDto),
+    usage: z.record(z.number().int()),
+    trialActive: z.boolean(),
+    trialExpiresAt: z.string().datetime({ offset: true }).nullish(),
+    subscriptionStatus: z.string().nullish(),
+    usagePeriodStart: z.string().datetime({ offset: true }),
+    syntheticsOverageCents: z.number().int().nullish(),
+    capStops: z.record(z.string().nullable()).nullish(),
+  })
+  .passthrough();
 const GlobalStatusSummaryDto = z
   .object({
     totalServices: z.number().int(),
@@ -3141,59 +3882,6 @@ const InboundWebhookHttpResponse = z
     body: z.string().min(0).max(65536),
     contentType: z.string(),
     delayMs: z.number().int().gte(0).lte(30000),
-  })
-  .passthrough();
-const IncidentFailingMemberSnapshotDto = z
-  .object({
-    memberType: z.string(),
-    monitorId: z.string().uuid().nullish(),
-    serviceId: z.string().uuid().nullish(),
-    name: z.string().min(1),
-    membershipId: z.string().uuid().nullish(),
-  })
-  .passthrough();
-const IncidentDto = z
-  .object({
-    id: z.string().uuid(),
-    monitorId: z.string().uuid().nullish(),
-    organizationId: z.number().int(),
-    source: z.string(),
-    status: z.string(),
-    severity: z.string(),
-    title: z.string().nullish(),
-    triggeredByRule: z.string().nullish(),
-    affectedRegions: z.array(z.string()),
-    reopenCount: z.number().int(),
-    createdByUserId: z.number().int().nullish(),
-    statusPageVisible: z.boolean(),
-    suppressDispatch: z.boolean(),
-    serviceIncidentId: z.string().uuid().nullish(),
-    serviceId: z.string().uuid().nullish(),
-    externalRef: z.string().nullish(),
-    affectedComponents: z.array(z.string()).nullish(),
-    shortlink: z.string().nullish(),
-    resolutionReason: z.string().nullish(),
-    resolutionNote: z.string().nullish(),
-    startedAt: z.string().datetime({ offset: true }).nullish(),
-    confirmedAt: z.string().datetime({ offset: true }).nullish(),
-    resolvedAt: z.string().datetime({ offset: true }).nullish(),
-    cooldownUntil: z.string().datetime({ offset: true }).nullish(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
-    monitorName: z.string().nullish(),
-    serviceName: z.string().nullish(),
-    serviceSlug: z.string().nullish(),
-    monitorType: z.string().nullish(),
-    resourceGroupId: z.string().uuid().nullish(),
-    resourceGroupName: z.string().nullish(),
-    triggeringCheckId: z.string().uuid().nullish(),
-    triggeredByRuleSnapshotHashHex: z.string().nullish(),
-    triggeredByRuleIndex: z.number().int().nullish(),
-    engineVersion: z.string().nullish(),
-    displayKey: z.string().nullish(),
-    alertCollapsedByResourceGroupIds: z.array(z.string().uuid()).nullish(),
-    peakFailingMemberCount: z.number().int().nullish(),
-    failingMembersAtPeak: z.array(IncidentFailingMemberSnapshotDto).nullish(),
   })
   .passthrough();
 const IncidentUpdateDto = z
@@ -3232,6 +3920,7 @@ const IncidentTriggerDto = z
     threshold: z.number().int().nullish(),
     lastError: z.string().nullish(),
     firstFailedCheckAt: z.string().datetime({ offset: true }).nullish(),
+    triggeringRun: RunDto.nullish(),
     source: z.string().min(1),
   })
   .passthrough();
@@ -3271,19 +3960,6 @@ const IncidentFilterParams = z
     size: z.number().int().gte(1).lte(200),
   })
   .strict();
-const IncidentPolicyDto = z
-  .object({
-    id: z.string().uuid(),
-    monitorId: z.string().uuid(),
-    triggerRules: z.array(TriggerRule),
-    confirmation: ConfirmationPolicy,
-    recovery: RecoveryPolicy,
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
-    monitorRegionCount: z.number().int().nullish(),
-    checkFrequencySeconds: z.number().int().nullish(),
-  })
-  .passthrough();
 const IncidentTimelineDto = z
   .object({
     transitions: z.array(IncidentStateTransitionDto),
@@ -3341,6 +4017,16 @@ const InviteDto = z
     revokedAt: z.string().datetime({ offset: true }).nullish(),
   })
   .passthrough();
+const Item = z
+  .object({
+    monitor: MonitorDto,
+    bucket: z.string(),
+    worstRegion: z.string().nullish(),
+    streakStartedAt: z.string().datetime({ offset: true }).nullish(),
+    streakTruncated: z.boolean(),
+    flakyRate: z.number().nullish(),
+  })
+  .passthrough();
 const MaintenanceComponentRef = z
   .object({ id: z.string().uuid(), name: z.string(), status: z.string() })
   .passthrough();
@@ -3375,56 +4061,11 @@ const MemberDto = z
     createdAt: z.string().datetime({ offset: true }),
   })
   .passthrough();
-const MonitorAssertionDto = z
+const Meter = z
   .object({
-    id: z.string().uuid(),
-    monitorId: z.string().uuid(),
-    assertionType: z.string(),
-    config: z.union([
-      BodyContainsAssertion,
-      DnsExpectedCnameAssertion,
-      DnsExpectedIpsAssertion,
-      DnsMaxAnswersAssertion,
-      DnsMinAnswersAssertion,
-      DnsRecordContainsAssertion,
-      DnsRecordEqualsAssertion,
-      DnsResolvesAssertion,
-      DnsResponseTimeAssertion,
-      DnsResponseTimeWarnAssertion,
-      DnsTtlHighAssertion,
-      DnsTtlLowAssertion,
-      DnsTxtContainsAssertion,
-      HeaderValueAssertion,
-      HeartbeatIntervalDriftAssertion,
-      HeartbeatMaxIntervalAssertion,
-      HeartbeatPayloadContainsAssertion,
-      HeartbeatReceivedAssertion,
-      IcmpPacketLossAssertion,
-      IcmpReachableAssertion,
-      IcmpResponseTimeAssertion,
-      IcmpResponseTimeWarnAssertion,
-      JsonPathAssertion,
-      McpConnectsAssertion,
-      McpHasCapabilityAssertion,
-      McpMinToolsAssertion,
-      McpProtocolVersionAssertion,
-      McpResponseTimeAssertion,
-      McpResponseTimeWarnAssertion,
-      McpToolAvailableAssertion,
-      McpToolCountChangedAssertion,
-      RedirectCountAssertion,
-      RedirectTargetAssertion,
-      RegexBodyAssertion,
-      ResponseSizeAssertion,
-      ResponseTimeAssertion,
-      ResponseTimeWarnAssertion,
-      SslExpiryAssertion,
-      StatusCodeAssertion,
-      TcpConnectsAssertion,
-      TcpResponseTimeAssertion,
-      TcpResponseTimeWarnAssertion,
-    ]),
-    severity: z.string(),
+    used: z.number().int(),
+    included: z.number().int().nullish(),
+    testRuns: z.number().int(),
   })
   .passthrough();
 const MonitorAuthDto = z
@@ -3435,6 +4076,37 @@ const MonitorAuthDto = z
     config: z.discriminatedUnion("type", [ApiKeyAuthConfig, BasicAuthConfig, BearerAuthConfig, HeaderAuthConfig]),
   })
   .passthrough();
+const MonitorHistoryTickDto = z
+  .object({ at: z.string().datetime({ offset: true }), outcome: z.string() })
+  .passthrough();
+const MonitorDisplayTickDto = z
+  .object({
+    at: z.string().datetime({ offset: true }),
+    outcome: z.string(),
+    runId: z.string().uuid().nullish(),
+    failingRegions: z.array(z.string()),
+    retryPassCount: z.number().int(),
+  })
+  .passthrough();
+const MonitorBatchHistoryItemDto = z
+  .object({
+    id: z.string().uuid(),
+    availability: z.number().nullish(),
+    p95: z.number().nullish(),
+    ticks: z.array(MonitorHistoryTickDto),
+    displayTicks: z.array(MonitorDisplayTickDto).nullish(),
+  })
+  .passthrough();
+const MonitorBatchHistoryDto = z
+  .object({ monitors: z.array(MonitorBatchHistoryItemDto) })
+  .passthrough();
+const MonitorDriftCodeDto = z
+  .object({
+    liveDigest: z.string().min(1),
+    gitDigest: z.string().min(1),
+    drifted: z.boolean(),
+  })
+  .passthrough();
 const MonitorDriftFieldDto = z
   .object({
     field: z.string().min(1),
@@ -3442,109 +4114,80 @@ const MonitorDriftFieldDto = z
     declared: z.string().min(1),
   })
   .passthrough();
+const MonitorDriftSettingDto = z
+  .object({
+    field: z.string().min(1),
+    live: z.string().min(1),
+    git: z.string().min(1),
+    changedAt: z.string().datetime({ offset: true }).nullish(),
+    changedBy: UserDto.nullish(),
+    reason: z.string().nullish(),
+  })
+  .passthrough();
 const MonitorDriftDto = z
-  .object({ fields: z.array(MonitorDriftFieldDto) })
-  .passthrough();
-const TagDto = z
   .object({
-    id: z.string().uuid(),
-    organizationId: z.number().int(),
-    name: z.string().min(1),
-    color: z.string().min(1),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    fields: z.array(MonitorDriftFieldDto),
+    code: MonitorDriftCodeDto.nullish(),
+    settings: z.array(MonitorDriftSettingDto).nullish(),
   })
   .passthrough();
-const Summary = z
+const MonitorFacetValueDto = z
   .object({
-    id: z.string().uuid(),
-    name: z.string().min(1),
-    slug: z.string().min(1),
+    value: z.string().min(1),
+    count: z.number().int(),
+    worstState: z.string(),
+    failing: z.number().int().nullish(),
+    notRunning: z.number().int().nullish(),
+    flaky: z.number().int().nullish(),
+    owner: z.string().nullish(),
   })
   .passthrough();
-const StatusPageBoundComponentDto = z
+const MonitorFacetDto = z
+  .object({ field: z.string(), values: z.array(MonitorFacetValueDto) })
+  .passthrough();
+const MonitorListGroupDto = z
+  .object({ key: z.string(), count: z.number().int() })
+  .passthrough();
+const MonitorFleetSummaryDto = z
   .object({
-    componentId: z.string().uuid(),
-    componentName: z.string().min(1),
-    statusPageId: z.string().uuid(),
-    statusPageName: z.string().min(1),
+    window: z.string(),
+    from: z.string().datetime({ offset: true }),
+    to: z.string().datetime({ offset: true }),
+    uptimePercent: z.number().nullish(),
+    lastFailureBucketAt: z.string().datetime({ offset: true }).nullish(),
+    openIncidentCount: z.number().int(),
+    groups: z.array(MonitorListGroupDto),
+    ticks: z.array(MonitorDisplayTickDto),
   })
   .passthrough();
-const PackageUploadDto = z
-  .object({
-    putUrl: z.string().min(1),
-    expiresAt: z.string().datetime({ offset: true }),
-    requiredHeaders: z.record(z.string()),
-  })
+const MonitorSourceSummaryDto = z
+  .object({ owner: MonitorOwnerDto, count: z.number().int() })
   .passthrough();
-const MonitorUsageProjectionDto = z
+const MonitorListFacetsDto = z
   .object({
-    meter: z.string().nullish(),
-    projectedMonthlyRuns: z.number().int(),
-    includedRunsLeft: z.number().int().nullish(),
-    reserveRuns: z.number().int(),
-    scheduledUsageEatsReserve: z.boolean(),
-    wouldHitHardStop: z.boolean(),
-    wouldHitSpendCap: z.boolean(),
-    projectedOverageRuns: z.number().int(),
-    projectedOverageCents: z.number().int().nullish(),
-  })
-  .passthrough();
-const MonitorDto = z
-  .object({
-    id: z.string().uuid(),
-    organizationId: z.number().int(),
-    name: z.string().min(1),
-    type: z.string(),
-    config: z.union([
-      DnsMonitorConfig,
-      HeartbeatMonitorConfig,
-      HttpMonitorConfig,
-      IcmpMonitorConfig,
-      McpServerMonitorConfig,
-      ScriptMonitorConfig,
-      TcpMonitorConfig,
-    ]),
-    frequencySeconds: z.number().int(),
-    enabled: z.boolean(),
-    regions: z.array(z.string()),
-    managedBy: z.string(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
-    assertions: z.array(MonitorAssertionDto).nullish(),
-    tags: z.array(TagDto).nullish(),
-    pingUrl: z.string().nullish(),
-    environment: Summary.nullish(),
-    auth: MonitorAuthConfig.nullish(),
-    incidentPolicy: IncidentPolicyDto.nullish(),
-    alertChannelIds: z.array(z.string().uuid()).nullish(),
-    boundStatusPageComponents: z.array(StatusPageBoundComponentDto).nullish(),
-    currentStatus: z.string().nullish(),
-    displayHealth: z.string().nullish(),
-    bindingReadiness: z.string().nullish(),
-    needsAttention: z.boolean().nullish(),
-    openIncident: z.string().uuid().nullish(),
-    lastRunAt: z.string().datetime({ offset: true }).nullish(),
-    lastRunId: z.string().uuid().nullish(),
-    definitionId: z.string().uuid().nullish(),
-    capturePolicy: CapturePolicy.nullish(),
-    fastRetryMaxAttempts: z.number().int().nullish(),
-    runParallel: z.boolean().nullish(),
-    muted: z.boolean(),
-    mutedUntil: z.string().datetime({ offset: true }).nullish(),
-    muteReason: z.string().nullish(),
-    pausedAt: z.string().datetime({ offset: true }).nullish(),
-    pauseReason: z.string().nullish(),
-    pauseExpiresAt: z.string().datetime({ offset: true }).nullish(),
-    quarantineOwnerId: z.string().nullish(),
-    quarantineUntil: z.string().datetime({ offset: true }).nullish(),
-    quarantineReason: z.string().nullish(),
-    upload: PackageUploadDto.nullish(),
-    usageProjection: MonitorUsageProjectionDto.nullish(),
+    groups: z.array(MonitorListGroupDto),
+    facets: z.array(MonitorFacetDto),
+    sources: z.array(MonitorSourceSummaryDto).nullish(),
   })
   .passthrough();
 const MonitorReference = z
   .object({ id: z.string().uuid(), name: z.string() })
+  .passthrough();
+const Region = z
+  .object({
+    region: z.string(),
+    uptimePercent: z.number().nullish(),
+    buckets: z.array(Bucket),
+  })
+  .passthrough();
+const MonitorRegionalHealthDto = z
+  .object({
+    regionalDisplayHealth: z.string().nullish(),
+    evaluationCycleId: z.string().uuid().nullish(),
+    regions: z.array(Region),
+    lastFailure: RunDto.nullish(),
+    failingCycleCount: z.number().int().nullish(),
+  })
   .passthrough();
 const MonitorRunDurationMetricDto = z
   .object({
@@ -3576,10 +4219,55 @@ const MonitorRunListParams = z
     source: z.string().nullish(),
     q: z.string().nullish(),
     revisionId: z.string().uuid().nullish(),
+    from: z.string().datetime({ offset: true }).nullish(),
+    to: z.string().datetime({ offset: true }).nullish(),
     cursor: z.string().nullish(),
     limit: z.number().int().gte(1).lte(100),
+    monitorType: z.string().nullish(),
+    incidentId: z.string().uuid().nullish(),
+    branch: z.string().nullish(),
+    flaky: z.boolean().nullish(),
+    sessionId: z.string().nullish(),
+    evaluationCycleId: z.string().uuid().nullish(),
+    excludeSource: z.string().nullish(),
+    sort: z.string().nullish(),
+    step: z.number().int().gte(0).nullish(),
+    caseIndex: z.number().int().gte(0).nullish(),
   })
   .strict();
+const Point = z
+  .object({
+    at: z.string().datetime({ offset: true }),
+    runId: z.string().uuid(),
+    region: z.string(),
+    outcome: z.string(),
+    durationMs: z.number().int().nullish(),
+  })
+  .passthrough();
+const MonitorRunSeriesDto = z
+  .object({
+    window: z.string(),
+    from: z.string().datetime({ offset: true }),
+    to: z.string().datetime({ offset: true }),
+    uptimePercent: z.number().nullish(),
+    previousUptimePercent: z.number().nullish(),
+    buckets: z.array(Bucket),
+    regions: z.array(Region),
+    points: z.array(Point).nullish(),
+    pointsTruncated: z.boolean(),
+  })
+  .passthrough();
+const MonitorScheduleDto = z
+  .object({ nextRunAt: z.string().datetime({ offset: true }).nullable() })
+  .partial()
+  .passthrough();
+const SecretValueStampDto = z
+  .object({
+    environment: Summary,
+    updatedAt: z.string().datetime({ offset: true }).nullish(),
+    updatedBy: ActorDisplayDto.nullish(),
+  })
+  .passthrough();
 const SecretDto = z
   .object({
     id: z.string().uuid(),
@@ -3589,6 +4277,8 @@ const SecretDto = z
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
     usedByMonitors: z.array(MonitorReference).nullish(),
+    valuesAt: z.array(Summary).nullish(),
+    valueStamp: SecretValueStampDto.nullish(),
   })
   .passthrough();
 const SecretRequestDto = z
@@ -3601,10 +4291,17 @@ const SecretRequestDto = z
     declaringLocation: z.string().nullish(),
     lastResolvedAt: z.string().datetime({ offset: true }).nullish(),
     lastResolvedRunId: z.string().uuid().nullish(),
+    demanded: z.boolean().nullish(),
+    attached: z.boolean().nullish(),
+    valueStamp: SecretValueStampDto.nullish(),
   })
   .passthrough();
 const MonitorSecretRequestsDto = z
-  .object({ environment: EnvironmentDto, requests: z.array(SecretRequestDto) })
+  .object({
+    environment: EnvironmentDto,
+    requests: z.array(SecretRequestDto),
+    undemanded: z.array(SecretRequestDto).nullish(),
+  })
   .passthrough();
 const MonitorSessionDto = z
   .object({
@@ -3618,6 +4315,9 @@ const MonitorSessionDto = z
     sizeBytes: z.number().int().nullish(),
     lastRejectedRunId: z.string().uuid().nullish(),
     updatedAt: z.string().datetime({ offset: true }).nullish(),
+    capturedAt: z.string().datetime({ offset: true }).nullish(),
+    captureRunId: z.string().uuid().nullish(),
+    defaultSession: z.boolean().nullish(),
   })
   .passthrough();
 const MonitorSettingsPreviewDto = z
@@ -3644,7 +4344,60 @@ const MonitorTestResultDto = z
     redirectCount: z.number().int().nullish(),
     finalUrl: z.string().nullish(),
     assertionResults: z.array(AssertionTestResultDto),
-    warnings: z.array(z.string()).nullish(),
+    warnings: z.array(z.string().nullable()).nullish(),
+  })
+  .passthrough();
+const MonitorTriageParams = z
+  .object({
+    name: z.string().nullable(),
+    openIncident: z.boolean().nullable(),
+    muted: z.boolean().nullable(),
+    quarantined: z.boolean().nullable(),
+    pausedBefore: z.string().datetime({ offset: true }).nullable(),
+    flaky: z.boolean().nullable(),
+    group: z.string().nullable(),
+    ownerProject: z.string().nullable(),
+    sort: z.string().nullable(),
+  })
+  .partial()
+  .strict();
+const MonitorUsage = z
+  .object({
+    monitorId: z.string().uuid(),
+    monitorName: z.string().nullish(),
+    deleted: z.boolean(),
+    meter: z.string(),
+    runs: z.number().int(),
+    testRuns: z.number().int(),
+  })
+  .passthrough();
+const MonitorValidationFindingDto = z
+  .object({
+    severity: z.string(),
+    code: z.string(),
+    message: z.string(),
+    field: z.string().nullish(),
+    have: z.number().int().nullish(),
+    limit: z.number().int().nullish(),
+    plan: z.string().nullish(),
+    upgradeUrl: z.string().nullish(),
+    environment: z.string().nullish(),
+    secretKey: z.string().nullish(),
+    runtimeId: z.string().nullish(),
+    monitorIndex: z.number().int().nullish(),
+  })
+  .passthrough();
+const MonitorValidationProjectionDto = z
+  .object({
+    monitorIndex: z.number().int(),
+    environment: z.string().nullish(),
+    usage: MonitorUsageProjectionDto,
+  })
+  .passthrough();
+const MonitorValidationResultDto = z
+  .object({
+    findings: z.array(MonitorValidationFindingDto),
+    projections: z.array(MonitorValidationProjectionDto),
   })
   .passthrough();
 const MonitorVersionDto = z
@@ -3782,6 +4535,7 @@ const OverviewStepDto = z
     name: z.string().min(1),
     p50Ms: z.number().nullish(),
     p95Ms: z.number().nullish(),
+    p99Ms: z.number().nullish(),
     failed: z.number().int(),
     firstTryPercent: z.number().nullish(),
     flakeRetries: z.number().int().nullish(),
@@ -3815,6 +4569,35 @@ const PricingTier = z
     name: z.string(),
     slaPercentage: z.string().nullish(),
     priceFrom: z.string().nullish(),
+  })
+  .passthrough();
+const RegionBucketDto = z
+  .object({
+    from: z.string().datetime({ offset: true }),
+    to: z.string().datetime({ offset: true }),
+    p50: z.number().nullish(),
+    p95: z.number().nullish(),
+    p99: z.number().nullish(),
+    total: z.number().int(),
+    passed: z.number().int(),
+  })
+  .passthrough();
+const RegionDto = z
+  .object({ id: z.string(), displayName: z.string() })
+  .passthrough();
+const RegionSeriesDto = z
+  .object({
+    region: z.string(),
+    uptimePercent: z.number().nullish(),
+    buckets: z.array(RegionBucketDto),
+  })
+  .passthrough();
+const RegionResultSeriesDto = z
+  .object({
+    window: z.string(),
+    bucketSeconds: z.number().int(),
+    previousUptimePercent: z.number().nullish(),
+    regions: z.array(RegionSeriesDto),
   })
   .passthrough();
 const RegionStatusDto = z
@@ -3937,6 +4720,9 @@ const RevisionDiffDto = z
     hunks: z.array(RevisionDiffHunkDto),
   })
   .passthrough();
+const RevisionFilesDto = z
+  .object({ entrypoint: z.string(), files: z.record(z.string()) })
+  .passthrough();
 const RollbackPreviewDto = z
   .object({
     target: RevisionDto,
@@ -4029,6 +4815,26 @@ const RunEventParams = z
   .object({ after: z.number().int().nullable() })
   .partial()
   .strict();
+const RunOutcomeCountDto = z
+  .object({ outcome: z.string(), count: z.number().int() })
+  .passthrough();
+const Value = z
+  .object({
+    value: z.string(),
+    count: z.number().int(),
+    failedCount: z.number().int().nullish(),
+    outcomeCounts: z.array(RunOutcomeCountDto).nullish(),
+  })
+  .passthrough();
+const RunFacetDto = z
+  .object({ field: z.string(), values: z.array(Value) })
+  .passthrough();
+const RunHistogramBucketDto = z
+  .object({
+    start: z.string().datetime({ offset: true }),
+    counts: z.array(RunOutcomeCountDto),
+  })
+  .passthrough();
 const RunListParams = z
   .object({
     phase: z.string().nullish(),
@@ -4039,8 +4845,21 @@ const RunListParams = z
     from: z.string().datetime({ offset: true }).nullish(),
     to: z.string().datetime({ offset: true }).nullish(),
     q: z.string().nullish(),
-    size: z.number().int().gte(1).lte(100),
-    page: z.number().int().gte(0),
+    cursor: z.string().nullish(),
+    limit: z.number().int().gte(1).lte(100),
+    monitorId: z.string().uuid().nullish(),
+    revisionId: z.string().uuid().nullish(),
+    monitorType: z.string().nullish(),
+    incidentId: z.string().uuid().nullish(),
+    branch: z.string().nullish(),
+    flaky: z.boolean().nullish(),
+    sessionId: z.string().nullish(),
+    evaluationCycleId: z.string().uuid().nullish(),
+    excludeSource: z.string().nullish(),
+    sort: z.string().nullish(),
+    step: z.number().int().gte(0).nullish(),
+    caseIndex: z.number().int().gte(0).nullish(),
+    bucket: z.string().nullish(),
   })
   .strict();
 const RunMetricsSummaryDto = z
@@ -4062,10 +4881,34 @@ const RunMetricsSummaryDto = z
     expiredArtifactCount: z.number().int().nullish(),
     missingArtifactKindCount: z.number().int().nullish(),
     intentionalNoEvidenceArtifactCount: z.number().int().nullish(),
+    outcomeCounts: z.array(RunOutcomeCountDto).nullish(),
+    excludedRunCount: z.number().int().nullish(),
+    cycleCount: z.number().int().nullish(),
+    failedCycleCount: z.number().int().nullish(),
+    displayGroupCount: z.number().int().nullish(),
+    healthVotingP95DurationMs: z.number().nullish(),
+    sessionLastRunAt: z.string().datetime({ offset: true }).nullish(),
+    buckets: z.array(RunHistogramBucketDto).nullish(),
+    facets: z.array(RunFacetDto).nullish(),
+  })
+  .passthrough();
+const RunMonitorStripDto = z
+  .object({
+    failingCount: z.number().int(),
+    flakyCount: z.number().int(),
+    healthyCount: z.number().int(),
+    unclassifiedCount: z.number().int(),
+    monitors: z.array(Item),
   })
   .passthrough();
 const RunnerLogLiveEvent = z
   .object({ ts: z.string(), line: z.string().min(1) })
+  .passthrough();
+const RunnerRegionStatusDto = z
+  .object({ id: z.string(), status: z.string() })
+  .passthrough();
+const RunnerRegionStatusesDto = z
+  .object({ regions: z.array(RunnerRegionStatusDto) })
   .passthrough();
 const RunNetworkDto = z
   .object({
@@ -4087,6 +4930,36 @@ const RunNetworkParams = z
   })
   .partial()
   .strict();
+const RunSkippedListParams = z
+  .object({
+    from: z.string().datetime({ offset: true }).nullish(),
+    to: z.string().datetime({ offset: true }).nullish(),
+    monitorId: z.string().uuid().nullish(),
+    cursor: z.string().nullish(),
+    limit: z.number().int().gte(1).lte(100),
+    environmentId: z.string().uuid().nullish(),
+    monitorType: z.string().nullish(),
+  })
+  .strict();
+const RunTraceSummaryDto = z
+  .object({
+    runId: z.string().uuid(),
+    failedActions: z.array(z.string()),
+    failedRequests: z.array(z.string()),
+    consoleErrors: z.array(z.string()),
+    text: z.string(),
+    truncated: z.boolean(),
+  })
+  .passthrough();
+const RunWindowListParams = z
+  .object({
+    from: z.string().datetime({ offset: true }).nullish(),
+    to: z.string().datetime({ offset: true }).nullish(),
+    monitorId: z.string().uuid().nullish(),
+    cursor: z.string().nullish(),
+    limit: z.number().int().gte(1).lte(100),
+  })
+  .strict();
 const ScheduledMaintenanceDto = z
   .object({
     id: z.string().uuid(),
@@ -4101,19 +4974,6 @@ const ScheduledMaintenanceDto = z
     completedAt: z.string().datetime({ offset: true }).nullish(),
     affectedComponents: z.array(MaintenanceComponentRef),
     updates: z.array(MaintenanceUpdateDto),
-  })
-  .passthrough();
-const UserDto = z
-  .object({
-    id: z.number().int(),
-    email: z.string(),
-    emailVerified: z.boolean(),
-    name: z.string().nullish(),
-    userRole: z.string(),
-    onboardingStage: z.string().nullish(),
-    imageUrl: z.string().nullish(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
   })
   .passthrough();
 const SecretAuditDto = z
@@ -4354,6 +5214,9 @@ const SingleValueResponseApiKeyCreateResponse = z
   .object({ data: ApiKeyCreateResponse })
   .passthrough();
 const SingleValueResponseApiKeyDto = z.object({ data: ApiKeyDto }).passthrough();
+const SingleValueResponseArtifactDownloadDto = z
+  .object({ data: ArtifactDownloadDto })
+  .passthrough();
 const SingleValueResponseAuthMeResponse = z
   .object({ data: AuthMeResponse })
   .passthrough();
@@ -4363,8 +5226,15 @@ const SingleValueResponseBatchComponentUptimeDto = z
 const SingleValueResponseBulkMonitorActionResult = z
   .object({ data: BulkMonitorActionResult })
   .passthrough();
+const SingleValueResponseBundleCheckResultDto = z
+  .object({ data: BundleCheckResultDto })
+  .passthrough();
+const SingleValueResponseBundleDto = z.object({ data: BundleDto }).passthrough();
 const SingleValueResponseCheckTraceDto = z
   .object({ data: CheckTraceDto })
+  .passthrough();
+const SingleValueResponseCreateDraftRevisionResponse = z
+  .object({ data: CreateDraftRevisionResponse })
   .passthrough();
 const SingleValueResponseDashboardOverviewDto = z
   .object({ data: DashboardOverviewDto })
@@ -4381,6 +5251,12 @@ const SingleValueResponseDekRotationResultDto = z
 const SingleValueResponseDeployLockDto = z
   .object({ data: DeployLockDto })
   .passthrough();
+const SingleValueResponseDeviceAuthorizationDto = z
+  .object({ data: DeviceAuthorizationDto })
+  .passthrough();
+const SingleValueResponseDeviceTokenDto = z
+  .object({ data: DeviceTokenDto })
+  .passthrough();
 const SingleValueResponseEmailDomainDto = z
   .object({ data: EmailDomainDto })
   .passthrough();
@@ -4389,6 +5265,9 @@ const SingleValueResponseEmailMessageDto = z
   .passthrough();
 const SingleValueResponseEmailMessageSourceDto = z
   .object({ data: EmailMessageSourceDto })
+  .passthrough();
+const SingleValueResponseEntitlementResponse = z
+  .object({ data: EntitlementResponse })
   .passthrough();
 const SingleValueResponseEnvironmentDto = z
   .object({ data: EnvironmentDto })
@@ -4414,6 +5293,9 @@ const SingleValueResponseInjectEmailMessageResponse = z
 const SingleValueResponseInviteDto = z.object({ data: InviteDto }).passthrough();
 const SingleValueResponseListEmailDomainActivityDto = z
   .object({ data: z.array(EmailDomainActivityDto) })
+  .passthrough();
+const SingleValueResponseListRegionDto = z
+  .object({ data: z.array(RegionDto) })
   .passthrough();
 const SingleValueResponseListUUID = z
   .object({ data: z.array(z.string().uuid()) })
@@ -4443,15 +5325,33 @@ const SingleValueResponseMonitorAssertionDto = z
 const SingleValueResponseMonitorAuthDto = z
   .object({ data: MonitorAuthDto })
   .passthrough();
+const SingleValueResponseMonitorBatchHistoryDto = z
+  .object({ data: MonitorBatchHistoryDto })
+  .passthrough();
 const SingleValueResponseMonitorDriftDto = z
   .object({ data: MonitorDriftDto })
   .passthrough();
 const SingleValueResponseMonitorDto = z.object({ data: MonitorDto }).passthrough();
+const SingleValueResponseMonitorFleetSummaryDto = z
+  .object({ data: MonitorFleetSummaryDto })
+  .passthrough();
+const SingleValueResponseMonitorListFacetsDto = z
+  .object({ data: MonitorListFacetsDto })
+  .passthrough();
+const SingleValueResponseMonitorRegionalHealthDto = z
+  .object({ data: MonitorRegionalHealthDto })
+  .passthrough();
 const SingleValueResponseMonitorRunDurationBatchDto = z
   .object({ data: MonitorRunDurationBatchDto })
   .passthrough();
 const SingleValueResponseMonitorRunDurationSummaryDto = z
   .object({ data: MonitorRunDurationSummaryDto })
+  .passthrough();
+const SingleValueResponseMonitorRunSeriesDto = z
+  .object({ data: MonitorRunSeriesDto })
+  .passthrough();
+const SingleValueResponseMonitorScheduleDto = z
+  .object({ data: MonitorScheduleDto })
   .passthrough();
 const SingleValueResponseMonitorSecretRequestsDto = z
   .object({ data: MonitorSecretRequestsDto })
@@ -4467,6 +5367,9 @@ const SingleValueResponseMonitorTestResultDto = z
   .passthrough();
 const SingleValueResponseMonitorUsageProjectionDto = z
   .object({ data: MonitorUsageProjectionDto })
+  .passthrough();
+const SingleValueResponseMonitorValidationResultDto = z
+  .object({ data: MonitorValidationResultDto })
   .passthrough();
 const SingleValueResponseMonitorVersionDto = z
   .object({ data: MonitorVersionDto })
@@ -4486,11 +5389,11 @@ const SingleValueResponseOrganizationDto = z
 const SingleValueResponseOverviewStepsDto = z
   .object({ data: OverviewStepsDto })
   .passthrough();
-const SingleValueResponsePackageUploadDto = z
-  .object({ data: PackageUploadDto })
-  .passthrough();
 const SingleValueResponsePolicySnapshotDto = z
   .object({ data: PolicySnapshotDto.nullable() })
+  .passthrough();
+const SingleValueResponseRegionResultSeriesDto = z
+  .object({ data: RegionResultSeriesDto })
   .passthrough();
 const SingleValueResponseResourceGroupDto = z
   .object({ data: ResourceGroupDto })
@@ -4508,6 +5411,9 @@ const SingleValueResponseRevisionDiffDto = z
   .object({ data: RevisionDiffDto })
   .passthrough();
 const SingleValueResponseRevisionDto = z.object({ data: RevisionDto }).passthrough();
+const SingleValueResponseRevisionFilesDto = z
+  .object({ data: RevisionFilesDto })
+  .passthrough();
 const SingleValueResponseRollbackPreviewDto = z
   .object({ data: RollbackPreviewDto })
   .passthrough();
@@ -4515,8 +5421,17 @@ const SingleValueResponseRunDto = z.object({ data: RunDto }).passthrough();
 const SingleValueResponseRunMetricsSummaryDto = z
   .object({ data: RunMetricsSummaryDto })
   .passthrough();
+const SingleValueResponseRunMonitorStripDto = z
+  .object({ data: RunMonitorStripDto })
+  .passthrough();
+const SingleValueResponseRunnerRegionStatusesDto = z
+  .object({ data: RunnerRegionStatusesDto })
+  .passthrough();
 const SingleValueResponseRuntimeProfileDto = z
   .object({ data: RuntimeProfileDto })
+  .passthrough();
+const SingleValueResponseRunTraceSummaryDto = z
+  .object({ data: RunTraceSummaryDto })
   .passthrough();
 const SingleValueResponseSecretAuditDto = z
   .object({ data: SecretAuditDto })
@@ -4616,36 +5531,6 @@ const StatusPageCustomDomainDto = z
   .passthrough();
 const SingleValueResponseStatusPageCustomDomainDto = z
   .object({ data: StatusPageCustomDomainDto })
-  .passthrough();
-const StatusPageOpenIncidentSummaryDto = z
-  .object({
-    id: z.string().uuid().nullish(),
-    title: z.string().min(1),
-    status: z.string(),
-    startedAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
-  })
-  .passthrough();
-const StatusPageDto = z
-  .object({
-    id: z.string().uuid(),
-    organizationId: z.number().int(),
-    workspaceId: z.number().int(),
-    name: z.string().min(1),
-    slug: z.string().min(1),
-    description: z.string().nullish(),
-    branding: StatusPageBranding,
-    visibility: z.string(),
-    enabled: z.boolean(),
-    incidentMode: z.string(),
-    componentCount: z.number().int().nullish(),
-    subscriberCount: z.number().int().nullish(),
-    overallStatus: z.string().nullish(),
-    openIncident: StatusPageOpenIncidentSummaryDto.nullish(),
-    managedBy: z.string().nullish(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
-  })
   .passthrough();
 const SingleValueResponseStatusPageDto = z
   .object({ data: StatusPageDto })
@@ -4773,6 +5658,18 @@ const SyntheticsFamilyMetricsDto = z
 const SingleValueResponseSyntheticsFamilyMetricsDto = z
   .object({ data: SyntheticsFamilyMetricsDto })
   .passthrough();
+const SyntheticsUsagePeriodDto = z
+  .object({
+    periodStart: z.string().datetime({ offset: true }),
+    periodEnd: z.string().datetime({ offset: true }),
+    browser: Meter,
+    api: Meter,
+    monitors: z.array(MonitorUsage),
+  })
+  .passthrough();
+const SingleValueResponseSyntheticsUsagePeriodDto = z
+  .object({ data: SyntheticsUsagePeriodDto })
+  .passthrough();
 const SingleValueResponseTagDto = z.object({ data: TagDto }).passthrough();
 const TestChannelResult = z
   .object({ success: z.boolean(), message: z.string() })
@@ -4789,6 +5686,24 @@ const TestMatchResult = z
   .passthrough();
 const SingleValueResponseTestMatchResult = z
   .object({ data: TestMatchResult })
+  .passthrough();
+const TriggerRunRef = z
+  .object({
+    id: z.string().uuid(),
+    region: z.string().min(1),
+    phase: z.string(),
+    url: z.string().min(1),
+  })
+  .passthrough();
+const TriggerRunsResponse = z
+  .object({
+    triggerId: z.string().uuid(),
+    billedRuns: z.number().int(),
+    runs: z.array(TriggerRunRef),
+  })
+  .passthrough();
+const SingleValueResponseTriggerRunsResponse = z
+  .object({ data: TriggerRunsResponse })
   .passthrough();
 const UptimeDto = z
   .object({
@@ -4874,6 +5789,7 @@ const WorkspaceDto = z
 const SingleValueResponseWorkspaceDto = z
   .object({ data: WorkspaceDto })
   .passthrough();
+const StreamingResponseBody = z.object({}).partial().passthrough();
 const TableValueResultAlertChannelDto = z
   .object({
     data: z.array(AlertChannelDto),
@@ -5045,6 +5961,15 @@ const TableValueResultMonitorDto = z
     totalPages: z.number().int().nullish(),
   })
   .passthrough();
+const TableValueResultMonitorSessionDto = z
+  .object({
+    data: z.array(MonitorSessionDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .passthrough();
 const TableValueResultMonitorVersionDto = z
   .object({
     data: z.array(MonitorVersionDto),
@@ -5120,15 +6045,6 @@ const TableValueResultRunArtifactDto = z
 const TableValueResultRunCaseDto = z
   .object({
     data: z.array(RunCaseDto),
-    hasNext: z.boolean(),
-    hasPrev: z.boolean(),
-    totalElements: z.number().int().nullish(),
-    totalPages: z.number().int().nullish(),
-  })
-  .passthrough();
-const TableValueResultRunDto = z
-  .object({
-    data: z.array(RunDto),
     hasNext: z.boolean(),
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
@@ -5403,6 +6319,10 @@ export const schemas = {
   TestAlertChannelRequest,
   CreateApiKeyRequest,
   UpdateApiKeyRequest,
+  CreateDeviceAuthorizationRequest,
+  DeviceTokenRequest,
+  CreateBundleRequest,
+  CreateDemoBookingRequest,
   AcquireDeployLockRequest,
   WaitEmailMessageRequest,
   CreateEmailDomainRequest,
@@ -5420,6 +6340,7 @@ export const schemas = {
   UpdateMaintenanceWindowRequest,
   ChangeRoleRequest,
   ChangeStatusRequest,
+  triage,
   DnsMonitorConfig,
   HeartbeatMonitorConfig,
   HttpMonitorConfig,
@@ -5482,13 +6403,17 @@ export const schemas = {
   NewTagRequest,
   AddMonitorTagsRequest,
   CapturePolicy,
-  DemandedKeyLocation,
-  MonitorPackageSpec,
+  CodeSource,
+  MonitorCodeSpec,
+  OwnerDeclaration,
   CreateMonitorRequest,
   UpdateMonitorRequest,
   MonitorOverlayRequest,
   PublishRevisionRequest,
   QuarantineMonitorRequest,
+  RestoreMonitorRequest,
+  CreateDraftRevisionRequest,
+  RunSessionContext,
   CodeTestTargetRequest,
   RollbackRevisionRequest,
   params__2,
@@ -5497,13 +6422,15 @@ export const schemas = {
   RemoveMonitorTagsRequest,
   TakeoverMonitorRequest,
   TestMonitorNotificationsRequest,
+  TransferMonitorRequest,
+  TriggerRunRequest,
   SetAlertChannelsRequest,
   UpdateAssertionRequest,
   UpdateMonitorAuthRequest,
   SetMonitorAuthRequest,
   BulkMonitorActionRequest,
-  CreatePackageUploadRequest,
   MonitorTestRequest,
+  ValidateMonitorsRequest,
   MatchRule,
   EscalationStep,
   EscalationChain,
@@ -5515,6 +6442,7 @@ export const schemas = {
   CreateResourceGroupRequest,
   UpdateResourceGroupRequest,
   AddResourceGroupMemberRequest,
+  EvidencePurgeRequest,
   params__3,
   NearestOtherRegion,
   CaptureCompareDto,
@@ -5525,10 +6453,15 @@ export const schemas = {
   RunConsoleDto,
   SingleValueResponseRunConsoleDto,
   Row,
+  RevisionLiveStatsDto,
+  RevisionReferenceDto,
+  RevisionDto,
   PickerItem,
   RunDiffDto,
   SingleValueResponseRunDiffDto,
   params__5,
+  params__6,
+  params__7,
   CreateSecretRequest,
   UpdateSecretRequest,
   WriteSecretEnvironmentValueRequest,
@@ -5573,10 +6506,13 @@ export const schemas = {
   NotificationDispatchDto,
   SkippedDispatch,
   AcknowledgeAllIncidentsResponse,
+  UserDto,
+  ActorDisplayDto,
   AlertChannelDisplayConfig,
   AlertChannelDto,
   ApiKeyCreateResponse,
   ApiKeyDto,
+  ArtifactDownloadDto,
   TraceNearbyAction,
   TraceEntryPoint,
   ArtifactTraceMeta,
@@ -5584,7 +6520,10 @@ export const schemas = {
   AssertionResultDto,
   AssertionTestResultDto,
   MemberRoleChangedMetadata,
+  EvidencePurgedMetadata,
+  MonitorOwnershipMetadata,
   AuditMetadata,
+  MonitorFieldChange,
   AuditEventDto,
   KeyInfo,
   OrgInfo,
@@ -5596,8 +6535,12 @@ export const schemas = {
   ComponentUptimeDayDto,
   BatchComponentUptimeDto,
   BrowserCapabilityEnvelope,
+  Bucket,
   FailureDetail,
   BulkMonitorActionResult,
+  Finding,
+  BundleCheckResultDto,
+  BundleDto,
   CategoryDto,
   ChartBucketDto,
   TlsInfoDto,
@@ -5623,6 +6566,7 @@ export const schemas = {
   ComponentStatusDto,
   ComponentTransitionEventDto,
   ComponentUptimeSummaryDto,
+  CreateDraftRevisionResponse,
   CreditTier,
   CreditPolicy,
   CursorPageCheckResultDto,
@@ -5634,6 +6578,8 @@ export const schemas = {
   IncidentActivityPayloadDto,
   IncidentActivityEventDto,
   CursorPageIncidentActivityEventDto,
+  MonitorHistoryEntryDto,
+  CursorPageMonitorHistoryEntryDto,
   CursorPageNotificationDispatchDto,
   RunEvidenceDto,
   RunTabCountsDto,
@@ -5643,8 +6589,31 @@ export const schemas = {
   HarnessReleaseDto,
   RunExecutionDto,
   RunExecutionAttemptDto,
+  RunFailureDto,
   RunDto,
   CursorPageRunDto,
+  MonitorAssertionDto,
+  TagDto,
+  Summary,
+  IncidentPolicyDto,
+  StatusPageBoundComponentDto,
+  MonitorCappedDto,
+  MonitorOwnerDto,
+  MonitorRegionHealthDto,
+  MonitorUsageProjectionDto,
+  IncidentFailingMemberSnapshotDto,
+  IncidentDto,
+  Flakiness,
+  StatusPageOpenIncidentSummaryDto,
+  StatusPageDto,
+  StatusPageBindingSnapshot,
+  RestorableBinding,
+  MonitorTriageDto,
+  MonitorDto,
+  RunRevisionMarkerDto,
+  CursorPageRunRevisionMarkerDto,
+  RunSkippedEntryDto,
+  CursorPageRunSkippedEntryDto,
   ServiceCatalogDto,
   CursorPageServiceCatalogDto,
   ServicePollResultDto,
@@ -5662,60 +6631,82 @@ export const schemas = {
   DayIncident,
   DefinitionDto,
   EnvironmentDto,
-  RevisionDto,
+  LinkedIncidentDto,
   DefinitionHeadDto,
   DefinitionDetailDto,
   DekRotationResultDto,
   DeleteChannelResult,
   DeliveryAttemptDto,
+  Slot,
+  DemoAvailabilityDto,
+  DemoBookingDto,
+  DemoBookingRecoveryDto,
   DeployLockDto,
+  DeviceAuthorizationDto,
+  DeviceTokenDto,
   EmailDnsRecordDto,
   EmailDomainActivityBucketDto,
   EmailDomainActivityDto,
   EmailDomainDto,
   EmailMessageSourceDto,
+  EntitlementResponse,
   GlobalStatusSummaryDto,
   HeartbeatPingResponse,
   InboundWebhookHttpResponse,
-  IncidentFailingMemberSnapshotDto,
-  IncidentDto,
   IncidentUpdateDto,
   LinkedStatusPageIncidentDto,
   IncidentTriggerDto,
   IncidentDetailDto,
   IncidentFilterParams,
-  IncidentPolicyDto,
   IncidentTimelineDto,
   InjectEmailMessageResponse,
   IntegrationFieldDto,
   IntegrationConfigSchemaDto,
   IntegrationDto,
   InviteDto,
+  Item,
   MaintenanceComponentRef,
   MaintenanceUpdateDto,
   MaintenanceWindowDto,
   MemberDto,
-  MonitorAssertionDto,
+  Meter,
   MonitorAuthDto,
+  MonitorHistoryTickDto,
+  MonitorDisplayTickDto,
+  MonitorBatchHistoryItemDto,
+  MonitorBatchHistoryDto,
+  MonitorDriftCodeDto,
   MonitorDriftFieldDto,
+  MonitorDriftSettingDto,
   MonitorDriftDto,
-  TagDto,
-  Summary,
-  StatusPageBoundComponentDto,
-  PackageUploadDto,
-  MonitorUsageProjectionDto,
-  MonitorDto,
+  MonitorFacetValueDto,
+  MonitorFacetDto,
+  MonitorListGroupDto,
+  MonitorFleetSummaryDto,
+  MonitorSourceSummaryDto,
+  MonitorListFacetsDto,
   MonitorReference,
+  Region,
+  MonitorRegionalHealthDto,
   MonitorRunDurationMetricDto,
   MonitorRunDurationBatchDto,
   MonitorRunDurationSummaryDto,
   MonitorRunListParams,
+  Point,
+  MonitorRunSeriesDto,
+  MonitorScheduleDto,
+  SecretValueStampDto,
   SecretDto,
   SecretRequestDto,
   MonitorSecretRequestsDto,
   MonitorSessionDto,
   MonitorSettingsPreviewDto,
   MonitorTestResultDto,
+  MonitorTriageParams,
+  MonitorUsage,
+  MonitorValidationFindingDto,
+  MonitorValidationProjectionDto,
+  MonitorValidationResultDto,
   MonitorVersionDto,
   NetworkTimingDto,
   NetworkRowDto,
@@ -5731,6 +6722,10 @@ export const schemas = {
   Pageable,
   PollChartBucketDto,
   PricingTier,
+  RegionBucketDto,
+  RegionDto,
+  RegionSeriesDto,
+  RegionResultSeriesDto,
   RegionStatusDto,
   RelatedIncidentsResponse,
   ResourceGroupDeleteBlockerDto,
@@ -5741,6 +6736,7 @@ export const schemas = {
   ResultSummaryDto,
   RevisionDiffHunkDto,
   RevisionDiffDto,
+  RevisionFilesDto,
   RollbackPreviewDto,
   RunArtifactDto,
   RunStepDto,
@@ -5749,13 +6745,22 @@ export const schemas = {
   RunConsoleParams,
   RunEventDto,
   RunEventParams,
+  RunOutcomeCountDto,
+  Value,
+  RunFacetDto,
+  RunHistogramBucketDto,
   RunListParams,
   RunMetricsSummaryDto,
+  RunMonitorStripDto,
   RunnerLogLiveEvent,
+  RunnerRegionStatusDto,
+  RunnerRegionStatusesDto,
   RunNetworkDto,
   RunNetworkParams,
+  RunSkippedListParams,
+  RunTraceSummaryDto,
+  RunWindowListParams,
   ScheduledMaintenanceDto,
-  UserDto,
   SecretAuditDto,
   SecretUsageDto,
   SeoMetadataDto,
@@ -5780,18 +6785,25 @@ export const schemas = {
   SingleValueResponseAlertDeliveryDto,
   SingleValueResponseApiKeyCreateResponse,
   SingleValueResponseApiKeyDto,
+  SingleValueResponseArtifactDownloadDto,
   SingleValueResponseAuthMeResponse,
   SingleValueResponseBatchComponentUptimeDto,
   SingleValueResponseBulkMonitorActionResult,
+  SingleValueResponseBundleCheckResultDto,
+  SingleValueResponseBundleDto,
   SingleValueResponseCheckTraceDto,
+  SingleValueResponseCreateDraftRevisionResponse,
   SingleValueResponseDashboardOverviewDto,
   SingleValueResponseDefinitionDetailDto,
   SingleValueResponseDefinitionHeadDto,
   SingleValueResponseDekRotationResultDto,
   SingleValueResponseDeployLockDto,
+  SingleValueResponseDeviceAuthorizationDto,
+  SingleValueResponseDeviceTokenDto,
   SingleValueResponseEmailDomainDto,
   SingleValueResponseEmailMessageDto,
   SingleValueResponseEmailMessageSourceDto,
+  SingleValueResponseEntitlementResponse,
   SingleValueResponseEnvironmentDto,
   SingleValueResponseGlobalStatusSummaryDto,
   SingleValueResponseIncidentDetailDto,
@@ -5801,6 +6813,7 @@ export const schemas = {
   SingleValueResponseInjectEmailMessageResponse,
   SingleValueResponseInviteDto,
   SingleValueResponseListEmailDomainActivityDto,
+  SingleValueResponseListRegionDto,
   SingleValueResponseListUUID,
   WebhookInboxActivityBucketDto,
   WebhookInboxActivityDto,
@@ -5809,33 +6822,44 @@ export const schemas = {
   SingleValueResponseMaintenanceWindowDto,
   SingleValueResponseMonitorAssertionDto,
   SingleValueResponseMonitorAuthDto,
+  SingleValueResponseMonitorBatchHistoryDto,
   SingleValueResponseMonitorDriftDto,
   SingleValueResponseMonitorDto,
+  SingleValueResponseMonitorFleetSummaryDto,
+  SingleValueResponseMonitorListFacetsDto,
+  SingleValueResponseMonitorRegionalHealthDto,
   SingleValueResponseMonitorRunDurationBatchDto,
   SingleValueResponseMonitorRunDurationSummaryDto,
+  SingleValueResponseMonitorRunSeriesDto,
+  SingleValueResponseMonitorScheduleDto,
   SingleValueResponseMonitorSecretRequestsDto,
   SingleValueResponseMonitorSessionDto,
   SingleValueResponseMonitorSettingsPreviewDto,
   SingleValueResponseMonitorTestResultDto,
   SingleValueResponseMonitorUsageProjectionDto,
+  SingleValueResponseMonitorValidationResultDto,
   SingleValueResponseMonitorVersionDto,
   SingleValueResponseNetworkRowDto,
   SingleValueResponseNotificationDispatchDto,
   SingleValueResponseNotificationPolicyDto,
   SingleValueResponseOrganizationDto,
   SingleValueResponseOverviewStepsDto,
-  SingleValueResponsePackageUploadDto,
   SingleValueResponsePolicySnapshotDto,
+  SingleValueResponseRegionResultSeriesDto,
   SingleValueResponseResourceGroupDto,
   SingleValueResponseResourceGroupHealthDto,
   SingleValueResponseResourceGroupMemberDto,
   SingleValueResponseResultSummaryDto,
   SingleValueResponseRevisionDiffDto,
   SingleValueResponseRevisionDto,
+  SingleValueResponseRevisionFilesDto,
   SingleValueResponseRollbackPreviewDto,
   SingleValueResponseRunDto,
   SingleValueResponseRunMetricsSummaryDto,
+  SingleValueResponseRunMonitorStripDto,
+  SingleValueResponseRunnerRegionStatusesDto,
   SingleValueResponseRuntimeProfileDto,
+  SingleValueResponseRunTraceSummaryDto,
   SingleValueResponseSecretAuditDto,
   SingleValueResponseSecretDto,
   SingleValueResponseSecretUsageDto,
@@ -5853,8 +6877,6 @@ export const schemas = {
   SingleValueResponseStatusPageComponentGroupDto,
   StatusPageCustomDomainDto,
   SingleValueResponseStatusPageCustomDomainDto,
-  StatusPageOpenIncidentSummaryDto,
-  StatusPageDto,
   SingleValueResponseStatusPageDto,
   StatusPageIncidentComponentDto,
   StatusPageIncidentUpdateDto,
@@ -5871,11 +6893,16 @@ export const schemas = {
   SingleValueResponseString,
   SyntheticsFamilyMetricsDto,
   SingleValueResponseSyntheticsFamilyMetricsDto,
+  SyntheticsUsagePeriodDto,
+  SingleValueResponseSyntheticsUsagePeriodDto,
   SingleValueResponseTagDto,
   TestChannelResult,
   SingleValueResponseTestChannelResult,
   TestMatchResult,
   SingleValueResponseTestMatchResult,
+  TriggerRunRef,
+  TriggerRunsResponse,
+  SingleValueResponseTriggerRunsResponse,
   UptimeDto,
   SingleValueResponseUptimeDto,
   WebhookEndpointDto,
@@ -5889,6 +6916,7 @@ export const schemas = {
   SingleValueResponseWebhookTestResult,
   WorkspaceDto,
   SingleValueResponseWorkspaceDto,
+  StreamingResponseBody,
   TableValueResultAlertChannelDto,
   TableValueResultAlertDeliveryDto,
   TableValueResultApiKeyDto,
@@ -5908,6 +6936,7 @@ export const schemas = {
   TableValueResultMaintenanceWindowDto,
   TableValueResultMemberDto,
   TableValueResultMonitorDto,
+  TableValueResultMonitorSessionDto,
   TableValueResultMonitorVersionDto,
   TableValueResultNotificationDispatchDto,
   TableValueResultNotificationDto,
@@ -5917,7 +6946,6 @@ export const schemas = {
   TableValueResultRuleEvaluationDto,
   TableValueResultRunArtifactDto,
   TableValueResultRunCaseDto,
-  TableValueResultRunDto,
   TableValueResultRuntimeProfileDto,
   TableValueResultScheduledMaintenanceDto,
   TableValueResultSecretDto,
