@@ -14,7 +14,7 @@
  * openapi-drift test (`test/skills/openapi-drift.test.ts`) depends on this.
  */
 
-import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preprocessSpec } from './lib/preprocess.mjs';
@@ -25,7 +25,8 @@ const SPEC_PATH = join(ROOT, 'docs/openapi/monitoring-api.json');
 
 /**
  * Map each skill + resource to the OpenAPI schema names we care about.
- * Schema names follow Springdoc conventions:
+ * `schemas` lists exact schema names instead. Otherwise schema names
+ * follow Springdoc conventions:
  *   Create<Foo>Request / Update<Foo>Request / <Foo>Dto
  * where <Foo> is the PascalCase singular. We look up all three; missing
  * ones are skipped silently (not every resource has a Create endpoint).
@@ -60,6 +61,16 @@ const RESOURCES = {
     environments: { singular: 'Environment' },
     workspaces: { singular: 'Workspace', readOnly: true },
     entitlements: { singular: 'Entitlements', readOnly: true },
+  },
+  'devhelm-synthetics': {
+    'script-config': { schemas: ['ScriptMonitorConfig'] },
+    bundles: { schemas: ['CreateBundleRequest', 'BundleDto', 'BundleCheckResultDto'] },
+    revisions: {
+      schemas: ['CreateDraftRevisionRequest', 'PublishRevisionRequest', 'RollbackRevisionRequest', 'RevisionDto'],
+    },
+    runs: { schemas: ['RunDto', 'RunStepDto', 'RunFailureDto', 'TriggerRunRequest', 'TriggerRunsResponse'] },
+    'secret-requests': { schemas: ['MonitorSecretRequestsDto', 'SecretRequestDto'] },
+    'runtime-profiles': { schemas: ['RuntimeProfileDto'] },
   },
 };
 
@@ -148,7 +159,7 @@ function findSchema(spec, names) {
   return null;
 }
 
-function renderResource(spec, resourceName, { singular, readOnly }) {
+function renderResource(spec, resourceName, { singular, readOnly, schemas }) {
   const lines = [];
   lines.push(`# ${resourceName} — field reference`);
   lines.push('');
@@ -159,6 +170,18 @@ function renderResource(spec, resourceName, { singular, readOnly }) {
     '> Regenerate with `node scripts/generate-skill-references.mjs`.',
   );
   lines.push('');
+
+  if (schemas) {
+    // Explicit schema list for resources that don't follow Create/Update/Dto naming.
+    for (const name of schemas) {
+      const found = findSchema(spec, [name]);
+      if (!found) throw new Error(`Schema ${name} for ${resourceName} is not in the spec`);
+      lines.push(`## \`${name}\``);
+      lines.push('');
+      lines.push(renderSchemaTable(name, found.schema));
+    }
+    return lines.join('\n');
+  }
 
   if (!readOnly) {
     const create = findSchema(spec, [`Create${singular}Request`]);
@@ -196,7 +219,32 @@ function renderResource(spec, resourceName, { singular, readOnly }) {
   return lines.join('\n');
 }
 
+/**
+ * Stamp `metadata.version` in every SKILL.md frontmatter with the CLI
+ * version, so `devhelm doctor` can tell an installed skill from another
+ * release apart. npm's `version` lifecycle runs this script, so a release
+ * bump restamps the skills in the same commit.
+ */
+function stampVersions() {
+  const { version } = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+  for (const skill of readdirSync(join(ROOT, 'skills'))) {
+    const file = join(ROOT, 'skills', skill, 'SKILL.md');
+    if (!existsSync(file)) continue;
+    const body = readFileSync(file, 'utf8');
+    const end = body.indexOf('\n---', 4);
+    if (!body.startsWith('---\n') || end === -1) throw new Error(`${file} has no frontmatter`);
+    const front = body
+      .slice(4, end)
+      .split('\n')
+      .filter((l) => l !== 'metadata:' && !/^ {2}version: /.test(l));
+    front.push('metadata:', `  version: "${version}"`);
+    const next = `---\n${front.join('\n')}${body.slice(end)}`;
+    if (next !== body) writeFileSync(file, next, 'utf8');
+  }
+}
+
 function main() {
+  stampVersions();
   const spec = loadSpec();
 
   let total = 0;

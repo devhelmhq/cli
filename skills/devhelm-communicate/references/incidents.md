@@ -16,8 +16,8 @@ Two flavors:
 ## List on a page
 
 ```bash
-devhelm status-pages incidents list <page-id> --state=OPEN,MONITORING
-devhelm status-pages incidents get <incident-id>
+devhelm status-pages incidents list <page-id> --limit=20
+devhelm status-pages incidents get <page-id> <incident-id>
 ```
 
 ## Create a manual incident
@@ -58,11 +58,16 @@ devhelm status-pages maintenance delete <page-id> <window-id>
 ## Update an incident (post an update)
 
 ```bash
-devhelm status-pages incidents updates create <incident-id> \
+devhelm status-pages incidents post-update <page-id> <incident-id> \
   --status=IDENTIFIED \
   --body="Root cause: upstream DNS resolver. Working on failover." \
-  --notify-subscribers=true
+  --notify-subscribers
 ```
+
+In non-interactive mode pass exactly one of `--notify-subscribers` or
+`--no-notify-subscribers`. The first run prints a confirmation token
+for that exact text and audience; show it to the human, then re-run
+with `--confirm <token>`.
 
 Valid status values:
 
@@ -100,33 +105,28 @@ timeline.
 > auth-svc pod stuck in CrashLoopBackoff due to OOMKilled. user
 > alice@acme.com reported. working on rollback of PR #1234.
 
-## Edit a past update
+## Correcting a past update
 
-```bash
-devhelm status-pages incidents updates update <update-id> \
-  --body="Corrected text..."
-```
-
-**Edits are reflected immediately on the public page.** Subscribers
-who already received the original email are *not* re-notified of the
-edit. Prefer posting a new update over editing for clarity.
+The CLI cannot edit a past update. Post a new update with the
+correction (`post-update`); subscribers who already received the
+original email are not re-notified of dashboard edits, so a new update
+is also clearer.
 
 ## Resolve
 
 ```bash
-devhelm status-pages incidents updates create <incident-id> \
+devhelm status-pages incidents post-update <page-id> <incident-id> \
   --status=RESOLVED \
-  --body="The fix is deployed. All monitors green since 14:58 UTC.
-          Sorry for the disruption." \
-  --notify-subscribers=true
+  --body="The fix is deployed. All monitors green since 14:58 UTC. Sorry for the disruption." \
+  --notify-subscribers
 ```
 
 For auto-created incidents, you can also let them auto-resolve when
 the monitor returns to UP — this posts a default resolve message.
-Control per page:
+Control per page with the incident mode (`MANUAL`, `REVIEW`, `AUTOMATIC`):
 
 ```bash
-devhelm status-pages update <page-id> --auto-resolve-incidents=true
+devhelm status-pages update <page-id> --incident-mode=AUTOMATIC
 ```
 
 If the user wants a custom resolve message, disable auto-resolve and
@@ -135,7 +135,7 @@ post manually.
 ## Delete an incident
 
 ```bash
-devhelm status-pages incidents delete <incident-id>
+devhelm status-pages incidents delete <page-id> <incident-id>
 ```
 
 Reversible within 24h via dashboard (not CLI). Deletion removes the

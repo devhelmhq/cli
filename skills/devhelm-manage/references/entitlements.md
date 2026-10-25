@@ -70,16 +70,15 @@ https://app.devhelm.io/settings/billing
 
 ### "What do I lose on downgrade?"
 
-API exposes `GET /platform/plan-preview?plan=free` which returns the
-entitlements that would apply, plus a list of resources that would
-**exceed** them (over-quota). CLI:
+The CLI has no downgrade preview. Compare the current limits and
+consumption, and let the dashboard show what a lower plan would break:
 
 ```bash
-devhelm plan-preview --plan=free
+devhelm account entitlements
+devhelm account usage
 ```
 
-Shows what would break. Don't initiate a downgrade from a chat
-prompt; direct to dashboard.
+Don't initiate a downgrade from a chat prompt; direct to dashboard.
 
 ## Trials
 

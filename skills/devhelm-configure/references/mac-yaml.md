@@ -147,13 +147,15 @@ single repo managed by one team.
 
 ## Bootstrapping from an existing platform
 
-```bash
-devhelm init --from-platform                 # writes devhelm.yml
-```
+`devhelm init` scaffolds a starter check and a plan-valid
+`devhelm.yml`; it does not export existing platform resources. To move
+dashboard-created resources into code, read each with
+`devhelm <resource> get <id> -o yaml` and add it to `devhelm.yml`, then
+run `devhelm plan` to confirm there is no diff.
 
-Pulls everything currently configured into a single YAML file. Use
-this when the user has set things up in the dashboard and now wants
-it in code.
+```bash
+devhelm init --browser login-flow            # starter browser check + devhelm.yml
+```
 
 ## Gotchas
 

@@ -7,55 +7,39 @@ downtime durations** over a time window. Use when the user asks:
 - *"Compare prod vs. staging uptime last 30 days."*
 - *"Did we hit our SLO?"*
 
-## Per-monitor uptime
+## Per-monitor history
+
+The CLI has no per-monitor uptime-percentage command. Read the check
+history for the window and compute the ratio, or use the dashboard
+for a ready-made percentage:
 
 ```bash
-devhelm monitors uptime <monitor-id> \
-  --window=30d \
-  --region=us-east,eu-west \
-  --output=json
+devhelm monitors history <monitor-id> --since=30d --region=us-east --limit=200 --output=json
+devhelm monitors history <monitor-id> --since=30d --failed --output=json
 ```
 
-Response:
+Uptime is `1 - failed/total` over the same window. `--failed` returns
+only failing results, so compare counts from the two calls.
 
-```json
-{
-  "monitorId": "mon_...",
-  "window": "30d",
-  "uptimePct": 99.87,
-  "downtimeSeconds": 3360,
-  "totalSeconds": 2592000,
-  "regions": {
-    "us-east":   { "uptimePct": 99.92, "downtimeSeconds": 2080 },
-    "eu-west":   { "uptimePct": 99.82, "downtimeSeconds": 4680 }
-  },
-  "incidents": [
-    { "id": "inc_...", "durationSeconds": 1200, "severity": "DOWN" },
-    { "id": "inc_...", "durationSeconds": 2160, "severity": "DEGRADED" }
-  ]
-}
-```
+## Tracked services (dependencies)
 
-Windows: `1h`, `24h`, `7d`, `30d`, `90d`, or explicit
-`--since=<ISO>` + `--until=<ISO>`. Beyond plan retention, the
-response returns `null` with a `reason`.
-
-## Service-level (resource group) uptime
+For a third-party service you track as a dependency, the CLI returns
+uptime directly:
 
 ```bash
-devhelm resource-groups uptime <slug> --window=30d
+devhelm data services uptime <service-slug> --period=30d --granularity=day --output=json
 ```
 
-Aggregates all member monitors. Default aggregation: **min** across
-monitors (i.e. the worst monitor defines the service's uptime). This
-matches most SLO definitions; for **avg** or **sum**, pass
-`--agg=avg`.
+## Service-level (resource group)
+
+There is no group-level uptime command. Pull `monitors history` for
+each member monitor and take the **minimum** (the worst monitor
+defines the service's uptime), which matches most SLO definitions.
 
 ## Workspace-wide
 
-No single CLI command — aggregate manually across resource groups or
-per-monitor queries, or use the MCP `query_uptime` tool which accepts
-a workspace-wide scope.
+No single CLI command; aggregate across monitors, or use the MCP
+`query_uptime` tool which accepts a workspace-wide scope.
 
 ## Interpretation tips
 
@@ -67,25 +51,18 @@ a workspace-wide scope.
   probe-network issue, not a service issue. Cross-check the status of
   the DevHelm region (`devhelm dependencies list | grep devhelm-region`
   if applicable).
-- **DEGRADED time** — counted against uptime by default. Pass
-  `--exclude=DEGRADED` if the SLO definition only cares about hard
-  downtime.
+- **DEGRADED time** — decide up front whether the SLO counts it;
+  filter degraded results out of the history if only hard downtime
+  matters.
 - **Planned maintenance** — paused monitors are excluded from the
   window. If the user paused a monitor for 2h during a deployment,
   that 2h is subtracted from `totalSeconds`, not counted as downtime.
 
 ## SLO reports
 
-For monthly SLO compliance reports:
-
-```bash
-devhelm resource-groups uptime checkout --window=30d --output=json \
-  | jq '{service: "checkout", uptime: .uptimePct, budget_used:
-         (100 - .uptimePct) / (100 - 99.9) * 100}'
-```
-
-The CLI doesn't ship an SLO-budget calculator natively — compose with
-`jq` (or similar) and commit the query alongside your runbook.
+Compose `devhelm monitors history <id> --since=30d --output=json` with
+`jq` (or similar) and commit the query alongside your runbook; the CLI
+does not ship an SLO-budget calculator.
 
 ## MCP equivalent
 

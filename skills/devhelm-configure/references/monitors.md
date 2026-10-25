@@ -88,11 +88,18 @@ the credential as a secret first** (`@references/secrets.md`), then
 reference it:
 
 ```bash
-devhelm secrets create --name=STRIPE_TEST_KEY --value=...
-devhelm monitors create \
-  --name=stripe-webhook \
-  --url=https://webhooks.example.com/stripe \
-  --headers='[{"name":"Authorization","value":"${{secrets.STRIPE_TEST_KEY}}"}]'
+devhelm secrets create STRIPE_TEST_KEY --env production --from-env STRIPE_TEST_KEY
+```
+
+Then reference it from `devhelm.yml`:
+
+```yaml
+monitors:
+  - name: stripe-webhook
+    type: HTTP
+    url: https://webhooks.example.com/stripe
+    headers:
+      - { name: Authorization, value: "${{secrets.STRIPE_TEST_KEY}}" }
 ```
 
 Never hard-code a credential in a CLI flag or YAML file — it ends up

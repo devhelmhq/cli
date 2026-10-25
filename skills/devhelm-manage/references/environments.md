@@ -20,10 +20,10 @@ devhelm environments list
 
 ```bash
 devhelm auth me                              # shows active context + env
-devhelm environments use <slug>              # persists in context
 ```
 
-Per-command: `--environment=<slug>` or `DEVHELM_ENVIRONMENT=<slug>`.
+There is no persistent "use" command. Per-command: `--env <slug>`
+(or `DEVHELM_ENVIRONMENT=<slug>`).
 
 ## Create / delete
 
@@ -35,7 +35,7 @@ devhelm environments delete <slug>           # fails with 409 if in use
 ```
 
 The 409 response lists referencing resources. Move them first
-(`devhelm monitors update <id> --environment=<other>`), then retry.
+(`devhelm monitors update <id> --move-to-env <other>`), then retry.
 
 ## Multi-environment auth contexts
 
@@ -43,13 +43,13 @@ For users operating multiple envs from the same machine, set up one
 CLI context per env:
 
 ```bash
-devhelm auth login --token=<prod-key>   --context=prod
-devhelm auth login --token=<stage-key>  --context=staging
+devhelm auth context create prod --token=<prod-key> --set-current
+devhelm auth context create staging --token=<stage-key>
+devhelm auth context list
 devhelm auth context use prod
 ```
 
-Contexts also store the default environment, so `devhelm monitors
-list` uses the right scope automatically.
+Contexts bundle the API token; pass `--env` for the environment.
 
 ## Complete field reference
 

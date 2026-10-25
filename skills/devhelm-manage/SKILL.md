@@ -1,6 +1,8 @@
 ---
 name: devhelm-manage
 description: Manage DevHelm workspace-level administration — API keys, environments, workspace settings, plan/entitlements, and team roster (read-only). Use when the user wants to create or rotate an API key, check what plan they're on, list environments, see team members, or inspect workspace-wide limits.
+metadata:
+  version: "1.11.0"
 ---
 
 # DevHelm — Manage
@@ -18,7 +20,8 @@ design: most of its operations touch credentials or plan state.
 ## Preconditions
 
 1. `devhelm --version` succeeds.
-2. `devhelm auth me` succeeds.
+2. `devhelm auth me` succeeds. `devhelm auth switch <context>` changes
+   the active context.
 3. For any destructive operation (revoke key, delete environment),
    double-check the caller has the role to do it — `devhelm auth me`
    returns `role`. If role is `VIEWER` or `MEMBER`, stop and tell the
@@ -54,6 +57,16 @@ new key rather than you trying to resurrect anything.
 
 Full field details: `@references/api-keys.md`.
 
+### Plan, entitlements and usage
+
+- `devhelm account entitlements` shows what the plan allows; read it
+  before promising any limit.
+- `devhelm account usage` shows current consumption against those limits.
+
+Scoped keys for automation:
+`devhelm api-keys create --name "<label>" --preset agent-author`
+(other presets: `ci-pr`, `ci-deploy`, `agent-responder`).
+
 ### Environments
 
 | User intent | Command |
@@ -61,7 +74,7 @@ Full field details: `@references/api-keys.md`.
 | "Show environments" | `devhelm environments list` |
 | "Create staging" | `devhelm environments create --name=staging --slug=staging` |
 | "Delete staging" | `devhelm environments delete <slug>` (only if no resources reference it) |
-| "Use production for this session" | set `DEVHELM_ENVIRONMENT=production` or pass `--environment production` |
+| "Use production for this session" | pass `--env production` on commands that support it |
 
 Environments are **labels that scope resources** (monitors,
 channels, policies) — not separate workspaces. Deleting an
@@ -133,6 +146,31 @@ devhelm auth me                # just you
    into the conversation (e.g. to ask you to "use this key"), do not
    echo the full value back — refer to it as *"the key you pasted"*
    and mask past the first 6 characters if you must reference it.
+
+---
+
+## Error handling
+
+Exit codes are frozen. Exit 1 never means a classified error.
+
+| Exit | Meaning | Your response |
+|---|---|---|
+| 0 | OK (a flaky pass is 0 with `flaky: true`) | Report; mention flakiness if set. |
+| 2 | Usage error | Fix the command line; check `--help`. |
+| 4 | Invalid config/flags, `NO_TOKEN`, unknown or ambiguous monitor, or blocked | Show the field/cause and fix. `RUN_KEYS_MISSING`: show the fix command and stop. |
+| 10 | Plan has changes (`--detailed-exitcode`) | Expected. Show the diff. |
+| 11 | API failed unexpectedly (5xx, 429 after retries) | Include `code`, `message` and `requestId` verbatim. |
+| 12 | Network error | Retry once; then ask the user to check connectivity. |
+| 13 | Deploy partially landed | Report `landed[]`, `notLanded[]` and `failures[]`. |
+| 14 | A test/trigger run or probe failed | Report the failing run; investigate with `devhelm runs get <id> --steps`. |
+| 15 | Confirmation required | Show `changes[]` and `confirmCommand` to the human. Never add `--yes` yourself for production. |
+| 16 | Plan/entitlement/quota refusal | Read `devhelm account entitlements`; do not guess limits. |
+| 17 | Auth/permission/ownership refusal | Report the missing scope or owner; do not work around it. |
+| 18 | Conflict (lock held, stale expected live revision, untested revision, paused) | Report the conflict; re-read state before retrying. |
+| 19 | No verdict on our side (`execution_error`, inconclusive, not started; not billed) | Report as no verdict; do not call it a pass or a fail. |
+| 20 | Gone (evidence expired) | Say the evidence expired; re-run if needed. |
+
+Any non-zero exit: stop and report. Never silently retry `deploy` or `create`.
 
 ---
 

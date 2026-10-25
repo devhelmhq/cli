@@ -150,7 +150,7 @@ export function installSkills(host: Host, cwd: string): string {
 /** The starter prompt: no secrets, ever. */
 export function starterPrompt(opts: {repo?: string; name: string; kind: StarterKind; checkFile: string}): string {
   return [
-    `Use the devhelm-configure skill.${opts.repo ? ` Repo ${opts.repo}.` : ''}`,
+    `Use the devhelm-synthetics skill.${opts.repo ? ` Repo ${opts.repo}.` : ''}`,
     `Make the ${opts.kind === 'browser' ? 'browser' : 'API'} check "${opts.name}" in ${opts.checkFile} test the real journey.`,
     'Run `devhelm validate --online`, then `devhelm test` until it passes.',
     'Ask me for any secret values and show me the `devhelm secrets values set` command; never print or handle secret values.',

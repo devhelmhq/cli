@@ -29,22 +29,15 @@ devhelm resource-groups create \
 
 ## Add monitors
 
-Two ways:
-
-```bash
-# At monitor creation
-devhelm monitors create --name=checkout-api --resource-group=checkout ...
-
-# After the fact
-devhelm monitors update <monitor-id> --resource-group=checkout
-```
+Membership is set in `devhelm.yml` (`resource_group: checkout` on the
+monitor) and applied with `devhelm plan` then `devhelm deploy`. The
+imperative `monitors create/update` commands have no group flag.
 
 ## Read / list
 
 ```bash
 devhelm resource-groups list
 devhelm resource-groups get <slug>      # includes member counts
-devhelm monitors list --resource-group=<slug>
 ```
 
 ## YAML
@@ -72,18 +65,15 @@ automatic sectioning — see `devhelm-communicate` skill →
 
 Policies can scope to a group:
 
-```bash
-devhelm notification-policies create \
-  --name=checkout-oncall \
-  --resource-group=checkout \
-  --trigger-count=2 \
-  --alert-channels=pd-checkout
-```
+Scope the policy to the group in `devhelm.yml` (see
+`@references/notification-policies.md`); the imperative
+`notification-policies create` command takes only `--name`,
+`--channel-ids` and `--enabled`.
 
 ## Common gotchas
 
 - **Deleting a group with members** — the API returns 409. Move
-  monitors to another group or to none (`--resource-group=null`)
+  monitors to another group or to none (remove `resource_group` in `devhelm.yml`)
   first.
 - **Slug immutability** — slugs are used in dashboard URLs and pSEO
   (if enabled). The API allows slug updates but any external links

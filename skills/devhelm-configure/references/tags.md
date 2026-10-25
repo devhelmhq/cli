@@ -4,9 +4,9 @@ Tags are **free-form key/value metadata** you can attach to monitors,
 alert channels, resource groups, and most other resource types. They
 drive:
 
-- **Filtering**: `devhelm monitors list --tags=env=prod,team=platform`.
+- **Filtering**: `devhelm monitors list --tag env:prod` (see `--help` for the tag syntax).
 - **Notification-policy scoping**: a policy with
-  `--tags=env=prod` applies only to prod monitors.
+  `tags: {env: prod}` applies only to prod monitors.
 - **Dashboard + status-page sectioning** in some views.
 
 Tags are not the same as **resource groups**. Groups have ownership
@@ -15,19 +15,8 @@ metadata.
 
 ## Set tags
 
-Inline at creation:
-
-```bash
-devhelm monitors create --name=api --tags='env=prod,team=platform' ...
-```
-
-Or as JSON:
-
-```bash
-devhelm monitors update <id> --tags='{"env":"prod","team":"platform","service":"checkout"}'
-```
-
-YAML:
+Tags are set in `devhelm.yml` (the imperative `monitors create/update`
+commands have no tag flag):
 
 ```yaml
 monitors:

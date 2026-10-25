@@ -12,7 +12,7 @@ import {findMonitorsByName, ownerLabel, resolveEnvironment} from '../lib/monitor
 import {configFiles, fileFlag} from '../lib/project/flags.js'
 import {codeMonitors, loadProject} from '../lib/project/project.js'
 import {parsePage} from '../lib/response-validation.js'
-import {HOSTS, listSkills, resolveSkillsDir} from '../lib/skills.js'
+import {HOSTS, listSkills, resolveSkillsDir, skillVersion} from '../lib/skills.js'
 import {usageLine} from '../lib/runs/usage.js'
 
 interface Check {
@@ -130,9 +130,10 @@ export default class Doctor extends DevhelmCommand {
     })
   }
 
-  /** Installed project skills that differ from this CLI's bundled copy are stale. */
+  /** Installed project skills from another CLI version (or edited since install) are stale. */
   private skillsCheck(): Check {
     const root = resolveSkillsDir()
+    const cli = this.config.version
     const stale: string[] = []
     let installed = 0
     for (const host of Object.values(HOSTS)) {
@@ -142,12 +143,14 @@ export default class Doctor extends DevhelmCommand {
         const mine = join(dir, skill, 'SKILL.md')
         if (!existsSync(mine)) continue
         installed++
-        if (readFileSync(mine, 'utf8') !== readFileSync(join(root, skill, 'SKILL.md'), 'utf8')) stale.push(`${host.project}/${skill}`)
+        const version = skillVersion(mine)
+        if (version !== cli) stale.push(`${host.project}/${skill} (${version ?? 'unversioned'})`)
+        else if (readFileSync(mine, 'utf8') !== readFileSync(join(root, skill, 'SKILL.md'), 'utf8')) stale.push(`${host.project}/${skill} (edited)`)
       }
     }
     if (installed === 0) return {check: 'skills', status: 'ok', detail: 'none installed in this repo'}
     return stale.length > 0
-      ? {check: 'skills', status: 'warn', detail: `differ from this CLI (${this.config.version}): ${stale.join(', ')}`, fix: 'devhelm skills install'}
-      : {check: 'skills', status: 'ok', detail: `${installed} installed, current with CLI ${this.config.version}`}
+      ? {check: 'skills', status: 'warn', detail: `not CLI ${cli}: ${stale.join(', ')}`, fix: 'devhelm skills install'}
+      : {check: 'skills', status: 'ok', detail: `${installed} installed, version ${cli}`}
   }
 }

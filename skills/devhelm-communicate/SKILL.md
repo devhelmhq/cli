@@ -1,6 +1,8 @@
 ---
 name: devhelm-communicate
 description: Set up and operate public DevHelm status pages — create pages, add components grouped by service, attach custom domains, manage subscribers, and publish incident updates. Use whenever the user wants a status page, says "status.example.com", "tell users about an outage", "post an update", "publish an incident", "add a subscriber", or "customize the page".
+metadata:
+  version: "1.11.0"
 ---
 
 # DevHelm — Communicate
@@ -73,7 +75,7 @@ Publish with this layout? (y/n, or name changes you want)
 devhelm status-pages create \
   --name="Acme Status" \
   --slug=acme \
-  --headline="Acme service status"
+  --description="Acme service status"
 
 # 4b. Create component groups (if using them)
 devhelm status-pages groups create <page-id> \
@@ -86,7 +88,7 @@ devhelm status-pages components create <page-id> \
   --group-id=<group_id>
 
 # 4d. Publish
-devhelm status-pages update <page-id> --published=true
+devhelm status-pages update <page-id> --enabled
 ```
 
 **Step 5 — Verify.**
@@ -147,15 +149,19 @@ Incident update bodies are **public-facing text**. Follow these rules:
 **Step 4 — Post it.**
 
 ```bash
-devhelm status-pages incidents updates create <incident-id> \
+devhelm status-pages incidents post-update <page-id> <incident-id> \
   --status=INVESTIGATING \
   --body="<your text>" \
-  --notify-subscribers=true
+  --notify-subscribers
 ```
 
 Valid statuses: `INVESTIGATING`, `IDENTIFIED`, `MONITORING`,
-`RESOLVED`. The `--notify-subscribers=true` flag sends emails —
-always ask before setting it on the first post of a session.
+`RESOLVED`. Public writes are gated. In non-interactive mode you must
+pass exactly one of `--notify-subscribers` or `--no-notify-subscribers`,
+and the first run prints a confirmation token for that exact text and
+audience; show it to the human and re-run with `--confirm <token>`.
+`--notify-subscribers` sends emails — always ask before setting it on
+the first post of a session.
 
 **Step 5 — Verify + share URL.**
 
@@ -182,12 +188,12 @@ For full field details: `@references/custom-domains.md`.
 ## Subscribers
 
 ```bash
-devhelm status-pages subscribers create <page-id> --email=foo@bar.com
+devhelm status-pages subscribers add <page-id> --email=foo@bar.com
 devhelm status-pages subscribers list <page-id>
 ```
 
 Subscribers receive emails whenever an incident update is posted with
-`--notify-subscribers=true`. Full field details:
+`--notify-subscribers`. Full field details:
 `@references/subscribers.md`.
 
 ---
@@ -200,7 +206,7 @@ Subscribers receive emails whenever an incident update is posted with
    asking *"post this with status=X and notify-subscribers=<bool>?"*.
    Public communication is irreversible (updates can be deleted but
    subscribers already got the email).
-3. **Never set `notify-subscribers=true` on the first post of a fresh
+3. **Never set `notify-subscribers` on the first post of a fresh
    incident without confirming.** Accidental notifications are the #1
    regret.
 4. **Never include PII, API keys, stack traces, internal service
@@ -210,8 +216,33 @@ Subscribers receive emails whenever an incident update is posted with
    `devhelm-configure`.
 6. **Never delete a published status page** unless the user explicitly
    said "delete this page" using that word. "Unpublish" is
-   `devhelm status-pages update <id> --published=false`, which is
+   `devhelm status-pages update <id> --no-enabled`, which is
    reversible; prefer it.
+
+---
+
+## Error handling
+
+Exit codes are frozen. Exit 1 never means a classified error.
+
+| Exit | Meaning | Your response |
+|---|---|---|
+| 0 | OK (a flaky pass is 0 with `flaky: true`) | Report; mention flakiness if set. |
+| 2 | Usage error | Fix the command line; check `--help`. |
+| 4 | Invalid config/flags, `NO_TOKEN`, unknown or ambiguous monitor, or blocked | Show the field/cause and fix. `RUN_KEYS_MISSING`: show the fix command and stop. |
+| 10 | Plan has changes (`--detailed-exitcode`) | Expected. Show the diff. |
+| 11 | API failed unexpectedly (5xx, 429 after retries) | Include `code`, `message` and `requestId` verbatim. |
+| 12 | Network error | Retry once; then ask the user to check connectivity. |
+| 13 | Deploy partially landed | Report `landed[]`, `notLanded[]` and `failures[]`. |
+| 14 | A test/trigger run or probe failed | Report the failing run; investigate with `devhelm runs get <id> --steps`. |
+| 15 | Confirmation required | Show `changes[]` and `confirmCommand` to the human. Never add `--yes` yourself for production. |
+| 16 | Plan/entitlement/quota refusal | Read `devhelm account entitlements`; do not guess limits. |
+| 17 | Auth/permission/ownership refusal | Report the missing scope or owner; do not work around it. |
+| 18 | Conflict (lock held, stale expected live revision, untested revision, paused) | Report the conflict; re-read state before retrying. |
+| 19 | No verdict on our side (`execution_error`, inconclusive, not started; not billed) | Report as no verdict; do not call it a pass or a fail. |
+| 20 | Gone (evidence expired) | Say the evidence expired; re-run if needed. |
+
+Any non-zero exit: stop and report. Never silently retry `deploy` or `create`.
 
 ---
 

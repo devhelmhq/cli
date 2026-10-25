@@ -69,25 +69,11 @@ devhelm status-pages components delete <component-id>
 Delete is reversible only via undelete API within 24h (not exposed in
 CLI yet) — warn the user.
 
-## Manual status override
+## Status source
 
-For manual components or when the user wants to force a status
-regardless of the underlying monitor:
-
-```bash
-devhelm status-pages components update <component-id> \
-  --manual-status=DEGRADED \
-  --manual-status-reason="Known issue with X, ETA 30min"
-```
-
-Valid statuses: `OPERATIONAL`, `DEGRADED`, `PARTIAL_OUTAGE`,
-`MAJOR_OUTAGE`, `UNDER_MAINTENANCE`.
-
-To return to monitor-driven status:
-
-```bash
-devhelm status-pages components update <component-id> --manual-status=null
-```
+A component bound to a monitor (`--monitor-id`) or resource group takes
+its status from that monitor. The CLI has no manual status override;
+use the dashboard for that.
 
 ## Common gotchas
 

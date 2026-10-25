@@ -1,6 +1,8 @@
 ---
 name: devhelm-configure
 description: Create and manage DevHelm monitoring resources — monitors, alert channels, notification policies, resource groups, dependencies, secrets, tags, webhooks, and environments. Use when the user wants to set up uptime or heartbeat monitoring, wire Slack/email/PagerDuty/webhook alerts, group monitors by team/service, track third-party status pages as dependencies, store secrets for monitor auth, or otherwise configure any DevHelm resource. Auto-detects monitoring-as-code repos (devhelm.yml, Terraform) and picks the right surface.
+metadata:
+  version: "1.11.0"
 ---
 
 # DevHelm — Configure
@@ -20,13 +22,14 @@ For read/debug flows (status, failures, incidents, uptime), switch to the
 
 1. **CLI installed.** Run `devhelm --version`. If it fails, stop and tell
    the user: `npm install -g devhelm`.
-2. **Authenticated.** Run `devhelm auth me`. If it fails with a 401 or
-   reports no active context, stop and tell the user: `devhelm auth login`
-   (or `devhelm auth login --token=<api-key>` if they have one). Do not
-   attempt to create anything without an active context.
+2. **Healthy and authenticated.** Run `devhelm doctor -o json`. If it
+   reports no token or no active context, stop and tell the user:
+   `devhelm auth login` (or `devhelm auth login --token=<api-key>` if
+   they have one). Do not attempt to create anything without an active
+   context.
 3. **Optional env override.** If the user's prompt names an environment
    (e.g. "in staging"), resolve it with `devhelm environments list` and
-   pass `--environment <slug>` on every subsequent command.
+   pass `--env <slug>` on every subsequent command that supports it.
 
 ---
 
@@ -79,6 +82,7 @@ tracks the current OpenAPI spec.
 | "label", "env=prod", "team=payments" | tags | `@references/tags.md` |
 | "outbound webhook", "notify external service" | webhooks | `@references/webhooks.md` |
 | "staging env", "production env", "environment" | environments | `@references/environments.md` |
+| "browser check", "Playwright", "multi-step API", "synthetic", "code check" | code monitors | use the `devhelm-synthetics` skill |
 
 If the intent is ambiguous (e.g. "set up monitoring for Slack"), ask
 **one** clarifier — "Do you want to monitor your own API that depends on
@@ -101,6 +105,11 @@ devhelm <resource> update <id> <args>
 devhelm <resource> delete <id>
 devhelm <resource> test <id>         # where applicable (monitors, webhooks, alert-channels)
 ```
+
+Related imperative verbs: `devhelm monitors test <id>` (run a monitor
+once), `devhelm test` (run monitors from config), `devhelm validate
+--online` (validate config against the API), `devhelm plan` (preview
+changes) and `devhelm deploy` (apply them).
 
 Flags are driven by the OpenAPI spec. To see current flags for any
 resource: `devhelm <resource> create --help`. To see the full field
@@ -196,19 +205,26 @@ One suggestion, not a menu. The user can ignore it without guilt.
 
 ## Error handling
 
-The CLI uses structured exit codes (see `DevhelmError` taxonomy):
+Exit codes are frozen. Exit 1 never means a classified error.
 
 | Exit | Meaning | Your response |
 |---|---|---|
-| 0 | Success | Report. |
-| 4 | Local validation | The user's input failed a Zod schema. Show the field + fix. Don't retry blindly. |
-| 10 | Plan has changes | Expected during `plan`. Show diff. |
-| 11 | API error (4xx/5xx) | Include the API error's `code`, `message`, and `requestId` verbatim in your reply. |
-| 12 | Transport error | Network/TLS/DNS. Retry once; if it fails again, ask the user to check connectivity. |
-| 13 | Partial failure (deploy) | Some resources applied, some didn't. Report both sides. |
+| 0 | OK (a flaky pass is 0 with `flaky: true`) | Report; mention flakiness if set. |
+| 2 | Usage error | Fix the command line; check `--help`. |
+| 4 | Invalid config/flags, `NO_TOKEN`, unknown or ambiguous monitor, or blocked | Show the field/cause and fix. `RUN_KEYS_MISSING`: show the fix command and stop. |
+| 10 | Plan has changes (`--detailed-exitcode`) | Expected. Show the diff. |
+| 11 | API failed unexpectedly (5xx, 429 after retries) | Include `code`, `message` and `requestId` verbatim. |
+| 12 | Network error | Retry once; then ask the user to check connectivity. |
+| 13 | Deploy partially landed | Report `landed[]`, `notLanded[]` and `failures[]`. |
+| 14 | A test/trigger run or probe failed | Report the failing run; investigate with `devhelm runs get <id> --steps`. |
+| 15 | Confirmation required | Show `changes[]` and `confirmCommand` to the human. Never add `--yes` yourself for production. |
+| 16 | Plan/entitlement/quota refusal | Read `devhelm account entitlements`; do not guess limits. |
+| 17 | Auth/permission/ownership refusal | Report the missing scope or owner; do not work around it. |
+| 18 | Conflict (lock held, stale expected live revision, untested revision, paused) | Report the conflict; re-read state before retrying. |
+| 19 | No verdict on our side (`execution_error`, inconclusive, not started; not billed) | Report as no verdict; do not call it a pass or a fail. |
+| 20 | Gone (evidence expired) | Say the evidence expired; re-run if needed. |
 
-Any non-zero exit → stop and report. Never silently retry `deploy` or
-`create`.
+Any non-zero exit: stop and report. Never silently retry `deploy` or `create`.
 
 ---
 
