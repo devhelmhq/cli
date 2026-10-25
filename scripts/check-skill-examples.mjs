@@ -99,7 +99,7 @@ export function checkExample(text, {commands, topics}) {
   }
   if (!id) {
     const topic = words.join(' ')
-    if (topics.has(topic) && tokens.length === words.length) return null
+    if (topics.has(topic)) return {problem: `"devhelm ${topic}" is a topic, not a command`}
     if (tokens[0] === '--version' || tokens[0] === '--help') return null
     return {problem: `unknown command "devhelm ${words.join(' ') || tokens[0]}"`}
   }
@@ -132,7 +132,7 @@ export function checkSkills({exec = true, skillsDir = SKILLS_DIR, manifestPath =
       try {
         execFileSync(process.execPath, [bin, ...id.split(' '), '--help'], {stdio: 'pipe', env: {...process.env, NO_COLOR: '1'}})
       } catch (err) {
-        problems.push(`${where} · devhelm ${id} --help · exited ${err.status}: ${String(err.stderr ?? '').trim().split('\n')[0]}`)
+        problems.push(`${where} · devhelm ${id} --help · exited ${err.signal ?? err.status}: ${String(err.stderr ?? '').trim().split('\n')[0]}`)
       }
     }
   }

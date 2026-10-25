@@ -144,13 +144,13 @@ export default class Doctor extends DevhelmCommand {
         if (!existsSync(mine)) continue
         installed++
         const version = skillVersion(mine)
-        if (version !== cli) stale.push(`${host.project}/${skill} (${version ?? 'unversioned'})`)
+        if (version !== cli) stale.push(`${host.project}/${skill} (${version ? `built for ${version}` : 'no version stamp'})`)
         else if (readFileSync(mine, 'utf8') !== readFileSync(join(root, skill, 'SKILL.md'), 'utf8')) stale.push(`${host.project}/${skill} (edited)`)
       }
     }
     if (installed === 0) return {check: 'skills', status: 'ok', detail: 'none installed in this repo'}
     return stale.length > 0
-      ? {check: 'skills', status: 'warn', detail: `not CLI ${cli}: ${stale.join(', ')}`, fix: 'devhelm skills install'}
+      ? {check: 'skills', status: 'warn', detail: `not built for CLI ${cli}: ${stale.join(', ')}`, fix: 'devhelm skills install'}
       : {check: 'skills', status: 'ok', detail: `${installed} installed, version ${cli}`}
   }
 }

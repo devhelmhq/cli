@@ -42,16 +42,17 @@ Incidents and uptime numbers belong to `devhelm-investigate`.
 3. **Deploy needs a human.** `devhelm deploy` without `--yes` exits **15**
    in a non-interactive shell and prints `changes[]` plus `confirmCommand`.
    Show `changes[]` to the user and stop. **Never add `--yes` on your own
-   for production.** Only add it when the user explicitly says "deploy"
-   for these exact changes, or the target is a non-production environment
-   they told you to deploy to.
+   for production.** Treat every deploy as production unless the user
+   names the environment and says it isn't production. Add `--yes` only
+   when the user has seen `changes[]` and says "deploy" for those changes.
 4. **Plan facts come from the account, never from memory.** Read
    `devhelm account entitlements -o json` (frequency floor
    `code_check.min_frequency_seconds`, environments, regions, run limits)
    and `devhelm account usage -o json` (runs billed and remaining). Don't
    hard-code "Free is hourly" or any other number.
 5. **Every `test` and `trigger` run is billed.** Say how many runs a command
-   will start before you run it. `--repeat N` and `--region all` multiply.
+   will start before you run it. `test --repeat N` and
+   `trigger --region all` multiply it; cap triggers with `--max-runs`.
 6. **One entry file per check.** Don't put two journeys in one file and
    don't split a file silently. If a file has several `test()` blocks, tell
    the user it becomes one check and ask whether to split it.
@@ -149,7 +150,8 @@ test('Sign up with an email code', async ({page}) => {
   await page.goto(`${process.env.BASE_URL}/signup`)
   await page.getByLabel('Email').fill(to)
   await page.getByRole('button', {name: 'Send code'}).click()
-  const message = await email.wait({to, subject: 'Your code', timeoutMs: 60_000})
+  const message = await email.wait({to, subject: 'code', timeoutMs: 60_000})
+  expect(message.otp, 'the email carries a one-time code').toBeTruthy()
   await page.getByLabel('Code').fill(message.otp ?? '')
   await expect(page.getByRole('heading', {name: 'Welcome'})).toBeVisible()
 })
@@ -201,8 +203,8 @@ devhelm deploy
    code goes draft → test → publish; a failed draft test leaves the live
    code untouched. Exit 15 → rule 3.
 
-After deploy, print each monitor's URL and say "Running" (every new monitor
-runs at create). For a smoke run on demand:
+After deploy, print each monitor's URL and confirm its first run with
+`devhelm runs list --monitor "<name>" --limit 1`. For a smoke run on demand:
 `devhelm trigger "Checkout" --region us-east` (a recorded run that won't
 alert unless `--signal`).
 

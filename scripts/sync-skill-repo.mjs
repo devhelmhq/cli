@@ -12,7 +12,7 @@
  * references are current. Commit the result in the skill repo.
  */
 
-import {cpSync, existsSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
+import {cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {dirname, join, resolve} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
@@ -29,8 +29,22 @@ if (!existsSync(join(repo, '.git'))) {
 }
 
 const {version} = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
+const src = join(ROOT, 'skills')
+// Refuse to publish skills whose stamps or generated references are stale.
+for (const skill of readdirSync(src)) {
+  const md = join(src, skill, 'SKILL.md')
+  if (!existsSync(md)) continue
+  if (!readFileSync(md, 'utf8').includes(`\n  version: "${version}"\n`)) {
+    console.error(`${md} is not stamped with ${version}: run \`npm run skillgen\` first`)
+    process.exit(2)
+  }
+  if (!existsSync(join(src, skill, 'references', '_generated'))) {
+    console.error(`${skill} has no references/_generated: run \`npm run skillgen\` first`)
+    process.exit(2)
+  }
+}
 const dst = join(repo, 'skills')
 rmSync(dst, {recursive: true, force: true})
-cpSync(join(ROOT, 'skills'), dst, {recursive: true})
+cpSync(src, dst, {recursive: true})
 writeFileSync(join(repo, 'VERSION'), `${version}\n`)
 console.log(`Synced skills ${version} → ${dst}`)
