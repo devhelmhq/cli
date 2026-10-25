@@ -39,6 +39,7 @@ export const QUEUED_RUN = {
   attemptOf: 1,
   attempts: [],
   executionAttempts: [],
+  billable: false,
 }
 
 describe('buildCodeTestTarget', () => {

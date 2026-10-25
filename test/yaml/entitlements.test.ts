@@ -69,7 +69,7 @@ function makeAuthMeData(overrides: {
     }
   }
   return {
-    key: {id: 1, name: 'test-key', createdAt: '2024-01-01T00:00:00+00:00'},
+    key: {id: 1, name: 'test-key', createdAt: '2024-01-01T00:00:00+00:00', scopes: ['full']},
     organization: overrides.organization ?? {id: 1, name: 'TestOrg'},
     plan: {
       tier: overrides.plan.tier,

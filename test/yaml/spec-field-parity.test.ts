@@ -73,6 +73,8 @@ const API_ONLY_FIELDS: Record<string, string[]> = {
   monitor: [
     'managedBy', 'environmentId', 'alertChannelIds', 'clearEnvironmentId', 'clearAuth',
     'capturePolicy', 'definitionId', 'fastRetryMaxAttempts', 'package', 'runParallel', 'status',
+    'ownerEnforced', 'ownerProject', 'ownerDeclaration', 'code', 'secretKeys',
+    'acknowledgeRollback', 'expectedUpdatedAt',
   ],
   alertChannel: ['managedBy'],
   notificationPolicy: [],

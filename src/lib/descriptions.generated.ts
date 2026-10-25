@@ -10,12 +10,15 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "enabled": "Whether the monitor is active (default: true)",
     "regions": "Probe regions to run checks from. Allowed values are deployment-dependent. Production: us-east, us-west, eu-west, ap-south",
     "managedBy": "Source that created this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API",
+    "ownerEnforced": "Only the managedBy tool may change configuration (default: false)",
+    "ownerProject": "Project the owning tool declares for this monitor, e.g. acme/web",
     "environmentId": "Environment to associate with this monitor. Required for browser and multi-step monitors",
     "assertions": "Assertions to evaluate against each check result",
     "alertChannelIds": "Alert channels to notify when this monitor triggers",
     "fastRetryMaxAttempts": "Fast-retry attempts after failure. Null or 0 disables",
     "runParallel": "When multiple locations are set, run all of them each interval (default: true). false rotates one location per interval",
-    "definitionId": "Existing definition to reuse for a sibling monitor"
+    "definitionId": "Existing definition to reuse for a sibling monitor",
+    "secretKeys": "Secret keys to attach; null starts with the scanned set"
   },
   "UpdateMonitorRequest": {
     "name": "New monitor name. Null preserves current",
@@ -23,6 +26,8 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "enabled": "Enable or disable the monitor (pause or resume). Null preserves current",
     "regions": "New probe regions. Null preserves current. Allowed values are deployment-dependent",
     "managedBy": "New ownership source for probe monitors. Null preserves current. Code monitors use takeover",
+    "ownerEnforced": "Only the managedBy tool may change configuration. Null preserves current",
+    "ownerProject": "Project the owning tool declares; null preserves current",
     "environmentId": "New environment; null preserves current",
     "clearEnvironmentId": "Set to true to remove the environment association",
     "assertions": "Replace all assertions. Null preserves current",
@@ -30,7 +35,10 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "alertChannelIds": "Replace alert channel list. Null preserves current",
     "fastRetryMaxAttempts": "Fast-retry attempts after failure. Null preserves current. 0 disables",
     "runParallel": "Run every location each interval; false rotates one. Null preserves current",
-    "status": "Not writable; use pause or resume"
+    "acknowledgeRollback": "Rolled-back digest this code publish re-applies on purpose",
+    "status": "Not writable; use pause or resume",
+    "expectedUpdatedAt": "Last updatedAt this edit was based on; null skips the check",
+    "secretKeys": "Replace attached secret keys; null preserves current"
   },
   "CreateManualIncidentRequest": {
     "title": "Short summary of the incident",
@@ -133,7 +141,10 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   },
   "CreateApiKeyRequest": {
     "name": "Human-readable name to identify this API key",
-    "expiresAt": "Optional expiration timestamp in ISO 8601 format"
+    "expiresAt": "Optional expiration timestamp in ISO 8601 format",
+    "preset": "Preset expanded into scopes: ci-pr, ci-deploy, agent-responder, agent-author",
+    "scopes": "Scopes to grant (default: full)",
+    "tool": "Tool this key writes as on owner-enforced monitors (default: API)"
   },
   "UpdateApiKeyRequest": {
     "name": "New name for this API key"

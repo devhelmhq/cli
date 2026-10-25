@@ -27,5 +27,7 @@
 | `valueHash` | string | ✓ |  | SHA-256 hex digest of the current plaintext; use for change detection |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the secret was created |
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the secret was last updated |
-| `usedByMonitors` | MonitorReference[] |  | ✓ | Monitors that reference this secret for authentication |
+| `usedByMonitors` | MonitorReference[] |  | ✓ | Monitors that reference this secret in code, authentication, or sessions |
+| `valuesAt` | Summary[] |  | ✓ | Environments in which this secret has a value |
+| `valueStamp` | any |  | ✓ |  |
 

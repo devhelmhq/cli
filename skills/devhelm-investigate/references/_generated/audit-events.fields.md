@@ -9,11 +9,12 @@
 |---|---|---|---|---|
 | `id` | integer (int64) | ✓ |  | Unique audit event identifier |
 | `actorId` | integer (int32) |  | ✓ | User ID who performed the action; null for system actions |
-| `actorEmail` | string |  | ✓ | Email of the actor; null for system actions |
+| `actorEmail` | string |  | ✓ | User email, api-key:{id} for API keys, or system for automated actions |
 | `action` | string | ✓ |  | Audit action type (e.g. monitor.created, api_key.revoked) |
 | `resourceType` | string |  | ✓ | Type of resource affected (e.g. monitor, api_key) |
 | `resourceId` | string |  | ✓ | ID of the affected resource |
 | `resourceName` | string |  | ✓ | Human-readable name of the affected resource |
 | `metadata` | any |  | ✓ |  |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the action was performed |
+| `changes` | MonitorFieldChange[] |  | ✓ | Non-secret settings changed by this action |
 
