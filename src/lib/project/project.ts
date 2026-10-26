@@ -144,8 +144,15 @@ export function ignoredPlaywrightKeys(dir: string): Issue[] {
   return []
 }
 
+/**
+ * `file:line` when the finding has a line. Otherwise the file plus the
+ * field path (`devhelm.yml: monitors[0].type`), so a schema error still
+ * names the offending field.
+ */
 export function formatIssue(i: Issue): string {
-  const where = i.file ? `${i.file}${i.line ? `:${i.line}` : ''}` : i.path
+  const where = i.file && i.line
+    ? `${i.file}:${i.line}`
+    : [i.file, i.path && i.path !== i.file ? i.path : ''].filter(Boolean).join(': ')
   const code = i.code && i.code !== 'CONFIG_INVALID' ? ` [${i.code}]` : ''
   return `${where ? `${where}: ` : ''}${i.message}${code}`
 }
