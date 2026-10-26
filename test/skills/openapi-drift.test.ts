@@ -1,6 +1,7 @@
 import {expect, test} from 'vitest'
 import {execSync} from 'node:child_process'
-import {readFileSync, readdirSync} from 'node:fs'
+import {mkdtempSync, readFileSync, readdirSync, rmSync} from 'node:fs'
+import {tmpdir} from 'node:os'
 import {dirname, join} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
@@ -16,12 +17,17 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
  * changes (via spec-propagate from mono), the drift check fires.
  */
 test('generated skill references are in sync with OpenAPI spec', () => {
-  const before = snapshotGenerated()
+  const before = snapshotGenerated(ROOT)
 
-  // Regenerate.
-  execSync('node scripts/generate-skill-references.mjs', {cwd: ROOT, stdio: 'pipe'})
-
-  const after = snapshotGenerated()
+  // Regenerate into a temp dir: other tests read the committed copies.
+  const out = mkdtempSync(join(tmpdir(), 'skill-refs-'))
+  let after: Record<string, string>
+  try {
+    execSync(`node scripts/generate-skill-references.mjs --out ${JSON.stringify(out)}`, {cwd: ROOT, stdio: 'pipe'})
+    after = snapshotGenerated(out)
+  } finally {
+    rmSync(out, {recursive: true, force: true})
+  }
 
   const diffs: string[] = []
   for (const [path, content] of Object.entries(after)) {
@@ -37,9 +43,9 @@ test('generated skill references are in sync with OpenAPI spec', () => {
   ).toEqual([])
 })
 
-function snapshotGenerated(): Record<string, string> {
+function snapshotGenerated(root: string): Record<string, string> {
   const out: Record<string, string> = {}
-  const skillsDir = join(ROOT, 'skills')
+  const skillsDir = join(root, 'skills')
   for (const skill of readdirSync(skillsDir)) {
     if (!skill.startsWith('devhelm-')) continue
     const gen = join(skillsDir, skill, 'references', '_generated')

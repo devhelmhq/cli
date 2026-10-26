@@ -8,7 +8,11 @@
  * shape. The agent reads these alongside the hand-written reference to get
  * the exact current field surface without us re-documenting fields in prose.
  *
- * Usage:  node scripts/generate-skill-references.mjs
+ * Usage:  node scripts/generate-skill-references.mjs [--out <dir>]
+ *
+ * `--out` writes the tree under <dir> instead of the repo (and leaves the
+ * SKILL.md version stamps alone), so the drift test never rewrites files
+ * other tests are reading.
  *
  * Output is idempotent: re-running produces byte-identical files. The
  * openapi-drift test (`test/skills/openapi-drift.test.ts`) depends on this.
@@ -22,6 +26,8 @@ import { preprocessSpec } from './lib/preprocess.mjs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const SPEC_PATH = join(ROOT, 'docs/openapi/monitoring-api.json');
+const outFlag = process.argv.indexOf('--out');
+const OUT_ROOT = outFlag === -1 ? ROOT : process.argv[outFlag + 1];
 
 /**
  * Map each skill + resource to the OpenAPI schema names we care about.
@@ -244,12 +250,12 @@ function stampVersions() {
 }
 
 function main() {
-  stampVersions();
+  if (OUT_ROOT === ROOT) stampVersions();
   const spec = loadSpec();
 
   let total = 0;
   for (const [skill, resources] of Object.entries(RESOURCES)) {
-    const outDir = join(ROOT, 'skills', skill, 'references', '_generated');
+    const outDir = join(OUT_ROOT, 'skills', skill, 'references', '_generated');
     if (existsSync(outDir)) rmSync(outDir, { recursive: true, force: true });
     mkdirSync(outDir, { recursive: true });
 
