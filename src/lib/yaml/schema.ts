@@ -441,6 +441,8 @@ export interface YamlMonitor {
   key?: string
   session?: YamlSession
   frequencySeconds?: number
+  /** Omitted = deploy leaves the current pause state alone. */
+  enabled?: boolean
   regions?: string[]
   runParallel?: boolean
   fastRetryMaxAttempts?: number
@@ -546,6 +548,7 @@ export interface YamlStatusPage {
 
 export interface YamlMonitorDefaults {
   frequencySeconds?: number
+  enabled?: boolean
   regions?: string[]
   alertChannels?: string[]
   incidentPolicy?: YamlIncidentPolicy

@@ -394,11 +394,6 @@ const ResourceGroupSchema = z.object({
 }).strict()
 
 
-/** `enabled` was removed from declarative monitors (F14): pause is an overlay. */
-const ENABLED_REMOVED =
-  '"enabled" is no longer part of devhelm.yml: pausing is an overlay that deploy never changes. ' +
-  'Remove the key and use `devhelm monitors pause <monitor>` / `devhelm monitors resume <monitor>`'
-
 const CodeSchema = z.union([
   z.string().min(1),
   z.object({
@@ -417,7 +412,7 @@ const MonitorSchema = z.object({
   key: z.string().min(1).max(200).regex(/^[A-Za-z0-9._-]+$/, 'must contain only letters, digits, ".", "_" and "-"').optional(),
   session: SessionSchema.optional(),
   frequencySeconds: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
-  enabled: z.unknown().optional(),
+  enabled: z.boolean().optional(),
   regions: z.array(z.string()).optional(),
   runParallel: z.boolean().optional(),
   fastRetryMaxAttempts: z.number().int().min(0).max(10).optional(),
@@ -430,9 +425,6 @@ const MonitorSchema = z.object({
   auth: AuthSchema.nullable().optional(),
   incidentPolicy: IncidentPolicySchema.optional(),
 }).strict().superRefine((data, ctx) => {
-  if (data.enabled !== undefined) {
-    ctx.addIssue({code: z.ZodIssueCode.custom, path: ['enabled'], message: ENABLED_REMOVED})
-  }
   const isCode = isCodeMonitorType(data.type)
   if (isCode) {
     if (data.code === undefined) {
@@ -533,15 +525,11 @@ const StatusPageSchema = z.object({
 
 const MonitorDefaultsSchema = z.object({
   frequencySeconds: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
-  enabled: z.unknown().optional(),
+  enabled: z.boolean().optional(),
   regions: z.array(z.string()).optional(),
   alertChannels: z.array(z.string()).optional(),
   incidentPolicy: IncidentPolicySchema.optional(),
-}).strict().superRefine((data, ctx) => {
-  if (data.enabled !== undefined) {
-    ctx.addIssue({code: z.ZodIssueCode.custom, path: ['enabled'], message: ENABLED_REMOVED})
-  }
-})
+}).strict()
 
 const DefaultsSchema = z.object({
   monitors: MonitorDefaultsSchema.optional(),

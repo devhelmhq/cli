@@ -236,14 +236,26 @@ describe('differ', () => {
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('the removed pruneAll scope no longer deletes foreign monitors', async () => {
+    it('pruneAll deletes foreign monitors and monitors with no owner', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'dashboard-monitor', {
         id: 'mon-1', refKey: 'dashboard-monitor', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'},
       })
       refs.set('monitors', 'orphan', {id: 'mon-2', refKey: 'orphan', raw: {}})
       const changeset = await diff({monitors: []}, refs, {prune: true, pruneAll: true})
-      expect(changeset.deletes).toHaveLength(0)
+      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['dashboard-monitor', 'org-all'], ['orphan', 'org-all']])
+    })
+
+    it('pruneOrgCli deletes CLI/Git-owned monitors of other projects but not foreign ones', async () => {
+      const refs = new ResolvedRefs()
+      refs.project = createProjectContext({project: 'acme/web'})
+      refs.set('monitors', 'other', {
+        id: 'mon-1', refKey: 'other', managedBy: 'GIT', raw: {managedBy: 'GIT', owner: {type: 'GIT', project: 'acme/api'}},
+      })
+      refs.set('monitors', 'legacy', {id: 'mon-2', refKey: 'legacy', managedBy: 'CLI', raw: {managedBy: 'CLI'}})
+      refs.set('monitors', 'dash', {id: 'mon-3', refKey: 'dash', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'}})
+      const changeset = await diff({monitors: []}, refs, {prune: true, pruneOrgCli: true})
+      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['other', 'org-cli'], ['legacy', 'org-cli']])
     })
 
     it('prune: omitted section (undefined) does not delete', async () => {
@@ -254,11 +266,11 @@ describe('differ', () => {
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('tags outside state are never pruned, even with the removed pruneOrgCli', async () => {
+    it('pruneOrgCli deletes tags outside state', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})
       const changeset = await diff({tags: []}, refs, {pruneOrgCli: true})
-      expect(changeset.deletes).toHaveLength(0)
+      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['T', 'org-cli']])
     })
 
     it('does not delete without prune flag', async () => {
@@ -307,7 +319,7 @@ describe('differ', () => {
       expect(cs.deletes).toHaveLength(0)
     })
 
-    it('reports only state-tracked deletes', async () => {
+    it('tags each delete with its prune scope', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'mine', {
         id: 'mon-1', refKey: 'mine', managedBy: 'CLI', raw: {managedBy: 'CLI'},
@@ -317,7 +329,7 @@ describe('differ', () => {
       })
       const cs = await diff({monitors: []}, refs, {pruneOrgCli: true}, stateWith(['monitors.mine']))
       const byKey = Object.fromEntries(cs.deletes.map((d) => [d.refKey, d.pruneScope]))
-      expect(byKey).toEqual({mine: 'state'})
+      expect(byKey).toEqual({mine: 'state', theirs: 'org-cli'})
     })
 
     it('non-monitor resources outside state are NOT touched under plain --prune', async () => {
@@ -646,7 +658,7 @@ describe('differ', () => {
       expect(changeset.updates[0].refKey).toBe('changed')
     })
 
-    it('never plans an update for a paused monitor (pause is an overlay, F14)', async () => {
+    it('does not plan an update for a paused monitor when YAML omits enabled', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
         name: 'M', type: 'HTTP', enabled: false,
@@ -660,6 +672,20 @@ describe('differ', () => {
       }
       const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
+    })
+
+    it('plans an update when YAML sets enabled to a different value', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
+        name: 'M', type: 'HTTP', enabled: false,
+        config: {url: 'https://x.com', method: 'GET'},
+      }})
+      const config: DevhelmConfig = {
+        monitors: [{name: 'M', type: 'HTTP', enabled: true, config: {url: 'https://x.com', method: 'GET'}}],
+      }
+      const changeset = await diff(config, refs)
+      expect(changeset.updates).toHaveLength(1)
+      expect(changeset.updates[0].attributeDiffs?.map((d) => d.field)).toContain('enabled')
     })
 
     it('detects update when environment variables change', async () => {

@@ -212,6 +212,7 @@ export function toCreateMonitorRequest(
       body.ownerDeclaration = {address: ownerAddress(ctx.project, monitor.key ?? monitor.name) ?? null, label: monitor.name}
     }
     if (monitor.frequencySeconds !== undefined) body.frequencySeconds = monitor.frequencySeconds
+    if (monitor.enabled !== undefined) body.enabled = monitor.enabled
     if (monitor.regions !== undefined) body.regions = monitor.regions
     if (alertChannelIds) body.alertChannelIds = alertChannelIds
     if (monitor.tags) body.tags = tagsRequest(monitor.tags, refs)
@@ -233,13 +234,14 @@ export function toCreateMonitorRequest(
     alertChannelIds,
     tags: monitor.tags ? tagsRequest(monitor.tags, refs) : undefined,
   }
+  if (monitor.enabled !== undefined) body.enabled = monitor.enabled
   if (ctx.project) body.ownerProject = ctx.project
   return body
 }
 
 /**
- * Settings update. `enabled` is never sent: pause is an overlay deploy
- * leaves alone (F14). For code monitors `managedBy` is never sent (code
+ * Settings update. `enabled` is sent only when the YAML sets it (null
+ * preserves the current pause state). For code monitors `managedBy` is never sent (code
  * monitors change owner through transfer) and the code half travels
  * separately (draft → test → publish), unless `--no-test` puts it on this
  * call (`withCode`).
@@ -263,6 +265,7 @@ export function toUpdateMonitorRequest(
     const config = toMonitorConfig(monitor)
     if (config !== undefined) body.config = config as Schemas['UpdateMonitorRequest']['config']
     if (monitor.frequencySeconds !== undefined) body.frequencySeconds = monitor.frequencySeconds
+    if (monitor.enabled !== undefined) body.enabled = monitor.enabled
     if (monitor.regions !== undefined) body.regions = monitor.regions
     if (monitor.environment) body.environmentId = refs.resolve('environments', monitor.environment) ?? null
     if (monitor.alertChannels) body.alertChannelIds = monitor.alertChannels.map((n) => refs.require('alertChannels', n))
@@ -285,6 +288,7 @@ export function toUpdateMonitorRequest(
     config: toMonitorConfig(monitor) as Schemas['UpdateMonitorRequest']['config'],
     managedBy: OWNER_TOOL,
     frequencySeconds: monitor.frequencySeconds ?? null,
+    enabled: monitor.enabled ?? null,
     regions: monitor.regions ?? null,
     environmentId: monitor.environment
       ? refs.resolve('environments', monitor.environment) ?? null

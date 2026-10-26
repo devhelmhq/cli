@@ -22,10 +22,17 @@ describe('DevhelmConfigSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('refuses enabled in defaults.monitors and names the verbs', () => {
-      const result = DevhelmConfigSchema.safeParse({defaults: {monitors: {enabled: true}}})
+    it('accepts enabled in defaults.monitors and on a monitor', () => {
+      const result = DevhelmConfigSchema.safeParse({
+        defaults: {monitors: {enabled: true}},
+        monitors: [{name: 'API', type: 'HTTP', enabled: false, config: {url: 'https://example.com', method: 'GET'}}],
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('refuses a non-boolean enabled', () => {
+      const result = DevhelmConfigSchema.safeParse({defaults: {monitors: {enabled: 'yes'}}})
       expect(result.success).toBe(false)
-      expect(JSON.stringify(result.error?.issues)).toContain('devhelm monitors pause')
     })
   })
 

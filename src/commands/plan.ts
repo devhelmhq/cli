@@ -16,6 +16,7 @@ export default class Plan extends DevhelmCommand {
     '<%= config.bin %> plan',
     '<%= config.bin %> plan --env production',
     '<%= config.bin %> plan --prune',
+    '<%= config.bin %> plan --prune-all',
     '<%= config.bin %> plan --detailed-exitcode',
     '<%= config.bin %> plan -o json',
   ]
@@ -25,18 +26,20 @@ export default class Plan extends DevhelmCommand {
     output: projectOutputFlag,
     file: fileFlag,
     env: Flags.string({description: 'Only monitors in this environment (slug)'}),
-    prune: Flags.boolean({description: 'Include deletions of monitors this project owns that are absent from the config', default: false}),
-    'prune-all': Flags.boolean({hidden: true, description: 'Removed: deleted resources other projects own', default: false}),
+    prune: Flags.boolean({description: 'Include deletions of resources tracked in .devhelm/state.json and monitors this project owns that are absent from the config', default: false}),
+    'prune-all': Flags.boolean({
+      description: 'Include deletions of ALL resources not in config, including those not managed by the CLI',
+      default: false,
+    }),
     'detailed-exitcode': Flags.boolean({description: 'Exit 10 when the plan has changes (for CI)', default: false}),
   }
 
   async run() {
     const {flags} = await this.parse(Plan)
-    if (flags['prune-all']) removedPruneFlag('--prune-all')
     const client = this.client()
     const files = configFiles(undefined, flags.file)
     if (!this.structured) this.progress('Fetching current state from API...')
-    const p = await runPipeline(client, {files, prune: flags.prune, env: flags.env, details: true, applyMoved: false})
+    const p = await runPipeline(client, {files, prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all'], env: flags.env, details: true, applyMoved: false})
     await this.loadMeta({org: p.config.org, workspace: p.config.workspace})
     for (const w of p.warnings) this.addWarning(w)
     for (const u of p.bind.unowned) this.addWarning(`${u.name} exists (${u.owner}) but this project does not own it; deploy needs --adopt "${u.name}"`)
@@ -74,10 +77,4 @@ export default class Plan extends DevhelmCommand {
       },
     })
   }
-}
-
-export function removedPruneFlag(flag: string): never {
-  throw new (class extends Error {
-    oclif = {exit: EXIT_CODES.VALIDATION}
-  })(`${flag} was removed: its deletion scope crossed teams. --prune deletes only monitors this project owns (ownerProject == project).`)
 }

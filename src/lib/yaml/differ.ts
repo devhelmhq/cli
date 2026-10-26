@@ -218,7 +218,6 @@ function diffSection(
 
       const address = resourceAddress(handler.resourceType as ResourceType, entry.refKey)
       const scope = classifyDeleteScope(handler, entry, stateAddresses, address, refs)
-      if (!scope) continue
 
       // Decide whether to include this delete based on the requested
       // prune flag(s). State-scoped deletes are the safe default and
@@ -248,19 +247,22 @@ function classifyDeleteScope(
   stateAddresses: ReadonlySet<string>,
   address: string,
   refs: ResolvedRefs,
-): PruneScope | undefined {
+): PruneScope {
   if (stateAddresses.has(address)) return 'state'
-  // Monitors are pruned only when this project owns them: Git-owned with
-  // `ownerProject == project` (doc 42 §6.3). Nothing else is ever a prune
-  // candidate — `--prune-org-cli` / `--prune-all` were removed because
-  // their deletion scope crossed teams.
+  // Monitors: this project's own (Git-owned, `ownerProject == project`,
+  // doc 42 §6.3) are covered by plain `--prune`. Other CLI/Git-owned
+  // monitors need `--prune-org-cli`; monitors other tools own (dashboard,
+  // Terraform, MCP, API) need `--prune-all`.
   if (handler.resourceType === 'monitor') {
     const project = refs.project.project
     const raw = entry.raw as {owner?: {type?: string; project?: string | null} | null; managedBy?: string} | undefined
     const type = raw?.owner?.type ?? raw?.managedBy ?? entry.managedBy ?? undefined
     if (project && isGitOwner(type) && raw?.owner?.project === project) return 'state'
+    return isGitOwner(type) ? 'org-cli' : 'org-all'
   }
-  return undefined
+  // Other resource types carry no owner on the API: `--prune-org-cli`
+  // deletes anything absent from YAML, `--prune-all` likewise.
+  return 'org-cli'
 }
 
 function memberKey(memberType: string, nameOrSlug: string): string {

@@ -182,10 +182,11 @@ function applyDefaults(config: DevhelmConfig): DevhelmConfig {
 
 function applyMonitorDefaults(monitor: YamlMonitor, defaults: YamlMonitorDefaults, runtimeId: string | undefined): YamlMonitor {
   const out: YamlMonitor = {...monitor}
-  const fill = <K extends 'frequencySeconds' | 'regions' | 'alertChannels' | 'incidentPolicy'>(key: K) => {
+  const fill = <K extends 'frequencySeconds' | 'enabled' | 'regions' | 'alertChannels' | 'incidentPolicy'>(key: K) => {
     if (out[key] === undefined && defaults[key] !== undefined) out[key] = defaults[key] as YamlMonitor[K]
   }
   fill('frequencySeconds')
+  fill('enabled')
   fill('regions')
   fill('alertChannels')
   fill('incidentPolicy')
