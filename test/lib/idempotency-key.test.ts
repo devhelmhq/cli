@@ -1,5 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 import {beginInvocation, nextIdempotencyKey} from '../../src/lib/api-client.js'
+import {FakeApi, runCli} from '../helpers/fake-api.js'
 
 const CI_ENV = {GITHUB_RUN_ID: '123', GITHUB_RUN_ATTEMPT: '1', GITHUB_JOB: 'deploy', GITHUB_ACTION: '__run_2'}
 
@@ -37,4 +38,22 @@ describe('CI-derived idempotency keys', () => {
     const argv = ['status-pages', 'create', '--name', 'a']
     expect(keyFor(argv, {})).not.toBe(keyFor(argv, {}))
   })
+})
+
+describe('CI-derived idempotency keys (subprocess)', () => {
+  // `status-pages create` comes from the generic CRUD factory, not
+  // DevhelmCommand, so it relies on the default per-process invocation.
+  it('gives two creates from the generic CRUD commands different keys', async () => {
+    const api = await new FakeApi().start()
+    api.on('POST', '/api/v1/status-pages', {status: 500, body: {}})
+    try {
+      for (const name of ['page-a', 'page-b']) {
+        await runCli(['status-pages', 'create', '--name', name, '--slug', name, '-o', 'json'], {api, env: CI_ENV})
+      }
+      const keys = api.calls('POST', '/api/v1/status-pages').map((c) => c.headers['idempotency-key'])
+      expect(new Set(keys).size).toBe(2)
+    } finally {
+      await api.stop()
+    }
+  }, 120_000)
 })

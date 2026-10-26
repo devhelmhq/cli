@@ -45,9 +45,15 @@ interface InvocationContext {
   posts: number
 }
 
+// One process is one invocation, so the default already covers argv: commands
+// that don't extend DevhelmCommand never call beginInvocation.
 let invocation: InvocationContext = newInvocation('cli')
 
-function newInvocation(command: string, explicitKey?: string, argv: readonly string[] = []): InvocationContext {
+function newInvocation(
+  command: string,
+  explicitKey?: string,
+  argv: readonly string[] = process.argv.slice(2),
+): InvocationContext {
   const env = process.env
   const seed = env.GITHUB_RUN_ID
     ? createHash('sha256')
@@ -62,7 +68,7 @@ function newInvocation(command: string, explicitKey?: string, argv: readonly str
 }
 
 /** Called once per command invocation (from the base command's init). */
-export function beginInvocation(command: string, explicitKey?: string, argv: readonly string[] = process.argv.slice(2)): void {
+export function beginInvocation(command: string, explicitKey?: string, argv?: readonly string[]): void {
   invocation = newInvocation(command, explicitKey, argv)
 }
 
