@@ -10,6 +10,7 @@
 | `files` | Map<string, string> | ✓ |  | Path to UTF-8 text. Paths are relative to the bundle root |
 | `entrypoint` | string |  | ✓ | File that runs. Omit when the map is already the import closure |
 | `runtimeId` | string |  | ✓ | Runtime used to refuse imports. Omit for the newest runtime that can run |
+| `include` | string[] |  | ✓ | Files to keep even when no import reaches them, e.g. fixtures |
 
 ## `BundleDto`
 
