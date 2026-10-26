@@ -178,8 +178,8 @@ describe('devhelm deploy (code monitors)', () => {
     expect(files).toEqual(['synthetics/checkout.spec.ts', 'synthetics/fixtures/cart.json'])
   }, 90_000)
 
-  test('--prune-all is refused (removed)', async () => {
+  test('--prune-all is accepted, as on 1.11', async () => {
     await start([])
-    expect((await runCli(['deploy', '--prune-all', '--yes'], {api, cwd: dir})).code).toBe(4)
+    expect((await runCli(['deploy', '--prune-all', '--yes'], {api, cwd: dir})).code).toBe(0)
   }, 90_000)
 })

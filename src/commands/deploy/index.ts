@@ -14,7 +14,6 @@ import {
   apply, buildStateV2, changesetToJson, formatPlan, processMovedBlocks, readState, resourceAddress, writeState,
   type ApplyResult, type Change,
 } from '../../lib/yaml/index.js'
-import {removedPruneFlag} from '../plan.js'
 
 const MAX_LOCK_TTL_MINUTES = 60
 
@@ -30,6 +29,8 @@ export default class Deploy extends DevhelmCommand {
     '<%= config.bin %> deploy',
     '<%= config.bin %> deploy --yes --lock-timeout 5m',
     '<%= config.bin %> deploy --env production --prune --yes',
+    '<%= config.bin %> deploy --prune-org-cli --yes',
+    '<%= config.bin %> deploy --prune-all --yes',
     '<%= config.bin %> deploy --adopt "Checkout" --yes',
     '<%= config.bin %> deploy --acknowledge-rollback "Checkout" --yes',
     '<%= config.bin %> deploy --dry-run',
@@ -42,9 +43,19 @@ export default class Deploy extends DevhelmCommand {
     file: fileFlag,
     env: Flags.string({description: 'Only monitors in this environment (slug)'}),
     'no-test': Flags.boolean({description: 'Publish code without a validation run (PUT with code; untested)', default: false}),
-    prune: Flags.boolean({description: 'Delete monitors this project owns that are absent from the config', default: false}),
-    'prune-org-cli': Flags.boolean({hidden: true, default: false}),
-    'prune-all': Flags.boolean({hidden: true, default: false}),
+    prune: Flags.boolean({description: 'Delete resources tracked in .devhelm/state.json and monitors this project owns that are absent from the config', default: false}),
+    'prune-org-cli': Flags.boolean({
+      description:
+        'Also delete CLI-managed resources elsewhere in the org that are absent from YAML. ' +
+        'Use with caution in shared workspaces; widens --prune to the legacy org-wide CLI scope.',
+      default: false,
+    }),
+    'prune-all': Flags.boolean({
+      description:
+        'Delete ALL resources not in YAML, including dashboard- and Terraform-managed ones. ' +
+        'The most destructive option; intended for single-tenant workspaces or scripted teardowns.',
+      default: false,
+    }),
     adopt: Flags.string({description: 'Take over an existing monitor of that name (transfer to Git, this project); repeatable', multiple: true}),
     'acknowledge-rollback': Flags.string({description: 'Re-publish over an emergency rollback of this monitor, for this run only; repeatable', multiple: true}),
     'lock-timeout': Flags.string({description: 'How long to wait for a held deploy lock (e.g. 5m; 0 = fail at once)', default: '0'}),
@@ -59,8 +70,6 @@ export default class Deploy extends DevhelmCommand {
 
   async run() {
     const {flags} = await this.parse(Deploy)
-    if (flags['prune-org-cli']) removedPruneFlag('--prune-org-cli')
-    if (flags['prune-all']) removedPruneFlag('--prune-all')
     const timeoutMs = parseDurationMs(flags.timeout, 'timeout')
     const lockTimeoutMs = parseDurationMs(flags['lock-timeout'], 'lock-timeout')
     const deadline = Date.now() + timeoutMs
@@ -68,7 +77,14 @@ export default class Deploy extends DevhelmCommand {
     const files = configFiles(undefined, flags.file)
     if (!this.structured) this.progress('Fetching current state from API...')
 
-    const p = await runPipeline(client, {files, prune: flags.prune, env: flags.env, adopt: flags.adopt, details: true, applyMoved: false})
+    const p = await runPipeline(client, {
+      files,
+      // The wider scopes imply --prune.
+      prune: flags.prune || flags['prune-org-cli'] || flags['prune-all'],
+      pruneOrgCli: flags['prune-org-cli'] || flags['prune-all'],
+      pruneAll: flags['prune-all'],
+      env: flags.env,
+      adopt: flags.adopt, details: true, applyMoved: false})
     await this.loadMeta({org: p.config.org, workspace: p.config.workspace})
     for (const w of p.warnings) this.addWarning(w)
     const changes = totalChanges(p.changeset) + p.bind.adopt.length

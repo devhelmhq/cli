@@ -20,6 +20,10 @@ import {formatIssue, loadProject, prepareCodeMonitors, type LoadedProject} from 
 export interface PipelineOptions {
   files: string[]
   prune: boolean
+  /** `--prune-org-cli`: also delete CLI/Git-owned resources outside this config. */
+  pruneOrgCli?: boolean
+  /** `--prune-all`: also delete resources other tools own. */
+  pruneAll?: boolean
   adopt?: string[]
   env?: string
   /** Fetch changed file names and drift (plan output). */
@@ -86,7 +90,7 @@ export async function runPipeline(client: ApiClient, opts: PipelineOptions): Pro
   if (planRefs.errors.length > 0) throw issuesError('Validation failed', planRefs.errors.map((e) => `${e.path}: ${e.message}`), 'CONFIG_INVALID')
 
   const children = await prefetchChildSnapshots(config, refs, client)
-  let changeset = await diff(config, refs, {prune: opts.prune}, state, children)
+  let changeset = await diff(config, refs, {prune: opts.prune, pruneOrgCli: opts.pruneOrgCli, pruneAll: opts.pruneAll}, state, children)
   if (opts.env) {
     changeset = {
       ...changeset,
@@ -135,7 +139,7 @@ export function codePlanLines(plans: CodeMonitorPlan[]): string[] {
     }
     if (p.action === 'update' && p.settingsChanged) what.push('settings')
     if (p.owner) what.push(`owner ${p.owner}`)
-    if (p.overlays.length > 0) what.push(`${p.overlays.join(', ')} (not changed by deploy)`)
+    if (p.overlays.length > 0) what.push(`${p.overlays.join(', ')} (deploy leaves these unless devhelm.yml sets enabled)`)
     out.push(`  ${sym} ${p.name}  ${what.join(' · ')}`)
     if (p.drift) {
       out.push(`    ! live code ${p.drift.liveDigest.slice(0, 19)}… differs from the last Git deploy ${p.drift.gitDigest.slice(0, 19)}…${p.republishesRolledBack ? ` (rolled back); deploy refuses unless --acknowledge-rollback "${p.name}"` : ''}`)

@@ -54,7 +54,7 @@ export function yamlEntryFor(m: MonitorDto, opts: {codePath?: string | {entrypoi
 /** Fields set on the monitor that the YAML entry does not carry. */
 export function fidelityReport(m: MonitorDto): string[] {
   const out: string[] = []
-  if (m.pausedAt || m.enabled === false) out.push('paused: an overlay, set with `devhelm monitors pause|resume`')
+  if (m.pausedAt || m.enabled === false) out.push('paused: not exported; set with `devhelm monitors pause|resume` or `enabled: false`')
   if (m.muted) out.push('muted: an overlay, set with `devhelm monitors mute|unmute`')
   if (m.quarantineUntil) out.push('quarantined: an overlay, set with `devhelm monitors quarantine|release-quarantine`')
   if (m.auth) out.push('auth: secret-backed auth is not exported; re-declare it with a secret reference')

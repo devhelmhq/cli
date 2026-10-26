@@ -301,6 +301,12 @@ describe('transforms', () => {
   })
 
   describe('toCreateMonitorRequest', () => {
+    it('sends enabled only when the YAML sets it', () => {
+      const monitor: YamlMonitor = {name: 'M', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}}
+      expect('enabled' in toCreateMonitorRequest(monitor, emptyRefs())).toBe(false)
+      expect(toCreateMonitorRequest({...monitor, enabled: false}, emptyRefs()).enabled).toBe(false)
+    })
+
     it('transforms HTTP monitor', () => {
       const refs = refsWithChannels()
       const monitor: YamlMonitor = {
@@ -419,6 +425,12 @@ describe('transforms', () => {
   })
 
   describe('toUpdateMonitorRequest', () => {
+    it('sends enabled when set and null (preserve) when absent', () => {
+      const monitor: YamlMonitor = {name: 'M', type: 'HTTP', config: {url: 'https://x.com', method: 'GET'}}
+      expect(toUpdateMonitorRequest(monitor, emptyRefs()).enabled).toBeNull()
+      expect(toUpdateMonitorRequest({...monitor, enabled: true}, emptyRefs()).enabled).toBe(true)
+    })
+
     it('includes managedBy GIT (R13)', () => {
       const refs = emptyRefs()
       const monitor: YamlMonitor = {

@@ -15,8 +15,18 @@ import {isGitOwner} from '../../lib/yaml/project-context.js'
 
 type Schemas = components['schemas']
 
+/**
+ * Whether `state pull` records this monitor. With a `project:` key only
+ * the monitors this project owns (ownerProject == project); without one,
+ * every monitor (the 1.11 behaviour).
+ */
+export function pullsMonitor(raw: Schemas['MonitorDto'], project: string | undefined): boolean {
+  if (!project) return true
+  return isGitOwner(raw.owner?.type ?? raw.managedBy) && raw.owner?.project === project
+}
+
 export default class StatePull extends Command {
-  static description = 'Reconstruct the state file from the API: monitors this project owns, plus the other resources'
+  static description = 'Reconstruct the state file from the API (monitors are scoped to `project:` when the config sets it)'
 
   static examples = [
     '<%= config.bin %> state pull',
@@ -59,15 +69,14 @@ export default class StatePull extends Command {
       children?: Record<string, ChildStateEntry>
     }> = []
 
-    // Monitors: only the ones this project owns (ownerProject == project).
-    // Pulling the whole org would turn `deploy --prune` into prune-all.
+    // Monitors: with `project:`, only the ones this project owns, so
+    // `deploy --prune` stays within the project. Without it, all of them.
     const project = existsSync(flags.file) ? loadProject([flags.file]).config?.project : undefined
-    if (!project) this.warn(`No "project:" in ${flags.file}; no monitors are pulled (they are scoped to a project)`)
     for (const handler of handlers) {
       for (const entry of refs.allEntries(handler.refType)) {
         if (handler.resourceType === 'monitor') {
           const raw = entry.raw as Schemas['MonitorDto']
-          if (!project || !isGitOwner(raw.owner?.type ?? raw.managedBy) || raw.owner?.project !== project) continue
+          if (!pullsMonitor(raw, project)) continue
         }
         let children: Record<string, ChildStateEntry> | undefined
         if (handler.resourceType === 'statusPage') {

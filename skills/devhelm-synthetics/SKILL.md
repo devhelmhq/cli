@@ -174,7 +174,8 @@ monitors:
 ```
 
 `code` is required for code types; `config.url` is not allowed on them;
-`enabled:` is refused (use `devhelm monitors pause|resume`). `include` is
+`enabled:` is optional: omit it and deploy leaves the pause state alone
+(`devhelm monitors pause|resume`). `include` is
 only for files nothing imports (fixtures read at runtime).
 
 ---

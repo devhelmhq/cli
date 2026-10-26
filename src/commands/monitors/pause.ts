@@ -6,7 +6,7 @@ import {resolveMonitor} from '../../lib/monitors/resolve.js'
 
 export default class MonitorsPause extends DevhelmCommand {
   static legacyOutput = true
-  static description = 'Pause a monitor (an overlay: deploy never clears it)'
+  static description = 'Pause a monitor (deploy keeps it paused unless devhelm.yml sets `enabled`)'
   static examples = [
     '<%= config.bin %> monitors pause Checkout --env production --reason "provider maintenance"',
     '<%= config.bin %> monitors pause 7f3c… --until 2h',

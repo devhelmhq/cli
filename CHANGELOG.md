@@ -10,13 +10,10 @@
 - Frozen exit codes (see README), mapped from the error category; `X-DevHelm-Client` on every request and an `Idempotency-Key` on every POST. Keys are random per invocation and reused only for retries of that request, so a second identical command is a new request (as before), never a replay.
 
 ### Changed
-- `deploy` never changes `enabled` (pause is an overlay); `enabled` in devhelm.yml is now an error naming `monitors pause|resume`.
-- `--prune` deletes only monitors this project owns. `state pull` pulls only this project's monitors.
+- `deploy --prune` also deletes monitors this project owns (`ownerProject == project`) that are absent from the config, in addition to the resources in `.devhelm/state.json`. `--prune-org-cli` and `--prune-all` keep their wider scopes.
+- `state pull` pulls only this project's monitors when devhelm.yml sets `project:`; without `project:` it pulls every monitor, as before.
 - `monitors test` exits 14 when a probe fails.
 - The owner the CLI writes is `GIT`.
-
-### Removed
-- `deploy --prune-org-cli`, `--prune-all`.
 
 ### Deprecated (removed 2027-01-31)
 - `monitors results` (use `monitors history`).

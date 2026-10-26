@@ -707,11 +707,11 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
 
 // Derived from UpdateMonitorRequest minus control-only fields (clearAuth,
 // clearEnvironmentId, managedBy, status, acknowledgeRollback, expectedUpdatedAt,
-// ownerEnforced, ownerProject, enabled — pause is an overlay, F14). `code`
+// ownerEnforced, ownerProject). `code`
 // is replaced by the closure digest the live revision runs. auth and
 // incidentPolicy need | null because monitors can lack them.
 type MonitorSnapshotBase = Required<Omit<Schemas['UpdateMonitorRequest'],
-  'clearEnvironmentId' | 'clearAuth' | 'managedBy' | 'status' | 'enabled'
+  'clearEnvironmentId' | 'clearAuth' | 'managedBy' | 'status'
   | 'ownerEnforced' | 'ownerProject' | 'code'
   | 'acknowledgeRollback' | 'expectedUpdatedAt'>>
 type MonitorSnapshot = Omit<MonitorSnapshotBase, 'auth' | 'incidentPolicy'> & {
@@ -745,6 +745,7 @@ function monitorDesiredSnapshot(yaml: YamlMonitor, api: Schemas['MonitorDto'], r
     name: yaml.name,
     config: desiredMonitorConfig(yaml, api),
     frequencySeconds: yaml.frequencySeconds ?? api.frequencySeconds ?? null,
+    enabled: yaml.enabled ?? api.enabled ?? null,
     regions: yaml.regions !== undefined
       ? sortedIds(yaml.regions)
       : (api.regions ? sortedIds(api.regions) : null),
@@ -792,6 +793,7 @@ function monitorCurrentSnapshot(api: Schemas['MonitorDto']): MonitorSnapshot {
     name: api.name ?? null,
     config: stripNullish(api.config) as MonitorSnapshot['config'],
     frequencySeconds: api.frequencySeconds ?? null,
+    enabled: api.enabled ?? null,
     regions: api.regions ? sortedIds(api.regions) : null,
     environmentId: api.environment?.id ?? null,
     assertions: apiAssertionsToSnapshot(api.assertions),
