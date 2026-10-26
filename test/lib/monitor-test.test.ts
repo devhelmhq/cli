@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest'
 import {buildCodeTestTarget, queuedRunFrom} from '../../src/lib/monitor-test.js'
-import {DevhelmValidationError} from '../../src/lib/errors.js'
+import {ValidationError} from '../../src/lib/errors.js'
 
 const PROBE_RESULT = {
   passed: true,
@@ -19,7 +19,7 @@ const PROBE_RESULT = {
 export const QUEUED_RUN = {
   id: '6f1c2a3b-4d5e-4f60-8a7b-9c0d1e2f3a4b',
   organizationId: 1,
-  monitorId: '11111111-1111-1111-1111-111111111111',
+  monitorId: '11111111-1111-4111-8111-111111111111',
   monitorName: 'Checkout flow',
   monitorType: 'BROWSER',
   revisionId: '7a8b9c0d-1e2f-4a3b-8c4d-5e6f7a8b9c0d',
@@ -39,6 +39,7 @@ export const QUEUED_RUN = {
   attemptOf: 1,
   attempts: [],
   executionAttempts: [],
+    flaky: false,
   billable: false,
 }
 
@@ -69,6 +70,6 @@ describe('queuedRunFrom', () => {
   })
 
   test('rejects a 202 body that is not a run', () => {
-    expect(() => queuedRunFrom(202, {data: PROBE_RESULT}, 'ctx')).toThrow(DevhelmValidationError)
+    expect(() => queuedRunFrom(202, {data: PROBE_RESULT}, 'ctx')).toThrow(ValidationError)
   })
 })

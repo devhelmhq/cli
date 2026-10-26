@@ -8,6 +8,7 @@ import type {ApiClient} from '../api-client.js'
 import {checkedFetch, apiDelete} from '../api-client.js'
 import {HANDLER_MAP, normalizeCreateOutcome, normalizeUpdateOutcome} from './handlers.js'
 import {PartialApplyError} from './apply-error.js'
+import {DevhelmError} from '../errors.js'
 import type {Changeset, Change, HandledResourceType, ResourceType} from './types.js'
 import type {ResolvedRefs, RefEntry} from './resolver.js'
 import type {ChildStateEntry, DeployState} from './state.js'
@@ -39,6 +40,18 @@ export interface FailedChange {
   resourceType: string
   refKey: string
   error: string
+  /** Error category (`validation`, `conflict`, …); `check_failed` for a failed validation run. */
+  category?: string
+  code?: string
+  requestId?: string
+  /** Which half of a code monitor change failed: `code`, `settings` or `both`. */
+  half?: string
+  runUrl?: string
+}
+
+export interface ApplyHooks {
+  /** Runs once, before the first monitor create or update. */
+  beforeMonitors?: () => Promise<void>
 }
 
 /**
@@ -54,7 +67,14 @@ export async function apply(
   refs: ResolvedRefs,
   client: ApiClient,
   priorState?: DeployState,
+  hooks: ApplyHooks = {},
 ): Promise<ApplyResult> {
+  let monitorsReady = false
+  async function ensureMonitorsReady(resourceType: string): Promise<void> {
+    if (monitorsReady || resourceType !== 'monitor') return
+    monitorsReady = true
+    await hooks.beforeMonitors?.()
+  }
   const succeeded: AppliedChange[] = []
   const failed: FailedChange[] = []
   const stateEntries: AppliedStateEntry[] = []
@@ -69,6 +89,7 @@ export async function apply(
   }
 
   for (const change of changeset.creates) {
+    await ensureMonitorsReady(change.resourceType)
     try {
       const handler = lookupHandler(change.resourceType, 'create')
       const priorChildren = lookupPriorChildren(change.resourceType as ResourceType, change.refKey)
@@ -121,12 +142,13 @@ export async function apply(
       }
       failed.push({
         action: 'create', resourceType: change.resourceType,
-        refKey: change.refKey, error: errorMessage(err),
+        refKey: change.refKey, error: errorMessage(err), ...failureFields(err),
       })
     }
   }
 
   for (const change of changeset.updates) {
+    await ensureMonitorsReady(change.resourceType)
     const priorChildren = lookupPriorChildren(change.resourceType as ResourceType, change.refKey)
     try {
       const handler = lookupHandler(change.resourceType, 'update')
@@ -156,7 +178,7 @@ export async function apply(
       }
       failed.push({
         action: 'update', resourceType: change.resourceType,
-        refKey: change.refKey, error: errorMessage(err),
+        refKey: change.refKey, error: errorMessage(err), ...failureFields(err),
       })
     }
   }
@@ -170,7 +192,7 @@ export async function apply(
     } catch (err) {
       failed.push({
         action: 'delete', resourceType: change.resourceType,
-        refKey: change.refKey, error: errorMessage(err),
+        refKey: change.refKey, error: errorMessage(err), ...failureFields(err),
       })
     }
   }
@@ -227,6 +249,18 @@ function lookupHandler(resourceType: string, action: string) {
   const handler = HANDLER_MAP[resourceType as HandledResourceType]
   if (!handler) throw new Error(`Unknown resource type for ${action}: ${resourceType}`)
   return handler
+}
+
+function failureFields(err: unknown): Partial<FailedChange> {
+  if (!(err instanceof DevhelmError)) return {}
+  const out: Partial<FailedChange> = {category: err.details?.checkFailed === true ? 'check_failed' : err.category}
+  if (err.code) out.code = err.code
+  if (err.requestId) out.requestId = err.requestId
+  const half = err.details?.half
+  if (typeof half === 'string') out.half = half
+  const runUrl = err.details?.runUrl
+  if (typeof runUrl === 'string') out.runUrl = runUrl
+  return out
 }
 
 function errorMessage(err: unknown): string {

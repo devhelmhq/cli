@@ -56,7 +56,7 @@ describe('maintenance-windows topic', () => {
 
   test('create rejects passing both --monitor and --org-wide', () => {
     const out = run(
-      'maintenance-windows create --start 2026-06-01T14:00:00Z --end 2026-06-01T14:30:00Z --reason Deploy --monitor 11111111-1111-1111-1111-111111111111 --org-wide --api-token devhelm-dev-token --api-url http://127.0.0.1:9999',
+      'maintenance-windows create --start 2026-06-01T14:00:00Z --end 2026-06-01T14:30:00Z --reason Deploy --monitor 11111111-1111-4111-8111-111111111111 --org-wide --api-token devhelm-dev-token --api-url http://127.0.0.1:9999',
     )
     expect(out).toContain('cannot also be provided when using --org-wide')
   })

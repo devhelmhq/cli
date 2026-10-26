@@ -17,6 +17,7 @@
  * `secret` field that doesn't exist in the API (the CLI resolves it
  * to a vault secret ID).
  */
+import {isCodeMonitorType} from '@devhelm/sdk'
 import {z} from 'zod'
 
 import {schemas as apiSchemas} from '../api-zod.generated.js'
@@ -392,13 +393,36 @@ const ResourceGroupSchema = z.object({
   services: z.array(z.string()).optional(),
 }).strict()
 
+
+/** `enabled` was removed from declarative monitors (F14): pause is an overlay. */
+const ENABLED_REMOVED =
+  '"enabled" is no longer part of devhelm.yml: pausing is an overlay that deploy never changes. ' +
+  'Remove the key and use `devhelm monitors pause <monitor>` / `devhelm monitors resume <monitor>`'
+
+const CodeSchema = z.union([
+  z.string().min(1),
+  z.object({
+    entrypoint: z.string().min(1),
+    include: z.array(z.string().min(1)).optional(),
+  }).strict(),
+])
+
+const SessionSchema = z.object({setupFile: z.string().min(1)}).strict()
+
 const MonitorSchema = z.object({
   name: z.string(),
   type: z.enum(MONITOR_TYPES),
-  config: z.record(z.unknown()),
+  config: z.record(z.unknown()).optional(),
+  code: CodeSchema.optional(),
+  key: z.string().min(1).max(200).regex(/^[A-Za-z0-9._-]+$/, 'must contain only letters, digits, ".", "_" and "-"').optional(),
+  session: SessionSchema.optional(),
   frequencySeconds: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
-  enabled: z.boolean().optional(),
+  enabled: z.unknown().optional(),
   regions: z.array(z.string()).optional(),
+  runParallel: z.boolean().optional(),
+  fastRetryMaxAttempts: z.number().int().min(0).max(10).optional(),
+  capturePolicy: apiSchemas.CapturePolicy.optional(),
+  secretKeys: z.array(z.string().min(1).max(255)).optional(),
   environment: z.string().nullable().optional(),
   tags: z.array(z.string()).optional(),
   alertChannels: z.array(z.string()).optional(),
@@ -406,6 +430,33 @@ const MonitorSchema = z.object({
   auth: AuthSchema.nullable().optional(),
   incidentPolicy: IncidentPolicySchema.optional(),
 }).strict().superRefine((data, ctx) => {
+  if (data.enabled !== undefined) {
+    ctx.addIssue({code: z.ZodIssueCode.custom, path: ['enabled'], message: ENABLED_REMOVED})
+  }
+  const isCode = isCodeMonitorType(data.type)
+  if (isCode) {
+    if (data.code === undefined) {
+      ctx.addIssue({code: z.ZodIssueCode.custom, path: ['code'], message: `"code" is required for ${data.type} monitors (a path to the entry file, relative to this file)`})
+    }
+    if (data.config && 'url' in data.config) {
+      ctx.addIssue({code: z.ZodIssueCode.custom, path: ['config', 'url'], message: `"config.url" is not allowed on ${data.type} monitors: the code decides what it visits (use process.env / secrets for base URLs)`})
+    } else if (data.config) {
+      const result = apiSchemas.ScriptMonitorConfig.safeParse(data.config)
+      if (!result.success) {
+        for (const issue of result.error.issues) ctx.addIssue({...issue, path: ['config', ...issue.path]})
+      }
+    }
+    return
+  }
+  for (const key of ['code', 'session', 'runParallel', 'capturePolicy', 'secretKeys'] as const) {
+    if (data[key] !== undefined) {
+      ctx.addIssue({code: z.ZodIssueCode.custom, path: [key], message: `"${key}" is only allowed on BROWSER and MULTI_STEP_API monitors`})
+    }
+  }
+  if (data.config === undefined) {
+    ctx.addIssue({code: z.ZodIssueCode.custom, path: ['config'], message: `"config" is required for ${data.type} monitors`})
+    return
+  }
   const configSchema = MONITOR_TYPE_CONFIG_SCHEMAS[data.type]
   if (!configSchema) return
   const result = configSchema.safeParse(data.config)
@@ -482,14 +533,19 @@ const StatusPageSchema = z.object({
 
 const MonitorDefaultsSchema = z.object({
   frequencySeconds: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
-  enabled: z.boolean().optional(),
+  enabled: z.unknown().optional(),
   regions: z.array(z.string()).optional(),
   alertChannels: z.array(z.string()).optional(),
   incidentPolicy: IncidentPolicySchema.optional(),
-}).strict()
+}).strict().superRefine((data, ctx) => {
+  if (data.enabled !== undefined) {
+    ctx.addIssue({code: z.ZodIssueCode.custom, path: ['enabled'], message: ENABLED_REMOVED})
+  }
+})
 
 const DefaultsSchema = z.object({
   monitors: MonitorDefaultsSchema.optional(),
+  runtimeId: z.string().min(1).max(32).regex(/^[A-Za-z0-9._-]+$/).optional(),
 }).strict()
 
 // ── Moved block schema ───────────────────────────────────────────────
@@ -503,6 +559,9 @@ const MovedBlockSchema = z.object({
 
 export const DevhelmConfigSchema = z.object({
   version: z.string().optional(),
+  project: z.string().min(1).max(255).optional(),
+  org: z.union([z.string().min(1), z.number().int()]).transform(String).optional(),
+  workspace: z.union([z.string().min(1), z.number().int()]).transform(String).optional(),
   defaults: DefaultsSchema.optional(),
   moved: z.array(MovedBlockSchema).optional(),
   tags: z.array(TagSchema).optional(),

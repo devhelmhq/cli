@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 import {bucketTotal, otpColumn, responseHeaderMap, splitAddress} from '../../src/lib/inbound.js'
-import {DevhelmValidationError} from '../../src/lib/errors.js'
+import {ValidationError} from '../../src/lib/errors.js'
 
 describe('inbound helpers', () => {
   it('joins OTP values for the table column', () => {
@@ -13,13 +13,13 @@ describe('inbound helpers', () => {
       localPart: 'signup',
       domain: 'ws.devhelmmail.com',
     })
-    expect(() => splitAddress('signup')).toThrow(DevhelmValidationError)
+    expect(() => splitAddress('signup')).toThrow(ValidationError)
   })
 
   it('parses mock reply headers', () => {
     expect(responseHeaderMap(['X-Test: yes', 'Empty:'])).toEqual({'X-Test': 'yes', Empty: ''})
     expect(responseHeaderMap(undefined)).toBeUndefined()
-    expect(() => responseHeaderMap(['nope'])).toThrow(DevhelmValidationError)
+    expect(() => responseHeaderMap(['nope'])).toThrow(ValidationError)
     expect(() => responseHeaderMap(['X-Test: a', 'X-Test: b'])).toThrow(/twice/)
   })
 

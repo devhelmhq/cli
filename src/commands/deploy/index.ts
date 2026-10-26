@@ -1,362 +1,274 @@
 import {hostname} from 'node:os'
-import {Command, Flags} from '@oclif/core'
-import {checkedFetch, createApiClient, apiDelete} from '../../lib/api-client.js'
-import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
-import {DevhelmApiError, EXIT_CODES} from '../../lib/errors.js'
-import {urlFlag} from '../../lib/validators.js'
-import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, prefetchChildSnapshots, formatPlan, changesetToJson, apply, writeState, buildStateV2, readState, emptyState, processMovedBlocks, resourceAddress, StateFileCorruptError} from '../../lib/yaml/index.js'
-import {checkEntitlements, formatEntitlementWarnings} from '../../lib/yaml/entitlements.js'
+import {Flags} from '@oclif/core'
+import {checkedFetch, apiDelete, type ApiClient} from '../../lib/api-client.js'
+import {DevhelmCommand, commonFlags, yesFlag} from '../../lib/cli/command.js'
+import {parseDurationMs} from '../../lib/cli/flags.js'
+import {ConflictError, DevhelmError, EXIT_CODES, OwnershipError, PlanLimitError, type JsonValue} from '../../lib/errors.js'
+import {adoptMonitor, runTestPhase} from '../../lib/project/code-deploy.js'
+import {configFiles, fileFlag, projectOutputFlag} from '../../lib/project/flags.js'
+import {codePlanLines, runPipeline, totalChanges, validationRunCount, type PipelineResult} from '../../lib/project/pipeline.js'
+import {formatDuration} from '../../lib/runs/outcome.js'
+import {sessionContext} from '../../lib/runs/session.js'
+import {usageLine} from '../../lib/runs/usage.js'
+import {
+  apply, buildStateV2, changesetToJson, formatPlan, processMovedBlocks, readState, resourceAddress, writeState,
+  type ApplyResult, type Change,
+} from '../../lib/yaml/index.js'
+import {removedPruneFlag} from '../plan.js'
 
-const DEFAULT_LOCK_TTL = 30
+const MAX_LOCK_TTL_MINUTES = 60
 
-export default class Deploy extends Command {
-  static description = 'Deploy devhelm.yml configuration to the DevHelm API'
+const NOTHING_LANDED = {landed: [], notLanded: [], failures: []}
+
+export default class Deploy extends DevhelmCommand {
+  static legacyOutput = true
+  static description =
+    'Deploy devhelm.yml. New code monitors run a validation run before they are created; changed code goes draft → test → ' +
+    'publish (requireTested). A monitor whose test fails stays on its live code. Exit 13 if anything did not land'
 
   static examples = [
     '<%= config.bin %> deploy',
-    '<%= config.bin %> deploy --yes',
-    '<%= config.bin %> deploy -f monitors.yml',
-    '<%= config.bin %> deploy --prune --yes',
-    '<%= config.bin %> deploy --prune-org-cli --yes',
-    '<%= config.bin %> deploy --prune-all --yes',
+    '<%= config.bin %> deploy --yes --lock-timeout 5m',
+    '<%= config.bin %> deploy --env production --prune --yes',
+    '<%= config.bin %> deploy --adopt "Checkout" --yes',
+    '<%= config.bin %> deploy --acknowledge-rollback "Checkout" --yes',
     '<%= config.bin %> deploy --dry-run',
-    '<%= config.bin %> deploy --dry-run --detailed-exitcode',
-    '<%= config.bin %> deploy -o json --yes',
   ]
 
   static flags = {
-    file: Flags.string({
-      char: 'f',
-      description: 'Config file or directory (can be specified multiple times)',
-      multiple: true,
-      default: ['devhelm.yml'],
-    }),
-    yes: Flags.boolean({
-      char: 'y',
-      description: 'Skip confirmation prompt (for CI)',
-      default: false,
-    }),
-    prune: Flags.boolean({
-      description:
-        'Delete resources tracked in this config\'s .devhelm/state.json that are absent from YAML. ' +
-        'Safe in multi-config orgs — does NOT touch CLI-managed resources from other configs.',
-      default: false,
-    }),
-    'prune-org-cli': Flags.boolean({
-      description:
-        'Also delete CLI-managed resources elsewhere in the org that are absent from YAML. ' +
-        'Use with caution in shared workspaces; widens --prune to the legacy org-wide CLI scope.',
-      default: false,
-    }),
-    'prune-all': Flags.boolean({
-      description:
-        'Delete ALL resources not in YAML, including dashboard- and Terraform-managed ones. ' +
-        'The most destructive option; intended for single-tenant workspaces or scripted teardowns.',
-      default: false,
-    }),
-    'dry-run': Flags.boolean({
-      description: 'Show what would change without applying (same as "devhelm plan")',
-      default: false,
-    }),
-    'detailed-exitcode': Flags.boolean({
-      description: 'Return exit code 10 if dry-run has changes (for CI)',
-      default: false,
-    }),
-    output: Flags.string({
-      char: 'o',
-      description: 'Output format (text or json)',
-      options: ['text', 'json'],
-      default: 'text',
-    }),
-    'force-unlock': Flags.boolean({
-      description: 'Force-break an existing deploy lock before acquiring',
-      default: false,
-    }),
-    'no-lock': Flags.boolean({
-      description: 'Skip deploy locking (not recommended for team use)',
-      default: false,
-    }),
-    'lock-timeout': Flags.integer({
-      description: 'Seconds to wait for a conflicting lock to release (0 = fail immediately)',
-      default: 0,
-    }),
-    'api-url': urlFlag({description: 'Override API base URL'}),
-    'api-token': Flags.string({description: 'Override API token'}),
-    verbose: Flags.boolean({char: 'v', description: 'Show verbose output', default: false}),
+    ...commonFlags,
+    ...yesFlag,
+    output: projectOutputFlag,
+    file: fileFlag,
+    env: Flags.string({description: 'Only monitors in this environment (slug)'}),
+    'no-test': Flags.boolean({description: 'Publish code without a validation run (PUT with code; untested)', default: false}),
+    prune: Flags.boolean({description: 'Delete monitors this project owns that are absent from the config', default: false}),
+    'prune-org-cli': Flags.boolean({hidden: true, default: false}),
+    'prune-all': Flags.boolean({hidden: true, default: false}),
+    adopt: Flags.string({description: 'Take over an existing monitor of that name (transfer to Git, this project); repeatable', multiple: true}),
+    'acknowledge-rollback': Flags.string({description: 'Re-publish over an emergency rollback of this monitor, for this run only; repeatable', multiple: true}),
+    'lock-timeout': Flags.string({description: 'How long to wait for a held deploy lock (e.g. 5m; 0 = fail at once)', default: '0'}),
+    'no-lock': Flags.boolean({description: 'Skip the deploy lock (not recommended for team use)', default: false}),
+    'force-unlock': Flags.boolean({description: 'Force-release a held deploy lock first (audited)', default: false}),
+    'test-concurrency': Flags.integer({description: 'Validation runs started in parallel', default: 5, min: 1}),
+    timeout: Flags.string({description: 'Bounds the whole deploy (default 15m); monitors whose test has not finished do not land', default: '15m'}),
+    'dry-run': Flags.boolean({description: 'Show what would change without applying (same as "devhelm plan")', default: false}),
+    'detailed-exitcode': Flags.boolean({description: 'With --dry-run: exit 10 when there are changes', default: false}),
+    session: Flags.string({description: 'Group the validation runs under a session id (default: the CI run)'}),
   }
 
   async run() {
     const {flags} = await this.parse(Deploy)
-    const isJson = flags.output === 'json'
+    if (flags['prune-org-cli']) removedPruneFlag('--prune-org-cli')
+    if (flags['prune-all']) removedPruneFlag('--prune-all')
+    const timeoutMs = parseDurationMs(flags.timeout, 'timeout')
+    const lockTimeoutMs = parseDurationMs(flags['lock-timeout'], 'lock-timeout')
+    const deadline = Date.now() + timeoutMs
+    const client = this.client()
+    const files = configFiles(undefined, flags.file)
+    if (!this.structured) this.progress('Fetching current state from API...')
 
-    let config
-    try {
-      config = loadConfig(flags.file)
-    } catch (err) {
-      this.error(err instanceof Error ? err.message : String(err), {exit: EXIT_CODES.VALIDATION})
-    }
+    const p = await runPipeline(client, {files, prune: flags.prune, env: flags.env, adopt: flags.adopt, details: true, applyMoved: false})
+    await this.loadMeta({org: p.config.org, workspace: p.config.workspace})
+    for (const w of p.warnings) this.addWarning(w)
+    const changes = totalChanges(p.changeset) + p.bind.adopt.length
+    const runs = validationRunCount(p.codePlans)
+    const planJson = changesetToJson(p.changeset)
 
-    const result = validate(config)
-    if (result.errors.length > 0) {
-      this.log(`\nValidation failed: ${result.errors.length} error(s)\n`)
-      for (const e of result.errors) {
-        this.log(`  ✗ ${e.path}: ${e.message}`)
-      }
-      this.error('Fix validation errors before deploying', {exit: EXIT_CODES.VALIDATION})
-    }
-
-    const token = flags['api-token'] ?? resolveToken()
-    if (!token) {
-      this.error(
-        'No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.',
-        {exit: EXIT_CODES.VALIDATION},
-      )
-    }
-
-    const client = createApiClient({
-      baseUrl: flags['api-url'] ?? resolveApiUrl(),
-      token,
-      verbose: flags.verbose,
-    })
-
-    let currentState
-    try {
-      currentState = readState() ?? emptyState()
-    } catch (err) {
-      if (err instanceof StateFileCorruptError) {
-        this.error(err.message, {exit: EXIT_CODES.VALIDATION})
-      }
-      throw err
-    }
-
-    if (config.moved && config.moved.length > 0) {
-      const moveWarnings = processMovedBlocks(currentState, config.moved)
-      for (const w of moveWarnings) {
-        if (!isJson) this.warn(w)
-      }
-      writeState(currentState)
-    }
-
-    if (!isJson) this.log('Fetching current state from API...')
-    const refs = await fetchAllRefs(client, currentState)
-    // Pre-register YAML-only resources with placeholder IDs so existing
-    // resources can resolve references to brand-new peers during snapshot
-    // computation. The applier overwrites placeholders with real IDs as
-    // creates execute, so dependent updates pick up the right ID.
-    registerYamlPendingRefs(refs, config)
-
-    if (refs.collisions.length > 0 && !isJson) {
-      for (const c of refs.collisions) {
-        this.warn(
-          `Duplicate ${c.refType} reference "${c.refKey}" — ${c.apiIds.length} API resources share this name. ` +
-          `Using ${c.winnerApiId}. Rename one in the API or use a \`moved\` block to disambiguate.`,
-        )
-      }
-    }
-
-    const planResult = validatePlanRefs(config, refs)
-    if (planResult.errors.length > 0) {
-      this.log(`\nValidation failed: ${planResult.errors.length} error(s)\n`)
-      for (const e of planResult.errors) {
-        this.log(`  ✗ ${e.path}: ${e.message}`)
-      }
-      this.error('Fix validation errors before deploying', {exit: EXIT_CODES.VALIDATION})
-    }
-
-    const currentChildren = await prefetchChildSnapshots(config, refs, client)
-    const changeset = await diff(
-      config, refs,
-      {
-        // `--prune` is the safe default (state-scoped). The wider scopes
-        // imply `--prune` so users don't have to combine flags to enable
-        // the broader behaviour — `--prune-org-cli` deletes state-tracked
-        // resources AND legacy CLI-managed orphans, and `--prune-all`
-        // also picks up dashboard- and Terraform-managed resources.
-        prune: flags.prune || flags['prune-org-cli'] || flags['prune-all'],
-        pruneOrgCli: flags['prune-org-cli'] || flags['prune-all'],
-        pruneAll: flags['prune-all'],
-      },
-      currentState,
-      currentChildren,
-    )
-
-    const entitlementCheck = await checkEntitlements(client, changeset)
-
-    if (isJson && flags['dry-run']) {
-      this.log(JSON.stringify(changesetToJson(changeset), null, 2))
-      const totalChanges = changeset.creates.length + changeset.updates.length + changeset.deletes.length + changeset.memberships.length
-      if (totalChanges > 0 && flags['detailed-exitcode']) {
-        this.exit(EXIT_CODES.CHANGES_PENDING)
-      }
-      return
-    }
-
-    if (!isJson) {
-      if (entitlementCheck) {
-        this.log(entitlementCheck.header)
-      }
-
-      const plan = formatPlan(changeset)
-      this.log(`\n${plan}\n`)
-
-      if (entitlementCheck && entitlementCheck.warnings.length > 0) {
-        this.log(formatEntitlementWarnings(entitlementCheck.warnings))
-        this.log('')
-      }
-    }
-
-    const totalChanges = changeset.creates.length + changeset.updates.length + changeset.deletes.length + changeset.memberships.length
-    if (totalChanges === 0) {
-      if (isJson) this.log(JSON.stringify({plan: changesetToJson(changeset), result: {succeeded: [], failed: []}}, null, 2))
-      return
+    if (!this.structured) {
+      await this.header([p.config.project ? `project ${p.config.project}` : '', flags.env ? `env ${flags.env}` : ''].filter(Boolean))
+      if (p.entitlements) this.log(p.entitlements.header)
+      this.log(`\n${formatPlan(p.changeset)}`)
+      const lines = codePlanLines(p.codePlans)
+      if (lines.length > 0) this.log(`\nCode monitors:\n${lines.join('\n')}`)
+      if (runs > 0 && !flags['no-test']) this.log(`\n${runs} validation run${runs === 1 ? '' : 's'} will be billed`)
+      this.log('')
     }
 
     if (flags['dry-run']) {
-      if (!isJson) this.log('Dry run — no changes applied.')
-      if (flags['detailed-exitcode']) {
-        this.exit(EXIT_CODES.CHANGES_PENDING)
-      }
+      const exit = changes > 0 && flags['detailed-exitcode'] ? EXIT_CODES.CHANGES_PENDING : EXIT_CODES.SUCCESS
+      await this.finish({exit, data: {plan: planJson, result: {succeeded: [], failed: []}}, extra: NOTHING_LANDED, legacyMergeWrapper: true, human: () => this.log('Dry run — no changes applied.')})
       return
     }
 
-    if (!flags.yes) {
-      const {createInterface} = await import('node:readline')
-      const rl = createInterface({input: process.stdin, output: process.stdout})
-      const answer = await new Promise<string>((resolve) => {
-        rl.question('Apply these changes? (yes/no): ', resolve)
-      })
-      rl.close()
-      if (answer.toLowerCase() !== 'yes' && answer.toLowerCase() !== 'y') {
-        this.log('Cancelled.')
-        return
+    this.preflight(p, flags['acknowledge-rollback'] ?? [])
+
+    if (changes === 0) {
+      await this.finish({data: {plan: planJson, result: {succeeded: [], failed: []}}, extra: NOTHING_LANDED, legacyMergeWrapper: true, human: () => this.log('No changes.')})
+      return
+    }
+
+    await this.confirm({
+      action: 'deploy',
+      changes: deployChanges(p),
+      confirmCommand: ['devhelm deploy', ...this.argv.filter((a) => a !== '--yes' && a !== '-y' && !a.startsWith('--api-token')), '--yes'].join(' '),
+      yes: flags.yes,
+      prompt: 'Apply these changes?',
+    })
+
+    if (p.config.moved && p.config.moved.length > 0) {
+      const current = readState()
+      if (current) {
+        for (const w of processMovedBlocks(current, p.config.moved)) this.addWarning(w)
+        writeState(current)
       }
     }
 
     let lockId: string | undefined
-    if (!flags['no-lock']) {
-      lockId = await this.acquireLock(client, flags['force-unlock'], flags['lock-timeout'])
-    }
+    if (!flags['no-lock']) lockId = await this.acquireLock(client, flags['force-unlock'], lockTimeoutMs, Math.ceil((timeoutMs + lockTimeoutMs) / 60_000) + 5)
 
+    let result: ApplyResult
     try {
-      if (!isJson) this.log('Applying changes...')
-      const applyResult = await apply(changeset, refs, client, currentState)
-
-      if (isJson) {
-        this.log(JSON.stringify({
-          plan: changesetToJson(changeset),
-          result: {succeeded: applyResult.succeeded, failed: applyResult.failed},
-        }, null, 2))
-      } else {
-        for (const s of applyResult.succeeded) {
-          const icon = iconForAction(s.action)
-          const pastTense = pastTenseForAction(s.action)
-          this.log(`  ${icon} ${s.resourceType} "${s.refKey}" — ${pastTense}`)
-        }
-
-        if (applyResult.failed.length > 0) {
-          this.log('')
-          for (const f of applyResult.failed) {
-            this.log(`  ✗ ${f.resourceType} "${f.refKey}" — ${f.action} failed: ${f.error}`)
-          }
-        }
-
-        this.log(`\nDone: ${applyResult.succeeded.length} succeeded, ${applyResult.failed.length} failed.`)
+      for (const m of p.bind.adopt) {
+        const after = await adoptMonitor(client, m, p.config.project, 'devhelm deploy --adopt')
+        this.human(`  ⇄ ${m.name}: owner ${ownerText(m)} → ${ownerText(after)}  (undo: devhelm monitors transfer ${m.id} --to ${(m.owner?.type ?? m.managedBy ?? 'dashboard').toString().toLowerCase()} --reason "undo adopt")`)
       }
-
-      const deletedAddresses = new Set(
-        applyResult.deletedRefKeys.map((d) => resourceAddress(d.resourceType, d.refKey)),
-      )
-      const newState = buildStateV2(applyResult.stateEntries, currentState.serial)
-      for (const [addr, entry] of Object.entries(currentState.resources)) {
-        if (!(addr in newState.resources) && !deletedAddresses.has(addr)) {
-          newState.resources[addr] = entry
-        }
-      }
-      writeState(newState)
-
-      if (applyResult.failed.length > 0) {
-        this.exit(EXIT_CODES.PARTIAL_FAILURE)
-      }
+      const ack = new Set(flags['acknowledge-rollback'] ?? [])
+      result = await apply(p.changeset, p.refs, client, p.state, {
+        beforeMonitors: () => runTestPhase(client, p.config, p.refs, {
+          concurrency: flags['test-concurrency'],
+          timeoutMs: Math.max(1000, deadline - Date.now()),
+          noTest: flags['no-test'],
+          session: sessionContext(flags.session),
+          acknowledgeRollback: ack,
+          plans: p.codePlans,
+          onStart: (name, run) => this.human(`  ▸ ${name}  validation run ${run.id} · ${run.region}`),
+          onDone: (name, run, flaky) => {
+            if (!run) return
+            const sym = run.outcome === 'passed' || run.outcome === 'passed_on_retry' ? '✓' : '✗'
+            this.human(`  ${sym} ${name}  ${run.outcome ?? run.phase} ${formatDuration(run.durationMs)}${run.url ? ` · ${run.url}` : ''}`)
+            if (flaky) this.addWarning(`${name}: the validation run passed only after a retry (flaky); published anyway`)
+          },
+        }),
+      })
     } finally {
-      if (lockId) {
-        await this.releaseLock(client, lockId)
-      }
+      if (lockId) await this.releaseLock(client, lockId)
     }
+
+    this.saveState(p, result)
+
+    const ctx = p.refs.project
+    const landed = result.succeeded.map((s) => ({action: s.action, resourceType: s.resourceType, name: s.refKey, id: s.id ?? null, runUrl: ctx.code.get(s.refKey)?.run?.url ?? null}))
+    const notLanded = result.failed.map((f) => ({
+      action: f.action, resourceType: f.resourceType, name: f.refKey, half: f.half ?? 'both',
+      category: f.category ?? 'platform', code: f.code ?? null, message: f.error, runUrl: f.runUrl ?? null,
+      draftRevisionId: ctx.code.get(f.refKey)?.draftRevisionId ?? null,
+    }))
+    const failures = notLanded.map((n) => ({name: n.name, category: n.category, code: n.code, message: n.message}))
+    let exit: number = EXIT_CODES.SUCCESS
+    if (result.failed.length > 0) {
+      const platformOnly = result.failed.every((f) => f.category === 'platform' || f.category === 'transport' || f.category === 'rate_limit')
+      exit = result.succeeded.length === 0 && platformOnly ? EXIT_CODES.NO_VERDICT : EXIT_CODES.PARTIAL_FAILURE
+    }
+    const billed = [...ctx.code.values()].filter((s) => s.run?.billable).length
+    const usage = runs > 0 ? await usageLine(client, billed) : undefined
+
+    await this.finish({
+      exit,
+      data: {plan: planJson, result: {succeeded: result.succeeded, failed: result.failed}, billedRuns: billed},
+      extra: {landed, notLanded, failures},
+      legacyMergeWrapper: true,
+      human: () => {
+        for (const s of result.succeeded) this.log(`  ${icon(s.action)} ${s.resourceType} "${s.refKey}" — ${pastTense(s.action)}`)
+        for (const f of notLanded) {
+          this.log(`  ✗ ${f.resourceType} "${f.name}" — not landed (${f.category}${f.code ? ` ${f.code}` : ''}): ${f.message}`)
+          if (f.runUrl) this.log(`      ${f.runUrl}`)
+          if (f.draftRevisionId) this.log(`      draft kept: ${f.draftRevisionId}`)
+        }
+        this.log(`\nDone: ${result.succeeded.length} succeeded, ${result.failed.length} failed.${usage ? ` ${usage.line}` : ''}`)
+      },
+    })
   }
 
-  private async acquireLock(
-    client: ReturnType<typeof createApiClient>,
-    forceUnlock: boolean,
-    lockTimeout: number,
-  ): Promise<string | undefined> {
+
+  /** Pre-flight: nothing is written when any of these refuse (exits 16, 17, 18). */
+  private preflight(p: PipelineResult, acknowledged: string[]): void {
+    if (p.planRefusals.length > 0) {
+      throw new PlanLimitError(`The plan does not allow this config: ${p.planRefusals.map((f) => `[${f.code}] ${f.message}`).join('; ')}`, {
+        code: p.planRefusals[0]!.code,
+        upgradeUrl: p.planRefusals[0]!.upgradeUrl ?? undefined,
+        details: {findings: p.planRefusals.map((f) => ({code: f.code, message: f.message, monitor: typeof f.monitor === 'string' ? f.monitor : null}))},
+      })
+    }
+    if (p.bind.unowned.length > 0) {
+      const names = p.bind.unowned.map((u) => `"${u.name}" (${u.owner})`).join(', ')
+      throw new OwnershipError(`Would adopt ${p.bind.unowned.length} monitor(s) this project does not own: ${names}. Re-run with --adopt for each`, {
+        code: 'MONITOR_OWNED_BY_OTHER',
+        reason: 'ownership',
+        next: {command: `devhelm deploy ${p.bind.unowned.map((u) => `--adopt "${u.name}"`).join(' ')}`, docs: null},
+        details: {unowned: p.bind.unowned.map((u) => ({name: u.name, id: u.id, owner: u.owner}))},
+      })
+    }
+    const rolledBack = p.codePlans.filter((c) => c.republishesRolledBack && !acknowledged.includes(c.name))
+    if (rolledBack.length > 0) {
+      throw new ConflictError(`${rolledBack.map((c) => c.name).join(', ')}: the code in devhelm.yml is the revision that was rolled back. Revert the file, or re-publish over the rollback on purpose`, {
+        code: 'REVISION_ROLLED_BACK',
+        next: {command: `devhelm deploy ${rolledBack.map((c) => `--acknowledge-rollback "${c.name}"`).join(' ')}`, docs: null},
+      })
+    }
+
+  }
+
+  private saveState(p: PipelineResult, result: ApplyResult): void {
+    const current = readState() ?? p.state
+    const deleted = new Set(result.deletedRefKeys.map((d) => resourceAddress(d.resourceType, d.refKey)))
+    const next = buildStateV2(result.stateEntries, current.serial)
+    for (const [addr, entry] of Object.entries(current.resources)) {
+      if (!(addr in next.resources) && !deleted.has(addr)) next.resources[addr] = entry
+    }
+    writeState(next)
+  }
+
+  private async acquireLock(client: ApiClient, forceUnlock: boolean, timeoutMs: number, ttlMinutes: number): Promise<string | undefined> {
     if (forceUnlock) {
       try {
-        await apiDelete(client, '/api/v1/deploy/lock/force')
-      } catch {
-        // Force-unlock is best-effort; the lock may not exist
+        await apiDelete(client, '/api/v1/deploy/lock/force?reason=' + encodeURIComponent('devhelm deploy --force-unlock'))
+      } catch (err) {
+        if (!(err instanceof DevhelmError) || err.category !== 'not_found') throw err
       }
     }
-
-    const deadline = Date.now() + lockTimeout * 1000
-    let lastError: string | undefined
-
+    const deadline = Date.now() + timeoutMs
     while (true) {
       try {
-        const resp = await checkedFetch(
-          client.POST('/api/v1/deploy/lock', {
-            body: {lockedBy: `${process.env.USER ?? 'cli'}@${hostname()}`, ttlMinutes: DEFAULT_LOCK_TTL},
-          }),
-        )
-        const lockId = resp?.data?.id
-        if (!lockId) {
-          this.warn('Deploy lock acquired but no lock ID returned. Proceeding without lock protection.')
-        }
-        return lockId
+        const resp = await checkedFetch(client.POST('/api/v1/deploy/lock', {
+          body: {lockedBy: `${process.env.GITHUB_REPOSITORY ? `${process.env.GITHUB_REPOSITORY}#${process.env.GITHUB_RUN_ID ?? ''}` : process.env.USER ?? 'cli'}@${hostname()}`, ttlMinutes: Math.min(MAX_LOCK_TTL_MINUTES, ttlMinutes)},
+        }))
+        return resp?.data?.id
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err)
-        // Branch on the typed error rather than substring-matching, which
-        // otherwise misclassifies any message containing "Conflict" as a
-        // lock contention. Server returns 409 when another session holds
-        // the lock.
-        const isConflict = err instanceof DevhelmApiError && err.status === 409
-
-        if (isConflict && Date.now() < deadline) {
-          lastError = msg
-          const remaining = Math.ceil((deadline - Date.now()) / 1000)
-          this.log(`Lock held by another session. Retrying... (${remaining}s remaining)`)
-          await new Promise((r) => setTimeout(r, 5000))
+        if (err instanceof ConflictError && Date.now() < deadline) {
+          this.progress(`Deploy lock held (${err.message}). Retrying… ${Math.ceil((deadline - Date.now()) / 1000)}s left`)
+          await new Promise((r) => setTimeout(r, Math.min(5000, Math.max(0, deadline - Date.now()))))
           continue
         }
-
-        if (isConflict) {
-          this.warn(`Deploy lock conflict: ${lastError ?? msg}`)
-          this.warn('Use --force-unlock to break the existing lock, --lock-timeout to wait, or --no-lock to skip.')
-          this.exit(EXIT_CODES.API)
-        }
-        this.warn(`Failed to acquire deploy lock: ${msg}`)
-        this.warn('Use --no-lock to skip locking if the lock service is unavailable.')
-        this.exit(EXIT_CODES.API)
+        throw err
       }
     }
   }
 
-  private async releaseLock(client: ReturnType<typeof createApiClient>, lockId: string): Promise<void> {
+  private async releaseLock(client: ApiClient, lockId: string): Promise<void> {
     try {
       await apiDelete(client, `/api/v1/deploy/lock/${lockId}`)
     } catch (err) {
-      // Best-effort: lock auto-expires via TTL, but surface the failure so users
-      // can investigate if locks accumulate (e.g. API connectivity issues).
-      const msg = err instanceof Error ? err.message : String(err)
-      this.warn(`Failed to release deploy lock ${lockId}: ${msg} (lock will auto-expire)`)
+      this.addWarning(`Failed to release deploy lock ${lockId}: ${err instanceof Error ? err.message : String(err)} (it expires on its own)`)
     }
   }
 }
 
-/**
- * Icon + past-tense label for an apply action. Supports core CRUD plus
- * membership-style actions (`add`, `remove`). Unknown actions get a neutral `•`.
- */
-function iconForAction(action: string): string {
+function deployChanges(p: PipelineResult): JsonValue[] {
+  const one = (c: Change): JsonValue => ({action: c.action, resourceType: c.resourceType, name: c.refKey})
+  return [
+    ...p.bind.adopt.map((m): JsonValue => ({action: 'adopt', resourceType: 'monitor', name: m.name, owner: ownerText(m)})),
+    ...p.changeset.creates.map(one), ...p.changeset.updates.map(one), ...p.changeset.deletes.map(one),
+    ...p.changeset.memberships.map(one),
+  ]
+}
+
+function ownerText(m: {managedBy?: string | null; owner?: {type?: string | null; project?: string | null} | null}): string {
+  const type = m.owner?.type ?? m.managedBy ?? 'unknown'
+  return m.owner?.project ? `${type} · ${m.owner.project}` : String(type)
+}
+
+function icon(action: string): string {
   switch (action) {
     case 'create': case 'add': return '+'
     case 'update': return '~'
@@ -365,7 +277,7 @@ function iconForAction(action: string): string {
   }
 }
 
-function pastTenseForAction(action: string): string {
+function pastTense(action: string): string {
   switch (action) {
     case 'create': return 'created'
     case 'update': return 'updated'

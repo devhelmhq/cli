@@ -1,3 +1,4 @@
+import {createProjectContext} from '../../src/lib/yaml/project-context.js'
 import {describe, it, expect} from 'vitest'
 import {diff} from '../../src/lib/yaml/differ.js'
 import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
@@ -151,7 +152,7 @@ describe('idempotency', () => {
     expect(cs.updates).toHaveLength(0)
   })
 
-  it('removing one monitor → that monitor in deletes (with prune-org-cli)', async () => {
+  it('removing one project-owned monitor → that monitor in deletes', async () => {
     const config: DevhelmConfig = {
       monitors: [
         {name: 'API', type: 'HTTP', config: {url: 'https://api.example.com', method: 'GET'}},
@@ -166,10 +167,11 @@ describe('idempotency', () => {
       }, managedBy: 'CLI'},
       {type: 'monitors', key: 'Web', id: 'm2', raw: {
         name: 'Web', type: 'HTTP', config: {url: 'https://web.example.com', method: 'GET'},
-        managedBy: 'CLI',
-      }, managedBy: 'CLI'},
+        managedBy: 'GIT', owner: {type: 'GIT', project: 'acme/web'},
+      }, managedBy: 'GIT'},
     ])
-    const cs = await diff(config, refs, {pruneOrgCli: true})
+    refs.project = createProjectContext({project: 'acme/web'})
+    const cs = await diff(config, refs, {prune: true})
     expect(cs.deletes).toHaveLength(1)
     expect(cs.deletes[0].refKey).toBe('Web')
     expect(cs.creates).toHaveLength(0)

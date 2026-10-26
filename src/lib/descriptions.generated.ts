@@ -6,10 +6,10 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   "CreateMonitorRequest": {
     "name": "Human-readable name for this monitor",
     "type": "Monitor protocol type",
-    "frequencySeconds": "Check frequency in seconds (10–86400). Null defaults to the plan minimum",
+    "frequencySeconds": "Check frequency in seconds; minimum depends on plan (default: plan minimum)",
     "enabled": "Whether the monitor is active (default: true)",
     "regions": "Probe regions to run checks from. Allowed values are deployment-dependent. Production: us-east, us-west, eu-west, ap-south",
-    "managedBy": "Source that created this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API",
+    "managedBy": "Source that created this monitor: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31). Defaults to API",
     "ownerEnforced": "Only the managedBy tool may change configuration (default: false)",
     "ownerProject": "Project the owning tool declares for this monitor, e.g. acme/web",
     "environmentId": "Environment to associate with this monitor. Required for browser and multi-step monitors",
@@ -22,7 +22,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   },
   "UpdateMonitorRequest": {
     "name": "New monitor name. Null preserves current",
-    "frequencySeconds": "New check frequency in seconds (10–86400). Null preserves current",
+    "frequencySeconds": "Check frequency in seconds; minimum depends on plan. Null preserves current",
     "enabled": "Enable or disable the monitor (pause or resume). Null preserves current",
     "regions": "New probe regions. Null preserves current. Allowed values are deployment-dependent",
     "managedBy": "New ownership source for probe monitors. Null preserves current. Code monitors use takeover",
@@ -50,11 +50,11 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   },
   "CreateAlertChannelRequest": {
     "name": "Human-readable name for this alert channel",
-    "managedBy": "Source creating this channel: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted."
+    "managedBy": "Source creating this channel: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31). Defaults to API when omitted."
   },
   "UpdateAlertChannelRequest": {
     "name": "New channel name (full replacement, not partial update)",
-    "managedBy": "New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value.",
+    "managedBy": "New attribution source: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31); null preserves current value.",
     "enabled": "Whether this channel is enabled (default: true); null preserves current value"
   },
   "CreateNotificationPolicyRequest": {
@@ -111,7 +111,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "suppressMemberAlerts": "Suppress member-level alert notifications when group manages alerting",
     "confirmationDelaySeconds": "Confirmation delay in seconds before group incident creation (0–600)",
     "recoveryCooldownMinutes": "Recovery cooldown in minutes after group incident resolves (0–60)",
-    "managedBy": "Source creating this group: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API when omitted."
+    "managedBy": "Source creating this group: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31). Defaults to API when omitted."
   },
   "UpdateResourceGroupRequest": {
     "name": "Human-readable name for this group",
@@ -126,7 +126,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "suppressMemberAlerts": "Suppress member-level alert notifications; null preserves current value",
     "confirmationDelaySeconds": "Confirmation delay in seconds; null clears",
     "recoveryCooldownMinutes": "Recovery cooldown in minutes; null clears",
-    "managedBy": "New attribution source: DASHBOARD, CLI, TERRAFORM, MCP, or API; null preserves current value."
+    "managedBy": "New attribution source: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31); null preserves current value."
   },
   "CreateWebhookEndpointRequest": {
     "url": "HTTPS endpoint that receives webhook event payloads",
@@ -144,7 +144,7 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
     "expiresAt": "Optional expiration timestamp in ISO 8601 format",
     "preset": "Preset expanded into scopes: ci-pr, ci-deploy, agent-responder, agent-author",
     "scopes": "Scopes to grant (default: full)",
-    "tool": "Tool this key writes as on owner-enforced monitors (default: API)"
+    "tool": "Tool this key writes as on owner-enforced monitors (default: API; CLI = GIT until 2027-01-31)"
   },
   "UpdateApiKeyRequest": {
     "name": "New name for this API key"
@@ -171,7 +171,8 @@ export const fieldDescriptions: Record<string, Record<string, string>> =
   "MonitorTestRequest": {
     "type": "Monitor protocol type to test",
     "assertions": "Optional assertions to evaluate against the test result",
-    "environmentId": "Environment to test against; null uses the monitor environment"
+    "environmentId": "Environment to run in; required for browser and multi-step API code",
+    "region": "Probe region for a code-bundle test (default: us-east)"
   },
   "AcquireDeployLockRequest": {
     "lockedBy": "Identity of the lock requester (e.g. hostname, CI job ID)",

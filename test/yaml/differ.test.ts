@@ -1,3 +1,4 @@
+import {createProjectContext} from '../../src/lib/yaml/project-context.js'
 import {describe, it, expect} from 'vitest'
 import {diff, formatPlan} from '../../src/lib/yaml/differ.js'
 import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
@@ -201,16 +202,18 @@ describe('differ', () => {
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('--prune-org-cli detects deletes for CLI-managed monitors org-wide', async () => {
+    it('--prune deletes a monitor this project owns (ownerProject == project)', async () => {
       const refs = new ResolvedRefs()
+      refs.project = createProjectContext({project: 'acme/web'})
       refs.set('monitors', 'old-monitor', {
-        id: 'mon-1', refKey: 'old-monitor', managedBy: 'CLI', raw: {managedBy: 'CLI'},
+        id: 'mon-1', refKey: 'old-monitor', managedBy: 'GIT', raw: {managedBy: 'GIT', owner: {type: 'GIT', project: 'acme/web'}},
       })
-      const config: DevhelmConfig = {monitors: []}
-      const changeset = await diff(config, refs, {pruneOrgCli: true})
-      expect(changeset.deletes).toHaveLength(1)
-      expect(changeset.deletes[0].refKey).toBe('old-monitor')
-      expect(changeset.deletes[0].pruneScope).toBe('org-cli')
+      refs.set('monitors', 'other', {
+        id: 'mon-2', refKey: 'other', managedBy: 'GIT', raw: {managedBy: 'GIT', owner: {type: 'GIT', project: 'acme/api'}},
+      })
+      const changeset = await diff({monitors: []}, refs, {prune: true})
+      expect(changeset.deletes.map((d) => d.refKey)).toEqual(['old-monitor'])
+      expect(changeset.deletes[0].pruneScope).toBe('state')
     })
 
     it('skips non-CLI monitors during --prune-org-cli', async () => {
@@ -233,25 +236,14 @@ describe('differ', () => {
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('pruneAll deletes non-CLI monitors', async () => {
+    it('the removed pruneAll scope no longer deletes foreign monitors', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'dashboard-monitor', {
         id: 'mon-1', refKey: 'dashboard-monitor', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'},
       })
-      const config: DevhelmConfig = {monitors: []}
-      const changeset = await diff(config, refs, {prune: true, pruneAll: true})
-      expect(changeset.deletes).toHaveLength(1)
-      expect(changeset.deletes[0].refKey).toBe('dashboard-monitor')
-    })
-
-    it('pruneAll deletes monitors with no managedBy', async () => {
-      const refs = new ResolvedRefs()
-      refs.set('monitors', 'orphan', {
-        id: 'mon-1', refKey: 'orphan', raw: {},
-      })
-      const config: DevhelmConfig = {monitors: []}
-      const changeset = await diff(config, refs, {prune: true, pruneAll: true})
-      expect(changeset.deletes).toHaveLength(1)
+      refs.set('monitors', 'orphan', {id: 'mon-2', refKey: 'orphan', raw: {}})
+      const changeset = await diff({monitors: []}, refs, {prune: true, pruneAll: true})
+      expect(changeset.deletes).toHaveLength(0)
     })
 
     it('prune: omitted section (undefined) does not delete', async () => {
@@ -262,13 +254,11 @@ describe('differ', () => {
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('--prune-org-cli: empty array deletes all existing tags', async () => {
+    it('tags outside state are never pruned, even with the removed pruneOrgCli', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})
-      const config: DevhelmConfig = {tags: []}
-      const changeset = await diff(config, refs, {pruneOrgCli: true})
-      expect(changeset.deletes).toHaveLength(1)
-      expect(changeset.deletes[0].pruneScope).toBe('org-cli')
+      const changeset = await diff({tags: []}, refs, {pruneOrgCli: true})
+      expect(changeset.deletes).toHaveLength(0)
     })
 
     it('does not delete without prune flag', async () => {
@@ -317,17 +307,7 @@ describe('differ', () => {
       expect(cs.deletes).toHaveLength(0)
     })
 
-    it('--prune-org-cli widens scope and deletes the other team\'s CLI monitor', async () => {
-      const refs = new ResolvedRefs()
-      refs.set('monitors', 'theirs', {
-        id: 'mon-2', refKey: 'theirs', managedBy: 'CLI', raw: {managedBy: 'CLI'},
-      })
-      const cs = await diff({monitors: []}, refs, {pruneOrgCli: true}, stateWith([]))
-      expect(cs.deletes).toHaveLength(1)
-      expect(cs.deletes[0].pruneScope).toBe('org-cli')
-    })
-
-    it('reports state-tracked and org-cli deletes with their scope', async () => {
+    it('reports only state-tracked deletes', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'mine', {
         id: 'mon-1', refKey: 'mine', managedBy: 'CLI', raw: {managedBy: 'CLI'},
@@ -337,17 +317,7 @@ describe('differ', () => {
       })
       const cs = await diff({monitors: []}, refs, {pruneOrgCli: true}, stateWith(['monitors.mine']))
       const byKey = Object.fromEntries(cs.deletes.map((d) => [d.refKey, d.pruneScope]))
-      expect(byKey).toEqual({mine: 'state', theirs: 'org-cli'})
-    })
-
-    it('--prune-all picks up dashboard-managed monitors as scope=org-all', async () => {
-      const refs = new ResolvedRefs()
-      refs.set('monitors', 'dash', {
-        id: 'mon-3', refKey: 'dash', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'},
-      })
-      const cs = await diff({monitors: []}, refs, {pruneAll: true}, stateWith([]))
-      expect(cs.deletes).toHaveLength(1)
-      expect(cs.deletes[0].pruneScope).toBe('org-all')
+      expect(byKey).toEqual({mine: 'state'})
     })
 
     it('non-monitor resources outside state are NOT touched under plain --prune', async () => {
@@ -355,14 +325,6 @@ describe('differ', () => {
       refs.set('tags', 'shared', {id: 't-1', refKey: 'shared', raw: {name: 'shared'}})
       const cs = await diff({tags: []}, refs, {prune: true}, stateWith([]))
       expect(cs.deletes).toHaveLength(0)
-    })
-
-    it('non-monitor resources outside state ARE touched under --prune-org-cli', async () => {
-      const refs = new ResolvedRefs()
-      refs.set('tags', 'shared', {id: 't-1', refKey: 'shared', raw: {name: 'shared'}})
-      const cs = await diff({tags: []}, refs, {pruneOrgCli: true}, stateWith([]))
-      expect(cs.deletes).toHaveLength(1)
-      expect(cs.deletes[0].pruneScope).toBe('org-cli')
     })
 
     it('creates in dependency order', async () => {
@@ -382,7 +344,8 @@ describe('differ', () => {
       refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {}})
       refs.set('monitors', 'M', {id: '2', refKey: 'M', managedBy: 'CLI', raw: {}})
       const config: DevhelmConfig = {tags: [], monitors: []}
-      const changeset = await diff(config, refs, {pruneOrgCli: true})
+      const state = {version: '3' as const, serial: 1, lastDeployedAt: '', resources: {'tags.T': {apiId: '1', resourceType: 'tag' as never, children: {}}, 'monitors.M': {apiId: '2', resourceType: 'monitor' as never, children: {}}}}
+      const changeset = await diff(config, refs, {prune: true}, state)
       const types = changeset.deletes.map((c) => c.resourceType)
       expect(types.indexOf('monitor')).toBeLessThan(types.indexOf('tag'))
     })
@@ -683,20 +646,20 @@ describe('differ', () => {
       expect(changeset.updates[0].refKey).toBe('changed')
     })
 
-    it('detects update when monitor enabled toggled', async () => {
+    it('never plans an update for a paused monitor (pause is an overlay, F14)', async () => {
       const refs = new ResolvedRefs()
       refs.set('monitors', 'M', {id: 'mon-1', refKey: 'M', raw: {
-        name: 'M', type: 'HTTP', enabled: true,
+        name: 'M', type: 'HTTP', enabled: false,
         config: {url: 'https://x.com', method: 'GET'},
       }})
       const config: DevhelmConfig = {
         monitors: [{
-          name: 'M', type: 'HTTP', enabled: false,
+          name: 'M', type: 'HTTP',
           config: {url: 'https://x.com', method: 'GET'},
         }],
       }
       const changeset = await diff(config, refs)
-      expect(changeset.updates).toHaveLength(1)
+      expect(changeset.updates).toHaveLength(0)
     })
 
     it('detects update when environment variables change', async () => {

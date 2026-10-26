@@ -1,67 +1,98 @@
+import {createHash, randomUUID} from 'node:crypto'
 import createClient, {type Middleware} from 'openapi-fetch'
 import type {PathsWithMethod} from 'openapi-typescript-helpers'
 import type {ZodType} from 'zod'
 import type {paths, components} from './api.generated.js'
-import {
-  DevhelmApiError,
-  DevhelmAuthError,
-  DevhelmNotFoundError,
-  DevhelmTransportError,
-  type DevhelmApiErrorOptions,
-} from './errors.js'
+import {Devhelm, errorFromResponse as sdkErrorFromResponse} from '@devhelm/sdk'
+import {DevhelmError, TransportError} from './errors.js'
 import {parseSingle, parsePage, parseCursorPage, type Page, type CursorPage as ValidatedCursorPage} from './response-validation.js'
-import {buildSurfaceHeaders} from './surface-telemetry.js'
+import {buildSurfaceHeaders, CLI_VERSION} from './surface-telemetry.js'
 
 export type {paths, components}
 
+// ── Error envelope parsing ─────────────────────────────────────────────
+
 /**
- * Build a `DevhelmApiError` (or appropriate subclass) from the openapi-fetch
- * `error` body and the raw `Response`. Pulls `code` and `requestId` from the
- * canonical `ErrorResponse` envelope; the `X-Request-Id` response header
- * always wins so we still get the id even when the body is non-conforming.
+ * The typed error for a non-2xx response: the SDK's mapper (one class per
+ * `ErrorResponse` category, every field carried; a body without a
+ * category gets one from the status). `body` is the parsed JSON or text.
  */
-function errorFromResponse(rawError: unknown, response: Response): DevhelmApiError {
-  const headerRequestId = response.headers.get('x-request-id') ?? undefined
+export function errorFromResponse(body: unknown, response: Response): DevhelmError {
+  const text = typeof body === 'string' ? body : body === undefined ? '' : JSON.stringify(body)
+  return sdkErrorFromResponse(response.status, text, {
+    requestId: response.headers.get('x-request-id') ?? undefined,
+    retryAfter: response.headers.get('retry-after') ?? undefined,
+  })
+}
 
-  let code: string | undefined
-  let bodyRequestId: string | undefined
-  let detail: string | undefined
-  let message = response.statusText || `HTTP ${response.status}`
+// ── Invocation context: idempotency keys and client header ─────────────
 
-  if (rawError && typeof rawError === 'object') {
-    const body = rawError as Record<string, unknown>
-    if (typeof body.message === 'string' && body.message.length > 0) {
-      message = body.message
-      detail = body.message
-    } else if (typeof body.error === 'string' && body.error.length > 0) {
-      message = body.error
-      detail = body.error
-    }
-    if (typeof body.code === 'string' && body.code.length > 0) code = body.code
-    if (typeof body.requestId === 'string' && body.requestId.length > 0) {
-      bodyRequestId = body.requestId
-    } else if (typeof body.request_id === 'string' && body.request_id.length > 0) {
-      bodyRequestId = body.request_id
-    }
-  } else if (typeof rawError === 'string' && rawError.length > 0) {
-    message = rawError
-    detail = rawError
-  }
+/**
+ * One CLI invocation. `Idempotency-Key` values are derived from it so a
+ * transport retry of the same request replays, while every logical POST
+ * in the invocation gets its own key (doc 32 D-7): in GitHub Actions the
+ * seed is `sha256(GITHUB_RUN_ID, GITHUB_RUN_ATTEMPT, command)`, elsewhere a
+ * random UUID per invocation. `--idempotency-key` pins the first POST's
+ * key; later POSTs in the same invocation append an ordinal.
+ */
+interface InvocationContext {
+  command: string
+  seed: string
+  explicitKey?: string
+  counter: Map<string, number>
+  posts: number
+}
 
-  const opts: DevhelmApiErrorOptions = {
-    code,
-    requestId: headerRequestId ?? bodyRequestId,
-    detail,
-    rawBody: rawError,
-  }
+let invocation: InvocationContext = newInvocation('cli')
 
-  if (response.status === 401 || response.status === 403) {
-    return new DevhelmAuthError(message, response.status, opts)
+function newInvocation(command: string, explicitKey?: string): InvocationContext {
+  const runId = process.env.GITHUB_RUN_ID
+  const attempt = process.env.GITHUB_RUN_ATTEMPT
+  const seed = runId
+    ? createHash('sha256').update(`${runId}\n${attempt ?? '1'}\n${command}`).digest('hex')
+    : randomUUID()
+  return {command, seed, explicitKey, counter: new Map(), posts: 0}
+}
+
+/** Called once per command invocation (from the base command's init). */
+export function beginInvocation(command: string, explicitKey?: string): void {
+  invocation = newInvocation(command, explicitKey)
+}
+
+/** Next `Idempotency-Key` for a POST to `target` in this invocation. */
+export function nextIdempotencyKey(method: string, target: string): string {
+  const n = invocation.posts++
+  if (invocation.explicitKey) return n === 0 ? invocation.explicitKey : `${invocation.explicitKey}-${n}`
+  const k = `${method} ${target}`
+  const occurrence = invocation.counter.get(k) ?? 0
+  invocation.counter.set(k, occurrence + 1)
+  return createHash('sha256').update(`${invocation.seed}\n${k}\n${occurrence}`).digest('hex')
+}
+
+export const CLIENT_HEADER = `cli/${CLI_VERSION}`
+
+export interface ApiClientOptions {
+  baseUrl: string
+  token: string
+  orgId?: string
+  workspaceId?: string
+  verbose?: boolean
+}
+
+/** Headers every call carries: auth, scope, client and telemetry. */
+export function baseHeaders(opts: ApiClientOptions): Record<string, string> {
+  const workspaceId = opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${opts.token}`,
+    'x-phelm-org-id': opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
+    'X-DevHelm-Client': CLIENT_HEADER,
+    // Devtool surface telemetry — see lib/surface-telemetry.ts and
+    // https://devhelm.io/telemetry. Empty object when the user has set
+    // DEVHELM_TELEMETRY=0; otherwise four short identification headers.
+    ...buildSurfaceHeaders(),
   }
-  if (response.status === 404) {
-    return new DevhelmNotFoundError(message, response.status, opts)
-  }
-  return new DevhelmApiError(message, response.status, opts)
+  if (workspaceId) headers['x-phelm-workspace-id'] = workspaceId
+  return headers
 }
 
 // Backward-compatible wrapper types matching the API response shapes
@@ -81,28 +112,30 @@ export interface SingleResponse<T> {
   data: T
 }
 
-export function createApiClient(opts: {
-  baseUrl: string
-  token: string
-  orgId?: string
-  workspaceId?: string
-  verbose?: boolean
-}) {
-  const workspaceId = opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${opts.token}`,
-    'Content-Type': 'application/json',
-    'x-phelm-org-id': opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
-    // Devtool surface telemetry — see lib/surface-telemetry.ts and
-    // https://devhelm.io/telemetry. Empty object when the user has set
-    // DEVHELM_TELEMETRY=0; otherwise four short identification headers.
-    ...buildSurfaceHeaders(),
-  }
-  if (workspaceId) headers['x-phelm-workspace-id'] = workspaceId
-
+/**
+ * The CLI's typed client (generated from its vendored spec). Requests go
+ * through the SDK transport (`Devhelm.send`): one `Idempotency-Key` per
+ * logical POST from this invocation's D-7 keys, and the retry policy (429,
+ * 503, retryable 409, `Retry-After`, 5 attempts with jitter). There is no
+ * second transport in the CLI.
+ */
+export function createApiClient(opts: ApiClientOptions) {
+  const sdk = new Devhelm({
+    token: opts.token,
+    baseUrl: opts.baseUrl,
+    orgId: opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
+    workspaceId: opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID,
+    client: CLIENT_HEADER,
+    surface: 'cli',
+    surfaceVersion: CLI_VERSION,
+    idempotencyKey: ({method, url}) => nextIdempotencyKey(method, new URL(url).pathname),
+    // DEVHELM_RETRY_MAX_DELAY_MS caps the wait between retries (tests set it low).
+    ...(process.env.DEVHELM_RETRY_MAX_DELAY_MS ? {retry: {maxDelayMs: Number(process.env.DEVHELM_RETRY_MAX_DELAY_MS)}} : {}),
+  })
   const client = createClient<paths>({
     baseUrl: opts.baseUrl.replace(/\/$/, ''),
-    headers,
+    headers: {...baseHeaders(opts), 'Content-Type': 'application/json'},
+    fetch: (request) => sdk.send(request),
   })
 
   if (opts.verbose) {
@@ -115,7 +148,7 @@ export function createApiClient(opts: {
     client.use(logger)
   }
 
-  return client
+  return Object.assign(client, {options: opts, sdk})
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>
@@ -124,10 +157,10 @@ export type ApiClient = ReturnType<typeof createApiClient>
  * Unwrap an openapi-fetch response. On a 2xx, returns whatever
  * openapi-fetch decoded into `data` — typed as `TData` because the
  * generic flows from the input promise's `data?: TData` field. On a
- * non-2xx response, throws a typed `DevhelmApiError` (or
- * `DevhelmAuthError` / `DevhelmNotFoundError` for 401–403 / 404). When
- * the request never produced a response (DNS, timeout, TLS, connection
- * reset) it throws `DevhelmTransportError`.
+ * non-2xx response, throws the category error for the `ErrorResponse`
+ * (`ValidationError`, `NotFoundError`, `ConflictError`, …). When the
+ * request never produced a response (DNS, timeout, TLS, connection
+ * reset) it throws `TransportError`.
  *
  * Why the generic matters: without it, callers — especially the YAML
  * apply handlers — were forced to wrap every result in
@@ -159,8 +192,9 @@ export async function checkedFetchWithStatus<TData>(
   try {
     result = await promise
   } catch (cause) {
+    if (cause instanceof DevhelmError) throw cause
     const message = cause instanceof Error ? cause.message : String(cause)
-    throw new DevhelmTransportError(message, {cause})
+    throw new TransportError(message, {cause: cause instanceof Error ? cause : undefined})
   }
   const {data, error, response} = result
   if (error || !response.ok) {
@@ -259,4 +293,9 @@ export async function apiGetCursorPage<T>(
   params?: object,
 ): Promise<ValidatedCursorPage<T>> {
   return parseCursorPage(schema, await apiGet(client, path, params), `GET ${path}`)
+}
+
+/** The SDK client behind this CLI client (waiting, bundles, raw sends). */
+export function sdkClientFor(client: ApiClient): Devhelm {
+  return client.sdk
 }

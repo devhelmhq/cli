@@ -77,7 +77,7 @@ describe('services topic', () => {
 
   test('uptime rejects combining --granularity with --component', () => {
     const out = run(
-      'services uptime aws-ec2 --component 11111111-1111-1111-1111-111111111111 --granularity daily',
+      'services uptime aws-ec2 --component 11111111-1111-4111-8111-111111111111 --granularity daily',
     )
     expect(out).toContain('cannot also be provided when using --granularity')
   })

@@ -3,7 +3,6 @@ version: "1"
 defaults:
   monitors:
     frequencySeconds: 60
-    enabled: true
     regions: [us-east, eu-west]
 
 tags:

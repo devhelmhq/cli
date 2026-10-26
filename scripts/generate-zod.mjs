@@ -25,6 +25,26 @@ const ROOT = join(__dirname, '..');
 const SPEC_PATH = join(ROOT, 'docs/openapi/monitoring-api.json');
 const OUTPUT_PATH = join(ROOT, 'src/lib/api-zod.generated.ts');
 
+/**
+ * Free-form JSON maps (`Map<String, Object>` on the server: RunDto
+ * snapshots, RunEventDto.payload, ErrorResponse.details, …) come out of
+ * openapi-zod-client as `z.record(z.object({}).partial().passthrough())`,
+ * which rejects scalar values. Decode them as a recursive JSON value
+ * instead (doc 42 §5.1.2: JsonValue for free-form maps).
+ */
+function freeFormMapsAsJson(source) {
+  const replaced = source.replaceAll('z.record(z.object({}).partial().passthrough()', 'z.record(JsonValue');
+  if (replaced === source) return source;
+  const header = [
+    'type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };',
+    'const JsonValue: z.ZodType<JsonValue> = z.lazy(() =>',
+    '  z.union([z.string(), z.number(), z.boolean(), z.null(), z.array(JsonValue), z.record(JsonValue)])',
+    ');',
+  ].join('\n');
+  const anchor = replaced.indexOf('\nconst ');
+  return replaced.slice(0, anchor) + '\n' + header + replaced.slice(anchor);
+}
+
 function extractSchemas(raw) {
   const lines = raw.split('\n');
   const kept = [];
@@ -204,6 +224,7 @@ async function main() {
   // schemas stay `.strict()` so YAML / flag typos still fail locally.
   clean = relaxResponseEnums(clean, tolerantSchemas);
   clean = relaxResponseStrict(clean, tolerantSchemas);
+  clean = freeFormMapsAsJson(clean);
   writeFileSync(OUTPUT_PATH, clean, 'utf8');
 
   const schemaCount = (clean.match(/^const /gm) || []).length;

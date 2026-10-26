@@ -3,6 +3,7 @@
  * Checks types, required fields, enum values, frequency bounds,
  * intra-YAML reference integrity, and duplicate ref keys.
  */
+import {isCodeMonitorType} from '@devhelm/sdk'
 import type {
   DevhelmConfig, YamlMonitor, YamlAlertChannel, YamlNotificationPolicy,
   YamlResourceGroup, YamlWebhook, YamlTag, YamlEnvironment, YamlSecret,
@@ -34,6 +35,7 @@ export interface ValidationResult {
 
 export function validate(config: DevhelmConfig): ValidationResult {
   const ctx = new ValidationContext()
+  ctx.project = config.project
   validateConfig(config, ctx)
   return {errors: ctx.errors, warnings: ctx.warnings}
 }
@@ -67,6 +69,8 @@ export function validatePlanRefs(config: DevhelmConfig, refs: ResolvedRefs): Val
 }
 
 class ValidationContext {
+  /** `project:` from the config, for rules that depend on it. */
+  project: string | undefined
   errors: ValidationError[] = []
   warnings: ValidationError[] = []
 
@@ -332,10 +336,18 @@ function validateMonitor(monitor: YamlMonitor, path: string, ctx: ValidationCont
     ctx.error(`${path}.type`, `Invalid type "${monitor.type}". Must be one of: ${MONITOR_TYPES.join(', ')}`)
   }
 
-  if (!monitor.config || typeof monitor.config !== 'object') {
+  const isCode = isCodeMonitorType(monitor.type)
+  if (isCode) {
+    if (!monitor.environment) {
+      ctx.error(`${path}.environment`, `"environment" (an environment slug) is required for ${monitor.type} monitors: each code monitor runs in exactly one environment`)
+    }
+    if (!ctx.project) {
+      ctx.error(`${path}`, `"project:" is required at the top of devhelm.yml when it declares ${monitor.type} monitors (e.g. project: acme/web); it scopes ownership, prune and state pull`)
+    }
+  } else if (!monitor.config || typeof monitor.config !== 'object') {
     ctx.error(`${path}.config`, '"config" is required and must be an object')
   } else {
-    validateMonitorConfig(monitor.type, monitor.config, `${path}.config`, ctx)
+    validateMonitorConfig(monitor.type, monitor.config as YamlMonitorConfig, `${path}.config`, ctx)
   }
 
   if (monitor.frequencySeconds !== undefined) {

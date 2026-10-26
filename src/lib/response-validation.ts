@@ -16,7 +16,7 @@
  * `parseSingle` / `parsePage` / `parseCursorPage` directly.
  */
 import {z, type ZodType, type ZodIssue, type ZodError} from 'zod'
-import {DevhelmValidationError} from './errors.js'
+import {ValidationError} from './errors.js'
 
 function formatZodIssue(issue: ZodIssue): string {
   const path = issue.path.length > 0 ? issue.path.join('.') : '<root>'
@@ -25,7 +25,7 @@ function formatZodIssue(issue: ZodIssue): string {
 
 function throwAsValidation(error: ZodError, contextLabel: string): never {
   const summary = error.issues.map(formatZodIssue).join('; ')
-  throw new DevhelmValidationError(`${contextLabel} (${summary})`)
+  throw new ValidationError(`${contextLabel} (${summary})`)
 }
 
 export function parse<T>(schema: ZodType<T>, data: unknown, contextLabel: string): T {

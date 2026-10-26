@@ -10,10 +10,10 @@
 | `name` | string | ✓ |  | Human-readable name for this monitor |
 | `type` | "HTTP" \| "DNS" \| "MCP_SERVER" \| "TCP" \| "ICMP" \| "HEARTBEAT" \| "BROWSER" \| "MULTI_STEP_API" | ✓ |  | Monitor protocol type |
 | `config` | any |  | ✓ |  |
-| `frequencySeconds` | integer (int32) |  | ✓ | Check frequency in seconds (10–86400). Null defaults to the plan minimum |
+| `frequencySeconds` | integer (int32) |  | ✓ | Check frequency in seconds; minimum depends on plan (default: plan minimum) |
 | `enabled` | boolean |  | ✓ | Whether the monitor is active (default: true) |
 | `regions` | string[] |  | ✓ | Probe regions to run checks from. Allowed values are deployment-dependent. Production: us-east, us-west, eu-west, ap-south |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Source that created this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API. Defaults to API |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" \| "GIT" |  | ✓ | Source that created this monitor: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31). Defaults to API |
 | `ownerEnforced` | boolean |  | ✓ | Only the managedBy tool may change configuration (default: false) |
 | `ownerProject` | string |  | ✓ | Project the owning tool declares for this monitor, e.g. acme/web |
 | `environmentId` | string (uuid) |  | ✓ | Environment to associate with this monitor. Required for browser and multi-step monitors |
@@ -36,10 +36,10 @@
 |---|---|---|---|---|
 | `name` | string |  | ✓ | New monitor name. Null preserves current |
 | `config` | any |  | ✓ |  |
-| `frequencySeconds` | integer (int32) |  | ✓ | New check frequency in seconds (10–86400). Null preserves current |
+| `frequencySeconds` | integer (int32) |  | ✓ | Check frequency in seconds; minimum depends on plan. Null preserves current |
 | `enabled` | boolean |  | ✓ | Enable or disable the monitor (pause or resume). Null preserves current |
 | `regions` | string[] |  | ✓ | New probe regions. Null preserves current. Allowed values are deployment-dependent |
-| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | New ownership source for probe monitors. Null preserves current. Code monitors use takeover |
+| `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" \| "GIT" |  | ✓ | New ownership source for probe monitors. Null preserves current. Code monitors use takeover |
 | `ownerEnforced` | boolean |  | ✓ | Only the managedBy tool may change configuration. Null preserves current |
 | `ownerProject` | string |  | ✓ | Project the owning tool declares; null preserves current |
 | `environmentId` | string (uuid) |  | ✓ | New environment; null preserves current |
@@ -68,10 +68,10 @@
 | `name` | string | ✓ |  | Human-readable name for this monitor |
 | `type` | string | ✓ |  |  |
 | `config` | any | ✓ |  |  |
-| `frequencySeconds` | integer (int32) | ✓ |  | Check frequency in seconds (30–86400) |
+| `frequencySeconds` | integer (int32) | ✓ |  | Check frequency in seconds; minimum depends on plan |
 | `enabled` | boolean | ✓ |  | Whether the monitor is active |
 | `regions` | string[] | ✓ |  | Probe regions where checks are executed |
-| `managedBy` | string | ✓ |  | Source that created/owns this monitor: DASHBOARD, CLI, TERRAFORM, MCP, or API |
+| `managedBy` | string | ✓ |  | Source that created/owns this monitor: DASHBOARD, GIT, TERRAFORM, MCP or API |
 | `ownerEnforced` | boolean | ✓ |  | Whether only the managedBy tool may change this monitor's configuration |
 | `createdAt` | string (date-time) | ✓ |  | Timestamp when the monitor was created |
 | `updatedAt` | string (date-time) | ✓ |  | Timestamp when the monitor was last updated |

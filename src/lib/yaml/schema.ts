@@ -417,13 +417,36 @@ export interface YamlResourceGroup {
   services?: string[]
 }
 
+/** `code:` in devhelm.yml: a path relative to the file, or `{ entrypoint, include? }`. */
+export type YamlCode = string | {entrypoint: string; include?: string[]}
+
+/** `session:` for code monitors that sign in through a setup file. */
+export interface YamlSession {
+  setupFile: string
+}
+
+export type YamlCapturePolicy = NonNullable<Schemas['CreateMonitorRequest']['capturePolicy']>
+
+/** Config for BROWSER / MULTI_STEP_API monitors (`ScriptMonitorConfig`). */
+export type YamlScriptConfig = Schemas['ScriptMonitorConfig']
+
 export interface YamlMonitor {
   name: string
   type: MonitorType
-  config: YamlMonitorConfig
+  /** Required for probe types, optional for code types (defaults: Browser 90 s, API 30 s). */
+  config?: YamlMonitorConfig | YamlScriptConfig
+  /** Code types only: the entry file (relative to this devhelm.yml) or `{ entrypoint, include }`. */
+  code?: YamlCode
+  /** Stable identity across renames (alternative to a `moved:` block). */
+  key?: string
+  session?: YamlSession
   frequencySeconds?: number
-  enabled?: boolean
   regions?: string[]
+  runParallel?: boolean
+  fastRetryMaxAttempts?: number
+  capturePolicy?: YamlCapturePolicy
+  /** Secret keys to attach; default is the scanned set. */
+  secretKeys?: string[]
   /** null = explicitly clear an existing environment association on update. */
   environment?: string | null
   tags?: string[]
@@ -523,7 +546,6 @@ export interface YamlStatusPage {
 
 export interface YamlMonitorDefaults {
   frequencySeconds?: number
-  enabled?: boolean
   regions?: string[]
   alertChannels?: string[]
   incidentPolicy?: YamlIncidentPolicy
@@ -531,6 +553,8 @@ export interface YamlMonitorDefaults {
 
 export interface YamlDefaults {
   monitors?: YamlMonitorDefaults
+  /** Runtime pin applied to code monitors whose `config.runtimeId` is absent. */
+  runtimeId?: string
 }
 
 // ── Top-level config ───────────────────────────────────────────────────
@@ -542,6 +566,12 @@ export interface MovedBlock {
 
 export interface DevhelmConfig {
   version?: string
+  /** Project identity, e.g. `acme/web`. Required for code monitors; scopes ownership, prune and state pull. */
+  project?: string
+  /** Optional organization pin (name or id). */
+  org?: string
+  /** Optional workspace pin (name or id). */
+  workspace?: string
   defaults?: YamlDefaults
   moved?: MovedBlock[]
   tags?: YamlTag[]

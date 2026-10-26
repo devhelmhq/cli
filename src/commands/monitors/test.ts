@@ -1,46 +1,48 @@
 import {readFileSync, existsSync} from 'node:fs'
 import {extname, resolve} from 'node:path'
-import {Args, Command, Flags} from '@oclif/core'
+import {Args, Flags} from '@oclif/core'
 import {parse as parseYaml} from 'yaml'
-import {globalFlags, buildClient, display} from '../../lib/base-command.js'
-import {checkedFetch, checkedFetchWithStatus, unwrapData} from '../../lib/api-client.js'
+import {checkedFetch, checkedFetchWithStatus, unwrapData, type ApiClient} from '../../lib/api-client.js'
 import {schemas as apiSchemas} from '../../lib/api-zod.generated.js'
-import {DevhelmValidationError, EXIT_CODES} from '../../lib/errors.js'
-import {buildCodeTestTarget, queuedRunFrom} from '../../lib/monitor-test.js'
-import {uuidFlag} from '../../lib/validators.js'
+import {DevhelmCommand, commonFlags} from '../../lib/cli/command.js'
+import {envFlag, parseDurationMs} from '../../lib/cli/flags.js'
+import {ValidationError, EXIT_CODES} from '../../lib/errors.js'
+import {queuedRunFrom} from '../../lib/monitor-test.js'
+import {codeFromFlag} from '../../lib/monitors/code-flag.js'
+import {isCodeType, resolveMonitor} from '../../lib/monitors/resolve.js'
+import {formatOutput} from '../../lib/output.js'
+import {parse} from '../../lib/response-validation.js'
+import {followRuns} from '../../lib/runs/follow.js'
+import {sessionContext} from '../../lib/runs/session.js'
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-export default class MonitorsTest extends Command {
+export default class MonitorsTest extends DevhelmCommand {
+  static legacyOutput = true
   static description =
-    'Run an ad-hoc test for a monitor. Pass an existing id, or use --config <file> to validate a proposed config (YAML or JSON) without persisting it. Uptime monitors print the probe result; browser and multi-step API monitors queue a validation run that does not affect health and print the run.'
+    'Test a monitor once. Browser and multi-step API monitors run a validation run (billed, never alerts) and wait for it; uptime monitors run the probe. --code tests a local file against the saved monitor. --config <file> validates a proposed config without saving it. Exit 14 when the check fails, 19 when no verdict was reached.'
   static examples = [
-    '<%= config.bin %> monitors test 42',
-    '<%= config.bin %> monitors test 42 --region eu-west',
+    '<%= config.bin %> monitors test Checkout --env production',
+    '<%= config.bin %> monitors test Checkout --code synthetics/checkout.spec.ts --region eu-west',
+    '<%= config.bin %> monitors test <id> --no-wait',
     '<%= config.bin %> monitors test --config monitor.yml',
-    '<%= config.bin %> monitors test --config monitor.json --output json',
   ]
-  // The id arg is now optional because `--config` is an alternative
-  // entry point. We can't reuse `uuidArg` here (it pins `required: true`),
-  // so we run the UUID format check inline once we know which mode the
-  // user picked.
   static args = {
-    id: Args.string({description: 'Monitor ID', required: false}),
+    id: Args.string({description: 'Monitor id or exact name', required: false}),
   }
   static flags = {
-    ...globalFlags,
+    ...commonFlags,
+    env: envFlag,
     config: Flags.string({
       description:
         'Path to a YAML or JSON file containing a CreateMonitorRequest payload to validate (and dry-run, when no id is given)',
     }),
-    'environment-id': uuidFlag({
-      description:
-        "Browser / multi-step API monitors: environment for the validation run (default: the monitor's environment)",
-    }),
-    region: Flags.string({
-      description:
-        "Browser / multi-step API monitors: region for the validation run (default: the monitor's first region)",
-    }),
+    code: Flags.string({description: 'Code monitors: test this local entry file against the saved monitor'}),
+    region: Flags.string({description: "Code monitors: region for the validation run (default: the monitor's first region)"}),
+    session: Flags.string({description: 'Group this run under a test session id (default: the CI run)'}),
+    wait: Flags.boolean({description: 'Wait for the run to finish (default true; --no-wait returns at once)', default: true, allowNo: true}),
+    detach: Flags.boolean({description: 'Alias of --no-wait', default: false}),
+    timeout: Flags.string({description: 'How long to wait for the run (default 5m); the run keeps going after it', default: '5m'}),
+    'fail-on-infra-error': Flags.boolean({description: 'Exit 19 when no verdict was reached (default true)', default: true, allowNo: true}),
+    'environment-id': Flags.string({hidden: true, deprecated: {message: '--environment-id is deprecated since 1.12 and removed 2027-01-31: a test runs in the monitor\'s own environment'}}),
   }
 
   async run() {
@@ -53,10 +55,8 @@ export default class MonitorsTest extends Command {
         {exit: EXIT_CODES.VALIDATION},
       )
     }
-    if (flags.config && (flags['environment-id'] !== undefined || flags.region !== undefined)) {
-      this.error('--environment-id and --region apply to a saved monitor id, not --config.', {
-        exit: EXIT_CODES.VALIDATION,
-      })
+    if (flags.config && (flags.region !== undefined || flags.code !== undefined)) {
+      this.error('--region and --code apply to a saved monitor, not --config.', {exit: EXIT_CODES.VALIDATION})
     }
     if (!id && !flags.config) {
       this.error(
@@ -65,35 +65,62 @@ export default class MonitorsTest extends Command {
       )
     }
 
-    const client = buildClient(flags)
+    const client = this.client()
 
     if (flags.config) {
-      await this.runConfigCheck(flags.config, flags.output, client)
+      await this.runConfigCheck(flags.config, client)
       return
     }
 
-    if (!UUID_RE.test(id as string)) {
-      this.error(
-        `Invalid UUID format: got '${id}', expected xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`,
-        {exit: EXIT_CODES.VALIDATION},
-      )
+    const monitor = await resolveMonitor(client, id as string, {env: flags.env})
+
+    if (monitor.type === 'HEARTBEAT') {
+      await this.finish({
+        data: {monitorId: monitor.id, outcome: 'not_applicable'},
+        human: () => this.log(`${monitor.name}: not_applicable (heartbeat monitors are pushed, not probed)`),
+      })
+      return
     }
 
-    const target = buildCodeTestTarget(flags)
-    this.log('Running test...')
-    const {status, data} = await checkedFetchWithStatus(
-      client.POST('/api/v1/monitors/{id}/test', {
-        params: {path: {id: id as string}},
-        ...(target ? {body: target} : {}),
-      }),
-    )
-    const run = queuedRunFrom(status, data, `POST /api/v1/monitors/${id}/test`)
-    if (run) {
-      this.logToStderr(
-        `Queued validation run ${run.id} in ${run.region}. It does not affect monitor health.`,
-      )
+    if (!isCodeType(monitor.type)) {
+      if (flags.code) throw new ValidationError('--code applies to BROWSER and MULTI_STEP_API monitors', {code: 'FIELD_UNKNOWN'})
+      process.stderr.write('Running test...\n')
+      const {data} = await checkedFetchWithStatus(client.POST('/api/v1/monitors/{id}/test', {params: {path: {id: monitor.id}}}))
+      const probe = unwrapData(data) as {passed?: unknown}
+      await this.finish({
+        exit: probe.passed === false ? EXIT_CODES.CHECK_FAILED : 0,
+        data: probe,
+        human: () => this.log(formatOutput(probe, 'table')),
+      })
+      return
     }
-    display(this, unwrapData(data), flags.output)
+
+    const body: Record<string, unknown> = {}
+    if (flags.region) body.region = flags.region
+    if (flags['environment-id']) body.environmentId = flags['environment-id']
+    if (flags.code) body.code = await codeFromFlag(client, flags.code)
+    const session = sessionContext(flags.session)
+    if (session) body.session = session
+    const target = Object.keys(body).length > 0 ? parse(apiSchemas.CodeTestTargetRequest, body, 'Invalid monitor test target') : undefined
+    const {status, data} = await checkedFetchWithStatus(
+      client.POST('/api/v1/monitors/{id}/test', {params: {path: {id: monitor.id}}, ...(target ? {body: target} : {})}),
+    )
+    const run = queuedRunFrom(status, data, `POST /api/v1/monitors/${monitor.id}/test`)
+    if (!run) {
+      await this.finish({data: unwrapData(data), human: () => this.log(formatOutput(unwrapData(data), 'table'))})
+      return
+    }
+    process.stderr.write(`Queued validation run ${run.id} in ${run.region}. It does not affect monitor health.\n`)
+    const wait = flags.wait && !flags.detach
+    const followed = await followRuns(client, [run], {
+      wait,
+      timeoutMs: parseDurationMs(flags.timeout, 'timeout'),
+      failOnInfraError: flags['fail-on-infra-error'],
+      log: this.structured ? undefined : (l) => this.log(l),
+    })
+    for (const w of followed.warnings) this.addWarning(w)
+    const finalRun = followed.runs[0]
+    await this.finish({exit: followed.exit, data: finalRun})
   }
 
   // Validates the file locally against `CreateMonitorRequest`; if the
@@ -103,8 +130,7 @@ export default class MonitorsTest extends Command {
   // get from `monitors test <id>` after persisting.
   private async runConfigCheck(
     path: string,
-    outputFormat: string,
-    client: ReturnType<typeof buildClient>,
+    client: ApiClient,
   ): Promise<void> {
     const parsed = readConfigFile(path)
 
@@ -118,7 +144,7 @@ export default class MonitorsTest extends Command {
       })
     }
 
-    this.log(`✓ Config '${path}' is valid against CreateMonitorRequest.`)
+    process.stderr.write(`✓ Config '${path}' is valid against CreateMonitorRequest.\n`)
 
     // The dry-run endpoint only accepts the test subset of the create
     // request; strip the persistence-only fields (`name`, `frequencySeconds`,
@@ -139,11 +165,16 @@ export default class MonitorsTest extends Command {
       return
     }
 
-    this.log('Dispatching probe simulation against /api/v1/monitors/test...')
+    process.stderr.write('Dispatching probe simulation against /api/v1/monitors/test...\n')
     const resp = await checkedFetch(
       client.POST('/api/v1/monitors/test', {body: testParse.data}),
     )
-    display(this, unwrapData(resp), outputFormat)
+    const probe = unwrapData(resp) as {passed?: unknown}
+    await this.finish({
+      exit: probe.passed === false ? EXIT_CODES.CHECK_FAILED : 0,
+      data: probe,
+      human: () => this.log(formatOutput(probe, 'table')),
+    })
   }
 }
 
@@ -155,7 +186,7 @@ export default class MonitorsTest extends Command {
 function readConfigFile(path: string): unknown {
   const absPath = resolve(path)
   if (!existsSync(absPath)) {
-    throw new DevhelmValidationError(`Config file not found: ${path}`)
+    throw new ValidationError(`Config file not found: ${path}`)
   }
 
   const raw = readFileSync(absPath, 'utf8')
@@ -168,7 +199,7 @@ function readConfigFile(path: string): unknown {
     return parseYaml(raw) as unknown
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    throw new DevhelmValidationError(
+    throw new ValidationError(
       `Failed to parse '${path}' as ${ext === '.json' ? 'JSON' : 'YAML'}: ${msg}`,
     )
   }

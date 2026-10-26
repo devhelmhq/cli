@@ -1,40 +1,49 @@
-import {Command, Flags} from '@oclif/core'
-import {globalFlags, buildClient, display} from '../../../lib/base-command.js'
-import {fetchPaginated} from '../../../lib/typed-api.js'
+import {Flags} from '@oclif/core'
+import {apiGetPage} from '../../../lib/api-client.js'
+import {schemas as apiSchemas} from '../../../lib/api-zod.generated.js'
 import type {components} from '../../../lib/api.generated.js'
-import {uuidArg} from '../../../lib/validators.js'
+import {DevhelmCommand, commonFlags} from '../../../lib/cli/command.js'
+import {envFlag, monitorArg} from '../../../lib/cli/flags.js'
+import {table} from '../../../lib/monitors/columns.js'
+import {resolveMonitor} from '../../../lib/monitors/resolve.js'
 
 type MonitorVersionDto = components['schemas']['MonitorVersionDto']
 
-export default class MonitorsVersionsList extends Command {
-  static description = 'List version history for a monitor'
+export default class MonitorsVersionsList extends DevhelmCommand {
+  static legacyOutput = true
+  static description = 'List settings history for a monitor (code history: `monitors revisions list`)'
   static examples = [
-    '<%= config.bin %> monitors versions list 42',
-    '<%= config.bin %> monitors versions list 42 --limit 5',
-    '<%= config.bin %> monitors versions list 42 -o json',
+    '<%= config.bin %> monitors versions list <id>',
+    '<%= config.bin %> monitors versions list Checkout --env production --limit 5 -o json',
   ]
 
-  static args = {id: uuidArg({description: 'Monitor ID', required: true})}
+  static args = {id: monitorArg}
   static flags = {
-    ...globalFlags,
+    ...commonFlags,
+    env: envFlag,
     limit: Flags.integer({description: 'Maximum number of versions to show', default: 20}),
   }
 
   async run() {
     const {args, flags} = await this.parse(MonitorsVersionsList)
-    const client = buildClient(flags)
-    const allVersions = await fetchPaginated<MonitorVersionDto>(
-      client,
-      `/api/v1/monitors/${args.id}/versions`,
-      flags.limit,
-    )
-    const items = allVersions.slice(0, flags.limit)
-    display(this, items, flags.output, [
-      {header: 'VERSION', get: (r: MonitorVersionDto) => String(r.version ?? '')},
-      {header: 'CHANGED VIA', get: (r: MonitorVersionDto) => String(r.changedVia ?? '')},
-      {header: 'SUMMARY', get: (r: MonitorVersionDto) => r.changeSummary ?? ''},
-      {header: 'CREATED AT', get: (r: MonitorVersionDto) => String(r.createdAt ?? '')},
-      {header: 'ID', get: (r: MonitorVersionDto) => String(r.id ?? '')},
-    ])
+    const client = this.client()
+    const monitor = await resolveMonitor(client, args.id, {env: flags.env})
+    const items: unknown[] = []
+    for (let page = 0; items.length < flags.limit; page++) {
+      const resp = await apiGetPage(client, `/api/v1/monitors/${monitor.id}/versions`, apiSchemas.MonitorVersionDto, {query: {page, size: Math.min(100, flags.limit)}})
+      items.push(...resp.data)
+      if (!resp.hasNext) break
+    }
+    const rows = items.slice(0, flags.limit) as MonitorVersionDto[]
+    await this.finish({
+      data: rows,
+      human: () => this.log(table(rows, [
+        {header: 'VERSION', get: (r: MonitorVersionDto) => String(r.version ?? '')},
+        {header: 'CHANGED VIA', get: (r: MonitorVersionDto) => String(r.changedVia ?? '')},
+        {header: 'SUMMARY', get: (r: MonitorVersionDto) => r.changeSummary ?? ''},
+        {header: 'CREATED AT', get: (r: MonitorVersionDto) => String(r.createdAt ?? '')},
+        {header: 'ID', get: (r: MonitorVersionDto) => String(r.id ?? '')},
+      ])),
+    })
   }
 }

@@ -1,18 +1,17 @@
-import {Command, Flags} from '@oclif/core'
-import {globalFlags, buildClient} from '../../lib/base-command.js'
+import {Flags} from '@oclif/core'
+import {DevhelmCommand, commonFlags} from '../../lib/cli/command.js'
+import {envFlag, monitorArg} from '../../lib/cli/flags.js'
 import {parseAlertChannelsFlag, setAlertChannels} from '../../lib/monitor-alert-channels.js'
-import {uuidArg} from '../../lib/validators.js'
+import {resolveMonitor} from '../../lib/monitors/resolve.js'
 
 /**
- * Replace the alert channel set linked to a monitor.
- *
- * Standalone subcommand for the common workflow of attaching channels
- * to an existing monitor without re-running `monitors update`. Pass
+ * Replace the alert channel set linked to a monitor. Pass
  * `--channel-ids ""` (empty) to clear all channels — matching the
  * semantics of the underlying `PUT /api/v1/monitors/{id}/alert-channels`
  * which always replaces the full list.
  */
-export default class MonitorsSetChannels extends Command {
+export default class MonitorsSetChannels extends DevhelmCommand {
+  static legacyOutput = true
   static description = 'Replace the alert channel set linked to a monitor'
 
   static examples = [
@@ -20,12 +19,11 @@ export default class MonitorsSetChannels extends Command {
     '<%= config.bin %> monitors set-channels <id> --channel-ids ""',
   ]
 
-  static args = {
-    id: uuidArg({description: 'monitor id', required: true}),
-  }
+  static args = {id: monitorArg}
 
   static flags = {
-    ...globalFlags,
+    ...commonFlags,
+    env: envFlag,
     'channel-ids': Flags.string({
       description:
         'Comma-separated alert channel IDs (replaces current list; pass empty string to clear all channels)',
@@ -35,15 +33,16 @@ export default class MonitorsSetChannels extends Command {
 
   async run() {
     const {args, flags} = await this.parse(MonitorsSetChannels)
-    const client = buildClient(flags)
+    const client = this.client()
+    const monitor = await resolveMonitor(client, args.id, {env: flags.env})
     const ids = parseAlertChannelsFlag(flags['channel-ids']) ?? []
-    await setAlertChannels(args.id as string, ids, client)
-    if (ids.length === 0) {
-      this.log(`Cleared all alert channels from monitor '${args.id}'.`)
-    } else {
-      this.log(
-        `Linked ${ids.length} alert channel(s) to monitor '${args.id}': ${ids.join(', ')}`,
-      )
-    }
+    await setAlertChannels(monitor.id, ids, client)
+    await this.finish({
+      data: {id: monitor.id, alertChannelIds: ids},
+      human: () => {
+        if (ids.length === 0) this.log(`Cleared all alert channels from monitor '${monitor.id}'.`)
+        else this.log(`Linked ${ids.length} alert channel(s) to monitor '${monitor.id}': ${ids.join(', ')}`)
+      },
+    })
   }
 }

@@ -11,7 +11,7 @@
 | `expiresAt` | string (date-time) |  | ✓ | Optional expiration timestamp in ISO 8601 format |
 | `preset` | string |  | ✓ | Preset expanded into scopes: ci-pr, ci-deploy, agent-responder, agent-author |
 | `scopes` | string[] |  | ✓ | Scopes to grant (default: full) |
-| `tool` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" |  | ✓ | Tool this key writes as on owner-enforced monitors (default: API) |
+| `tool` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" \| "GIT" |  | ✓ | Tool this key writes as on owner-enforced monitors (default: API; CLI = GIT until 2027-01-31) |
 
 ## `UpdateApiKeyRequest`
 

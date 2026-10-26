@@ -1,159 +1,83 @@
-import {Command, Flags} from '@oclif/core'
-import {createApiClient} from '../lib/api-client.js'
-import {resolveToken, resolveApiUrl} from '../lib/auth.js'
+import {Flags} from '@oclif/core'
+import {DevhelmCommand, commonFlags} from '../lib/cli/command.js'
 import {EXIT_CODES} from '../lib/errors.js'
-import {urlFlag} from '../lib/validators.js'
-import {loadConfig, validate, validatePlanRefs, fetchAllRefs, registerYamlPendingRefs, diff, prefetchChildSnapshots, formatPlan, changesetToJson, readState, emptyState, previewMovedBlocks, StateFileCorruptError} from '../lib/yaml/index.js'
-import {checkEntitlements, formatEntitlementWarnings} from '../lib/yaml/entitlements.js'
+import {configFiles, fileFlag, projectOutputFlag} from '../lib/project/flags.js'
+import {codePlanLines, runPipeline, totalChanges, validationRunCount} from '../lib/project/pipeline.js'
+import {changesetToJson, formatPlan} from '../lib/yaml/index.js'
+import {formatEntitlementWarnings} from '../lib/yaml/entitlements.js'
 
-export default class Plan extends Command {
-  static description = 'Show what "devhelm deploy" would change without applying'
+export default class Plan extends DevhelmCommand {
+  static legacyOutput = true
+  static description =
+    'Show what "devhelm deploy" would change: per resource add/change/delete, changed code files, owner, overlays, ' +
+    'live-code drift, plan-fit refusals (exit 16) and the validation runs that will be billed'
 
   static examples = [
     '<%= config.bin %> plan',
-    '<%= config.bin %> plan -f monitors.yml',
+    '<%= config.bin %> plan --env production',
     '<%= config.bin %> plan --prune',
-    '<%= config.bin %> plan --prune-all',
     '<%= config.bin %> plan --detailed-exitcode',
     '<%= config.bin %> plan -o json',
   ]
 
   static flags = {
-    file: Flags.string({
-      char: 'f',
-      description: 'Config file or directory (can be specified multiple times)',
-      multiple: true,
-      default: ['devhelm.yml'],
-    }),
-    prune: Flags.boolean({
-      description: 'Include deletions of CLI-managed resources not in config',
-      default: false,
-    }),
-    'prune-all': Flags.boolean({
-      description: 'Include deletions of ALL resources not in config, including those not managed by the CLI',
-      default: false,
-    }),
-    'detailed-exitcode': Flags.boolean({
-      description: 'Return exit code 10 if plan has changes (for CI)',
-      default: false,
-    }),
-    output: Flags.string({
-      char: 'o',
-      description: 'Output format (text or json)',
-      options: ['text', 'json'],
-      default: 'text',
-    }),
-    'api-url': urlFlag({description: 'Override API base URL'}),
-    'api-token': Flags.string({description: 'Override API token'}),
-    verbose: Flags.boolean({char: 'v', description: 'Show verbose output', default: false}),
+    ...commonFlags,
+    output: projectOutputFlag,
+    file: fileFlag,
+    env: Flags.string({description: 'Only monitors in this environment (slug)'}),
+    prune: Flags.boolean({description: 'Include deletions of monitors this project owns that are absent from the config', default: false}),
+    'prune-all': Flags.boolean({hidden: true, description: 'Removed: deleted resources other projects own', default: false}),
+    'detailed-exitcode': Flags.boolean({description: 'Exit 10 when the plan has changes (for CI)', default: false}),
   }
 
   async run() {
     const {flags} = await this.parse(Plan)
+    if (flags['prune-all']) removedPruneFlag('--prune-all')
+    const client = this.client()
+    const files = configFiles(undefined, flags.file)
+    if (!this.structured) this.progress('Fetching current state from API...')
+    const p = await runPipeline(client, {files, prune: flags.prune, env: flags.env, details: true, applyMoved: false})
+    await this.loadMeta({org: p.config.org, workspace: p.config.workspace})
+    for (const w of p.warnings) this.addWarning(w)
+    for (const u of p.bind.unowned) this.addWarning(`${u.name} exists (${u.owner}) but this project does not own it; deploy needs --adopt "${u.name}"`)
 
-    let config
-    try {
-      config = loadConfig(flags.file)
-    } catch (err) {
-      this.error(err instanceof Error ? err.message : String(err), {exit: EXIT_CODES.VALIDATION})
+    const runs = validationRunCount(p.codePlans)
+    const changes = totalChanges(p.changeset)
+    let exit: number = EXIT_CODES.SUCCESS
+    if (p.planRefusals.length > 0) exit = EXIT_CODES.PLAN
+    else if (changes > 0 && flags['detailed-exitcode']) exit = EXIT_CODES.CHANGES_PENDING
+
+    if (!this.structured) await this.header([p.config.project ? `project ${p.config.project}` : '', flags.env ? `env ${flags.env}` : ''].filter(Boolean))
+    const json = changesetToJson(p.changeset)
+    const extra = {
+      codeMonitors: p.codePlans,
+      validationRuns: runs,
+      unowned: p.bind.unowned,
+      planRefusals: p.planRefusals,
+      findings: p.findings,
     }
-
-    const result = validate(config)
-    if (result.errors.length > 0) {
-      this.log(`\nValidation failed: ${result.errors.length} error(s)\n`)
-      for (const e of result.errors) {
-        this.log(`  ✗ ${e.path}: ${e.message}`)
-      }
-      this.error('Fix validation errors first', {exit: EXIT_CODES.VALIDATION})
-    }
-
-    const token = flags['api-token'] ?? resolveToken()
-    if (!token) {
-      this.error(
-        'No API token configured. Run "devhelm auth login" or set DEVHELM_API_TOKEN.',
-        {exit: EXIT_CODES.VALIDATION},
-      )
-    }
-
-    const client = createApiClient({
-      baseUrl: flags['api-url'] ?? resolveApiUrl(),
-      token,
-      verbose: flags.verbose,
+    await this.finish({
+      exit,
+      data: {...json, ...extra},
+      legacyMergeWrapper: true,
+      human: () => {
+        if (p.entitlements) this.log(p.entitlements.header)
+        this.log(`\n${formatPlan(p.changeset)}`)
+        const lines = codePlanLines(p.codePlans)
+        if (lines.length > 0) this.log(`\nCode monitors:\n${lines.join('\n')}`)
+        if (runs > 0) this.log(`\n${runs} validation run${runs === 1 ? '' : 's'} will be billed`)
+        if (p.planRefusals.length > 0) {
+          this.log('\nPlan refusals (nothing will be written):')
+          for (const f of p.planRefusals) this.log(`  ✗ [${f.code}] ${f.message}${f.upgradeUrl ? ` · ${f.upgradeUrl}` : ''}`)
+        }
+        if (p.entitlements && p.entitlements.warnings.length > 0) this.log(`\n${formatEntitlementWarnings(p.entitlements.warnings)}`)
+      },
     })
-
-    let currentState
-    try {
-      currentState = readState() ?? emptyState()
-    } catch (err) {
-      if (err instanceof StateFileCorruptError) {
-        this.error(err.message, {exit: EXIT_CODES.VALIDATION})
-      }
-      throw err
-    }
-
-    // Preview moved-block effects (warnings only) without persisting state.
-    // `devhelm plan` is read-only; the actual rewrite happens during `deploy`.
-    if (config.moved && config.moved.length > 0) {
-      const {state: previewState, warnings} = previewMovedBlocks(currentState, config.moved)
-      currentState = previewState
-      for (const w of warnings) {
-        if (flags.output !== 'json') this.warn(w)
-      }
-    }
-
-    if (flags.output !== 'json') this.log('Fetching current state from API...')
-    const refs = await fetchAllRefs(client, currentState)
-    // Pre-register YAML-only resources with placeholder IDs so existing
-    // resources can resolve references to brand-new peers during snapshot
-    // computation (e.g. notification policy escalating into a new channel).
-    registerYamlPendingRefs(refs, config)
-
-    if (refs.collisions.length > 0 && flags.output !== 'json') {
-      for (const c of refs.collisions) {
-        this.warn(
-          `Duplicate ${c.refType} reference "${c.refKey}" — ${c.apiIds.length} API resources share this name. ` +
-          `Using ${c.winnerApiId}. Rename one in the API or use a \`moved\` block to disambiguate.`,
-        )
-      }
-    }
-
-    const planResult = validatePlanRefs(config, refs)
-    if (planResult.errors.length > 0) {
-      this.log(`\nValidation failed: ${planResult.errors.length} error(s)\n`)
-      for (const e of planResult.errors) {
-        this.log(`  ✗ ${e.path}: ${e.message}`)
-      }
-      this.error('Fix validation errors first', {exit: EXIT_CODES.VALIDATION})
-    }
-
-    const currentChildren = await prefetchChildSnapshots(config, refs, client)
-    const changeset = await diff(
-      config, refs,
-      {prune: flags.prune || flags['prune-all'], pruneAll: flags['prune-all']},
-      currentState,
-      currentChildren,
-    )
-
-    const entitlementCheck = await checkEntitlements(client, changeset)
-
-    if (flags.output === 'json') {
-      this.log(JSON.stringify(changesetToJson(changeset), null, 2))
-    } else {
-      if (entitlementCheck) {
-        this.log(entitlementCheck.header)
-      }
-
-      this.log(`\n${formatPlan(changeset)}`)
-
-      if (entitlementCheck && entitlementCheck.warnings.length > 0) {
-        this.log('')
-        this.log(formatEntitlementWarnings(entitlementCheck.warnings))
-      }
-    }
-
-    const total = changeset.creates.length + changeset.updates.length + changeset.deletes.length + changeset.memberships.length
-    if (total > 0 && flags['detailed-exitcode']) {
-      this.exit(EXIT_CODES.CHANGES_PENDING)
-    }
   }
+}
+
+export function removedPruneFlag(flag: string): never {
+  throw new (class extends Error {
+    oclif = {exit: EXIT_CODES.VALIDATION}
+  })(`${flag} was removed: its deletion scope crossed teams. --prune deletes only monitors this project owns (ownerProject == project).`)
 }
