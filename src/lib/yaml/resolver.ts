@@ -12,6 +12,7 @@ import type {RefType, RefTypeDtoMap, ResourceType} from './types.js'
 import {allHandlers} from './handlers.js'
 import type {DeployState} from './state.js'
 import type {DevhelmConfig} from './schema.js'
+import {createProjectContext, type ProjectContext} from './project-context.js'
 
 /**
  * Sentinel ID prefix for resources that exist only in YAML and haven't been
@@ -59,6 +60,8 @@ export interface RefCollision {
 }
 
 export class ResolvedRefs {
+  /** The project these refs are resolved for (code closures, owner project). */
+  project: ProjectContext = createProjectContext()
   private maps = new Map<RefType, Map<string, RefEntry>>()
   /** Collisions encountered during population (duplicate refKey for same refType). */
   readonly collisions: RefCollision[] = []

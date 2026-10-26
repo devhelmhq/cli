@@ -58,9 +58,8 @@ export default class Plan extends DevhelmCommand {
     }
     await this.finish({
       exit,
-      data: this.legacy
-        ? {...json, ...extra, ok: exit === 0 || exit === EXIT_CODES.CHANGES_PENDING, exit, warnings: this.warnings, skipped: [], meta: this.meta ?? null}
-        : {...json, ...extra},
+      data: {...json, ...extra},
+      legacyMergeWrapper: true,
       human: () => {
         if (p.entitlements) this.log(p.entitlements.header)
         this.log(`\n${formatPlan(p.changeset)}`)

@@ -70,10 +70,10 @@ export async function runPipeline(client: ApiClient, opts: PipelineOptions): Pro
     warnings.push(...preview.warnings)
   }
 
-  const uploadIssues = await uploadPrepared(client)
+  const uploadIssues = await uploadPrepared(client, loaded.ctx)
   if (uploadIssues.length > 0) throw issuesError('Upload refused', uploadIssues.map(formatIssue), uploadIssues[0]!.code ?? 'BUNDLE_INVALID')
 
-  const refs = await fetchRefs(client, config, state)
+  const refs = await fetchRefs(client, config, loaded.ctx, state)
   for (const c of refs.collisions) {
     warnings.push(`Duplicate ${c.refType} reference "${c.refKey}" — ${c.apiIds.length} API resources share this name. Using ${c.winnerApiId}. Rename one or use a \`moved\` block.`)
   }

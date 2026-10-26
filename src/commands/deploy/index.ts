@@ -1,6 +1,6 @@
 import {hostname} from 'node:os'
 import {Flags} from '@oclif/core'
-import {checkedFetch, apiDelete, NO_CONFLICT_RETRY_HEADER, type ApiClient} from '../../lib/api-client.js'
+import {checkedFetch, apiDelete, type ApiClient} from '../../lib/api-client.js'
 import {DevhelmCommand, commonFlags, yesFlag} from '../../lib/cli/command.js'
 import {parseDurationMs} from '../../lib/cli/flags.js'
 import {ConflictError, DevhelmError, EXIT_CODES, OwnershipError, PlanLimitError, type JsonValue} from '../../lib/errors.js'
@@ -14,10 +14,11 @@ import {
   apply, buildStateV2, changesetToJson, formatPlan, processMovedBlocks, readState, resourceAddress, writeState,
   type ApplyResult, type Change,
 } from '../../lib/yaml/index.js'
-import {projectContext} from '../../lib/yaml/project-context.js'
 import {removedPruneFlag} from '../plan.js'
 
 const MAX_LOCK_TTL_MINUTES = 60
+
+const NOTHING_LANDED = {landed: [], notLanded: [], failures: []}
 
 export default class Deploy extends DevhelmCommand {
   static legacyOutput = true
@@ -86,37 +87,14 @@ export default class Deploy extends DevhelmCommand {
 
     if (flags['dry-run']) {
       const exit = changes > 0 && flags['detailed-exitcode'] ? EXIT_CODES.CHANGES_PENDING : EXIT_CODES.SUCCESS
-      await this.finish({exit, data: this.doc(planJson, exit, {}), human: () => this.log('Dry run — no changes applied.')})
+      await this.finish({exit, data: {plan: planJson, result: {succeeded: [], failed: []}}, extra: NOTHING_LANDED, legacyMergeWrapper: true, human: () => this.log('Dry run — no changes applied.')})
       return
     }
 
-    // Pre-flight: nothing is written when any of these refuse.
-    if (p.planRefusals.length > 0) {
-      throw new PlanLimitError(`The plan does not allow this config: ${p.planRefusals.map((f) => `[${f.code}] ${f.message}`).join('; ')}`, {
-        code: p.planRefusals[0]!.code,
-        upgradeUrl: p.planRefusals[0]!.upgradeUrl ?? undefined,
-        details: {findings: p.planRefusals.map((f) => ({code: f.code, message: f.message, monitor: typeof f.monitor === 'string' ? f.monitor : null}))},
-      })
-    }
-    if (p.bind.unowned.length > 0) {
-      const names = p.bind.unowned.map((u) => `"${u.name}" (${u.owner})`).join(', ')
-      throw new OwnershipError(`Would adopt ${p.bind.unowned.length} monitor(s) this project does not own: ${names}. Re-run with --adopt for each`, {
-        code: 'MONITOR_OWNED_BY_OTHER',
-        reason: 'ownership',
-        next: {command: `devhelm deploy ${p.bind.unowned.map((u) => `--adopt "${u.name}"`).join(' ')}`, docs: null},
-        details: {unowned: p.bind.unowned.map((u) => ({name: u.name, id: u.id, owner: u.owner}))},
-      })
-    }
-    const rolledBack = p.codePlans.filter((c) => c.republishesRolledBack && !(flags['acknowledge-rollback'] ?? []).includes(c.name))
-    if (rolledBack.length > 0) {
-      throw new ConflictError(`${rolledBack.map((c) => c.name).join(', ')}: the code in devhelm.yml is the revision that was rolled back. Revert the file, or re-publish over the rollback on purpose`, {
-        code: 'REVISION_ROLLED_BACK',
-        next: {command: `devhelm deploy ${rolledBack.map((c) => `--acknowledge-rollback "${c.name}"`).join(' ')}`, docs: null},
-      })
-    }
+    this.preflight(p, flags['acknowledge-rollback'] ?? [])
 
     if (changes === 0) {
-      await this.finish({data: this.doc(planJson, 0, {}), human: () => this.log('No changes.')})
+      await this.finish({data: {plan: planJson, result: {succeeded: [], failed: []}}, extra: NOTHING_LANDED, legacyMergeWrapper: true, human: () => this.log('No changes.')})
       return
     }
 
@@ -169,7 +147,7 @@ export default class Deploy extends DevhelmCommand {
 
     this.saveState(p, result)
 
-    const ctx = projectContext()
+    const ctx = p.refs.project
     const landed = result.succeeded.map((s) => ({action: s.action, resourceType: s.resourceType, name: s.refKey, id: s.id ?? null, runUrl: ctx.code.get(s.refKey)?.run?.url ?? null}))
     const notLanded = result.failed.map((f) => ({
       action: f.action, resourceType: f.resourceType, name: f.refKey, half: f.half ?? 'both',
@@ -187,8 +165,9 @@ export default class Deploy extends DevhelmCommand {
 
     await this.finish({
       exit,
-      data: this.doc(planJson, exit, {landed, notLanded, failures, result: {succeeded: result.succeeded, failed: result.failed}, billedRuns: billed}),
+      data: {plan: planJson, result: {succeeded: result.succeeded, failed: result.failed}, billedRuns: billed},
       extra: {landed, notLanded, failures},
+      legacyMergeWrapper: true,
       human: () => {
         for (const s of result.succeeded) this.log(`  ${icon(s.action)} ${s.resourceType} "${s.refKey}" — ${pastTense(s.action)}`)
         for (const f of notLanded) {
@@ -201,10 +180,33 @@ export default class Deploy extends DevhelmCommand {
     })
   }
 
-  /** The JSON document: pre-1.12 `{plan, result}` plus the wrapper keys. */
-  private doc(plan: ReturnType<typeof changesetToJson>, exit: number, more: Record<string, unknown>): Record<string, unknown> {
-    if (!this.legacy) return {plan, ...more}
-    return {ok: exit === 0, exit, plan, result: {succeeded: [], failed: []}, landed: [], notLanded: [], failures: [], warnings: this.warnings, skipped: [], meta: this.meta ?? null, ...more}
+
+  /** Pre-flight: nothing is written when any of these refuse (exits 16, 17, 18). */
+  private preflight(p: PipelineResult, acknowledged: string[]): void {
+    if (p.planRefusals.length > 0) {
+      throw new PlanLimitError(`The plan does not allow this config: ${p.planRefusals.map((f) => `[${f.code}] ${f.message}`).join('; ')}`, {
+        code: p.planRefusals[0]!.code,
+        upgradeUrl: p.planRefusals[0]!.upgradeUrl ?? undefined,
+        details: {findings: p.planRefusals.map((f) => ({code: f.code, message: f.message, monitor: typeof f.monitor === 'string' ? f.monitor : null}))},
+      })
+    }
+    if (p.bind.unowned.length > 0) {
+      const names = p.bind.unowned.map((u) => `"${u.name}" (${u.owner})`).join(', ')
+      throw new OwnershipError(`Would adopt ${p.bind.unowned.length} monitor(s) this project does not own: ${names}. Re-run with --adopt for each`, {
+        code: 'MONITOR_OWNED_BY_OTHER',
+        reason: 'ownership',
+        next: {command: `devhelm deploy ${p.bind.unowned.map((u) => `--adopt "${u.name}"`).join(' ')}`, docs: null},
+        details: {unowned: p.bind.unowned.map((u) => ({name: u.name, id: u.id, owner: u.owner}))},
+      })
+    }
+    const rolledBack = p.codePlans.filter((c) => c.republishesRolledBack && !acknowledged.includes(c.name))
+    if (rolledBack.length > 0) {
+      throw new ConflictError(`${rolledBack.map((c) => c.name).join(', ')}: the code in devhelm.yml is the revision that was rolled back. Revert the file, or re-publish over the rollback on purpose`, {
+        code: 'REVISION_ROLLED_BACK',
+        next: {command: `devhelm deploy ${rolledBack.map((c) => `--acknowledge-rollback "${c.name}"`).join(' ')}`, docs: null},
+      })
+    }
+
   }
 
   private saveState(p: PipelineResult, result: ApplyResult): void {
@@ -230,7 +232,6 @@ export default class Deploy extends DevhelmCommand {
       try {
         const resp = await checkedFetch(client.POST('/api/v1/deploy/lock', {
           body: {lockedBy: `${process.env.GITHUB_REPOSITORY ? `${process.env.GITHUB_REPOSITORY}#${process.env.GITHUB_RUN_ID ?? ''}` : process.env.USER ?? 'cli'}@${hostname()}`, ttlMinutes: Math.min(MAX_LOCK_TTL_MINUTES, ttlMinutes)},
-          headers: {[NO_CONFLICT_RETRY_HEADER]: '1'},
         }))
         return resp?.data?.id
       } catch (err) {

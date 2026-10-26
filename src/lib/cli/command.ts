@@ -17,6 +17,7 @@
  *     error;
  *   - SIGINT/SIGTERM: runs this invocation queued are cancelled, exit 130.
  */
+import {promptYesNo} from './prompt.js'
 import {createHash} from 'node:crypto'
 import {Command, Errors, Flags, type Interfaces} from '@oclif/core'
 import {stringify as yamlStringify} from 'yaml'
@@ -106,6 +107,11 @@ export interface FinishOptions {
   extra?: Record<string, unknown>
   /** Human rendering for table mode. */
   human?: () => void
+  /**
+   * Pre-1.12 project commands (validate, plan, deploy): keep their own
+   * document and add the wrapper keys to it, instead of the bare document.
+   */
+  legacyMergeWrapper?: boolean
 }
 
 export abstract class DevhelmCommand extends Command {
@@ -248,11 +254,7 @@ export abstract class DevhelmCommand extends Command {
   }): Promise<void> {
     if (opts.yes) return
     if (!this.nonInteractive && !this.structured) {
-      const {createInterface} = await import('node:readline')
-      const rl = createInterface({input: process.stdin, output: process.stderr})
-      const answer = await new Promise<string>((resolve) => rl.question(`${opts.prompt ?? 'Apply these changes?'} (y/N) `, resolve))
-      rl.close()
-      if (/^y(es)?$/i.test(answer.trim())) return
+      if (await promptYesNo(`${opts.prompt ?? 'Apply these changes?'} (y/N) `)) return
       throw new CliExitError('Cancelled', 'confirmation_required', EXIT_CODES.CONFIRMATION_REQUIRED, {code: 'CANCELLED'})
     }
     throw new ConfirmationRequiredError(`Confirmation required: ${opts.action}. Re-run with the confirm command`, {
@@ -265,7 +267,11 @@ export abstract class DevhelmCommand extends Command {
   /** Write the success (or non-zero result) document and exit. */
   protected async finish(opts: FinishOptions = {}): Promise<void> {
     const exit = opts.exit ?? 0
-    if (this.structured && this.legacy) {
+    if (this.structured && this.legacy && opts.legacyMergeWrapper && opts.data && typeof opts.data === 'object') {
+      // Pre-1.12 project documents: their own top-level keys win, the wrapper keys are added.
+      const doc: Record<string, unknown> = {ok: exit === 0, exit, warnings: this.warnings, skipped: this.skipped, meta: this.meta ?? null, ...opts.extra, ...(opts.data as Record<string, unknown>)}
+      this.writeDoc(doc)
+    } else if (this.structured && this.legacy) {
       const data = opts.data ?? null
       process.stdout.write(`${this.format === 'yaml' ? yamlStringify(data).trimEnd() : JSON.stringify(data, null, 2)}\n`)
     } else if (this.structured) {

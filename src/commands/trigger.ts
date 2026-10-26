@@ -9,7 +9,7 @@ import {isCodeType, resolveEnvironment, resolveMonitor, type MonitorDto} from '.
 import {configFiles, fileFlag, projectOutputFlag} from '../lib/project/flags.js'
 import {loadProject} from '../lib/project/project.js'
 import {exitForItems} from '../lib/project/test-runner.js'
-import {githubReport, junitReport, type ReportItem} from '../lib/reporters/index.js'
+import {reporterOutput, type ReportItem} from '../lib/reporters/index.js'
 import {registerStartedRun} from '../lib/runs/registry.js'
 import {runSymbol, verdictOf} from '../lib/runs/outcome.js'
 import {sessionContext} from '../lib/runs/session.js'
@@ -140,13 +140,9 @@ export default class Trigger extends DevhelmCommand {
     }
     if (flags.detach && exit === EXIT_CODES.NO_VERDICT) exit = EXIT_CODES.SUCCESS
     const usage = await usageLine(client, billed)
-    if (flags.reporter === 'junit') this.log(junitReport(items, 'devhelm trigger'))
-    if (flags.reporter === 'github') {
-      const ann = githubReport(items, usage.line)
-      if (ann) this.log(ann)
-      this.log(usage.line)
-    }
-    if (quiet) {
+    const report = reporterOutput(flags.reporter, items, usage.line, 'devhelm trigger')
+    if (report !== undefined) {
+      this.log(report)
       if (exit !== 0) this.exit(exit)
       return
     }

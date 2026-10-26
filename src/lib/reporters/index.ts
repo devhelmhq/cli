@@ -113,3 +113,17 @@ export function githubReport(items: ReportItem[], summary: string, env: NodeJS.P
   }
   return out.join('\n')
 }
+
+/**
+ * The text a `--reporter junit|github` run prints instead of the normal
+ * output (undefined for `json` / no reporter): JUnit XML, or annotations
+ * followed by the summary line.
+ */
+export function reporterOutput(reporter: string | undefined, items: ReportItem[], summary: string, suite = 'devhelm'): string | undefined {
+  if (reporter === 'junit') return junitReport(items, suite)
+  if (reporter === 'github') {
+    const ann = githubReport(items, summary)
+    return ann ? `${ann}\n${summary}` : summary
+  }
+  return undefined
+}

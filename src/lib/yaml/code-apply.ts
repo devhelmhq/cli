@@ -18,10 +18,9 @@
  */
 import type {components} from '../api.generated.js'
 import {checkedFetch, type ApiClient} from '../api-client.js'
-import {DevhelmError, errorForCategory, isErrorCategory} from '../errors.js'
+import {DevhelmError, isErrorCategory} from '../errors.js'
 import type {ResolvedRefs} from './resolver.js'
 import type {YamlMonitor} from './schema.js'
-import {projectContext} from './project-context.js'
 import {toCreateMonitorRequest, toUpdateMonitorRequest} from './transform.js'
 
 type Schemas = components['schemas']
@@ -33,15 +32,18 @@ export function notLanded(
   cause: {category: string; code: string; message: string; runUrl?: string | null; requestId?: string | null},
 ): DevhelmError {
   const category = isErrorCategory(cause.category) ? cause.category : 'platform'
-  return errorForCategory(`${monitor}: ${cause.message}`, category, {
+  const message = `${monitor}: ${cause.message}`
+  return new DevhelmError(message, {
+    message,
+    category,
     code: cause.code,
     requestId: cause.requestId,
     details: {monitor, half, runUrl: cause.runUrl ?? null, checkFailed: cause.category === 'check_failed'},
   })
 }
 
-function blockedError(yaml: YamlMonitor, half: 'code' | 'both'): DevhelmError | undefined {
-  const state = projectContext().code.get(yaml.name)
+function blockedError(yaml: YamlMonitor, refs: ResolvedRefs, half: 'code' | 'both'): DevhelmError | undefined {
+  const state = refs.project.code.get(yaml.name)
   if (!state) return notLanded(yaml.name, half, {category: 'validation', code: 'CODE_NOT_PREPARED', message: 'code was not bundled'})
   if (state.blocked) return notLanded(yaml.name, half, state.blocked)
   if (!state.code) return notLanded(yaml.name, half, {category: 'validation', code: 'CODE_NOT_UPLOADED', message: 'code was not uploaded'})
@@ -49,7 +51,7 @@ function blockedError(yaml: YamlMonitor, half: 'code' | 'both'): DevhelmError | 
 }
 
 export async function applyCodeMonitorCreate(yaml: YamlMonitor, refs: ResolvedRefs, client: ApiClient): Promise<string | undefined> {
-  const blocked = blockedError(yaml, 'both')
+  const blocked = blockedError(yaml, refs, 'both')
   if (blocked) throw blocked
   const resp = await checkedFetch(client.POST('/api/v1/monitors', {body: toCreateMonitorRequest(yaml, refs)}))
   const id = resp?.data?.id
@@ -63,14 +65,14 @@ export async function applyCodeMonitorUpdate(
   client: ApiClient,
   opts: {settingsChanged: boolean; codeChanged: boolean; current?: Schemas['MonitorDto']},
 ): Promise<void> {
-  const state = projectContext().code.get(yaml.name)
+  const state = refs.project.code.get(yaml.name)
 
   if (!opts.codeChanged) {
     await checkedFetch(client.PUT('/api/v1/monitors/{id}', {params: {path: {id}}, body: toUpdateMonitorRequest(yaml, refs)}))
     return
   }
 
-  const blocked = blockedError(yaml, opts.settingsChanged ? 'both' : 'code')
+  const blocked = blockedError(yaml, refs, opts.settingsChanged ? 'both' : 'code')
   if (blocked) throw blocked
 
   if (state?.untested) {

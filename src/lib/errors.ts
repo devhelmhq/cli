@@ -50,9 +50,6 @@ export {
 }
 export type {ErrorCategory, ErrorEntry, ErrorFields, ErrorNext, JsonObject, JsonValue}
 
-/** Pre-1.12 names used across the CLI. */
-export {ValidationError as DevhelmValidationError, TransportError as DevhelmTransportError}
-
 export const EXIT_CODES = {
   SUCCESS: 0,
   GENERAL: 1,
@@ -103,30 +100,6 @@ export function exitCodeOf(err: DevhelmError): number {
   // A platform refusal while admitting a run is "no verdict", not an API failure (D-2).
   if (err.category === 'platform' && RUN_ADMISSION_CODES.has(err.code)) return EXIT_CODES.NO_VERDICT
   return exitCodeForCategory(err.category)
-}
-
-type CategoryClass = new (message: string, fields?: ErrorFields) => DevhelmError
-
-const CATEGORY_CLASSES: Readonly<Record<ErrorCategory, CategoryClass>> = {
-  validation: ValidationError,
-  blocked: BlockedError,
-  auth: AuthError,
-  permission: PermissionError,
-  ownership: OwnershipError,
-  plan: PlanLimitError,
-  quota: QuotaError,
-  rate_limit: RateLimitError,
-  conflict: ConflictError,
-  confirmation_required: ConfirmationRequiredError,
-  not_found: NotFoundError,
-  gone: GoneError,
-  platform: PlatformError,
-  transport: TransportError,
-}
-
-/** The SDK class for a category. */
-export function errorForCategory(message: string, category: ErrorCategory, fields: ErrorFields = {}): DevhelmError {
-  return new CATEGORY_CLASSES[category](message, fields)
 }
 
 /** Client-side `NO_TOKEN` (validation, exit 4), with the fork-PR hint in CI. */

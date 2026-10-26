@@ -1,4 +1,5 @@
 import {Command, Flags} from '@oclif/core'
+import {promptYesNo} from '../../lib/cli/prompt.js'
 import {createApiClient, apiDelete} from '../../lib/api-client.js'
 import {resolveToken, resolveApiUrl} from '../../lib/auth.js'
 import {DevhelmError, EXIT_CODES} from '../../lib/errors.js'
@@ -27,13 +28,7 @@ export default class DeployForceUnlock extends Command {
     const {flags} = await this.parse(DeployForceUnlock)
 
     if (!flags.yes) {
-      const {createInterface} = await import('node:readline')
-      const rl = createInterface({input: process.stdin, output: process.stdout})
-      const answer = await new Promise<string>((resolve) => {
-        rl.question('Force-unlock removes any active deploy lock. This is dangerous if another deploy is in progress.\nContinue? (yes/no): ', resolve)
-      })
-      rl.close()
-      if (answer.toLowerCase() !== 'yes' && answer.toLowerCase() !== 'y') {
+      if (!(await promptYesNo('Force-unlock removes any active deploy lock. This is dangerous if another deploy is in progress.\nContinue? (yes/no): '))) {
         this.log('Cancelled.')
         return
       }

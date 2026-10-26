@@ -1,5 +1,5 @@
 import {Command} from '@oclif/core'
-import {DevhelmValidationError} from '../../lib/errors.js'
+import {ValidationError} from '../../lib/errors.js'
 
 export default class EmailSend extends Command {
   static description = 'Not a command. Use email receive to accept a test message'
@@ -7,6 +7,6 @@ export default class EmailSend extends Command {
   static flags = {}
 
   async run() {
-    throw new DevhelmValidationError('`email send` does not exist. Use `devhelm email receive`.')
+    throw new ValidationError('`email send` does not exist. Use `devhelm email receive`.')
   }
 }

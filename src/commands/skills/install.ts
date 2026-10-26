@@ -11,7 +11,7 @@ import {
   listSkills,
   resolveSkillsDir,
 } from '../../lib/skills.js'
-import {DevhelmValidationError} from '../../lib/errors.js'
+import {ValidationError} from '../../lib/errors.js'
 
 const HOST_CHOICES = [...Object.keys(HOSTS), 'all', CLAUDE_DESKTOP] as const
 
@@ -44,7 +44,7 @@ export default class SkillsInstall extends Command {
     const {flags} = await this.parse(SkillsInstall)
 
     if (flags.target === CLAUDE_DESKTOP) {
-      throw new DevhelmValidationError(
+      throw new ValidationError(
         `Claude Desktop doesn't support filesystem install. Run \`devhelm skills bundle --target=claude-desktop\` to produce a zip, then drag it into Claude Desktop → Settings → Skills.`,
       )
     }

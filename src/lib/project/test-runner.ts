@@ -16,22 +16,24 @@ import type {z} from 'zod'
 import {checkedFetchWithStatus, type ApiClient} from '../api-client.js'
 import {schemas as apiSchemas} from '../api-zod.generated.js'
 import type {MonitorCodeSpec} from '../code/bundle.js'
-import {DevhelmError, EXIT_CODES, ValidationError, WaitTimeoutError, exitCodeOf, errorForCategory, isErrorCategory} from '../errors.js'
+import {DevhelmError, EXIT_CODES, ValidationError, WaitTimeoutError, exitCodeForCategory, isErrorCategory} from '../errors.js'
 import {findMonitorsByName, resolveEnvironment, type MonitorDto} from '../monitors/resolve.js'
 import {parse, parseSingle} from '../response-validation.js'
 import {runPool} from '../runs/pool.js'
+import {startValidationRun} from '../runs/start.js'
+import {isCodeMonitorType} from '@devhelm/sdk'
 import {registerStartedRun} from '../runs/registry.js'
 import {waitForRun, type RunDto, type RunEventDto} from '../runs/wait.js'
 import {exitForVerdicts, verdictOf, type Verdict} from '../runs/outcome.js'
 import type {RunSessionContext} from '../runs/session.js'
 import type {ReportItem} from '../reporters/index.js'
 import type {DeployState, YamlMonitor} from '../yaml/index.js'
-import {isGitOwner, projectContext} from '../yaml/project-context.js'
+import {isGitOwner, type ProjectContext} from '../yaml/project-context.js'
 import {isCodeMonitor, toCreateAssertionRequest} from '../yaml/transform.js'
 
 export type MonitorTestResultDto = z.infer<typeof apiSchemas.MonitorTestResultDto>
 type MonitorTestRequest = z.infer<typeof apiSchemas.MonitorTestRequest>
-type CodeTestTargetRequest = z.infer<typeof apiSchemas.CodeTestTargetRequest>
+type ScriptConfig = z.infer<typeof apiSchemas.ScriptMonitorConfig>
 
 export interface TestTarget {
   name: string
@@ -89,8 +91,8 @@ export function ownedByProject(m: OwnedMonitor, project: string | undefined, sta
   return Boolean(project) && isGitOwner(type) && m.owner?.project === project
 }
 
-export async function resolveTargets(client: ApiClient, monitors: YamlMonitor[], opts: {state?: DeployState; configDir: string}): Promise<TestTarget[]> {
-  const project = projectContext().project
+export async function resolveTargets(client: ApiClient, monitors: YamlMonitor[], opts: {state?: DeployState; configDir: string; ctx: ProjectContext}): Promise<TestTarget[]> {
+  const project = opts.ctx.project
   return Promise.all(monitors.map(async (m) => {
     const t: TestTarget = {name: m.name, type: m.type, monitor: m, envSlug: m.environment ?? undefined, file: entryFile(m, opts.configDir)}
     if (m.environment) t.environmentId = (await resolveEnvironment(client, m.environment)).id
@@ -103,6 +105,7 @@ export async function resolveTargets(client: ApiClient, monitors: YamlMonitor[],
 }
 
 export interface RunOptions {
+  ctx: ProjectContext
   regions?: string[]
   repeat: number
   session?: RunSessionContext
@@ -113,8 +116,6 @@ export interface RunOptions {
   onItem?: (item: ReportItem) => void
 }
 
-const MONITOR_TEST_HAS_REGION = 'region' in apiSchemas.MonitorTestRequest.shape
-
 function errorItem(t: TestTarget, err: DevhelmError, region?: string, attempt?: number): ReportItem {
   return {
     name: t.name, type: t.type, kind: 'error', region, attempt, file: t.file,
@@ -124,26 +125,12 @@ function errorItem(t: TestTarget, err: DevhelmError, region?: string, attempt?: 
 }
 
 async function startCodeRun(client: ApiClient, t: TestTarget, code: MonitorCodeSpec, region: string | undefined, session: RunSessionContext | undefined): Promise<RunDto> {
-  if (t.existing) {
-    const body: CodeTestTargetRequest = {code}
-    if (region) body.region = region
-    if (session) body.session = session
-    const valid = parse(apiSchemas.CodeTestTargetRequest, body, 'Invalid test request')
-    const {data} = await checkedFetchWithStatus(client.POST('/api/v1/monitors/{id}/test', {params: {path: {id: t.existing.id}}, body: valid}))
-    return parseSingle(apiSchemas.RunDto, data, `POST /api/v1/monitors/${t.existing.id}/test`)
-  }
+  if (t.existing) return startValidationRun(client, {kind: 'saved', monitorId: t.existing.id, code}, {region, session})
   if (!t.environmentId) {
     throw new ValidationError(`${t.name}: "environment" is required to test a new ${t.type} monitor`, {code: 'MONITOR_ENVIRONMENT_REQUIRED'})
   }
-  const body: Record<string, unknown> = {type: t.type, environmentId: t.environmentId, code, config: t.monitor.config ?? {}}
-  if (region) {
-    if (!MONITOR_TEST_HAS_REGION) throw new ValidationError(`${t.name}: --region needs a server that accepts a region for new monitors`, {code: 'FIELD_UNKNOWN'})
-    body.region = region
-  }
-  if (session) body.session = session
-  const valid = parse(apiSchemas.MonitorTestRequest, body, 'Invalid test request') as MonitorTestRequest
-  const {data} = await checkedFetchWithStatus(client.POST('/api/v1/monitors/test', {body: valid}))
-  return parseSingle(apiSchemas.RunDto, data, 'POST /api/v1/monitors/test')
+  if (!isCodeMonitorType(t.type)) throw new ValidationError(`${t.name}: ${t.type} has no validation runs`, {code: 'MONITOR_CODE_TYPE_REQUIRED'})
+  return startValidationRun(client, {kind: 'adhoc', type: t.type, environmentId: t.environmentId, code, config: t.monitor.config as ScriptConfig | undefined}, {region, session})
 }
 
 async function probe(client: ApiClient, t: TestTarget): Promise<MonitorTestResultDto> {
@@ -185,7 +172,7 @@ export async function runTargets(client: ApiClient, targets: TestTarget[], opts:
       }
       return
     }
-    const state = projectContext().code.get(t.name)
+    const state = opts.ctx.code.get(t.name)
     if (!state?.code) {
       const b = state?.blocked
       push(errorItem(t, new ValidationError(b?.message ?? `${t.name}: code was not bundled`, {code: b?.code ?? 'CODE_NOT_UPLOADED'}), region, attempt))
@@ -227,7 +214,7 @@ export function exitForItems(items: ReportItem[], opts: {failOnInfraError?: bool
   const refused = items.filter((i) => i.kind === 'error' && i.error && !['platform', 'transport', 'rate_limit'].includes(i.error.category))
   if (refused.length > 0) {
     // The highest exit wins, so a mixed 16/17 result does not depend on order.
-    return Math.max(...refused.map((i) => exitCodeOf(errorForCategory('', isErrorCategory(i.error!.category) ? i.error!.category : 'platform'))))
+    return Math.max(...refused.map((i) => exitCodeForCategory(isErrorCategory(i.error!.category) ? i.error!.category : 'platform')))
   }
   const infra = items.some((i) => i.kind === 'error')
   const code = exitForVerdicts(infra ? [...verdicts, 'no_verdict'] : verdicts, opts)

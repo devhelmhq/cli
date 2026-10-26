@@ -3,7 +3,7 @@ import createClient, {type Middleware} from 'openapi-fetch'
 import type {PathsWithMethod} from 'openapi-typescript-helpers'
 import type {ZodType} from 'zod'
 import type {paths, components} from './api.generated.js'
-import {Devhelm, errorFromResponse as sdkErrorFromResponse, parseRetryAfter as sdkParseRetryAfter} from '@devhelm/sdk'
+import {Devhelm, errorFromResponse as sdkErrorFromResponse} from '@devhelm/sdk'
 import {DevhelmError, TransportError} from './errors.js'
 import {parseSingle, parsePage, parseCursorPage, type Page, type CursorPage as ValidatedCursorPage} from './response-validation.js'
 import {buildSurfaceHeaders, CLI_VERSION} from './surface-telemetry.js'
@@ -71,78 +71,6 @@ export function nextIdempotencyKey(method: string, target: string): string {
 
 export const CLIENT_HEADER = `cli/${CLI_VERSION}`
 
-// ── Retries (doc 42 §5.2) ──────────────────────────────────────────────
-
-export const MAX_ATTEMPTS = 5
-const RETRY_CAP_MS = 30_000
-
-/** Overridable sleep so tests don't wait for real backoff. */
-export const retryClock = {
-  sleep: (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
-  baseMs: Number(process.env.DEVHELM_RETRY_BASE_MS ?? 500),
-}
-
-/** `Retry-After` in milliseconds (the SDK parser gives seconds). */
-export function parseRetryAfter(value: string | null): number | undefined {
-  const seconds = sdkParseRetryAfter(value)
-  return seconds === null ? undefined : seconds * 1000
-}
-
-function backoffMs(attempt: number, retryAfterMs: number | undefined): number {
-  if (retryAfterMs !== undefined) return Math.min(RETRY_CAP_MS, retryAfterMs)
-  const exp = retryClock.baseMs * 2 ** (attempt - 1)
-  const jitter = Math.random() * retryClock.baseMs
-  return Math.min(RETRY_CAP_MS, exp + jitter)
-}
-
-const RETRYABLE_CONFLICTS = new Set(['DEPLOY_LOCKED', 'IDEMPOTENCY_KEY_IN_PROGRESS'])
-
-async function isRetryableConflict(res: Response): Promise<boolean> {
-  try {
-    const body = (await res.clone().json()) as Record<string, unknown>
-    return body.retryable === true || (typeof body.code === 'string' && RETRYABLE_CONFLICTS.has(body.code))
-  } catch {
-    return false
-  }
-}
-
-/** Header that tells the retry layer to leave 409 handling to the caller. */
-export const NO_CONFLICT_RETRY_HEADER = 'x-devhelm-cli-no-conflict-retry'
-
-/**
- * `fetch` with the D-7 retry policy: 429 and 503, plus `retryable: true`
- * 409s (`DEPLOY_LOCKED`, `IDEMPOTENCY_KEY_IN_PROGRESS`), honouring
- * `Retry-After`, at most 5 attempts with jitter. A POST is retried only
- * with an idempotency key. A transport failure surfaces at once as
- * `TransportError` (exit 12).
- */
-export async function fetchWithRetry(request: Request): Promise<Response> {
-  const method = request.method.toUpperCase()
-  const replayable = method !== 'POST' || request.headers.has('Idempotency-Key')
-  const noConflictRetry = request.headers.has(NO_CONFLICT_RETRY_HEADER)
-  const headers = new Headers(request.headers)
-  headers.delete(NO_CONFLICT_RETRY_HEADER)
-  // Buffer the body once so every attempt sends a fresh Request.
-  const body = method === 'GET' || method === 'HEAD' ? undefined : await request.arrayBuffer()
-  const build = () => new Request(request.url, {method, headers, body, signal: request.signal})
-  for (let attempt = 1; ; attempt++) {
-    const last = attempt >= MAX_ATTEMPTS || !replayable
-    let res: Response
-    try {
-      res = await fetch(build())
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : String(cause)
-      throw new TransportError(`${method} ${new URL(request.url).pathname}: ${message}`, {cause: cause instanceof Error ? cause : undefined})
-    }
-    if (last) return res
-    const retry =
-      res.status === 429 || res.status === 503 ||
-      (res.status === 409 && !noConflictRetry && (await isRetryableConflict(res)))
-    if (!retry) return res
-    await retryClock.sleep(backoffMs(attempt, parseRetryAfter(res.headers.get('retry-after'))))
-  }
-}
-
 export interface ApiClientOptions {
   baseUrl: string
   token: string
@@ -167,15 +95,6 @@ export function baseHeaders(opts: ApiClientOptions): Record<string, string> {
   return headers
 }
 
-const idempotencyMiddleware: Middleware = {
-  async onRequest({request}) {
-    if (request.method.toUpperCase() === 'POST' && !request.headers.has('Idempotency-Key')) {
-      request.headers.set('Idempotency-Key', nextIdempotencyKey('POST', new URL(request.url).pathname))
-    }
-    return request
-  },
-}
-
 // Backward-compatible wrapper types matching the API response shapes
 export interface TableResponse<T> {
   data: T[]
@@ -193,13 +112,31 @@ export interface SingleResponse<T> {
   data: T
 }
 
+/**
+ * The CLI's typed client (generated from its vendored spec). Requests go
+ * through the SDK transport (`Devhelm.send`): one `Idempotency-Key` per
+ * logical POST from this invocation's D-7 keys, and the retry policy (429,
+ * 503, retryable 409, `Retry-After`, 5 attempts with jitter). There is no
+ * second transport in the CLI.
+ */
 export function createApiClient(opts: ApiClientOptions) {
+  const sdk = new Devhelm({
+    token: opts.token,
+    baseUrl: opts.baseUrl,
+    orgId: opts.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
+    workspaceId: opts.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID,
+    client: CLIENT_HEADER,
+    surface: 'cli',
+    surfaceVersion: CLI_VERSION,
+    idempotencyKey: ({method, url}) => nextIdempotencyKey(method, new URL(url).pathname),
+    // DEVHELM_RETRY_MAX_DELAY_MS caps the wait between retries (tests set it low).
+    ...(process.env.DEVHELM_RETRY_MAX_DELAY_MS ? {retry: {maxDelayMs: Number(process.env.DEVHELM_RETRY_MAX_DELAY_MS)}} : {}),
+  })
   const client = createClient<paths>({
     baseUrl: opts.baseUrl.replace(/\/$/, ''),
     headers: {...baseHeaders(opts), 'Content-Type': 'application/json'},
-    fetch: fetchWithRetry,
+    fetch: (request) => sdk.send(request),
   })
-  client.use(idempotencyMiddleware)
 
   if (opts.verbose) {
     const logger: Middleware = {
@@ -211,7 +148,7 @@ export function createApiClient(opts: ApiClientOptions) {
     client.use(logger)
   }
 
-  return Object.assign(client, {options: opts})
+  return Object.assign(client, {options: opts, sdk})
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>
@@ -358,27 +295,7 @@ export async function apiGetCursorPage<T>(
   return parseCursorPage(schema, await apiGet(client, path, params), `GET ${path}`)
 }
 
-const sdkClients = new WeakMap<ApiClient, Devhelm>()
-
-/**
- * The SDK client for the same token, URL, org and workspace, for the parts
- * the CLI takes from the SDK (run waiting). Its POSTs use this
- * invocation's idempotency keys and it identifies as the CLI.
- */
+/** The SDK client behind this CLI client (waiting, bundles, raw sends). */
 export function sdkClientFor(client: ApiClient): Devhelm {
-  const hit = sdkClients.get(client)
-  if (hit) return hit
-  const o = client.options
-  const sdk = new Devhelm({
-    token: o.token,
-    baseUrl: o.baseUrl,
-    orgId: o.orgId ?? process.env.DEVHELM_ORG_ID ?? '1',
-    workspaceId: o.workspaceId ?? process.env.DEVHELM_WORKSPACE_ID,
-    client: CLIENT_HEADER,
-    surface: 'cli',
-    surfaceVersion: CLI_VERSION,
-    idempotencyKey: ({method, url}) => nextIdempotencyKey(method, new URL(url).pathname),
-  })
-  sdkClients.set(client, sdk)
-  return sdk
+  return client.sdk
 }

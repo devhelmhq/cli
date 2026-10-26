@@ -71,7 +71,6 @@ function idToString(id: string | number | null | undefined): string | undefined 
 import type {ChildCollectionDef} from './child-reconciler.js'
 import {diffChildren, applyChildDiff} from './child-reconciler.js'
 import {PartialApplyError} from './apply-error.js'
-import {projectContext} from './project-context.js'
 import {applyCodeMonitorCreate, applyCodeMonitorUpdate} from './code-apply.js'
 import type {ChildStateEntry} from './state.js'
 
@@ -783,7 +782,7 @@ function monitorDesiredSnapshot(yaml: YamlMonitor, api: Schemas['MonitorDto'], r
       ? sortedIds(yaml.secretKeys)
       : (api.secretKeys ? sortedIds(nonNullStrings(api.secretKeys)) : null),
     codeDigest: isCodeType(yaml.type)
-      ? (projectContext().code.get(yaml.name)?.prepared?.digest ?? api.liveRevisionDigest ?? null)
+      ? (refs.project.code.get(yaml.name)?.prepared?.digest ?? api.liveRevisionDigest ?? null)
       : null,
   }
 }
@@ -815,9 +814,9 @@ export function monitorSettingsChanged(yaml: YamlMonitor, api: Schemas['MonitorD
   return !isEqual(desired, current)
 }
 
-export function monitorCodeChanged(yaml: YamlMonitor, api: Schemas['MonitorDto']): boolean {
+export function monitorCodeChanged(yaml: YamlMonitor, api: Schemas['MonitorDto'], refs: ResolvedRefs): boolean {
   if (!isCodeType(yaml.type)) return false
-  const local = projectContext().code.get(yaml.name)?.prepared?.digest
+  const local = refs.project.code.get(yaml.name)?.prepared?.digest
   return local !== undefined && local !== (api.liveRevisionDigest ?? null)
 }
 
@@ -847,7 +846,7 @@ const monitorHandler = defineHandler<YamlMonitor, Schemas['MonitorDto'], Monitor
       const current = refs.get('monitors', yaml.name)?.raw as Schemas['MonitorDto'] | undefined
       await applyCodeMonitorUpdate(yaml, id, refs, client, {
         settingsChanged: current ? monitorSettingsChanged(yaml, current, refs) : true,
-        codeChanged: current ? monitorCodeChanged(yaml, current) : true,
+        codeChanged: current ? monitorCodeChanged(yaml, current, refs) : true,
         current,
       })
       return

@@ -1,11 +1,11 @@
 import {mkdir, writeFile} from 'node:fs/promises'
+import {promptYesNo} from './cli/prompt.js'
 import {dirname, join} from 'node:path'
-import {createInterface} from 'node:readline'
 import {stat} from 'node:fs/promises'
 import {Command} from '@oclif/core'
 import {apiDelete, apiGet, apiPatch, apiPost, checkedFetch, unwrapData, type ApiClient} from './api-client.js'
 import {display} from './base-command.js'
-import {DevhelmError, DevhelmTransportError, DevhelmValidationError, EXIT_CODES} from './errors.js'
+import {DevhelmError, TransportError, ValidationError, EXIT_CODES} from './errors.js'
 import type {ColumnDef} from './output.js'
 
 const WAIT_SLACK_MS = 10_000
@@ -57,14 +57,14 @@ export function otpColumn(row: Record<string, unknown>): string {
 export function splitAddress(address: string): {localPart: string; domain: string} {
   const at = address.lastIndexOf('@')
   if (at <= 0 || at === address.length - 1) {
-    throw new DevhelmValidationError(`Expected a full address, got '${address}'.`)
+    throw new ValidationError(`Expected a full address, got '${address}'.`)
   }
   return {localPart: address.slice(0, at), domain: address.slice(at + 1)}
 }
 
 export function asRecord(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new DevhelmValidationError('Expected a JSON object from the API.')
+    throw new ValidationError('Expected a JSON object from the API.')
   }
   return value as Record<string, unknown>
 }
@@ -72,7 +72,7 @@ export function asRecord(value: unknown): Record<string, unknown> {
 export function unwrapKey(value: unknown, key: string): Record<string, unknown> {
   const record = asRecord(value)
   if (!(key in record)) {
-    throw new DevhelmValidationError(`Expected a ${key} in the response.`)
+    throw new ValidationError(`Expected a ${key} in the response.`)
   }
   return asRecord(record[key])
 }
@@ -107,12 +107,7 @@ export async function requireYes(command: Command, yes: boolean, prompt: string)
   if (!process.stdin.isTTY) {
     command.error(`Refusing to continue without --yes. ${prompt}`, {exit: EXIT_CODES.VALIDATION})
   }
-  const rl = createInterface({input: process.stdin, output: process.stderr})
-  const answer = await new Promise<string>((resolve) => {
-    rl.question(`${prompt} [y/N] `, resolve)
-  })
-  rl.close()
-  if (answer.trim().toLowerCase() !== 'y') {
+  if (!(await promptYesNo(`${prompt} [y/N] `))) {
     command.error('Aborted.', {exit: EXIT_CODES.GENERAL})
   }
 }
@@ -140,16 +135,16 @@ export async function downloadToFile(
   const signed = asRecord(unwrapData(await apiGet(client, path)))
   const url = String(signed.url ?? '')
   const filename = String(signed.filename ?? 'download')
-  if (!url) throw new DevhelmValidationError('Signed download did not include a url.')
+  if (!url) throw new ValidationError('Signed download did not include a url.')
   let response: Response
   try {
     response = await fetch(url)
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause)
-    throw new DevhelmTransportError(message, {cause: cause instanceof Error ? cause : undefined})
+    throw new TransportError(message, {cause: cause instanceof Error ? cause : undefined})
   }
   if (!response.ok) {
-    throw new DevhelmTransportError(`Download failed with status ${response.status}`)
+    throw new TransportError(`Download failed with status ${response.status}`)
   }
   const target = await resolveDownloadPath(file, filename)
   await mkdir(dirname(target), {recursive: true})
@@ -193,10 +188,10 @@ export function responseHeaderMap(values: string | string[] | undefined): Record
     const colon = raw.indexOf(':')
     const name = colon < 0 ? '' : raw.slice(0, colon).trim()
     if (colon < 0 || name.length === 0) {
-      throw new DevhelmValidationError(`Expected a header as Name: value, got '${raw}'.`)
+      throw new ValidationError(`Expected a header as Name: value, got '${raw}'.`)
     }
     if (Object.hasOwn(headers, name)) {
-      throw new DevhelmValidationError(`Header '${name}' was given twice.`)
+      throw new ValidationError(`Header '${name}' was given twice.`)
     }
     headers[name] = raw.slice(colon + 1).trim()
   }

@@ -6,7 +6,7 @@ import {checkedFetch, checkedFetchWithStatus, unwrapData, type ApiClient} from '
 import {schemas as apiSchemas} from '../../lib/api-zod.generated.js'
 import {DevhelmCommand, commonFlags} from '../../lib/cli/command.js'
 import {envFlag, parseDurationMs} from '../../lib/cli/flags.js'
-import {DevhelmValidationError, EXIT_CODES} from '../../lib/errors.js'
+import {ValidationError, EXIT_CODES} from '../../lib/errors.js'
 import {queuedRunFrom} from '../../lib/monitor-test.js'
 import {codeFromFlag} from '../../lib/monitors/code-flag.js'
 import {isCodeType, resolveMonitor} from '../../lib/monitors/resolve.js'
@@ -83,7 +83,7 @@ export default class MonitorsTest extends DevhelmCommand {
     }
 
     if (!isCodeType(monitor.type)) {
-      if (flags.code) throw new DevhelmValidationError('--code applies to BROWSER and MULTI_STEP_API monitors', {code: 'FIELD_UNKNOWN'})
+      if (flags.code) throw new ValidationError('--code applies to BROWSER and MULTI_STEP_API monitors', {code: 'FIELD_UNKNOWN'})
       process.stderr.write('Running test...\n')
       const {data} = await checkedFetchWithStatus(client.POST('/api/v1/monitors/{id}/test', {params: {path: {id: monitor.id}}}))
       const probe = unwrapData(data) as {passed?: unknown}
@@ -186,7 +186,7 @@ export default class MonitorsTest extends DevhelmCommand {
 function readConfigFile(path: string): unknown {
   const absPath = resolve(path)
   if (!existsSync(absPath)) {
-    throw new DevhelmValidationError(`Config file not found: ${path}`)
+    throw new ValidationError(`Config file not found: ${path}`)
   }
 
   const raw = readFileSync(absPath, 'utf8')
@@ -199,7 +199,7 @@ function readConfigFile(path: string): unknown {
     return parseYaml(raw) as unknown
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    throw new DevhelmValidationError(
+    throw new ValidationError(
       `Failed to parse '${path}' as ${ext === '.json' ? 'JSON' : 'YAML'}: ${msg}`,
     )
   }

@@ -1,4 +1,5 @@
 import {Command, Flags} from '@oclif/core'
+import {promptYesNo} from '../../lib/cli/prompt.js'
 import type {ZodType} from 'zod'
 import {globalFlags, buildClient} from '../../lib/base-command.js'
 import {apiDelete, apiGetSingle} from '../../lib/api-client.js'
@@ -72,12 +73,5 @@ async function promptForCancel(
     if (err instanceof DevhelmError && ['auth', 'permission', 'not_found'].includes(err.category)) throw err
   }
 
-  const {createInterface} = await import('node:readline')
-  const rl = createInterface({input: process.stdin, output: process.stderr})
-  const answer = await new Promise<string>((resolve) => {
-    rl.question(`Cancel maintenance window ${label}? [y/N] `, resolve)
-  })
-  rl.close()
-  const normalized = answer.trim().toLowerCase()
-  return normalized === 'y' || normalized === 'yes'
+  return promptYesNo(`Cancel maintenance window ${label}? [y/N] `)
 }

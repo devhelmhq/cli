@@ -1,4 +1,5 @@
 import {Flags} from '@oclif/core'
+import {promptLine} from '../lib/cli/prompt.js'
 import {apiDelete} from '../lib/api-client.js'
 import {DevhelmCommand, commonFlags, confirmationToken} from '../lib/cli/command.js'
 import {CliExitError, ConfirmationRequiredError, DevhelmError, EXIT_CODES, ValidationError, type JsonValue} from '../lib/errors.js'
@@ -39,11 +40,8 @@ export default class Destroy extends DevhelmCommand {
     } else if (!this.nonInteractive && !this.structured) {
       this.log(`This deletes ${owned.length} monitor(s) owned by ${flags.project}:`)
       for (const m of owned) this.log(`  - ${m.name} (${m.environment?.slug ?? '-'})`)
-      const {createInterface} = await import('node:readline')
-      const rl = createInterface({input: process.stdin, output: process.stderr})
-      const typed = await new Promise<string>((resolve) => rl.question(`Type the project name (${flags.project}) to confirm: `, resolve))
-      rl.close()
-      if (typed.trim() !== flags.project) throw new CliExitError('Cancelled', 'confirmation_required', EXIT_CODES.CONFIRMATION_REQUIRED, {code: 'CANCELLED'})
+      const typed = await promptLine(`Type the project name (${flags.project}) to confirm: `)
+      if (typed !== flags.project) throw new CliExitError('Cancelled', 'confirmation_required', EXIT_CODES.CONFIRMATION_REQUIRED, {code: 'CANCELLED'})
     } else {
       throw new ConfirmationRequiredError(`Destroying ${owned.length} monitor(s) owned by ${flags.project} needs --confirm`, {
         code: 'CONFIRMATION_REQUIRED',

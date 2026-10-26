@@ -19,7 +19,7 @@ import type {Change, Changeset, DiffOptions, PruneScope} from './types.js'
 import {RESOURCE_ORDER} from './types.js'
 import type {DeployState} from './state.js'
 import {resourceAddress} from './state.js'
-import {isGitOwner, projectContext} from './project-context.js'
+import {isGitOwner} from './project-context.js'
 import type {ResourceType} from './types.js'
 
 type ResourceGroupDto = components['schemas']['ResourceGroupDto']
@@ -217,7 +217,7 @@ function diffSection(
       if (desired.has(entry.refKey)) continue
 
       const address = resourceAddress(handler.resourceType as ResourceType, entry.refKey)
-      const scope = classifyDeleteScope(handler, entry, stateAddresses, address)
+      const scope = classifyDeleteScope(handler, entry, stateAddresses, address, refs)
       if (!scope) continue
 
       // Decide whether to include this delete based on the requested
@@ -247,6 +247,7 @@ function classifyDeleteScope(
   entry: {refKey: string; managedBy?: string | null; raw?: unknown},
   stateAddresses: ReadonlySet<string>,
   address: string,
+  refs: ResolvedRefs,
 ): PruneScope | undefined {
   if (stateAddresses.has(address)) return 'state'
   // Monitors are pruned only when this project owns them: Git-owned with
@@ -254,7 +255,7 @@ function classifyDeleteScope(
   // candidate — `--prune-org-cli` / `--prune-all` were removed because
   // their deletion scope crossed teams.
   if (handler.resourceType === 'monitor') {
-    const project = projectContext().project
+    const project = refs.project.project
     const raw = entry.raw as {owner?: {type?: string; project?: string | null} | null; managedBy?: string} | undefined
     const type = raw?.owner?.type ?? raw?.managedBy ?? entry.managedBy ?? undefined
     if (project && isGitOwner(type) && raw?.owner?.project === project) return 'state'

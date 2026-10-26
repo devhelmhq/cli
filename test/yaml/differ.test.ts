@@ -1,4 +1,4 @@
-import {setProjectContext} from '../../src/lib/yaml/project-context.js'
+import {createProjectContext} from '../../src/lib/yaml/project-context.js'
 import {describe, it, expect} from 'vitest'
 import {diff, formatPlan} from '../../src/lib/yaml/differ.js'
 import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
@@ -203,8 +203,8 @@ describe('differ', () => {
     })
 
     it('--prune deletes a monitor this project owns (ownerProject == project)', async () => {
-      setProjectContext({project: 'acme/web'})
       const refs = new ResolvedRefs()
+      refs.project = createProjectContext({project: 'acme/web'})
       refs.set('monitors', 'old-monitor', {
         id: 'mon-1', refKey: 'old-monitor', managedBy: 'GIT', raw: {managedBy: 'GIT', owner: {type: 'GIT', project: 'acme/web'}},
       })
@@ -212,7 +212,6 @@ describe('differ', () => {
         id: 'mon-2', refKey: 'other', managedBy: 'GIT', raw: {managedBy: 'GIT', owner: {type: 'GIT', project: 'acme/api'}},
       })
       const changeset = await diff({monitors: []}, refs, {prune: true})
-      setProjectContext({})
       expect(changeset.deletes.map((d) => d.refKey)).toEqual(['old-monitor'])
       expect(changeset.deletes[0].pruneScope).toBe('state')
     })

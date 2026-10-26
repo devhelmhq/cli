@@ -43,12 +43,8 @@ describe('bundle conformance vectors', () => {
     }
   })
 
-  // sdk-js #156 does not refuse a missing include path yet (the server does):
-  // tracked as an SDK conformance follow-up, see the PR body.
-  const SDK_GAPS = new Set(['include-missing-refused'])
   for (const v of doc.vectors) {
-    const t = SDK_GAPS.has(v.name) ? test.skip : test
-    t(v.name, async () => {
+    test(v.name, async () => {
       const dir = materialize(v)
       const all = [...Object.keys(v.request.files), ...Object.keys(v.request.binaryFiles ?? {}), ...Object.keys(v.request.symlinks ?? {})]
       const entry = v.request.entrypoint ?? Object.keys(v.request.files).sort()[0]!

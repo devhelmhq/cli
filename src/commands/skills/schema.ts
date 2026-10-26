@@ -1,7 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 import {existsSync, readdirSync, readFileSync} from 'node:fs'
 import {join} from 'node:path'
-import {DevhelmValidationError} from '../../lib/errors.js'
+import {ValidationError} from '../../lib/errors.js'
 import {listSkills, resolveSkillsDir, SKILL_NAMES, type SkillName} from '../../lib/skills.js'
 
 export default class SkillsSchema extends Command {
@@ -51,7 +51,7 @@ export default class SkillsSchema extends Command {
       }
     }
 
-    throw new DevhelmValidationError(
+    throw new ValidationError(
       `No reference found for resource \`${args.resource}\`.\n\nAvailable:\n  ${listAvailableResources(
         skillsRoot,
       ).join('\n  ')}`,

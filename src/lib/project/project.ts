@@ -9,7 +9,7 @@ import {dirname, join, resolve} from 'node:path'
 import {checkCode, type CodeCheck, type RuntimePackages} from '../code/bundle.js'
 import {selectRuntime} from '@devhelm/sdk/bundler'
 import {loadConfig, ParseError, validate, type DevhelmConfig, type YamlMonitor} from '../yaml/index.js'
-import {projectContext, setProjectContext} from '../yaml/project-context.js'
+import {createProjectContext, type ProjectContext} from '../yaml/project-context.js'
 import {isCodeMonitor} from '../yaml/transform.js'
 
 export interface Issue {
@@ -26,6 +26,8 @@ export interface LoadedProject {
   configDir: string
   config: DevhelmConfig | null
   issues: Issue[]
+  /** Project identity and the prepared code closures, keyed by monitor name. */
+  ctx: ProjectContext
 }
 
 /** Directory relative `code:` paths resolve from: the (first) config file's directory. */
@@ -59,11 +61,8 @@ export function loadProject(files: string[], opts: {resolveEnv?: boolean} = {}):
     const result = validate(config)
     for (const e of result.errors) issues.push({severity: 'error', path: e.path, message: e.message, code: 'CONFIG_INVALID'})
     for (const w of result.warnings) issues.push({severity: 'warning', path: w.path, message: w.message})
-    setProjectContext({project: config.project, configDir})
-  } else {
-    setProjectContext({configDir})
   }
-  return {files, configDir, config, issues}
+  return {files, configDir, config, issues, ctx: createProjectContext({project: config?.project, configDir})}
 }
 
 export function codeMonitors(config: DevhelmConfig | null): YamlMonitor[] {
@@ -82,7 +81,7 @@ export async function prepareCodeMonitors(
 ): Promise<{issues: Issue[]; checks: Map<string, CodeCheck>}> {
   const issues: Issue[] = []
   const checks = new Map<string, CodeCheck>()
-  const ctx = projectContext()
+  const ctx = loaded.ctx
   const monitors = codeMonitors(loaded.config)
   for (const [i, m] of monitors.entries()) {
     if (only && !only.has(m.name)) continue

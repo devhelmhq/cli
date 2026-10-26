@@ -1,4 +1,5 @@
 import {Command, Args, Flags, type Interfaces} from '@oclif/core'
+import {promptYesNo} from './cli/prompt.js'
 import type {ZodType} from 'zod'
 import {globalFlags, buildClient, display} from './base-command.js'
 import {fetchPaginatedValidated} from './typed-api.js'
@@ -343,14 +344,7 @@ async function promptForDeletion<T>(
     if (err instanceof DevhelmError && ['auth', 'permission', 'not_found'].includes(err.category)) throw err
   }
 
-  const {createInterface} = await import('node:readline')
-  const rl = createInterface({input: process.stdin, output: process.stderr})
-  const answer = await new Promise<string>((resolve) => {
-    rl.question(`Delete ${config.name} ${label}? [y/N] `, resolve)
-  })
-  rl.close()
-  const normalized = answer.trim().toLowerCase()
-  return normalized === 'y' || normalized === 'yes'
+  return promptYesNo(`Delete ${config.name} ${label}? [y/N] `)
 }
 
 function extractResourceFlags(flags: Record<string, unknown>, keys: string[]): Record<string, unknown> {

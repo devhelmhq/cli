@@ -3,7 +3,7 @@
  * the directory of devhelm.yml (code paths are relative to it), the owner
  * tool the CLI writes (`GIT`; `CLI` on a spec that predates it, R13) and,
  * for code monitors, the prepared closure and its test outcome keyed by
- * monitor name. Set by `plan` / `deploy` / `test` before the differ runs.
+ * monitor name. Created by `loadProject` and carried on `ResolvedRefs.project`.
  */
 import type {components} from '../api.generated.js'
 import type {BundleDto, MonitorCodeSpec, PreparedCode} from '../code/bundle.js'
@@ -44,15 +44,9 @@ export interface ProjectContext {
   code: Map<string, CodeMonitorState>
 }
 
-let current: ProjectContext = {configDir: process.cwd(), code: new Map<string, CodeMonitorState>()}
-
-export function setProjectContext(ctx: Partial<ProjectContext>): ProjectContext {
-  current = {configDir: ctx.configDir ?? process.cwd(), project: ctx.project, code: ctx.code ?? new Map<string, CodeMonitorState>()}
-  return current
-}
-
-export function projectContext(): ProjectContext {
-  return current
+/** A fresh context for one project (passed along on `ResolvedRefs.project`). */
+export function createProjectContext(ctx: Partial<ProjectContext> = {}): ProjectContext {
+  return {configDir: ctx.configDir ?? process.cwd(), project: ctx.project, code: ctx.code ?? new Map<string, CodeMonitorState>()}
 }
 
 /** `ownerDeclaration.address` the CLI writes: `<project>#monitors.<key|name>`. */

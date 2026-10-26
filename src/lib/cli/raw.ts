@@ -3,7 +3,7 @@
  * artifact content. Same headers, retries and typed errors as the
  * openapi-fetch client.
  */
-import {baseHeaders, errorFromResponse, fetchWithRetry, type ApiClient} from '../api-client.js'
+import {baseHeaders, errorFromResponse, sdkClientFor, type ApiClient} from '../api-client.js'
 
 export async function getRaw(
   client: ApiClient,
@@ -16,7 +16,7 @@ export async function getRaw(
   }
   const headers: Record<string, string> = {...baseHeaders(client.options)}
   if (opts.accept) headers.Accept = opts.accept
-  const res = await fetchWithRetry(new Request(url, {headers}))
+  const res = await sdkClientFor(client).send(new Request(url, {headers}))
   if (!res.ok) {
     let body: unknown
     try {

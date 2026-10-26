@@ -13,9 +13,9 @@
 import {spawn} from 'node:child_process'
 import {hostname} from 'node:os'
 import type {z} from 'zod'
-import {CLIENT_HEADER, errorFromResponse, fetchWithRetry, nextIdempotencyKey} from './api-client.js'
+import {CLIENT_HEADER, errorFromResponse} from './api-client.js'
 import {schemas as apiSchemas} from './api-zod.generated.js'
-import {AuthError} from './errors.js'
+import {AuthError, TransportError} from './errors.js'
 import {parse, parseSingle} from './response-validation.js'
 import {buildSurfaceHeaders} from './surface-telemetry.js'
 
@@ -48,12 +48,17 @@ async function post(apiUrl: string, path: string, body: object): Promise<unknown
     headers: {
       'Content-Type': 'application/json',
       'X-DevHelm-Client': CLIENT_HEADER,
-      'Idempotency-Key': nextIdempotencyKey('POST', path),
       ...buildSurfaceHeaders(),
     },
     body: JSON.stringify(body),
   })
-  const res = await fetchWithRetry(req)
+  // Unauthenticated, two calls: sent directly (the SDK transport needs a token).
+  let res: Response
+  try {
+    res = await fetch(req)
+  } catch (cause) {
+    throw new TransportError(`POST ${path}: ${cause instanceof Error ? cause.message : String(cause)}`, {cause: cause instanceof Error ? cause : undefined})
+  }
   let json: unknown
   try {
     json = await res.json()

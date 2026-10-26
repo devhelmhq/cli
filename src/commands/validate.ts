@@ -56,9 +56,9 @@ export default class Validate extends DevhelmCommand {
 
       if (client && !issues.some((i) => i.severity === 'error')) {
         await this.loadMeta({org: loaded.config.org, workspace: loaded.config.workspace})
-        issues.push(...await checkBundlesOnline(client))
-        issues.push(...await uploadPrepared(client))
-        const refs = await fetchRefs(client, loaded.config, readStateOrThrow())
+        issues.push(...await checkBundlesOnline(client, loaded.ctx))
+        issues.push(...await uploadPrepared(client, loaded.ctx))
+        const refs = await fetchRefs(client, loaded.config, loaded.ctx, readStateOrThrow())
         const dry = await dryRunMonitors(client, loaded.config, refs)
         const eolSoon = (runtimeId: string) => {
           const r = catalog.find((c) => c.id === runtimeId)
@@ -95,10 +95,8 @@ export default class Validate extends DevhelmCommand {
     for (const w of warnings) this.warnings.push(formatIssue(w))
     await this.finish({
       exit,
-      // Pre-1.12 fields first (valid, errors, warnings), then the wrapper keys.
-      data: this.legacy
-        ? {valid, errors: asJson(errors), warnings: asJson(warnings), ok: valid, exit, skipped: [], meta: this.meta ?? null}
-        : {valid, errors: asJson(errors), warnings: asJson(warnings), online: flags.online},
+      data: {valid, errors: asJson(errors), warnings: asJson(warnings), online: flags.online},
+      legacyMergeWrapper: true,
       human: () => {
         if (warnings.length > 0) {
           this.log(`\n${label}: ${warnings.length} warning(s)${strictFail ? ' (strict mode)' : ''}\n`)

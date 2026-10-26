@@ -8,12 +8,12 @@ import {uploadPrepared} from '../lib/project/online.js'
 import {formatIssue, loadProject, prepareCodeMonitors} from '../lib/project/project.js'
 import {readTerraformTargets} from '../lib/project/terraform.js'
 import {exitForItems, resolveTargets, runTargets, selectTargets, type TestTarget} from '../lib/project/test-runner.js'
-import {githubReport, junitReport, type ReportItem} from '../lib/reporters/index.js'
+import {reporterOutput, type ReportItem} from '../lib/reporters/index.js'
 import {failureLines, runLine} from '../lib/runs/outcome.js'
 import {sessionContext} from '../lib/runs/session.js'
 import {billedCount, usageLine} from '../lib/runs/usage.js'
 import {readStateOrThrow} from '../lib/project/pipeline.js'
-import {projectContext} from '../lib/yaml/project-context.js'
+import {createProjectContext, type ProjectContext} from '../lib/yaml/project-context.js'
 
 export default class Test extends DevhelmCommand {
   static strict = false
@@ -62,11 +62,12 @@ export default class Test extends DevhelmCommand {
     let targets: TestTarget[]
     const client = this.client()
     let pins: {org?: string; workspace?: string} = {}
+    let ctx: ProjectContext
 
     if (flags['from-terraform']) {
       const tf = readTerraformTargets(flags['from-terraform'])
       const catalog = await runtimeCatalog(client)
-      const ctx = projectContext()
+      ctx = createProjectContext({configDir: flags['from-terraform']})
       targets = []
       for (const t of tf) {
         if (selectors.length > 0 && !selectors.includes(t.monitor.name) && !selectors.includes(t.address)) continue
@@ -96,16 +97,17 @@ export default class Test extends DevhelmCommand {
       if (codeErrors.length > 0) {
         throw new ValidationError(`Code refused:\n${codeErrors.map((e) => `  ${formatIssue(e)}`).join('\n')}`, {code: codeErrors[0]!.code ?? 'BUNDLE_INVALID'})
       }
-      targets = await resolveTargets(client, picked, {state: readStateOrThrow(), configDir: loaded.configDir})
+      ctx = loaded.ctx
+      targets = await resolveTargets(client, picked, {state: readStateOrThrow(), configDir: loaded.configDir, ctx})
     }
 
     await this.loadMeta(pins)
     if (!this.structured && !quiet) await this.header()
 
-    const codeTargets = targets.filter((t) => projectContext().code.has(t.name))
+    const codeTargets = targets.filter((t) => ctx.code.has(t.name))
     if (codeTargets.length > 0) {
       if (!this.structured && !quiet) this.log(`Bundling ${codeTargets.length} check${codeTargets.length === 1 ? '' : 's'} …`)
-      const refused = await uploadPrepared(client, new Set(codeTargets.map((t) => t.name)))
+      const refused = await uploadPrepared(client, ctx, new Set(codeTargets.map((t) => t.name)))
       if (refused.length > 0 && refused.length === codeTargets.length && targets.length === codeTargets.length) {
         throw new ValidationError(`Upload refused:\n${refused.map((e) => `  ${formatIssue(e)}`).join('\n')}`, {code: refused[0]!.code ?? 'BUNDLE_INVALID'})
       }
@@ -118,6 +120,7 @@ export default class Test extends DevhelmCommand {
     }
 
     const items = await runTargets(client, targets, {
+      ctx,
       regions: flags.region,
       repeat: flags.repeat,
       session: sessionContext(flags.session),
@@ -147,13 +150,9 @@ export default class Test extends DevhelmCommand {
     ].filter(Boolean).join(', ') + (flags.repeat > 1 ? ` (passed ${passed}/${items.length})` : '') + ` · ${usage.line}`
     if (!flags['fail-on-infra-error'] && noVerdict > 0) this.warnings.push('no-verdict runs did not fail the command (--no-fail-on-infra-error)')
 
-    if (reporter === 'junit') this.log(junitReport(items))
-    if (reporter === 'github') {
-      const ann = githubReport(items, summary)
-      if (ann) this.log(ann)
-      this.log(`${summary}${exit !== 0 ? `          (exit ${exit})` : ''}`)
-    }
-    if (quiet) {
+    const report = reporterOutput(reporter, items, `${summary}${exit !== 0 ? `          (exit ${exit})` : ''}`)
+    if (report !== undefined) {
+      this.log(report)
       if (exit !== 0) this.exit(exit)
       return
     }

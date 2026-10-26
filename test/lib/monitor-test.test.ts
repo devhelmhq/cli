@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest'
 import {buildCodeTestTarget, queuedRunFrom} from '../../src/lib/monitor-test.js'
-import {DevhelmValidationError} from '../../src/lib/errors.js'
+import {ValidationError} from '../../src/lib/errors.js'
 
 const PROBE_RESULT = {
   passed: true,
@@ -70,6 +70,6 @@ describe('queuedRunFrom', () => {
   })
 
   test('rejects a 202 body that is not a run', () => {
-    expect(() => queuedRunFrom(202, {data: PROBE_RESULT}, 'ctx')).toThrow(DevhelmValidationError)
+    expect(() => queuedRunFrom(202, {data: PROBE_RESULT}, 'ctx')).toThrow(ValidationError)
   })
 })

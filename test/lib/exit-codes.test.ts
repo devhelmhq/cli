@@ -4,7 +4,10 @@
  * a classified error. One subprocess test per category.
  */
 import {afterAll, beforeAll, describe, expect, test} from 'vitest'
-import {ERROR_CATEGORIES, EXIT_CODES, errorForCategory, exitCodeOf} from '../../src/lib/errors.js'
+import {DevhelmError, ERROR_CATEGORIES, EXIT_CODES, exitCodeOf, type ErrorCategory, type ErrorFields} from '../../src/lib/errors.js'
+
+const errorForCategory = (message: string, category: ErrorCategory, fields: ErrorFields = {}) =>
+  new DevhelmError(message, {...fields, message, category, code: 'TEST'})
 import {classify} from '../../src/lib/cli/command.js'
 import {FakeApi, errorBody, runCli} from '../helpers/fake-api.js'
 

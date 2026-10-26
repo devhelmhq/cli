@@ -10,6 +10,7 @@
  *     with `changes[]` and the `confirmCommand`.
  *   - on a TTY the human is shown the text and asked.
  */
+import {promptYesNo} from './prompt.js'
 import {Flags} from '@oclif/core'
 import {CliExitError, ConfirmationRequiredError, EXIT_CODES, ValidationError, type JsonValue} from '../errors.js'
 import {confirmationToken, isNonInteractive, yesFlag} from './command.js'
@@ -84,11 +85,7 @@ export async function gatePublicWrite(w: PublicWrite): Promise<boolean> {
 }
 
 async function ask(question: string): Promise<boolean> {
-  const {createInterface} = await import('node:readline')
-  const rl = createInterface({input: process.stdin, output: process.stderr})
-  const answer = await new Promise<string>((resolve) => rl.question(question, resolve))
-  rl.close()
-  return /^y(es)?$/i.test(answer.trim())
+  return promptYesNo(question)
 }
 
 /** `devhelm <topic> <verb> …argv` for a command, used to print confirm commands. */

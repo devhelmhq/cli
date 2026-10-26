@@ -62,7 +62,7 @@ export function runCliInput(args: string[], input: string, opts: {api?: FakeApi;
   return new Promise((resolve) => {
     const child = spawn('node', [join(repoRoot, 'bin/dev.js'), ...args, ...base], {
       cwd: repoRoot,
-      env: {...process.env, DEVHELM_TELEMETRY: '0', DEVHELM_RETRY_BASE_MS: '1', DEVHELM_API_TOKEN: '', HOME: tmpHome(), CI: '', GITHUB_RUN_ID: '', ...opts.env},
+      env: {...process.env, DEVHELM_TELEMETRY: '0', DEVHELM_RETRY_MAX_DELAY_MS: '1', DEVHELM_API_TOKEN: '', HOME: tmpHome(), CI: '', GITHUB_RUN_ID: '', ...opts.env},
     })
     let stdout = ''
     let stderr = ''

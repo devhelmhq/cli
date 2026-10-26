@@ -12,7 +12,7 @@ import type {
   YamlStatusPage, YamlStatusPageBranding,
 } from './schema.js'
 import type {ResolvedRefs} from './resolver.js'
-import {OWNER_TOOL, ownerAddress, projectContext} from './project-context.js'
+import {OWNER_TOOL, ownerAddress} from './project-context.js'
 
 type Schemas = components['schemas']
 
@@ -192,7 +192,7 @@ export function toCreateMonitorRequest(
   monitor: YamlMonitor,
   refs: ResolvedRefs,
 ): Schemas['CreateMonitorRequest'] {
-  const ctx = projectContext()
+  const ctx = refs.project
   const environmentId = monitor.environment ? refs.resolve('environments', monitor.environment) ?? null : null
   const alertChannelIds = monitor.alertChannels?.map((n) => refs.require('alertChannels', n)) ?? null
   if (isCodeMonitor(monitor)) {
@@ -254,7 +254,7 @@ export function toUpdateMonitorRequest(
   // entirely means "preserve current API value". The snapshot in
   // handlers.ts mirrors this distinction so the diff phase emits an update
   // only when the user actually changed something.
-  const ctx = projectContext()
+  const ctx = refs.project
   if (isCodeMonitor(monitor)) {
     const body: Schemas['UpdateMonitorRequest'] = {
       name: monitor.name,

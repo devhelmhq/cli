@@ -12,6 +12,7 @@
  *     code goes to a draft and its validation run; all start in parallel up
  *     to `--test-concurrency` and are waited for until `--timeout`.
  */
+import type {z} from 'zod'
 import {createHash} from 'node:crypto'
 import {apiGetSingle, checkedFetch, type ApiClient} from '../api-client.js'
 import {schemas as apiSchemas} from '../api-zod.generated.js'
@@ -25,12 +26,15 @@ import {fetchPaginated} from '../typed-api.js'
 import type {components} from '../api.generated.js'
 import {parse, parseSingle} from '../response-validation.js'
 import {runPool} from '../runs/pool.js'
+import {startValidationRun} from '../runs/start.js'
 import {registerStartedRun} from '../runs/registry.js'
 import {isFlaky, verdictOf} from '../runs/outcome.js'
 import type {RunSessionContext} from '../runs/session.js'
 import {waitForRun, type RunDto} from '../runs/wait.js'
-import type {Changeset, DeployState, DevhelmConfig, ResolvedRefs, YamlMonitor} from '../yaml/index.js'
-import {OWNER_TOOL, isGitOwner, ownerAddress, projectContext} from '../yaml/project-context.js'
+import type {Changeset, DeployState, DevhelmConfig, ResolvedRefs} from '../yaml/index.js'
+import {OWNER_TOOL, isGitOwner, ownerAddress, type CodeMonitorState} from '../yaml/project-context.js'
+
+type ScriptConfig = z.infer<typeof apiSchemas.ScriptMonitorConfig>
 import {isCodeMonitor} from '../yaml/transform.js'
 import {ownedByProject} from './test-runner.js'
 
@@ -150,7 +154,7 @@ function sha(content: string | Uint8Array): string {
 
 /** Per code monitor: what deploy would do, with changed file names and drift. */
 export async function planCodeMonitors(client: ApiClient, config: DevhelmConfig, refs: ResolvedRefs, changeset: Changeset, opts: {details: boolean}): Promise<CodeMonitorPlan[]> {
-  const ctx = projectContext()
+  const ctx = refs.project
   const updates = new Map(changeset.updates.filter((c) => c.resourceType === 'monitor').map((c) => [c.refKey, c]))
   const creates = new Set(changeset.creates.filter((c) => c.resourceType === 'monitor').map((c) => c.refKey))
   const out: CodeMonitorPlan[] = []
@@ -163,7 +167,7 @@ export async function planCodeMonitors(client: ApiClient, config: DevhelmConfig,
     const p: CodeMonitorPlan = {
       name: m.name,
       action: creates.has(m.name) ? 'create' : updates.has(m.name) ? 'update' : 'none',
-      codeChanged: api ? monitorCodeChanged(m, api) : true,
+      codeChanged: api ? monitorCodeChanged(m, api, refs) : true,
       settingsChanged: api ? monitorSettingsChanged(m, api, refs) : true,
       owner: api ? ownerLabel(api) : null,
       overlays: api ? overlaysOf(api) : [],
@@ -213,7 +217,7 @@ export interface TestPhaseOptions {
  * draft id, the run, or `blocked` (the reason it cannot land).
  */
 export async function runTestPhase(client: ApiClient, config: DevhelmConfig, refs: ResolvedRefs, opts: TestPhaseOptions): Promise<void> {
-  const ctx = projectContext()
+  const ctx = refs.project
   const jobs = opts.plans.filter((p) => (p.action === 'create' || p.action === 'update') && p.codeChanged)
   await runPool(jobs, opts.concurrency, async (p) => {
       const m = (config.monitors ?? []).find((x) => x.name === p.name)!
@@ -227,7 +231,7 @@ export async function runTestPhase(client: ApiClient, config: DevhelmConfig, ref
       }
       try {
         const run = p.action === 'create'
-          ? await startAdhoc(client, m, refs, state.code, opts.session)
+          ? await startValidationRun(client, {kind: 'adhoc', type: m.type as 'BROWSER' | 'MULTI_STEP_API', environmentId: refs.require('environments', m.environment ?? ''), code: state.code, config: m.config as ScriptConfig | undefined}, {session: opts.session})
           : await startDraftTest(client, refs.require('monitors', p.name), state, opts.session)
         registerStartedRun(client, run.id, run.phase)
         opts.onStart?.(p.name, run)
@@ -256,21 +260,8 @@ export async function runTestPhase(client: ApiClient, config: DevhelmConfig, ref
   })
 }
 
-async function startAdhoc(client: ApiClient, m: YamlMonitor, refs: ResolvedRefs, code: NonNullable<ReturnType<typeof projectContext>['code'] extends Map<string, infer S> ? S : never>['code'], session?: RunSessionContext): Promise<RunDto> {
-  const environmentId = m.environment ? refs.resolve('environments', m.environment) : undefined
-  const body: Record<string, unknown> = {type: m.type, environmentId, code, config: m.config ?? {}}
-  if (session) body.session = session
-  const valid = parse(apiSchemas.MonitorTestRequest, body, 'Invalid test request')
-  const resp = await checkedFetch(client.POST('/api/v1/monitors/test', {body: valid}))
-  return parseSingle(apiSchemas.RunDto, resp, 'POST /api/v1/monitors/test')
-}
-
-async function startDraftTest(
-  client: ApiClient,
-  monitorId: string,
-  state: {code?: {bundle: string; entrypoint: string}; draftRevisionId?: string},
-  session?: RunSessionContext,
-): Promise<RunDto> {
+/** Draft the changed code (reusing a same-digest draft) and start its validation run. */
+async function startDraftTest(client: ApiClient, monitorId: string, state: CodeMonitorState, session?: RunSessionContext): Promise<RunDto> {
   const draftBody = parse(apiSchemas.CreateDraftRevisionRequest, {code: state.code}, 'Invalid draft request')
   const draft = parseSingle(
     apiSchemas.CreateDraftRevisionResponse,
@@ -278,10 +269,5 @@ async function startDraftTest(
     `POST /api/v1/monitors/${monitorId}/revisions`,
   )
   state.draftRevisionId = draft.revision.id
-  const testBody = parse(apiSchemas.CodeTestTargetRequest, session ? {session} : {}, 'Invalid test request')
-  const resp = await checkedFetch(client.POST('/api/v1/monitors/{id}/revisions/{revisionId}/test', {
-    params: {path: {id: monitorId, revisionId: draft.revision.id}},
-    body: testBody,
-  }))
-  return parseSingle(apiSchemas.RunDto, resp, 'POST /api/v1/monitors/{id}/revisions/{revisionId}/test')
+  return startValidationRun(client, {kind: 'revision', monitorId, revisionId: draft.revision.id}, {session})
 }

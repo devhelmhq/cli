@@ -1,4 +1,4 @@
-import {setProjectContext} from '../../src/lib/yaml/project-context.js'
+import {createProjectContext} from '../../src/lib/yaml/project-context.js'
 import {describe, it, expect} from 'vitest'
 import {diff} from '../../src/lib/yaml/differ.js'
 import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
@@ -170,9 +170,8 @@ describe('idempotency', () => {
         managedBy: 'GIT', owner: {type: 'GIT', project: 'acme/web'},
       }, managedBy: 'GIT'},
     ])
-    setProjectContext({project: 'acme/web'})
+    refs.project = createProjectContext({project: 'acme/web'})
     const cs = await diff(config, refs, {prune: true})
-    setProjectContext({})
     expect(cs.deletes).toHaveLength(1)
     expect(cs.deletes[0].refKey).toBe('Web')
     expect(cs.creates).toHaveLength(0)

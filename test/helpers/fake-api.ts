@@ -116,7 +116,7 @@ export async function runCli(args: string[], opts: {api?: FakeApi; env?: Record<
         env: {
           ...process.env,
           DEVHELM_TELEMETRY: '0',
-          DEVHELM_RETRY_BASE_MS: '1',
+          DEVHELM_RETRY_MAX_DELAY_MS: '1',
           DEVHELM_WAIT_POLL_MS: '20',
           DEVHELM_API_TOKEN: '',
           HOME: process.env.DEVHELM_TEST_HOME ?? join(repoRoot, 'test', '.home'),

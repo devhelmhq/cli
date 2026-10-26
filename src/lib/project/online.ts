@@ -10,23 +10,23 @@ import {uploadCode, checkCodeOnline} from '../code/bundle.js'
 import {DevhelmError} from '../errors.js'
 import {parse, parseSingle} from '../response-validation.js'
 import {fetchAllRefs, registerYamlPendingRefs, type ResolvedRefs, type DevhelmConfig, type DeployState} from '../yaml/index.js'
-import {projectContext} from '../yaml/project-context.js'
+import type {ProjectContext} from '../yaml/project-context.js'
 import {toCreateMonitorRequest} from '../yaml/transform.js'
 import type {Issue} from './project.js'
 
 export type ValidationFinding = z.infer<typeof apiSchemas.MonitorValidationFindingDto>
 export type Projection = z.infer<typeof apiSchemas.MonitorValidationProjectionDto>
 
-export async function fetchRefs(client: ApiClient, config: DevhelmConfig, state?: DeployState): Promise<ResolvedRefs> {
+export async function fetchRefs(client: ApiClient, config: DevhelmConfig, ctx: ProjectContext, state?: DeployState): Promise<ResolvedRefs> {
   const refs = await fetchAllRefs(client, state)
+  refs.project = ctx
   registerYamlPendingRefs(refs, config)
   return refs
 }
 
 /** Upload every prepared closure (or the named ones). Failures become issues. */
-export async function uploadPrepared(client: ApiClient, only?: Set<string>): Promise<Issue[]> {
+export async function uploadPrepared(client: ApiClient, ctx: ProjectContext, only?: Set<string>): Promise<Issue[]> {
   const issues: Issue[] = []
-  const ctx = projectContext()
   const tasks = [...ctx.code.entries()].filter(([name, s]) => s.prepared && (!only || only.has(name))).map(async ([name, state]) => {
     try {
       const {bundle, code} = await uploadCode(client, state.prepared!, {runtimeId: state.runtimeId})
@@ -48,9 +48,9 @@ export async function uploadPrepared(client: ApiClient, only?: Set<string>): Pro
 }
 
 /** `POST /bundles/check` per prepared closure: every server-side finding. */
-export async function checkBundlesOnline(client: ApiClient): Promise<Issue[]> {
+export async function checkBundlesOnline(client: ApiClient, ctx: ProjectContext): Promise<Issue[]> {
   const issues: Issue[] = []
-  for (const [name, state] of projectContext().code.entries()) {
+  for (const [name, state] of ctx.code.entries()) {
     if (!state.prepared) continue
     const findings = await checkCodeOnline(client, state.prepared, state.runtimeId)
     for (const f of findings) issues.push({severity: 'error', path: name, message: f.message, code: f.code, file: f.file ?? undefined, line: f.line ?? undefined})
