@@ -31,9 +31,11 @@ export function errorFromResponse(body: unknown, response: Response): DevhelmErr
  * One CLI invocation. `Idempotency-Key` values are derived from it so a
  * transport retry of the same request replays, while every logical POST
  * in the invocation gets its own key (doc 32 D-7): in GitHub Actions the
- * seed is `sha256(GITHUB_RUN_ID, GITHUB_RUN_ATTEMPT, command)`, elsewhere a
- * random UUID per invocation. `--idempotency-key` pins the first POST's
- * key; later POSTs in the same invocation append an ordinal.
+ * seed is `sha256(GITHUB_RUN_ID, GITHUB_RUN_ATTEMPT, GITHUB_JOB,
+ * GITHUB_ACTION, argv)`, elsewhere a random UUID per invocation. The argv
+ * and step keep two different commands in one job apart; re-running the
+ * same step of the same attempt replays. `--idempotency-key` pins the first
+ * POST's key; later POSTs in the same invocation append an ordinal.
  */
 interface InvocationContext {
   command: string
@@ -45,18 +47,23 @@ interface InvocationContext {
 
 let invocation: InvocationContext = newInvocation('cli')
 
-function newInvocation(command: string, explicitKey?: string): InvocationContext {
-  const runId = process.env.GITHUB_RUN_ID
-  const attempt = process.env.GITHUB_RUN_ATTEMPT
-  const seed = runId
-    ? createHash('sha256').update(`${runId}\n${attempt ?? '1'}\n${command}`).digest('hex')
+function newInvocation(command: string, explicitKey?: string, argv: readonly string[] = []): InvocationContext {
+  const env = process.env
+  const seed = env.GITHUB_RUN_ID
+    ? createHash('sha256')
+        .update(
+          [env.GITHUB_RUN_ID, env.GITHUB_RUN_ATTEMPT ?? '1', env.GITHUB_JOB ?? '', env.GITHUB_ACTION ?? '', command, ...argv].join(
+            '\n',
+          ),
+        )
+        .digest('hex')
     : randomUUID()
   return {command, seed, explicitKey, counter: new Map(), posts: 0}
 }
 
 /** Called once per command invocation (from the base command's init). */
-export function beginInvocation(command: string, explicitKey?: string): void {
-  invocation = newInvocation(command, explicitKey)
+export function beginInvocation(command: string, explicitKey?: string, argv: readonly string[] = process.argv.slice(2)): void {
+  invocation = newInvocation(command, explicitKey, argv)
 }
 
 /** Next `Idempotency-Key` for a POST to `target` in this invocation. */
