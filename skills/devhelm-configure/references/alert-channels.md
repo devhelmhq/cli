@@ -114,8 +114,8 @@ the referencing policies listed. Offer to unlink first:
 
 ```bash
 devhelm alert-channels delete <id>   # may fail with 409
-# Inspect references:
-devhelm notification-policies list --alert-channel=<id>
+# Inspect references: list policies and check which use this channel
+devhelm notification-policies list -o json
 ```
 
 ## Complete field reference

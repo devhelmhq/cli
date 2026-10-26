@@ -18,6 +18,7 @@ export const SKILL_NAMES = [
   'devhelm-investigate',
   'devhelm-communicate',
   'devhelm-manage',
+  'devhelm-synthetics',
 ] as const
 export type SkillName = (typeof SKILL_NAMES)[number]
 
@@ -127,4 +128,17 @@ export function listSkills(root: string): SkillName[] {
     .map((e) => e.name)
     .filter((n): n is SkillName => (SKILL_NAMES as readonly string[]).includes(n))
   return names
+}
+
+/**
+ * The `metadata.version` stamped in a SKILL.md frontmatter (the CLI version
+ * that shipped it), or undefined when the file predates version stamps.
+ */
+export function skillVersion(skillMd: string): string | undefined {
+  const body = readFileSync(skillMd, 'utf8')
+  if (!body.startsWith('---\n')) return undefined
+  const end = body.indexOf('\n---', 4)
+  if (end === -1) return undefined
+  const m = /^metadata:\n(?: {2}\S.*\n)*? {2}version:\s*"?([^"\n]+)"?$/m.exec(body.slice(0, end + 1))
+  return m?.[1]
 }

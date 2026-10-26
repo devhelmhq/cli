@@ -2,6 +2,7 @@ import {describe, expect, test} from 'vitest'
 import {readdirSync, readFileSync, statSync} from 'node:fs'
 import {join, dirname} from 'node:path'
 import {fileURLToPath} from 'node:url'
+import {skillVersion} from '../../src/lib/skills.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const SKILLS_DIR = join(ROOT, 'skills')
@@ -11,6 +12,7 @@ const EXPECTED_SKILLS = [
   'devhelm-investigate',
   'devhelm-communicate',
   'devhelm-manage',
+  'devhelm-synthetics',
 ]
 
 /**
@@ -60,6 +62,10 @@ describe('skills/ frontmatter', () => {
 
       // Name should match the directory name.
       expect(fm!.name).toBe(skill)
+
+      // Stamped with the CLI version so `devhelm doctor` can spot a stale install.
+      const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {version: string}
+      expect(skillVersion(path), 'run `npm run skillgen`').toBe(pkg.version)
     })
   }
 })

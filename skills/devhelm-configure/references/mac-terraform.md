@@ -117,11 +117,9 @@ terraform import devhelm_monitor.api_prod <monitor-id>
 Every DevHelm resource exposes a stable `id`; you can find it via
 `devhelm <resource> list`.
 
-For wholesale import of a pre-existing configuration:
-
-```bash
-devhelm init --from-platform --format=terraform > devhelm.tf
-```
+For wholesale import of a pre-existing configuration, write the
+`devhelm_*` resource blocks by hand from `devhelm <resource> get <id>
+-o json`; `devhelm init` only scaffolds a starter check.
 
 ## State considerations
 

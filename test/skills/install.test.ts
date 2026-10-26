@@ -22,7 +22,7 @@ describe('devhelm skills install', () => {
   test('--target=cursor writes .cursor/skills/devhelm-*', () => {
     runCli('skills install --target=cursor', workdir)
 
-    for (const skill of ['devhelm-configure', 'devhelm-investigate', 'devhelm-communicate', 'devhelm-manage']) {
+    for (const skill of ['devhelm-configure', 'devhelm-investigate', 'devhelm-communicate', 'devhelm-manage', 'devhelm-synthetics']) {
       const p = join(workdir, '.cursor', 'skills', skill, 'SKILL.md')
       expect(existsSync(p), `${p} should exist`).toBe(true)
       const body = readFileSync(p, 'utf8')

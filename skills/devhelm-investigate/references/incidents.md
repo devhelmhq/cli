@@ -26,18 +26,13 @@ auditable, and has a `reason` field plus a `details.source` field
 ## List
 
 ```bash
-devhelm incidents list \
-  --state=OPEN,TRIGGERED,CONFIRMED \
-  --monitor=<monitor-id> \
-  --resource-group=<slug> \
-  --since=24h \
-  --output=json
+devhelm incidents list --output=json
+devhelm incidents related <incident-id> --window-days=7
 ```
 
-Sensible defaults for a triage prompt:
-
-- `--state=TRIGGERED,CONFIRMED` (active only)
-- `--since=24h`
+`incidents list` has no state/monitor/time filters; filter the JSON
+output (state, monitor id, started-at) yourself. For a triage prompt,
+keep active incidents only (`TRIGGERED`, `CONFIRMED`) from the last 24h.
 
 ## Get
 
@@ -99,28 +94,22 @@ Render this as a compact timeline in replies:
 ### Resolve
 
 ```bash
-devhelm incidents resolve <id> --reason="Deployment rolled back"
+devhelm incidents resolve <id> --message="Deployment rolled back"
 ```
 
 Posted transition reason appears in the forensic trace with
 `details.source="public-api"`.
 
-### Reopen
-
-```bash
-devhelm incidents reopen <id> --body="Still seeing failures after rollback"
-```
-
-Changes state → CONFIRMED. Writes a public update if the incident is
-linked to a status page.
+There is no reopen command: if failures return, a new incident opens
+automatically, or create one with `devhelm incidents create`.
 
 ### Post an update
 
 ```bash
-devhelm incidents updates create <id> \
+devhelm incidents add-update <id> \
   --status=INVESTIGATING \
   --body="We're looking into this now" \
-  --notify-subscribers=false
+  --no-notify-subscribers
 ```
 
 Updates on private incidents (not linked to a status page) are

@@ -39,9 +39,13 @@ Three mutually-exclusive targeting modes:
 
 | Flag | Meaning |
 |---|---|
-| `--applies-to-all=true` | All monitors in the workspace |
-| `--tags=key=value,key2=value2` | Only monitors with those tags |
-| `--resource-group=<slug>` | Only monitors in that group |
+| `applies_to_all: true` | All monitors in the workspace |
+| `tags: {key: value}` | Only monitors with those tags |
+| `resource_group: <slug>` | Only monitors in that group |
+
+Scoping, region requirements and escalation are set in `devhelm.yml`
+(or the dashboard). The imperative command only takes `--name`,
+`--channel-ids` and `--enabled`.
 
 If multiple policies match a monitor, **all of them** fire (additive,
 not exclusive). Prefer one general default + targeted overrides over
@@ -52,8 +56,8 @@ many narrowly-scoped ones.
 By default, a failure from **one region** counts. To reduce
 probe-side false positives, require multiple regions:
 
-```bash
---regions-required=2
+```yaml
+regions_required: 2
 ```
 
 Monitors with only 1 region configured can't satisfy a
@@ -64,14 +68,13 @@ monitor names.
 
 Optional second-tier channel after a delay:
 
-```bash
-devhelm notification-policies create \
-  --name=prod-escalated \
-  --tags=env=prod \
-  --trigger-count=2 \
-  --alert-channels=slack-platform \
-  --escalation-channels=pd-prod \
-  --escalation-after-seconds=900      # 15 minutes
+```yaml
+notification_policies:
+  - name: prod-escalated
+    tags: { env: prod }
+    alert_channels: [slack-platform]
+    escalation_channels: [pd-prod]
+    escalation_after_seconds: 900      # 15 minutes
 ```
 
 If the incident is still CONFIRMED 15 minutes later, PagerDuty gets

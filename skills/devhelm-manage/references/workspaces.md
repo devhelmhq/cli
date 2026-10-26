@@ -19,9 +19,8 @@ to.
 ## Switch workspace
 
 ```bash
-devhelm workspaces use <slug>
-# or, equivalent via context:
-devhelm auth context use <context-name>
+devhelm workspaces list
+devhelm auth switch <context-name>      # same as: auth context use
 ```
 
 Contexts bundle `(api_token, org, workspace, environment)` into one

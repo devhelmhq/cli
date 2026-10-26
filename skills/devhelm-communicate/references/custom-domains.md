@@ -52,7 +52,6 @@ This triggers a fresh check. Possible outcomes:
 
 ```bash
 devhelm status-pages domains list <page-id>
-devhelm status-pages domains get <domain-id>
 devhelm status-pages domains remove <domain-id>
 ```
 
@@ -63,11 +62,11 @@ Removing a domain immediately stops serving; the default
 
 Multiple custom domains per page are supported (e.g.
 `status.example.com` + `status.example.io`). Only one is the
-canonical — pass `--canonical=true` on the one that should be in
-Open Graph metadata and emails:
+primary — set it with the one that should be in Open Graph metadata
+and emails:
 
 ```bash
-devhelm status-pages domains update <domain-id> --canonical=true
+devhelm status-pages domains set-primary <page-id> <domain-id>
 ```
 
 ## Gotchas

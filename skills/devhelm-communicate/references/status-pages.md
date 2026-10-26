@@ -20,36 +20,34 @@ DevHelm hosts pages at `https://<slug>.devhelm.io`. Custom domains
 devhelm status-pages create \
   --name="Acme Status" \
   --slug=acme \
-  --headline="Acme service status" \
   --description="Real-time status of Acme products" \
-  --published=false
+  --incident-mode=REVIEW
 ```
 
 Defaults:
 
 - `slug` — defaults to the org's slug if not supplied. Immutable after
   publish (external bookmarks would break).
-- `headline` — defaults to `<Org name> service status`.
-- `published` — defaults to `false`. Users must opt in to publish.
+- `description` — optional subtitle shown on the page.
+- `incident-mode` — `MANUAL`, `REVIEW` or `AUTOMATIC` (how monitor
+  failures become public incidents).
 
 ## List / get / update / delete
 
 ```bash
 devhelm status-pages list
 devhelm status-pages get <page-id>
-devhelm status-pages update <page-id> --headline="..." --published=true
+devhelm status-pages update <page-id> --description="..." --enabled
 devhelm status-pages delete <page-id>        # irreversible; unpublish first
 ```
 
 ## Theme & branding
 
-Light customization is available via flags:
+Branding comes from a JSON file; omit the flag to keep existing
+branding:
 
 ```bash
-devhelm status-pages update <page-id> \
-  --logo-url=https://cdn.example.com/logo.svg \
-  --primary-color="#0066CC" \
-  --favicon-url=https://cdn.example.com/favicon.ico
+devhelm status-pages update <page-id> --branding-file=./branding.json
 ```
 
 Heavier customization (custom CSS, custom layout) is dashboard-only
@@ -64,7 +62,7 @@ reflects reality without the user having to manually post.
 Control this per page:
 
 ```bash
-devhelm status-pages update <page-id> --auto-create-incidents=true
+devhelm status-pages update <page-id> --incident-mode=AUTOMATIC
 ```
 
 Or per component (see `@references/components.md`).
@@ -73,11 +71,11 @@ Or per component (see `@references/components.md`).
 
 The user-visible flow is four steps:
 
-1. `devhelm status-pages create --published=false`
+1. `devhelm status-pages create --name=... --slug=...`
 2. `devhelm status-pages components create ...` (one per monitor)
-3. Preview with `devhelm status-pages preview <page-id>` (opens the
-   dashboard's draft-preview URL).
-4. `devhelm status-pages update <page-id> --published=true`
+3. Review the layout with `devhelm status-pages get <page-id>` and
+   the components list.
+4. `devhelm status-pages update <page-id> --enabled`
 
 Do not skip step 3 if the user hasn't seen the page layout before —
 status pages are public and mistakes are visible.
@@ -85,7 +83,7 @@ status pages are public and mistakes are visible.
 ## Un-publishing
 
 ```bash
-devhelm status-pages update <page-id> --published=false
+devhelm status-pages update <page-id> --no-enabled
 ```
 
 Reversible. The custom domain (if any) serves a 404 while unpublished.

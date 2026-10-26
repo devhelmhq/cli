@@ -16,16 +16,15 @@ anything from DevHelm's end; they consume the vendor's published feed
 ## Create
 
 ```bash
-devhelm dependencies create \
-  --name="Stripe Payments" \
-  --provider=stripe \
-  --component=payments
+devhelm dependencies track stripe --component=<component-id>
 ```
 
-The `provider` is DevHelm's internal slug for the vendor (see
-`@_generated/dependencies.fields.md` for the full list — it's large
-and grows with adapters). The `component` narrows to a specific
-sub-service within that vendor's status page.
+The positional argument is the service slug from the catalog (browse
+it with `devhelm data services list`). `--component` narrows to a
+specific sub-service on that vendor's status page; omit it to follow
+the whole service. `--alert-sensitivity` (`ALL`, `AWARENESS`,
+`INCIDENTS_ONLY`, `MAJOR_ONLY`) controls alerting; the default
+`AWARENESS` tracks silently.
 
 ## List / get / delete
 
@@ -42,8 +41,9 @@ page — customers see "we depend on X, and X is currently Y".
 
 ```bash
 devhelm status-pages components create <page-id> \
-  --dependency-id=<dep-id> \
-  --name="Stripe Payments"
+  --name="Stripe Payments" \
+  --type=<component-type> \
+  --group-id=<group-id>
 ```
 
 See `devhelm-communicate` skill → `@references/components.md` for the
@@ -51,15 +51,11 @@ full attach flow.
 
 ## Alerting on a dependency failure
 
-Dependencies can drive notification policies just like monitors — if
-the vendor goes red, you get paged. Scope a policy with the
-dependency's tags:
+Set `--alert-sensitivity` on the dependency so vendor incidents alert
+your channels:
 
 ```bash
-devhelm notification-policies create \
-  --name=third-party \
-  --tags=type=dependency \
-  --alert-channels=slack-platform
+devhelm dependencies update <id> --alert-sensitivity=INCIDENTS_ONLY
 ```
 
 ## Common gotchas

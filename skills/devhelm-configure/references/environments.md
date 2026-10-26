@@ -32,25 +32,23 @@ devhelm environments create --name=Staging --slug=staging
 devhelm environments list
 ```
 
-Active selection for CLI / MaC operations:
+Active selection for CLI / MaC operations (there is no persistent
+"use" command; pass `--env` or set the variable):
 
 ```bash
 # Per-command flag
-devhelm monitors list --environment=staging
+devhelm monitors list --env staging
 
 # Per-session env var
 export DEVHELM_ENVIRONMENT=staging
 devhelm monitors list
-
-# Persistent, per-context (stored in ~/.devhelm/contexts.json)
-devhelm environments use staging
 ```
 
 ## Assign resources
 
 ```bash
-devhelm monitors create --environment=production ...
-devhelm monitors update <id> --environment=production
+devhelm monitors create --name=api --type=HTTP --url=https://example.com --env production
+devhelm monitors update <id> --move-to-env production
 ```
 
 YAML:
@@ -86,7 +84,7 @@ devhelm environments delete <slug>
 ```
 
 Fails with 409 if any resources reference it — response lists them.
-Move them first (`--environment=<other>` or set to unset), then
+Move them first (`devhelm monitors update <id> --move-to-env <other>`), then
 retry.
 
 ## Common gotchas
@@ -94,9 +92,9 @@ retry.
 - **Default environment.** New orgs come with a single `production`
   environment. The user doesn't have to create one; they can just
   start.
-- **`devhelm deploy` scope.** Without `--environment`, deploy operates
+- **`devhelm deploy` scope.** Without `--env`, deploy operates
   on the currently-selected env. Be explicit in CI:
-  `devhelm deploy --environment=production`.
+  `devhelm deploy --env production`.
 - **Cross-environment references.** A notification policy scoped to
   `production` won't cover `staging` monitors. If the user wants one
   policy for both, either omit the environment scope on the policy,

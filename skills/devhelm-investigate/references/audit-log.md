@@ -17,10 +17,11 @@ Use when the user asks:
 ```bash
 devhelm audit events \
   --since=24h \
-  --actor=user:alice@example.com \
-  --resource-type=MONITOR \
-  --resource-id=<monitor-id> \
-  --action=UPDATE,DELETE \
+  --actor=<actor-id> \
+  --resource-type=monitor \
+  --resource=<monitor-id> \
+  --action=monitor.updated \
+  --limit=100 \
   --output=json
 ```
 
@@ -29,10 +30,9 @@ Common filter combinations:
 | Filter | Answers |
 |---|---|
 | `--since=1h` | "Anything happen in the last hour?" |
-| `--actor=<email>` | "What did Alice do this week?" |
-| `--resource-id=<id>` | "Full history of this specific monitor." |
-| `--action=DELETE` | "All deletions." |
-| `--surface=CLI,TERRAFORM` | "All code-driven changes." |
+| `--actor=<actor-id>` | "What did Alice do this week?" |
+| `--resource=<id>` | "Full history of this specific monitor." |
+| `--action=monitor.deleted` | "All deletions." |
 
 ## Event shape
 

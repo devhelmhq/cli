@@ -76,16 +76,11 @@ Sends a synthetic `webhook.test` event. Response includes the
 HTTP status and any error body from the subscriber. Always run this
 after create.
 
-## Inspect deliveries
+## Debugging missed deliveries
 
-```bash
-devhelm webhooks deliveries list <webhook-id> --limit=50
-devhelm webhooks deliveries get <delivery-id>   # full request/response
-devhelm webhooks deliveries replay <delivery-id>
-```
-
-Useful for debugging when the user says *"we didn't receive the
-event"*.
+The CLI has no delivery log. Run `devhelm webhooks test <id>` to send a
+synthetic event, check the returned HTTP status, and compare with the
+subscriber's own logs.
 
 ## Common gotchas
 

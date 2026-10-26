@@ -109,7 +109,7 @@ export default class SkillsInstall extends Command {
 
     this.log('')
     this.log('Next: open your agent and prompt for something like:')
-    this.log('  > Set up a monitor for https://your-site.com.')
+    this.log('  > Add a browser check for our login page and deploy it.')
     this.log('')
   }
 }
