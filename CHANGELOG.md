@@ -7,7 +7,7 @@
 - `validate --online`, `test` (with `--reporter junit|github|json`, `--repeat`, `--from-terraform`), code-aware `plan` and `deploy` (validate-then-create, draft → test → publish with `requireTested`, `landed[]/notLanded[]`, `--adopt`, `--acknowledge-rollback`, `--no-test`), `trigger`, `doctor`, `destroy --project`, `init --browser|--api`.
 - `monitors`: name resolution everywhere, `run`, `history`, `revisions …`, `publish`, `rollback`, `export`, `transfer`, `restore`, `trash list`, `drift`, `mute`/`unmute`, `quarantine`/`release-quarantine`, `secret-requests …`, `sessions …`.
 - `runs …`, `runtimes …`, `secrets values set|delete`, `account usage|entitlements`, `audit events`, `api-keys create --preset`, `api-keys rotate`, device-code `auth login`, `auth switch`, `workspaces list`, `regions list`, and incident and status-page commands over the shipped routes.
-- Frozen exit codes (see README), mapped from the error category; `X-DevHelm-Client` and `Idempotency-Key` on every request.
+- Frozen exit codes (see README), mapped from the error category; `X-DevHelm-Client` on every request and an `Idempotency-Key` on every POST. Keys are random per invocation and reused only for retries of that request, so a second identical command is a new request (as before), never a replay.
 
 ### Changed
 - `deploy` never changes `enabled` (pause is an overlay); `enabled` in devhelm.yml is now an error naming `monitors pause|resume`.

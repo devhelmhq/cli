@@ -1,56 +1,43 @@
-import {afterEach, beforeEach, describe, expect, it} from 'vitest'
+import {describe, expect, it} from 'vitest'
 import {beginInvocation, nextIdempotencyKey} from '../../src/lib/api-client.js'
 import {FakeApi, runCli} from '../helpers/fake-api.js'
 
 const CI_ENV = {GITHUB_RUN_ID: '123', GITHUB_RUN_ATTEMPT: '1', GITHUB_JOB: 'deploy', GITHUB_ACTION: '__run_2'}
 
-function keyFor(argv: string[], env: Record<string, string> = CI_ENV): string {
-  Object.assign(process.env, env)
-  beginInvocation('status-pages:create', undefined, argv)
-  return nextIdempotencyKey('POST', '/api/v1/status-pages')
-}
-
-describe('CI-derived idempotency keys', () => {
-  const saved = {...process.env}
-  beforeEach(() => {
+describe('idempotency keys', () => {
+  it('gives every invocation its own seed, in CI or not', () => {
+    Object.assign(process.env, CI_ENV)
+    beginInvocation('tags:create')
+    const first = nextIdempotencyKey('POST', '/api/v1/tags')
+    beginInvocation('tags:create')
+    expect(nextIdempotencyKey('POST', '/api/v1/tags')).not.toBe(first)
     for (const k of Object.keys(CI_ENV)) delete process.env[k]
   })
-  afterEach(() => {
-    process.env = {...saved}
+
+  it('gives each POST in one invocation its own key', () => {
+    beginInvocation('deploy')
+    expect(nextIdempotencyKey('POST', '/api/v1/tags')).not.toBe(nextIdempotencyKey('POST', '/api/v1/tags'))
   })
 
-  it('gives two different commands in one CI step different keys', () => {
-    expect(keyFor(['status-pages', 'create', '--name', 'a'])).not.toBe(keyFor(['status-pages', 'create', '--name', 'b']))
-  })
-
-  it('replays the same command in the same step and attempt', () => {
-    const argv = ['status-pages', 'create', '--name', 'a']
-    expect(keyFor(argv)).toBe(keyFor(argv))
-  })
-
-  it('gives the same command in another step or attempt a new key', () => {
-    const argv = ['status-pages', 'create', '--name', 'a']
-    expect(keyFor(argv)).not.toBe(keyFor(argv, {...CI_ENV, GITHUB_ACTION: '__run_3'}))
-    expect(keyFor(argv)).not.toBe(keyFor(argv, {...CI_ENV, GITHUB_RUN_ATTEMPT: '2'}))
-  })
-
-  it('uses a random seed outside CI', () => {
-    const argv = ['status-pages', 'create', '--name', 'a']
-    expect(keyFor(argv, {})).not.toBe(keyFor(argv, {}))
+  it('pins the first key with --idempotency-key and numbers the rest', () => {
+    beginInvocation('deploy', 'my-key')
+    expect(nextIdempotencyKey('POST', '/api/v1/tags')).toBe('my-key')
+    expect(nextIdempotencyKey('POST', '/api/v1/monitors')).toBe('my-key-1')
   })
 })
 
-describe('CI-derived idempotency keys (subprocess)', () => {
-  // `status-pages create` comes from the generic CRUD factory, not
-  // DevhelmCommand, so it relies on the default per-process invocation.
-  it('gives two creates from the generic CRUD commands different keys', async () => {
+describe('idempotency keys (subprocess)', () => {
+  // Same command twice in one CI step: each run is a fresh request, so the
+  // API answers the second create itself (409 on 1.11 too), never a replay.
+  it('sends different keys for the same command run twice in one CI step', async () => {
     const api = await new FakeApi().start()
     api.on('POST', '/api/v1/status-pages', {status: 500, body: {}})
     try {
-      for (const name of ['page-a', 'page-b']) {
-        await runCli(['status-pages', 'create', '--name', name, '--slug', name, '-o', 'json'], {api, env: CI_ENV})
+      for (let i = 0; i < 2; i++) {
+        await runCli(['status-pages', 'create', '--name', 'page-a', '--slug', 'page-a', '-o', 'json'], {api, env: CI_ENV})
       }
       const keys = api.calls('POST', '/api/v1/status-pages').map((c) => c.headers['idempotency-key'])
+      expect(keys).toHaveLength(2)
       expect(new Set(keys).size).toBe(2)
     } finally {
       await api.stop()

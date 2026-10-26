@@ -28,14 +28,11 @@ export function errorFromResponse(body: unknown, response: Response): DevhelmErr
 // ── Invocation context: idempotency keys and client header ─────────────
 
 /**
- * One CLI invocation. `Idempotency-Key` values are derived from it so a
- * transport retry of the same request replays, while every logical POST
- * in the invocation gets its own key (doc 32 D-7): in GitHub Actions the
- * seed is `sha256(GITHUB_RUN_ID, GITHUB_RUN_ATTEMPT, GITHUB_JOB,
- * GITHUB_ACTION, argv)`, elsewhere a random UUID per invocation. The argv
- * and step keep two different commands in one job apart; re-running the
- * same step of the same attempt replays. `--idempotency-key` pins the first
- * POST's key; later POSTs in the same invocation append an ordinal.
+ * One CLI invocation. Each gets a random seed, so two separate commands never
+ * share an `Idempotency-Key` (a second identical create still gets its 409,
+ * as on 1.11). Keys are per logical POST and the SDK transport reuses a key
+ * only for retries of that request. `--idempotency-key` pins the first POST's
+ * key; later POSTs in the same invocation append an ordinal.
  */
 interface InvocationContext {
   command: string
@@ -45,31 +42,15 @@ interface InvocationContext {
   posts: number
 }
 
-// One process is one invocation, so the default already covers argv: commands
-// that don't extend DevhelmCommand never call beginInvocation.
 let invocation: InvocationContext = newInvocation('cli')
 
-function newInvocation(
-  command: string,
-  explicitKey?: string,
-  argv: readonly string[] = process.argv.slice(2),
-): InvocationContext {
-  const env = process.env
-  const seed = env.GITHUB_RUN_ID
-    ? createHash('sha256')
-        .update(
-          [env.GITHUB_RUN_ID, env.GITHUB_RUN_ATTEMPT ?? '1', env.GITHUB_JOB ?? '', env.GITHUB_ACTION ?? '', command, ...argv].join(
-            '\n',
-          ),
-        )
-        .digest('hex')
-    : randomUUID()
-  return {command, seed, explicitKey, counter: new Map(), posts: 0}
+function newInvocation(command: string, explicitKey?: string): InvocationContext {
+  return {command, seed: randomUUID(), explicitKey, counter: new Map(), posts: 0}
 }
 
 /** Called once per command invocation (from the base command's init). */
-export function beginInvocation(command: string, explicitKey?: string, argv?: readonly string[]): void {
-  invocation = newInvocation(command, explicitKey, argv)
+export function beginInvocation(command: string, explicitKey?: string): void {
+  invocation = newInvocation(command, explicitKey)
 }
 
 /** Next `Idempotency-Key` for a POST to `target` in this invocation. */
