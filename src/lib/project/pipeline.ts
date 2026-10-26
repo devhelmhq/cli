@@ -139,7 +139,7 @@ export function codePlanLines(plans: CodeMonitorPlan[]): string[] {
     }
     if (p.action === 'update' && p.settingsChanged) what.push('settings')
     if (p.owner) what.push(`owner ${p.owner}`)
-    if (p.overlays.length > 0) what.push(`${p.overlays.join(', ')} (not changed by deploy)`)
+    if (p.overlays.length > 0) what.push(`${p.overlays.join(', ')} (deploy leaves these unless devhelm.yml sets enabled)`)
     out.push(`  ${sym} ${p.name}  ${what.join(' · ')}`)
     if (p.drift) {
       out.push(`    ! live code ${p.drift.liveDigest.slice(0, 19)}… differs from the last Git deploy ${p.drift.gitDigest.slice(0, 19)}…${p.republishesRolledBack ? ` (rolled back); deploy refuses unless --acknowledge-rollback "${p.name}"` : ''}`)
