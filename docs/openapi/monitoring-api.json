@@ -64337,6 +64337,7 @@
         "type": "object",
         "properties": {
           "id": {
+            "minLength": 1,
             "type": "string",
             "description": "Message id"
           },
