@@ -7387,10 +7387,7 @@ export interface components {
         };
         /** @description Captured inbound email (preview, not RFC822 bytes) */
         EmailMessageDto: {
-            /**
-             * Format: uuid
-             * @description Message id
-             */
+            /** @description Message id */
             id: string;
             /**
              * Format: uuid
