@@ -180,7 +180,7 @@
     "devops"
   ],
   "dependencies": {
-    "@devhelm/sdk": "github:devhelmhq/sdk-js#508d3328d299c8a6008ead5862d0cda1b2697194",
+    "@devhelm/sdk": "github:devhelmhq/sdk-js#04c71eb72b7d2aea6240a2663bf3cfcfe73b6bc1",
     "@oclif/core": "^4.10.5",
     "@oclif/plugin-help": "^6.2.43",
     "@oclif/plugin-not-found": "^3.2.80",

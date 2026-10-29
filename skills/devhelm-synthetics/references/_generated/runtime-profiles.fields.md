@@ -18,4 +18,6 @@
 | `nodeBuiltins` | string[] |  | ✓ | Node built-in modules available to checks |
 | `reservedBindings` | string[] |  | ✓ | Environment bindings this runtime reads |
 | `browser` | any |  | ✓ |  |
+| `platformDefault` | boolean | ✓ |  | Whether new checks use this runtime when none is pinned |
+| `regions` | RuntimeRegionAvailability[] | ✓ |  | Whether each region can run this runtime |
 

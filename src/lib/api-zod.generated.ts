@@ -2422,6 +2422,9 @@ const ComponentUptimeDayDto = z
 const BatchComponentUptimeDto = z
   .object({ components: z.record(z.array(ComponentUptimeDayDto)) })
   .passthrough();
+const BindingVersionSnapshot = z
+  .object({ keys: z.array(z.string()), attachedKeys: z.array(z.string()) })
+  .passthrough();
 const BrowserCapabilityEnvelope = z
   .object({
     iframes: z.boolean(),
@@ -2900,6 +2903,9 @@ const RunAttemptDto = z
     finishedAt: z.string().datetime({ offset: true }).nullish(),
   })
   .passthrough();
+const RuntimeRegionAvailability = z
+  .object({ region: z.string().min(1), available: z.boolean() })
+  .passthrough();
 const RuntimeProfileDto = z
   .object({
     id: z.string().min(1),
@@ -2913,6 +2919,8 @@ const RuntimeProfileDto = z
     nodeBuiltins: z.array(z.string()).nullish(),
     reservedBindings: z.array(z.string()).nullish(),
     browser: BrowserCapabilityEnvelope.nullish(),
+    platformDefault: z.boolean(),
+    regions: z.array(RuntimeRegionAvailability),
   })
   .passthrough();
 const HarnessReleaseDto = z
@@ -2993,8 +3001,8 @@ const RunDto = z
     artifactsExpiredAt: z.string().datetime({ offset: true }).nullish(),
     pinnedAt: z.string().datetime({ offset: true }).nullish(),
     purgedAt: z.string().datetime({ offset: true }).nullish(),
-    capturePolicySnapshot: z.record(JsonValue),
-    bindingVersionSnapshot: z.record(JsonValue),
+    capturePolicySnapshot: CapturePolicy,
+    bindingVersionSnapshot: BindingVersionSnapshot,
     durationMs: z.number().int().nullish(),
     queueWaitMs: z.number().int().nullish(),
     queuePosition: z.number().int().nullish(),
@@ -6247,6 +6255,7 @@ export const schemas = {
   IncidentRef,
   ComponentUptimeDayDto,
   BatchComponentUptimeDto,
+  BindingVersionSnapshot,
   BrowserCapabilityEnvelope,
   Bucket,
   FailureDetail,
@@ -6298,6 +6307,7 @@ export const schemas = {
   RunTabCountsDto,
   RunLiveDto,
   RunAttemptDto,
+  RuntimeRegionAvailability,
   RuntimeProfileDto,
   HarnessReleaseDto,
   RunExecutionDto,
