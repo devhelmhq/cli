@@ -41,8 +41,8 @@
 | `artifactsExpiredAt` | string (date-time) |  | ✓ | When artifact bytes expired |
 | `pinnedAt` | string (date-time) |  | ✓ | When this run was pinned past retention |
 | `purgedAt` | string (date-time) |  | ✓ | When stored evidence was purged |
-| `capturePolicySnapshot` | Map<string, object> | ✓ |  | Capture settings frozen at create |
-| `bindingVersionSnapshot` | Map<string, object> | ✓ |  | Resolved secret key names frozen at create |
+| `capturePolicySnapshot` | CapturePolicy | ✓ |  |  |
+| `bindingVersionSnapshot` | BindingVersionSnapshot | ✓ |  |  |
 | `durationMs` | integer (int64) |  | ✓ | Wall time from claim to finish |
 | `queueWaitMs` | integer (int64) |  | ✓ | Time spent waiting for a seat |
 | `queuePosition` | integer (int32) |  | ✓ | Live queue position; null when not queued |

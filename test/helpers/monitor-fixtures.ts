@@ -44,7 +44,7 @@ export function run(over: Record<string, unknown> = {}): Record<string, unknown>
     cancelRequested: false,
     bundleDigest: 'sha256:abc',
     capturePolicySnapshot: {},
-    bindingVersionSnapshot: {},
+    bindingVersionSnapshot: {keys: [], attachedKeys: []},
     stream: false,
     evidence: [],
     tabCounts: {steps: 0, assets: 0, diff: 0},

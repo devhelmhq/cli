@@ -41,14 +41,25 @@ describe('account, audit, runtimes, regions, workspaces, api-keys, incidents', (
   }, 60_000)
 
   test('runtimes list --deprecations / show', async () => {
-    const rt = (id: string, status: string) => ({id, nodeVersion: '22', playwrightVersion: '1.56', status, packages: {'@playwright/test': '1.56.0'}, browser: {iframes: true, stripeElements: true, popups: true, downloads: false, viewport: true, geolocation: true, clipboard: false, upload: true}})
-    api.on('GET', '/api/v1/synthetics/runtime-profiles', {body: {data: [rt('2026.11', 'available'), rt('2026.05', 'deprecated')], hasNext: false, hasPrev: false}})
-    api.on('GET', '/api/v1/synthetics/runtime-profiles/2026.11', {body: {data: rt('2026.11', 'available')}})
+    const rt = (id: string, status: string, platformDefault: boolean) => ({
+      id,
+      nodeVersion: '22',
+      playwrightVersion: '1.56',
+      status,
+      packages: {'@playwright/test': '1.56.0'},
+      browser: {iframes: true, stripeElements: true, popups: true, downloads: false, viewport: true, geolocation: true, clipboard: false, upload: true},
+      platformDefault,
+      regions: [{region: 'us-east', available: true}],
+    })
+    api.on('GET', '/api/v1/synthetics/runtime-profiles', {body: {data: [rt('2026.11', 'available', true), rt('2026.05', 'deprecated', false)], hasNext: false, hasPrev: false}})
+    api.on('GET', '/api/v1/synthetics/runtime-profiles/2026.11', {body: {data: rt('2026.11', 'available', true)}})
     const l = await runCli(['runtimes', 'list', '--deprecations', '-o', 'json'], {api})
     expect((l.json as {data: Array<{id: string}>}).data.map((x) => x.id)).toEqual(['2026.05'])
     const s = await runCli(['runtimes', 'show', '2026.11', '-o', 'table'], {api})
     expect(s.stdout).toContain('@playwright/test 1.56.0')
     expect(s.stdout).toContain('downloads ✗')
+    expect(s.stdout).toContain('platform default: yes')
+    expect(s.stdout).toContain('us-east ✓')
   }, 60_000)
 
   test('regions and workspaces', async () => {

@@ -23,6 +23,7 @@ export default class RuntimesList extends DevhelmCommand {
       human: () => this.log(formatOutput(rows, 'table', [
         {header: 'ID', get: (r: (typeof rows)[number]) => r.id},
         {header: 'STATUS', get: (r: (typeof rows)[number]) => r.status},
+        {header: 'DEFAULT', get: (r: (typeof rows)[number]) => r.platformDefault ? 'yes' : ''},
         {header: 'NODE', get: (r: (typeof rows)[number]) => r.nodeVersion},
         {header: 'PLAYWRIGHT', get: (r: (typeof rows)[number]) => r.playwrightVersion},
         {header: 'DEPRECATED', get: (r: (typeof rows)[number]) => r.deprecatedAt ?? ''},
