@@ -16,6 +16,10 @@ export default class RuntimesShow extends DevhelmCommand {
       data: rt,
       human: () => {
         this.log(`${rt.id} · ${rt.status} · node ${rt.nodeVersion} · playwright ${rt.playwrightVersion}`)
+        this.log(`  platform default: ${rt.platformDefault ? 'yes' : 'no'}`)
+        if (rt.regions.length > 0) {
+          this.log(`  regions: ${rt.regions.map((region) => `${region.region} ${region.available ? '✓' : '✗'}`).join(', ')}`)
+        }
         if (rt.availableAt) this.log(`  available:  ${rt.availableAt}`)
         if (rt.deprecatedAt) this.log(`  deprecated: ${rt.deprecatedAt}`)
         if (rt.eolAt) this.log(`  end of life: ${rt.eolAt}`)

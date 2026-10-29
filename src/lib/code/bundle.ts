@@ -168,8 +168,9 @@ export async function runtimeCatalog(client: ApiClient | undefined): Promise<Run
       nodeVersion: p.nodeVersion,
       playwrightVersion: p.playwrightVersion,
       eolAt: p.eolAt ?? null,
-      packages: (p.packages ?? null) as Record<string, string | null> | null,
+      packages: p.packages ?? null,
       nodeBuiltins: p.nodeBuiltins ?? null,
+      platformDefault: p.platformDefault,
     }))
   } catch (err) {
     if (err instanceof DevhelmError && err.category === 'transport') return [...RUNTIME_CATALOG]
