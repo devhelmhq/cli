@@ -74791,8 +74791,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Immutable execution image identifier",
-            "format": "uuid"
+            "description": "Immutable execution image identifier"
           },
           "runtime": {
             "$ref": "#/components/schemas/RuntimeProfileDto"

@@ -12181,10 +12181,7 @@ export interface components {
         };
         /** @description Frozen execution identity; null when historical identity is unknown */
         RunExecutionDto: {
-            /**
-             * Format: uuid
-             * @description Immutable execution image identifier
-             */
+            /** @description Immutable execution image identifier */
             id: string;
             runtime: components["schemas"]["RuntimeProfileDto"];
             harness: components["schemas"]["HarnessReleaseDto"];
