@@ -2773,7 +2773,7 @@ const InboundEmailAttachment = z
   .passthrough();
 const EmailMessageDto = z
   .object({
-    id: z.string().uuid(),
+    id: z.string().min(1),
     domainId: z.string().uuid(),
     inbox: z.string().nullish(),
     receivedAt: z.string().datetime({ offset: true }),
