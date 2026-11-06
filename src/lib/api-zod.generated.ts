@@ -1618,6 +1618,15 @@ const Row = z
     verdict: z.string(),
   })
   .passthrough();
+const CodeSourceWireResponse = z
+  .object({
+    repo: z.string().min(0).max(512).nullable(),
+    branch: z.string().min(0).max(255).nullable(),
+    commit: z.string().min(0).max(64).nullable(),
+    file: z.string().min(0).max(512).nullable(),
+  })
+  .partial()
+  .passthrough();
 const RevisionLiveStatsDto = z
   .object({ runs: z.number().int(), failed: z.number().int() })
   .passthrough();
@@ -1639,7 +1648,7 @@ const RevisionDto = z
     gitMessage: z.string().nullish(),
     gitFile: z.string().nullish(),
     authoredBy: z.string().nullish(),
-    source: CodeSource.nullish(),
+    source: CodeSourceWireResponse.nullish(),
     createdAt: z.string().datetime({ offset: true }),
     state: z.string().nullish(),
     testRunId: z.string().uuid().nullish(),
@@ -2876,6 +2885,15 @@ const CursorPageNotificationDispatchDto = z
     hasMore: z.boolean(),
   })
   .passthrough();
+const CapturePolicyWireResponse = z
+  .object({
+    screenshots: z.string().nullable(),
+    trace: z.string().nullable(),
+    video: z.string().nullable(),
+    network: z.string().nullable(),
+  })
+  .partial()
+  .passthrough();
 const RunEvidenceDto = z
   .object({ kind: z.string(), state: z.string() })
   .passthrough();
@@ -2935,7 +2953,7 @@ const HarnessReleaseDto = z
   .passthrough();
 const RunExecutionDto = z
   .object({
-    id: z.string().uuid(),
+    id: z.string(),
     runtime: RuntimeProfileDto,
     harness: HarnessReleaseDto,
     monitorType: z.string(),
@@ -2953,6 +2971,20 @@ const RunExecutionAttemptDto = z
     protocolMajor: z.number().int(),
     capabilities: z.array(z.string()),
     recordedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const RunSessionContextWireResponse = z
+  .object({
+    id: z.string().min(0).max(255),
+    label: z.string().min(0).max(255).nullish(),
+    commit: z.string().min(0).max(64).nullish(),
+    branch: z.string().min(0).max(255).nullish(),
+    url: z
+      .string()
+      .min(0)
+      .max(2048)
+      .regex(/^[hH][tT][tT][pP][sS]?:\/\/\S+$/)
+      .nullish(),
   })
   .passthrough();
 const RunFailureDto = z
@@ -3001,7 +3033,7 @@ const RunDto = z
     artifactsExpiredAt: z.string().datetime({ offset: true }).nullish(),
     pinnedAt: z.string().datetime({ offset: true }).nullish(),
     purgedAt: z.string().datetime({ offset: true }).nullish(),
-    capturePolicySnapshot: CapturePolicy,
+    capturePolicySnapshot: CapturePolicyWireResponse,
     bindingVersionSnapshot: BindingVersionSnapshot,
     durationMs: z.number().int().nullish(),
     queueWaitMs: z.number().int().nullish(),
@@ -3019,7 +3051,7 @@ const RunDto = z
     executionAttempts: z.array(RunExecutionAttemptDto),
     url: z.string().nullish(),
     triggerId: z.string().uuid().nullish(),
-    session: RunSessionContext.nullish(),
+    session: RunSessionContextWireResponse.nullish(),
     runtimeId: z.string().nullish(),
     cause: z.string().nullish(),
     billable: z.boolean(),
@@ -3034,54 +3066,312 @@ const CursorPageRunDto = z
     hasMore: z.boolean(),
   })
   .passthrough();
+const DnsMonitorConfigWireResponse = z
+  .object({
+    hostname: z.string().min(1),
+    recordTypes: z.array(z.string().nullable()).nullish(),
+    nameservers: z.array(z.string().nullable()).nullish(),
+    timeoutMs: z.number().int().nullish(),
+    totalTimeoutMs: z.number().int().nullish(),
+  })
+  .passthrough();
+const HeartbeatMonitorConfigWireResponse = z
+  .object({
+    expectedInterval: z.number().int().gte(1).lte(86400),
+    gracePeriod: z.number().int().gte(1),
+  })
+  .passthrough();
+const HttpMonitorConfigWireResponse = z
+  .object({
+    url: z.string().min(1),
+    method: z.string(),
+    customHeaders: z.record(z.string().nullable()).nullish(),
+    requestBody: z.string().nullish(),
+    contentType: z.string().nullish(),
+    verifyTls: z.boolean().nullish(),
+  })
+  .passthrough();
+const IcmpMonitorConfigWireResponse = z
+  .object({
+    host: z.string().min(1),
+    packetCount: z.number().int().gte(1).lte(20).nullish(),
+    timeoutMs: z.number().int().nullish(),
+  })
+  .passthrough();
+const McpServerMonitorConfigWireResponse = z
+  .object({
+    command: z.string().min(1),
+    args: z.array(z.string().nullable()).nullish(),
+    env: z.record(z.string().nullable()).nullish(),
+  })
+  .passthrough();
+const ScriptMonitorConfigWireResponse = z
+  .object({
+    timeoutSeconds: z.number().int().gte(5).lte(240).nullable(),
+    runtimeId: z
+      .string()
+      .min(0)
+      .max(32)
+      .regex(/^$|^[A-Za-z0-9._-]+$/)
+      .nullable(),
+  })
+  .partial()
+  .passthrough();
+const TcpMonitorConfigWireResponse = z
+  .object({
+    host: z.string().min(1),
+    port: z.number().int().gte(1).lte(65535),
+    timeoutMs: z.number().int().nullish(),
+  })
+  .passthrough();
+const BodyContainsAssertionWireResponse = z
+  .object({ type: z.literal("body_contains"), substring: z.string().min(1) })
+  .passthrough();
+const DnsExpectedCnameAssertionWireResponse = z
+  .object({ type: z.literal("dns_expected_cname"), value: z.string().min(1) })
+  .passthrough();
+const DnsExpectedIpsAssertionWireResponse = z
+  .object({
+    type: z.literal("dns_expected_ips"),
+    ips: z.array(z.string()).min(1),
+  })
+  .passthrough();
+const DnsMaxAnswersAssertionWireResponse = z
+  .object({
+    type: z.literal("dns_max_answers"),
+    recordType: z.string().min(1),
+    max: z.number().int(),
+  })
+  .passthrough();
+const DnsMinAnswersAssertionWireResponse = z
+  .object({
+    type: z.literal("dns_min_answers"),
+    recordType: z.string().min(1),
+    min: z.number().int(),
+  })
+  .passthrough();
+const DnsRecordContainsAssertionWireResponse = z
+  .object({
+    type: z.literal("dns_record_contains"),
+    recordType: z.string().min(1),
+    substring: z.string().min(1),
+  })
+  .passthrough();
+const DnsRecordEqualsAssertionWireResponse = z
+  .object({
+    type: z.literal("dns_record_equals"),
+    recordType: z.string().min(1),
+    value: z.string().min(1),
+  })
+  .passthrough();
+const DnsResolvesAssertionWireResponse = z
+  .object({ type: z.literal("dns_resolves") })
+  .passthrough();
+const DnsResponseTimeAssertionWireResponse = z
+  .object({ type: z.literal("dns_response_time"), maxMs: z.number().int() })
+  .passthrough();
+const DnsResponseTimeWarnAssertionWireResponse = z
+  .object({
+    type: z.literal("dns_response_time_warn"),
+    warnMs: z.number().int(),
+  })
+  .passthrough();
+const DnsTtlHighAssertionWireResponse = z
+  .object({ type: z.literal("dns_ttl_high"), maxTtl: z.number().int() })
+  .passthrough();
+const DnsTtlLowAssertionWireResponse = z
+  .object({ type: z.literal("dns_ttl_low"), minTtl: z.number().int() })
+  .passthrough();
+const DnsTxtContainsAssertionWireResponse = z
+  .object({ type: z.literal("dns_txt_contains"), substring: z.string().min(1) })
+  .passthrough();
+const HeaderValueAssertionWireResponse = z
+  .object({
+    type: z.literal("header_value"),
+    headerName: z.string().min(1),
+    expected: z.string().min(1),
+    operator: z.string(),
+  })
+  .passthrough();
+const HeartbeatIntervalDriftAssertionWireResponse = z
+  .object({
+    type: z.literal("heartbeat_interval_drift"),
+    maxDeviationPercent: z.number().int().gte(1).lte(100),
+  })
+  .passthrough();
+const HeartbeatMaxIntervalAssertionWireResponse = z
+  .object({
+    type: z.literal("heartbeat_max_interval"),
+    maxSeconds: z.number().int().gte(1),
+  })
+  .passthrough();
+const HeartbeatPayloadContainsAssertionWireResponse = z
+  .object({
+    type: z.literal("heartbeat_payload_contains"),
+    path: z.string().min(1),
+    value: z.string(),
+  })
+  .passthrough();
+const HeartbeatReceivedAssertionWireResponse = z
+  .object({ type: z.literal("heartbeat_received") })
+  .passthrough();
+const IcmpPacketLossAssertionWireResponse = z
+  .object({
+    type: z.literal("icmp_packet_loss"),
+    maxPercent: z.number().gte(0).lte(100),
+  })
+  .passthrough();
+const IcmpReachableAssertionWireResponse = z
+  .object({ type: z.literal("icmp_reachable") })
+  .passthrough();
+const IcmpResponseTimeAssertionWireResponse = z
+  .object({ type: z.literal("icmp_response_time"), maxMs: z.number().int() })
+  .passthrough();
+const IcmpResponseTimeWarnAssertionWireResponse = z
+  .object({
+    type: z.literal("icmp_response_time_warn"),
+    warnMs: z.number().int(),
+  })
+  .passthrough();
+const JsonPathAssertionWireResponse = z
+  .object({
+    type: z.literal("json_path"),
+    path: z.string().min(1),
+    expected: z.string().min(1),
+    operator: z.string(),
+  })
+  .passthrough();
+const McpConnectsAssertionWireResponse = z
+  .object({ type: z.literal("mcp_connects") })
+  .passthrough();
+const McpHasCapabilityAssertionWireResponse = z
+  .object({
+    type: z.literal("mcp_has_capability"),
+    capability: z.string().min(1),
+  })
+  .passthrough();
+const McpMinToolsAssertionWireResponse = z
+  .object({ type: z.literal("mcp_min_tools"), min: z.number().int() })
+  .passthrough();
+const McpProtocolVersionAssertionWireResponse = z
+  .object({
+    type: z.literal("mcp_protocol_version"),
+    version: z.string().min(1),
+  })
+  .passthrough();
+const McpResponseTimeAssertionWireResponse = z
+  .object({ type: z.literal("mcp_response_time"), maxMs: z.number().int() })
+  .passthrough();
+const McpResponseTimeWarnAssertionWireResponse = z
+  .object({
+    type: z.literal("mcp_response_time_warn"),
+    warnMs: z.number().int(),
+  })
+  .passthrough();
+const McpToolAvailableAssertionWireResponse = z
+  .object({
+    type: z.literal("mcp_tool_available"),
+    toolName: z.string().min(1),
+  })
+  .passthrough();
+const McpToolCountChangedAssertionWireResponse = z
+  .object({
+    type: z.literal("mcp_tool_count_changed"),
+    expectedCount: z.number().int(),
+  })
+  .passthrough();
+const RedirectCountAssertionWireResponse = z
+  .object({ type: z.literal("redirect_count"), maxCount: z.number().int() })
+  .passthrough();
+const RedirectTargetAssertionWireResponse = z
+  .object({
+    type: z.literal("redirect_target"),
+    expected: z.string().min(1),
+    operator: z.string(),
+  })
+  .passthrough();
+const RegexBodyAssertionWireResponse = z
+  .object({ type: z.literal("regex_body"), pattern: z.string().min(1) })
+  .passthrough();
+const ResponseSizeAssertionWireResponse = z
+  .object({ type: z.literal("response_size"), maxBytes: z.number().int() })
+  .passthrough();
+const ResponseTimeAssertionWireResponse = z
+  .object({ type: z.literal("response_time"), thresholdMs: z.number().int() })
+  .passthrough();
+const ResponseTimeWarnAssertionWireResponse = z
+  .object({ type: z.literal("response_time_warn"), warnMs: z.number().int() })
+  .passthrough();
+const SslExpiryAssertionWireResponse = z
+  .object({ type: z.literal("ssl_expiry"), minDaysRemaining: z.number().int() })
+  .passthrough();
+const StatusCodeAssertionWireResponse = z
+  .object({
+    type: z.literal("status_code"),
+    expected: z.string().min(1),
+    operator: z.string(),
+  })
+  .passthrough();
+const TcpConnectsAssertionWireResponse = z
+  .object({ type: z.literal("tcp_connects") })
+  .passthrough();
+const TcpResponseTimeAssertionWireResponse = z
+  .object({ type: z.literal("tcp_response_time"), maxMs: z.number().int() })
+  .passthrough();
+const TcpResponseTimeWarnAssertionWireResponse = z
+  .object({
+    type: z.literal("tcp_response_time_warn"),
+    warnMs: z.number().int(),
+  })
+  .passthrough();
 const MonitorAssertionDto = z
   .object({
     id: z.string().uuid(),
     monitorId: z.string().uuid(),
     assertionType: z.string(),
     config: z.union([
-      BodyContainsAssertion,
-      DnsExpectedCnameAssertion,
-      DnsExpectedIpsAssertion,
-      DnsMaxAnswersAssertion,
-      DnsMinAnswersAssertion,
-      DnsRecordContainsAssertion,
-      DnsRecordEqualsAssertion,
-      DnsResolvesAssertion,
-      DnsResponseTimeAssertion,
-      DnsResponseTimeWarnAssertion,
-      DnsTtlHighAssertion,
-      DnsTtlLowAssertion,
-      DnsTxtContainsAssertion,
-      HeaderValueAssertion,
-      HeartbeatIntervalDriftAssertion,
-      HeartbeatMaxIntervalAssertion,
-      HeartbeatPayloadContainsAssertion,
-      HeartbeatReceivedAssertion,
-      IcmpPacketLossAssertion,
-      IcmpReachableAssertion,
-      IcmpResponseTimeAssertion,
-      IcmpResponseTimeWarnAssertion,
-      JsonPathAssertion,
-      McpConnectsAssertion,
-      McpHasCapabilityAssertion,
-      McpMinToolsAssertion,
-      McpProtocolVersionAssertion,
-      McpResponseTimeAssertion,
-      McpResponseTimeWarnAssertion,
-      McpToolAvailableAssertion,
-      McpToolCountChangedAssertion,
-      RedirectCountAssertion,
-      RedirectTargetAssertion,
-      RegexBodyAssertion,
-      ResponseSizeAssertion,
-      ResponseTimeAssertion,
-      ResponseTimeWarnAssertion,
-      SslExpiryAssertion,
-      StatusCodeAssertion,
-      TcpConnectsAssertion,
-      TcpResponseTimeAssertion,
-      TcpResponseTimeWarnAssertion,
+      BodyContainsAssertionWireResponse,
+      DnsExpectedCnameAssertionWireResponse,
+      DnsExpectedIpsAssertionWireResponse,
+      DnsMaxAnswersAssertionWireResponse,
+      DnsMinAnswersAssertionWireResponse,
+      DnsRecordContainsAssertionWireResponse,
+      DnsRecordEqualsAssertionWireResponse,
+      DnsResolvesAssertionWireResponse,
+      DnsResponseTimeAssertionWireResponse,
+      DnsResponseTimeWarnAssertionWireResponse,
+      DnsTtlHighAssertionWireResponse,
+      DnsTtlLowAssertionWireResponse,
+      DnsTxtContainsAssertionWireResponse,
+      HeaderValueAssertionWireResponse,
+      HeartbeatIntervalDriftAssertionWireResponse,
+      HeartbeatMaxIntervalAssertionWireResponse,
+      HeartbeatPayloadContainsAssertionWireResponse,
+      HeartbeatReceivedAssertionWireResponse,
+      IcmpPacketLossAssertionWireResponse,
+      IcmpReachableAssertionWireResponse,
+      IcmpResponseTimeAssertionWireResponse,
+      IcmpResponseTimeWarnAssertionWireResponse,
+      JsonPathAssertionWireResponse,
+      McpConnectsAssertionWireResponse,
+      McpHasCapabilityAssertionWireResponse,
+      McpMinToolsAssertionWireResponse,
+      McpProtocolVersionAssertionWireResponse,
+      McpResponseTimeAssertionWireResponse,
+      McpResponseTimeWarnAssertionWireResponse,
+      McpToolAvailableAssertionWireResponse,
+      McpToolCountChangedAssertionWireResponse,
+      RedirectCountAssertionWireResponse,
+      RedirectTargetAssertionWireResponse,
+      RegexBodyAssertionWireResponse,
+      ResponseSizeAssertionWireResponse,
+      ResponseTimeAssertionWireResponse,
+      ResponseTimeWarnAssertionWireResponse,
+      SslExpiryAssertionWireResponse,
+      StatusCodeAssertionWireResponse,
+      TcpConnectsAssertionWireResponse,
+      TcpResponseTimeAssertionWireResponse,
+      TcpResponseTimeWarnAssertionWireResponse,
     ]),
     severity: z.string(),
   })
@@ -3103,13 +3393,76 @@ const Summary = z
     slug: z.string().min(1),
   })
   .passthrough();
+const BearerAuthConfigWireResponse = z
+  .object({
+    type: z.literal("bearer"),
+    vaultSecretId: z.string().uuid().nullish(),
+  })
+  .passthrough();
+const BasicAuthConfigWireResponse = z
+  .object({
+    type: z.literal("basic"),
+    vaultSecretId: z.string().uuid().nullish(),
+  })
+  .passthrough();
+const HeaderAuthConfigWireResponse = z
+  .object({
+    type: z.literal("header"),
+    headerName: z
+      .string()
+      .min(1)
+      .regex(/^[A-Za-z0-9\-_]+$/),
+    vaultSecretId: z.string().uuid().nullish(),
+  })
+  .passthrough();
+const ApiKeyAuthConfigWireResponse = z
+  .object({
+    type: z.literal("api_key"),
+    headerName: z
+      .string()
+      .min(1)
+      .regex(/^[A-Za-z0-9\-_]+$/),
+    vaultSecretId: z.string().uuid().nullish(),
+  })
+  .passthrough();
+const MonitorAuthConfigWireResponse = z.discriminatedUnion("type", [
+  BearerAuthConfigWireResponse,
+  BasicAuthConfigWireResponse,
+  HeaderAuthConfigWireResponse,
+  ApiKeyAuthConfigWireResponse,
+]);
+const TriggerRuleWireResponse = z
+  .object({
+    type: z.string(),
+    count: z.number().int().nullish(),
+    windowMinutes: z.number().int().nullish(),
+    scope: z.string().nullable(),
+    thresholdMs: z.number().int().nullish(),
+    severity: z.string(),
+    aggregationType: z.string().nullish(),
+  })
+  .passthrough();
+const ConfirmationPolicyWireResponse = z
+  .object({
+    type: z.literal("multi_region"),
+    minRegionsFailing: z.number().int(),
+    maxWaitSeconds: z.number().int(),
+  })
+  .passthrough();
+const RecoveryPolicyWireResponse = z
+  .object({
+    consecutiveSuccesses: z.number().int(),
+    minRegionsPassing: z.number().int(),
+    cooldownMinutes: z.number().int(),
+  })
+  .passthrough();
 const IncidentPolicyDto = z
   .object({
     id: z.string().uuid(),
     monitorId: z.string().uuid(),
-    triggerRules: z.array(TriggerRule),
-    confirmation: ConfirmationPolicy,
-    recovery: RecoveryPolicy,
+    triggerRules: z.array(TriggerRuleWireResponse),
+    confirmation: ConfirmationPolicyWireResponse,
+    recovery: RecoveryPolicyWireResponse,
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
     monitorRegionCount: z.number().int().nullish(),
@@ -3218,6 +3571,65 @@ const Flakiness = z
     flakyCycleCount: z.number().int(),
   })
   .passthrough();
+const StatusPageBrandingWireResponse = z
+  .object({
+    logoUrl: z
+      .string()
+      .min(0)
+      .max(2048)
+      .regex(/^https?:\/\/.*/)
+      .nullable(),
+    faviconUrl: z
+      .string()
+      .min(0)
+      .max(2048)
+      .regex(/^https?:\/\/.*/)
+      .nullable(),
+    brandColor: z
+      .string()
+      .min(0)
+      .max(30)
+      .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
+      .nullable(),
+    pageBackground: z
+      .string()
+      .min(0)
+      .max(30)
+      .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
+      .nullable(),
+    cardBackground: z
+      .string()
+      .min(0)
+      .max(30)
+      .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
+      .nullable(),
+    textColor: z
+      .string()
+      .min(0)
+      .max(30)
+      .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
+      .nullable(),
+    borderColor: z
+      .string()
+      .min(0)
+      .max(30)
+      .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/)
+      .nullable(),
+    headerStyle: z.string().min(0).max(50).nullable(),
+    theme: z.string().min(0).max(50).nullable(),
+    reportUrl: z
+      .string()
+      .min(0)
+      .max(2048)
+      .regex(/^https?:\/\/.*/)
+      .nullable(),
+    hidePoweredBy: z.boolean().default(false),
+    showSubscribeButton: z.boolean().default(true),
+    customCss: z.string().min(0).max(50000).nullable(),
+    customHeadHtml: z.string().min(0).max(50000).nullable(),
+  })
+  .partial()
+  .passthrough();
 const StatusPageOpenIncidentSummaryDto = z
   .object({
     id: z.string().uuid().nullish(),
@@ -3235,7 +3647,7 @@ const StatusPageDto = z
     name: z.string().min(1),
     slug: z.string().min(1),
     description: z.string().nullish(),
-    branding: StatusPageBranding,
+    branding: StatusPageBrandingWireResponse,
     visibility: z.string(),
     enabled: z.boolean(),
     incidentMode: z.string(),
@@ -3281,13 +3693,13 @@ const MonitorDto = z
     name: z.string().min(1),
     type: z.string(),
     config: z.union([
-      DnsMonitorConfig,
-      HeartbeatMonitorConfig,
-      HttpMonitorConfig,
-      IcmpMonitorConfig,
-      McpServerMonitorConfig,
-      ScriptMonitorConfig,
-      TcpMonitorConfig,
+      DnsMonitorConfigWireResponse,
+      HeartbeatMonitorConfigWireResponse,
+      HttpMonitorConfigWireResponse,
+      IcmpMonitorConfigWireResponse,
+      McpServerMonitorConfigWireResponse,
+      ScriptMonitorConfigWireResponse,
+      TcpMonitorConfigWireResponse,
     ]),
     frequencySeconds: z.number().int(),
     enabled: z.boolean(),
@@ -3300,7 +3712,7 @@ const MonitorDto = z
     tags: z.array(TagDto).nullish(),
     pingUrl: z.string().nullish(),
     environment: Summary.nullish(),
-    auth: MonitorAuthConfig.nullish(),
+    auth: MonitorAuthConfigWireResponse.nullish(),
     incidentPolicy: IncidentPolicyDto.nullish(),
     alertChannelIds: z.array(z.string().uuid()).nullish(),
     boundStatusPageComponents: z.array(StatusPageBoundComponentDto).nullish(),
@@ -3325,7 +3737,7 @@ const MonitorDto = z
     lastStateChangeAt: z.string().datetime({ offset: true }).nullish(),
     regionHealth: z.array(MonitorRegionHealthDto).nullish(),
     definitionId: z.string().uuid().nullish(),
-    capturePolicy: CapturePolicy.nullish(),
+    capturePolicy: CapturePolicyWireResponse.nullish(),
     secretKeys: z.array(z.string()).nullish(),
     fastRetryMaxAttempts: z.number().int().nullish(),
     runParallel: z.boolean().nullish(),
@@ -3924,7 +4336,7 @@ const MonitorAuthDto = z
     id: z.string().uuid(),
     monitorId: z.string().uuid(),
     authType: z.string(),
-    config: z.discriminatedUnion("type", [ApiKeyAuthConfig, BasicAuthConfig, BearerAuthConfig, HeaderAuthConfig]),
+    config: z.discriminatedUnion("type", [ApiKeyAuthConfigWireResponse, BasicAuthConfigWireResponse, BearerAuthConfigWireResponse, HeaderAuthConfigWireResponse]),
   })
   .passthrough();
 const MonitorHistoryTickDto = z
@@ -4282,6 +4694,30 @@ const NotificationDto = z
     createdAt: z.string().datetime({ offset: true }),
   })
   .passthrough();
+const MatchRuleWireResponse = z
+  .object({
+    type: z.string(),
+    value: z.string().nullish(),
+    monitorIds: z.array(z.string().uuid()).nullish(),
+    regions: z.array(z.string()).nullish(),
+    values: z.array(z.string()).nullish(),
+  })
+  .passthrough();
+const EscalationStepWireResponse = z
+  .object({
+    delayMinutes: z.number().int().gte(0),
+    channelIds: z.array(z.string().uuid()).min(1),
+    requireAck: z.boolean().nullish(),
+    repeatIntervalSeconds: z.number().int().gte(1).nullish(),
+  })
+  .passthrough();
+const EscalationChainWireResponse = z
+  .object({
+    steps: z.array(EscalationStepWireResponse).min(1),
+    onResolve: z.string().nullish(),
+    onReopen: z.string().nullish(),
+  })
+  .passthrough();
 const NotificationPolicyWindowStatsDto = z
   .object({
     fires: z.number().int(),
@@ -4302,8 +4738,8 @@ const NotificationPolicyDto = z
     organizationId: z.number().int(),
     name: z.string().min(1),
     description: z.string().nullish(),
-    matchRules: z.array(MatchRule),
-    escalation: EscalationChain,
+    matchRules: z.array(MatchRuleWireResponse),
+    escalation: EscalationChainWireResponse,
     enabled: z.boolean(),
     priority: z.number().int(),
     createdAt: z.string().datetime({ offset: true }),
@@ -4429,6 +4865,13 @@ const ResourceGroupDeleteBlockerDto = z
     hostname: z.string().nullish(),
   })
   .passthrough();
+const RetryStrategyWireResponse = z
+  .object({
+    type: z.string(),
+    maxRetries: z.number().int(),
+    interval: z.number().int(),
+  })
+  .passthrough();
 const ResourceGroupHealthDto = z
   .object({
     status: z.string(),
@@ -4484,7 +4927,7 @@ const ResourceGroupDto = z
     alertPolicyId: z.string().uuid().nullish(),
     defaultFrequency: z.number().int().nullish(),
     defaultRegions: z.array(z.string()).nullish(),
-    defaultRetryStrategy: RetryStrategy.nullish(),
+    defaultRetryStrategy: RetryStrategyWireResponse.nullish(),
     defaultAlertChannels: z.array(z.string().uuid()).nullish(),
     defaultEnvironmentId: z.string().uuid().nullish(),
     healthThresholdType: z.string().nullish(),
@@ -6177,6 +6620,7 @@ export const schemas = {
   RunConsoleDto,
   SingleValueResponseRunConsoleDto,
   Row,
+  CodeSourceWireResponse,
   RevisionLiveStatsDto,
   RevisionReferenceDto,
   RevisionDto,
@@ -6303,6 +6747,7 @@ export const schemas = {
   MonitorHistoryEntryDto,
   CursorPageMonitorHistoryEntryDto,
   CursorPageNotificationDispatchDto,
+  CapturePolicyWireResponse,
   RunEvidenceDto,
   RunTabCountsDto,
   RunLiveDto,
@@ -6312,12 +6757,70 @@ export const schemas = {
   HarnessReleaseDto,
   RunExecutionDto,
   RunExecutionAttemptDto,
+  RunSessionContextWireResponse,
   RunFailureDto,
   RunDto,
   CursorPageRunDto,
+  DnsMonitorConfigWireResponse,
+  HeartbeatMonitorConfigWireResponse,
+  HttpMonitorConfigWireResponse,
+  IcmpMonitorConfigWireResponse,
+  McpServerMonitorConfigWireResponse,
+  ScriptMonitorConfigWireResponse,
+  TcpMonitorConfigWireResponse,
+  BodyContainsAssertionWireResponse,
+  DnsExpectedCnameAssertionWireResponse,
+  DnsExpectedIpsAssertionWireResponse,
+  DnsMaxAnswersAssertionWireResponse,
+  DnsMinAnswersAssertionWireResponse,
+  DnsRecordContainsAssertionWireResponse,
+  DnsRecordEqualsAssertionWireResponse,
+  DnsResolvesAssertionWireResponse,
+  DnsResponseTimeAssertionWireResponse,
+  DnsResponseTimeWarnAssertionWireResponse,
+  DnsTtlHighAssertionWireResponse,
+  DnsTtlLowAssertionWireResponse,
+  DnsTxtContainsAssertionWireResponse,
+  HeaderValueAssertionWireResponse,
+  HeartbeatIntervalDriftAssertionWireResponse,
+  HeartbeatMaxIntervalAssertionWireResponse,
+  HeartbeatPayloadContainsAssertionWireResponse,
+  HeartbeatReceivedAssertionWireResponse,
+  IcmpPacketLossAssertionWireResponse,
+  IcmpReachableAssertionWireResponse,
+  IcmpResponseTimeAssertionWireResponse,
+  IcmpResponseTimeWarnAssertionWireResponse,
+  JsonPathAssertionWireResponse,
+  McpConnectsAssertionWireResponse,
+  McpHasCapabilityAssertionWireResponse,
+  McpMinToolsAssertionWireResponse,
+  McpProtocolVersionAssertionWireResponse,
+  McpResponseTimeAssertionWireResponse,
+  McpResponseTimeWarnAssertionWireResponse,
+  McpToolAvailableAssertionWireResponse,
+  McpToolCountChangedAssertionWireResponse,
+  RedirectCountAssertionWireResponse,
+  RedirectTargetAssertionWireResponse,
+  RegexBodyAssertionWireResponse,
+  ResponseSizeAssertionWireResponse,
+  ResponseTimeAssertionWireResponse,
+  ResponseTimeWarnAssertionWireResponse,
+  SslExpiryAssertionWireResponse,
+  StatusCodeAssertionWireResponse,
+  TcpConnectsAssertionWireResponse,
+  TcpResponseTimeAssertionWireResponse,
+  TcpResponseTimeWarnAssertionWireResponse,
   MonitorAssertionDto,
   TagDto,
   Summary,
+  BearerAuthConfigWireResponse,
+  BasicAuthConfigWireResponse,
+  HeaderAuthConfigWireResponse,
+  ApiKeyAuthConfigWireResponse,
+  MonitorAuthConfigWireResponse,
+  TriggerRuleWireResponse,
+  ConfirmationPolicyWireResponse,
+  RecoveryPolicyWireResponse,
   IncidentPolicyDto,
   StatusPageBoundComponentDto,
   MonitorCappedDto,
@@ -6327,6 +6830,7 @@ export const schemas = {
   IncidentFailingMemberSnapshotDto,
   IncidentDto,
   Flakiness,
+  StatusPageBrandingWireResponse,
   StatusPageOpenIncidentSummaryDto,
   StatusPageDto,
   StatusPageBindingSnapshot,
@@ -6432,6 +6936,9 @@ export const schemas = {
   NetworkRowDto,
   NoSlaContext,
   NotificationDto,
+  MatchRuleWireResponse,
+  EscalationStepWireResponse,
+  EscalationChainWireResponse,
   NotificationPolicyWindowStatsDto,
   NotificationPolicyDto,
   OfficialSla,
@@ -6448,6 +6955,7 @@ export const schemas = {
   RegionStatusDto,
   RelatedIncidentsResponse,
   ResourceGroupDeleteBlockerDto,
+  RetryStrategyWireResponse,
   ResourceGroupHealthDto,
   ResourceGroupMemberIncidentMarkDto,
   ResourceGroupMemberDto,
