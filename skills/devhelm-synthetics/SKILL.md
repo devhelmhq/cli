@@ -2,7 +2,7 @@
 name: devhelm-synthetics
 description: Write, test and deploy DevHelm code checks — Playwright browser checks (BROWSER) and multi-step API checks (MULTI_STEP_API) — and investigate their failed runs. Use when the user wants a synthetic or browser check, a login/checkout/signup journey, a multi-step API journey, to turn an existing Playwright spec into a monitor, to migrate from Checkly, or to find out why a code check failed. Drives the write → validate --online → test → fix → deploy loop with the devhelm CLI.
 metadata:
-  version: "1.11.0"
+  version: "1.12.0"
 ---
 
 # DevHelm — Synthetics (code checks)

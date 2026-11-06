@@ -2,7 +2,7 @@
 name: devhelm-configure
 description: Create and manage DevHelm monitoring resources — monitors, alert channels, notification policies, resource groups, dependencies, secrets, tags, webhooks, and environments. Use when the user wants to set up uptime or heartbeat monitoring, wire Slack/email/PagerDuty/webhook alerts, group monitors by team/service, track third-party status pages as dependencies, store secrets for monitor auth, or otherwise configure any DevHelm resource. Auto-detects monitoring-as-code repos (devhelm.yml, Terraform) and picks the right surface.
 metadata:
-  version: "1.11.0"
+  version: "1.12.0"
 ---
 
 # DevHelm — Configure

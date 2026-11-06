@@ -2,7 +2,7 @@
 name: devhelm-communicate
 description: Set up and operate public DevHelm status pages — create pages, add components grouped by service, attach custom domains, manage subscribers, and publish incident updates. Use whenever the user wants a status page, says "status.example.com", "tell users about an outage", "post an update", "publish an incident", "add a subscriber", or "customize the page".
 metadata:
-  version: "1.11.0"
+  version: "1.12.0"
 ---
 
 # DevHelm — Communicate

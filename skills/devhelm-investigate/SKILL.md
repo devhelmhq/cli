@@ -2,7 +2,7 @@
 name: devhelm-investigate
 description: Diagnose DevHelm monitor failures and answer status questions — why is monitor X failing, what's red right now, show recent check results, list active incidents, inspect uptime over a window, or trace audit history. Use whenever the user asks "why is X down?", "is everything green?", "what happened at 3:14?", "show the last 10 failures", or any read/debug question about monitoring state.
 metadata:
-  version: "1.11.0"
+  version: "1.12.0"
 ---
 
 # DevHelm — Investigate

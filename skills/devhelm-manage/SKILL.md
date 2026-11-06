@@ -2,7 +2,7 @@
 name: devhelm-manage
 description: Manage DevHelm workspace-level administration — API keys, environments, workspace settings, plan/entitlements, and team roster (read-only). Use when the user wants to create or rotate an API key, check what plan they're on, list environments, see team members, or inspect workspace-wide limits.
 metadata:
-  version: "1.11.0"
+  version: "1.12.0"
 ---
 
 # DevHelm — Manage
