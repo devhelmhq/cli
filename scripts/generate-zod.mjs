@@ -18,6 +18,7 @@ import {
   relaxResponseEnums,
   relaxResponseStrict,
 } from './lib/preprocess.mjs';
+import {splitSharedResponseSchemas} from './lib/split-shared-response-schemas.mjs';
 import { generateZodClientFromOpenAPI } from 'openapi-zod-client';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -158,6 +159,9 @@ async function main() {
   // even after the relaxer runs, while the generated Zod schemas (which
   // use `spec`) stay tolerant on the wire.
   const originalSpec = JSON.parse(JSON.stringify(spec));
+
+  const shared = splitSharedResponseSchemas(spec);
+  console.log(`Split ${shared.length} request/response schemas for tolerant decoding`);
 
   const {
     flattened,
