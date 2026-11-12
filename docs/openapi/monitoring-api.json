@@ -28545,6 +28545,177 @@
         }
       }
     },
+    "/api/v1/monitors/batch-summary": {
+      "get": {
+        "tags": [
+          "Monitors"
+        ],
+        "summary": "Result summaries for several monitors",
+        "description": "The results summary of up to 100 monitors in one call, so a list page needs no per-monitor request. Monitors outside the workspace are left out.",
+        "operationId": "batchSummary",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "Monitor ids, comma-separated; at most 100",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "chartWindow",
+            "in": "query",
+            "description": "Chart window: 24h returns hourly buckets, 7d/30d/90d return daily buckets",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "24h",
+                "7d",
+                "30d",
+                "90d"
+              ]
+            }
+          },
+          {
+            "name": "X-DevHelm-Client",
+            "in": "header",
+            "description": "Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseMonitorBatchSummaryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required — the plan or quota does not allow this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone — the resource is no longer available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests — retry after the window resets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/monitors/bulk": {
       "post": {
         "tags": [
@@ -76795,6 +76966,7 @@
               "CHECK_RESULTS_WINDOW_INVALID",
               "CHECK_RESULTS_CURSOR_INVALID",
               "CHECK_RESULTS_REGION_INVALID",
+              "CHECK_RESULTS_IDS_INVALID",
               "STATUS_DATA_STATUS_INVALID",
               "STATUS_DATA_PERIOD_INVALID",
               "STATUS_DATA_GRANULARITY_INVALID",
@@ -80374,6 +80546,40 @@
           }
         },
         "description": "Availability, p95 latency and ticks of one monitor over the window"
+      },
+      "MonitorBatchSummaryDto": {
+        "required": [
+          "monitors"
+        ],
+        "type": "object",
+        "properties": {
+          "monitors": {
+            "type": "array",
+            "description": "One entry per requested monitor that exists in the workspace",
+            "items": {
+              "$ref": "#/components/schemas/MonitorBatchSummaryItemDto"
+            }
+          }
+        },
+        "description": "Result summaries for a set of monitors"
+      },
+      "MonitorBatchSummaryItemDto": {
+        "required": [
+          "id",
+          "summary"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Monitor identifier",
+            "format": "uuid"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ResultSummaryDto"
+          }
+        },
+        "description": "Result summary of one monitor"
       },
       "MonitorCappedDto": {
         "type": "object",
@@ -89396,6 +89602,17 @@
           }
         }
       },
+      "SingleValueResponseMonitorBatchSummaryDto": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MonitorBatchSummaryDto"
+          }
+        }
+      },
       "SingleValueResponseMonitorDriftDto": {
         "required": [
           "data"
@@ -92947,6 +93164,7 @@
               "CHECK_RESULTS_WINDOW_INVALID",
               "CHECK_RESULTS_CURSOR_INVALID",
               "CHECK_RESULTS_REGION_INVALID",
+              "CHECK_RESULTS_IDS_INVALID",
               "STATUS_DATA_STATUS_INVALID",
               "STATUS_DATA_PERIOD_INVALID",
               "STATUS_DATA_GRANULARITY_INVALID",
