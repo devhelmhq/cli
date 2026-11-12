@@ -379,6 +379,8 @@ export function toBrandingRequest(
     reportUrl: branding.reportUrl ?? null,
     hidePoweredBy: branding.hidePoweredBy ?? false,
     showSubscribeButton: branding.showSubscribeButton ?? true,
+    noIndex: branding.noIndex ?? false,
+    timeZone: branding.timeZone ?? null,
     customCss: branding.customCss ?? null,
     customHeadHtml: branding.customHeadHtml ?? null,
   }

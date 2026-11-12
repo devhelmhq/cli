@@ -16,4 +16,6 @@
 | `scheduledUntil` | string (date-time) |  | ✓ | Maintenance end time |
 | `autoResolve` | boolean |  | ✓ | Auto-resolve at scheduledUntil (default: false) |
 | `notifySubscribers` | boolean |  | ✓ | Whether to email confirmed subscribers about this window (default: true) |
+| `templateId` | string (uuid) |  | ✓ | Maintenance template the window is created from; its start and completion messages are posted automatically |
+| `reminderLeadMinutes` | integer (int32)[] |  | ✓ | Minutes before the window to email subscribers a reminder (5–20160 each, distinct). Default: the template's lead times, else 24 hours and 1 hour; an empty list sends none |
 

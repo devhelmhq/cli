@@ -28,6 +28,7 @@ const QUEUED_RUN = {
   attempts: [],
   executionAttempts: [],
   flaky: false,
+  evidenceIncomplete: false,
   billable: true,
 }
 

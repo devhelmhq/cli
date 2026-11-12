@@ -486,6 +486,8 @@ const StatusPageBrandingSchema = z.object({
   theme: z.string().max(50).optional(),
   reportUrl: z.string().regex(HTTP_URL, 'must be an http(s) URL').max(2048).optional(),
   hidePoweredBy: z.boolean().optional(),
+  noIndex: z.boolean().optional(),
+  timeZone: z.string().max(64).optional(),
   customCss: z.string().max(50_000).optional(),
   customHeadHtml: z.string().max(50_000).optional(),
 }).strict()

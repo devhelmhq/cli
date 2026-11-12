@@ -501,6 +501,9 @@ export interface YamlStatusPageBranding {
   reportUrl?: string
   hidePoweredBy?: boolean
   showSubscribeButton?: boolean
+  noIndex?: boolean
+  /** IANA time zone for displayed status times, e.g. `America/New_York` */
+  timeZone?: string
   customCss?: string
   customHeadHtml?: string
 }

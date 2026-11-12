@@ -81,7 +81,13 @@ const API_ONLY_FIELDS: Record<string, string[]> = {
   resourceGroup: [
     'managedBy', 'alertPolicyId', 'defaultEnvironmentId',
   ],
-  statusPage: ['managedBy'],
+  // Update-only page settings managed outside devhelm.yml: `emailSignIn` /
+  // `clearEmailSignIn` (end-user sign-in method), `subscriberChannels`, and the
+  // one-shot `confirmPublic` / `confirmConvertSubscribers` acknowledgements.
+  statusPage: [
+    'managedBy', 'emailSignIn', 'clearEmailSignIn', 'subscriberChannels',
+    'confirmPublic', 'confirmConvertSubscribers',
+  ],
   statusPageComponent: ['monitorId', 'resourceGroupId', 'serviceSubscriptionId', 'groupId', 'displayOrder', 'removeFromGroup'],
   webhook: ['enabled'],
   tag: [],
@@ -273,6 +279,8 @@ const SNAPSHOT_GROUP_FIELDS = ['name', 'description', 'defaultOpen']
 const SNAPSHOT_GROUP_DTO_ONLY = [
   'id', 'statusPageId', 'displayOrder', 'pageOrder',
   'components', 'createdAt', 'updatedAt',
+  // Server-computed rollups of the group's components, not desired state.
+  'status', 'componentCount',
 ]
 
 describe('Snapshot ↔ DTO field parity', () => {
@@ -350,7 +358,8 @@ describe('Nested config schema coverage', () => {
     const yamlBrandingFields = [
       'logoUrl', 'faviconUrl', 'brandColor', 'pageBackground',
       'cardBackground', 'textColor', 'borderColor', 'headerStyle',
-      'theme', 'reportUrl', 'hidePoweredBy', 'showSubscribeButton', 'customCss', 'customHeadHtml',
+      'theme', 'reportUrl', 'hidePoweredBy', 'showSubscribeButton', 'noIndex', 'timeZone',
+      'customCss', 'customHeadHtml',
     ]
     expect(brandingFields.length).toBeGreaterThan(0)
     for (const field of yamlBrandingFields) {

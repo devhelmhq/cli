@@ -53,6 +53,7 @@ export function run(over: Record<string, unknown> = {}): Record<string, unknown>
     attempts: [],
     executionAttempts: [],
     flaky: false,
+    evidenceIncomplete: false,
     billable: true,
     url: `https://app.devhelm.io/runs/${RUN_ID}`,
     ...over,

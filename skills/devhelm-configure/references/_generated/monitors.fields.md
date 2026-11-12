@@ -100,6 +100,8 @@
 | `flakySeverity` | string |  | ✓ | How flaky the monitor is: LOW, MEDIUM, or HIGH |
 | `lastCheckOutcome` | string |  | ✓ | Result of the most recent check in any region: PASSED, DEGRADED, or FAILED |
 | `lastCheckRegion` | string |  | ✓ | Region of the most recent check |
+| `lastCheckAt` | string (date-time) |  | ✓ | When the most recent check in any region ran |
+| `lastCheckResponseTimeMs` | integer (int32) |  | ✓ | Response time of the most recent check, in milliseconds |
 | `lastFailureSummary` | string |  | ✓ | Why the latest failing region failed |
 | `lastStateChangeAt` | string (date-time) |  | ✓ | When the monitor last changed state: paused, evaluation change, or incident open or resolve |
 | `regionHealth` | MonitorRegionHealthDto[] |  | ✓ | Latest verdict per region the monitor runs from; null while paused |
