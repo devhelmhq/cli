@@ -46,6 +46,8 @@
 | `durationMs` | integer (int64) |  | ✓ | Wall time from claim to finish |
 | `queueWaitMs` | integer (int64) |  | ✓ | Time spent waiting for a seat |
 | `queuePosition` | integer (int32) |  | ✓ | Live queue position; null when not queued |
+| `delayed` | boolean |  | ✓ | True while this run's result is on its way but held up by a platform outage |
+| `evidenceIncomplete` | boolean | ✓ |  | Whether some run evidence never arrived. The outcome is unaffected |
 | `heartbeatAgeMs` | integer (int64) |  | ✓ | Milliseconds since the last supervisor heartbeat |
 | `stream` | boolean | ✓ |  | True while the run is still live and clients may stream |
 | `evidence` | RunEvidenceDto[] | ✓ |  | List evidence chips in SHOT → TRACE → VIDEO → NET order |

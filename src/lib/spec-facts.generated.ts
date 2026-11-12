@@ -37,7 +37,7 @@ export type AlertSensitivities = (typeof ALERT_SENSITIVITIES)[number]
 export const HEALTH_THRESHOLD_TYPES = ['COUNT', 'PERCENTAGE'] as const
 export type HealthThresholdTypes = (typeof HEALTH_THRESHOLD_TYPES)[number]
 
-export const STATUS_PAGE_VISIBILITIES = ['PUBLIC', 'PASSWORD', 'IP_RESTRICTED'] as const
+export const STATUS_PAGE_VISIBILITIES = ['PUBLIC', 'PASSWORD', 'IP_RESTRICTED', 'LOGIN_REQUIRED'] as const
 export type StatusPageVisibilities = (typeof STATUS_PAGE_VISIBILITIES)[number]
 
 export const STATUS_PAGE_INCIDENT_MODES = ['MANUAL', 'REVIEW', 'AUTOMATIC'] as const

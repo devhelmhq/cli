@@ -2870,6 +2870,197 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orgs/{orgId}/sso-connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the organization's staff SSO connections */
+        get: operations["listOrgSsoConnections"];
+        put?: never;
+        /** Create a staff SSO connection */
+        post: operations["createOrgSsoConnection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso-connections/{connectionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a staff SSO connection */
+        get: operations["getOrgSsoConnection"];
+        put?: never;
+        post?: never;
+        /** Delete a staff SSO connection */
+        delete: operations["deleteOrgSsoConnection"];
+        options?: never;
+        head?: never;
+        /** Update a staff SSO connection */
+        patch: operations["updateOrgSsoConnection"];
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso-connections/{connectionId}/certificates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an IdP signing certificate */
+        post: operations["addOrgSsoCertificate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso-connections/{connectionId}/certificates/{certificateId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove an IdP signing certificate */
+        delete: operations["removeOrgSsoCertificate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso-connections/{connectionId}/domains": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an email domain to a staff SSO connection */
+        post: operations["addOrgSsoDomain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso-connections/{connectionId}/domains/{domainId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove an email domain from a staff SSO connection */
+        delete: operations["removeOrgSsoDomain"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso-connections/{connectionId}/domains/{domainId}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check the DNS proof for a staff SSO domain */
+        post: operations["verifyOrgSsoDomain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso-connections/{connectionId}/idp-metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set the IdP metadata for a staff SSO connection */
+        put: operations["setOrgSsoIdpMetadata"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso-connections/{connectionId}/sp-metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the service provider metadata */
+        get: operations["getOrgSsoSpMetadata"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** End every staff SSO session (sign out everyone) */
+        delete: operations["revokeOrgSsoSessions"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the organization's staff sign-in settings */
+        get: operations["getOrgSsoSettings"];
+        /** Update the organization's staff sign-in settings */
+        put: operations["updateOrgSsoSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/regions": {
         parameters: {
             query?: never;
@@ -4018,6 +4209,129 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/status-page-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List status page groups for the workspace */
+        get: operations["listStatusPageGroups"];
+        put?: never;
+        /** Create a status page group */
+        post: operations["createStatusPageGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-page-groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a status page group */
+        get: operations["getStatusPageGroup"];
+        /** Update a status page group */
+        put: operations["updateStatusPageGroup"];
+        post?: never;
+        /** Delete a status page group (pages become standalone) */
+        delete: operations["deleteStatusPageGroup"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-page-groups/{id}/default-page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set the page served at the group's root */
+        put: operations["setStatusPageGroupDefaultPage"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-page-groups/{id}/domain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Attach a custom domain to the group */
+        post: operations["attachStatusPageGroupDomain"];
+        /** Remove the group's custom domain */
+        delete: operations["removeStatusPageGroupDomain"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-page-groups/{id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a status page to the group */
+        post: operations["addStatusPageGroupMember"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-page-groups/{id}/members/{statusPageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a status page from the group */
+        delete: operations["removeStatusPageGroupMember"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-page-groups/{id}/members/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Reorder the pages of the group */
+        put: operations["reorderStatusPageGroupMembers"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/status-pages": {
         parameters: {
             query?: never;
@@ -4050,6 +4364,58 @@ export interface paths {
         post?: never;
         /** Delete a status page */
         delete: operations["delete_3"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/access-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List sign-in events for a status page */
+        get: operations["listStatusPageAccessLog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/access-log/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the sign-in log as CSV */
+        get: operations["exportStatusPageAccessLog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/access-policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the session policy of a status page */
+        get: operations["getStatusPageAccessPolicy"];
+        /** Set the session policy of a status page */
+        put: operations["updateStatusPageAccessPolicy"];
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -4238,6 +4604,163 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/status-pages/{id}/end-users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List end users of a status page */
+        get: operations["listStatusPageEndUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/end-users/{endUserId}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deactivate an end user */
+        post: operations["deactivateStatusPageEndUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/end-users/{endUserId}/invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Cancel an end user's open invite */
+        delete: operations["revokeStatusPageEndUserInvite"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/end-users/{endUserId}/invite/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send an end user a new invite link */
+        post: operations["resendStatusPageEndUserInvite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/end-users/{endUserId}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reactivate an end user */
+        post: operations["reactivateStatusPageEndUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/end-users/bulk-deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deactivate end users by email */
+        post: operations["bulkDeactivateStatusPageEndUsers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/end-users/invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List open invites of a status page */
+        get: operations["listStatusPageEndUserInvites"];
+        put?: never;
+        /** Invite end users by email */
+        post: operations["inviteStatusPageEndUsers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/end-users/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Sign every end user out of a status page */
+        delete: operations["revokeStatusPageEndUserSessions"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/export/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download status page data (subscribers) as CSV or JSON
+         * @description Needs the status_pages:notify scope. Each page allows 6 exports an hour; more get 429 RATE_LIMITED. Every export is audited when it starts and again when it finishes.
+         */
+        get: operations["exportStatusPageData"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/status-pages/{id}/groups": {
         parameters: {
             query?: never;
@@ -4372,7 +4895,8 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete one update from an incident timeline (not the last one) */
+        delete: operations["deleteIncidentUpdate"];
         options?: never;
         head?: never;
         /** Edit an existing incident timeline update body */
@@ -4494,7 +5018,8 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete one update from a maintenance timeline (not the last one) */
+        delete: operations["deleteMaintenanceUpdate"];
         options?: never;
         head?: never;
         /** Edit an existing maintenance timeline update body */
@@ -4558,6 +5083,196 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/status-pages/{id}/sso-connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List SSO connections for a status page */
+        get: operations["listSsoConnections"];
+        put?: never;
+        /** Create an SSO connection */
+        post: operations["createSsoConnection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/sso-connections/{connectionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an SSO connection */
+        get: operations["getSsoConnection"];
+        put?: never;
+        post?: never;
+        /** Delete an SSO connection */
+        delete: operations["deleteSsoConnection"];
+        options?: never;
+        head?: never;
+        /** Update an SSO connection */
+        patch: operations["updateSsoConnection"];
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/sso-connections/{connectionId}/certificates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an IdP signing certificate */
+        post: operations["addSsoCertificate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/sso-connections/{connectionId}/certificates/{certificateId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove an IdP signing certificate */
+        delete: operations["removeSsoCertificate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/sso-connections/{connectionId}/domains": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an email domain to an SSO connection */
+        post: operations["addSsoDomain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/sso-connections/{connectionId}/domains/{domainId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove an email domain from an SSO connection */
+        delete: operations["removeSsoDomain"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/sso-connections/{connectionId}/domains/{domainId}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check the DNS proof for an SSO domain */
+        post: operations["verifySsoDomain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/sso-connections/{connectionId}/idp-metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set the IdP metadata for an SSO connection */
+        put: operations["setSsoIdpMetadata"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/sso-connections/{connectionId}/sp-metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the service provider metadata */
+        get: operations["getSsoSpMetadata"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/sso-connections/{connectionId}/tests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start a dry-run sign-in for an SSO connection */
+        post: operations["startSsoConnectionTest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/sso-connections/{connectionId}/tests/{testId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read a dry-run SSO sign-in */
+        get: operations["getSsoConnectionTest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/status-pages/{id}/subscribers": {
         parameters: {
             query?: never;
@@ -4588,6 +5303,152 @@ export interface paths {
         post?: never;
         /** Remove a subscriber */
         delete: operations["removeSubscriber"];
+        options?: never;
+        head?: never;
+        /** Change which components a subscriber hears about */
+        patch: operations["updateSubscriber"];
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/subscribers/bulk/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Remove subscribers in bulk */
+        post: operations["bulkDeleteStatusPageSubscribers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/subscribers/bulk/scope": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set one scope on subscribers in bulk */
+        post: operations["bulkUpdateStatusPageSubscriberScope"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/subscribers/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk import subscribers
+         * @description Imported subscribers skip email confirmation. Valid rows are applied; invalid rows are returned with the reason. A row matching an existing subscriber updates its components.
+         */
+        post: operations["importSubscribers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the templates of a status page */
+        get: operations["listStatusPageTemplates"];
+        put?: never;
+        /** Create a template */
+        post: operations["createStatusPageTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/templates/{templateId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a template */
+        get: operations["getStatusPageTemplate"];
+        /** Replace a template */
+        put: operations["updateStatusPageTemplate"];
+        post?: never;
+        /** Delete a template */
+        delete: operations["deleteStatusPageTemplate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/templates/{templateId}/render": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Fill in one stage of a template
+         * @description Returns the title and the stage's message with {{page.name}}, {{maintenance.start}}, {{maintenance.end}} and {{components}} filled in, and the stage's components.
+         */
+        post: operations["renderStatusPageTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/uptime/monthly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Monthly uptime for every component and component group that shows uptime */
+        get: operations["getStatusPageMonthlyUptime"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/visibility-change-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Preview making a status page private */
+        get: operations["previewStatusPageVisibilityChange"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -5138,6 +5999,23 @@ export interface components {
              */
             memberId: string;
         };
+        AddSsoCertificateRequest: {
+            /** @description IdP signing certificate as PEM or bare base64 DER */
+            certificate: string;
+        };
+        AddSsoDomainRequest: {
+            /** @description Email domain whose users sign in through the connection, e.g. acme.com */
+            domain: string;
+        };
+        AddStatusPageGroupMemberRequest: {
+            /**
+             * Format: uuid
+             * @description Status page to add; must be in the same workspace as the group
+             */
+            statusPageId: string;
+            /** @description Short key that selects this page inside the group, e.g. eu (1-32 characters) */
+            key: string;
+        };
         AdminAddSubscriberRequest: {
             /**
              * Format: email
@@ -5148,13 +6026,15 @@ export interface components {
              * @description Delivery channel (default: EMAIL)
              * @enum {string|null}
              */
-            channel?: "EMAIL" | "SMS" | "WEBHOOK" | null;
-            /** @description Channel destination (email, phone, or webhook URL) */
+            channel?: "EMAIL" | "SMS" | "WEBHOOK" | "TEAMS" | null;
+            /** @description Channel destination (email, phone, webhook URL or Teams webhook URL) */
             destination?: string | null;
             /** @description Component IDs to scope; omit to leave existing scope; empty list widens to the whole page */
             componentIds?: string[] | null;
             /** @description When true (EMAIL only), create unconfirmed and send opt-in; null/false confirms immediately */
             requireConfirmation?: boolean | null;
+            /** @description Component group IDs to scope, including components added to them later; omit to leave existing scope */
+            componentGroupIds?: string[] | null;
         };
         /** @description Updated affected components; null preserves current */
         AffectedComponent: {
@@ -5286,7 +6166,7 @@ export interface components {
              * @description Current delivery status
              * @enum {string}
              */
-            status: "PENDING" | "DELIVERED" | "RETRY_PENDING" | "FAILED" | "CANCELLED" | "SKIPPED_NO_CREDIT" | "SKIPPED_UNVERIFIED" | "SKIPPED_OPTED_OUT" | "SKIPPED_RATE_LIMITED";
+            status: "PENDING" | "DELIVERED" | "RETRY_PENDING" | "FAILED" | "CANCELLED" | "SKIPPED_NO_CREDIT" | "SKIPPED_UNVERIFIED" | "SKIPPED_OPTED_OUT" | "SKIPPED_RATE_LIMITED" | "SKIPPED";
             /**
              * @description Incident lifecycle event that triggered this delivery
              * @enum {string}
@@ -5656,6 +6536,14 @@ export interface components {
              */
             p95Ms?: number | null;
         };
+        BulkDeactivateEndUsersRequest: {
+            /** @description Emails to deactivate (1–1000) */
+            emails: string[];
+        };
+        BulkDeleteSubscribersRequest: {
+            /** @description Subscriber IDs to remove (1–1000); IDs not on this page are reported, not removed */
+            subscriberIds: string[];
+        };
         /** @description Request body for performing a bulk action on multiple monitors */
         BulkMonitorActionRequest: {
             /** @description IDs of monitors to act on (max 200) */
@@ -5682,6 +6570,14 @@ export interface components {
             succeeded: string[];
             /** @description Monitors on which the action failed, with the reason for each failure */
             failed: components["schemas"]["FailureDetail"][];
+        };
+        BulkUpdateSubscriberScopeRequest: {
+            /** @description Subscriber IDs to change (1–1000); IDs not on this page are reported, not changed */
+            subscriberIds: string[];
+            /** @description Components to hear about; empty with no component groups means the whole page */
+            componentIds?: string[] | null;
+            /** @description Component groups to hear about, including components added to them later */
+            componentGroupIds?: string[] | null;
         };
         BundleCheckResultDto: {
             /** @description Problems found in the supplied source files */
@@ -6492,6 +7388,15 @@ export interface components {
              */
             environmentId?: string | null;
         };
+        CreateSsoConnectionRequest: {
+            /** @description Human-readable connection name, e.g. the IdP it points at */
+            name: string;
+            /**
+             * @description Who may sign in through the connection (default: ROUTED_DOMAINS)
+             * @enum {string|null}
+             */
+            signInScope?: "ROUTED_DOMAINS" | "ANY_IDP_USER" | null;
+        };
         CreateStatusPageComponentGroupRequest: {
             /** @description Group display name */
             name: string;
@@ -6550,6 +7455,17 @@ export interface components {
              */
             startDate?: string | null;
         };
+        CreateStatusPageGroupRequest: {
+            /** @description Human-readable name for this group */
+            name: string;
+            /** @description URL slug served under the first-party status domain (lowercase, hyphens, globally unique) */
+            slug: string;
+            /**
+             * @description How member pages are served: SEPARATE or UNIFIED (default: SEPARATE)
+             * @enum {string|null}
+             */
+            mode?: "SEPARATE" | "UNIFIED" | null;
+        };
         CreateStatusPageIncidentRequest: {
             /** @description Customer-facing incident title */
             title: string;
@@ -6574,6 +7490,23 @@ export interface components {
              * @description Monitoring incident ID to link this status page incident to; null for standalone
              */
             monitoringIncidentId?: string | null;
+            /**
+             * Format: uuid
+             * @description Incident template the incident is created from; null for none
+             */
+            templateId?: string | null;
+            /** @description Import a past incident with its original dates: requires startedAt and resolvedAt, never notifies subscribers and leaves component statuses alone */
+            backfill?: boolean | null;
+            /**
+             * Format: date-time
+             * @description Backfill only: when the incident started
+             */
+            startedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description Backfill only: when the incident was resolved
+             */
+            resolvedAt?: string | null;
         };
         CreateStatusPageIncidentUpdateRequest: {
             /**
@@ -6587,6 +7520,11 @@ export interface components {
             notifySubscribers?: boolean | null;
             /** @description Updated affected components; null preserves current */
             affectedComponents?: components["schemas"]["AffectedComponent"][] | null;
+            /**
+             * Format: date-time
+             * @description Backfilled incidents only: when the update was posted (original time); never notifies
+             */
+            createdAt?: string | null;
         };
         CreateStatusPageMaintenanceRequest: {
             /** @description Customer-facing maintenance title */
@@ -6619,6 +7557,13 @@ export interface components {
             autoResolve?: boolean | null;
             /** @description Whether to email confirmed subscribers about this window (default: true) */
             notifySubscribers?: boolean | null;
+            /**
+             * Format: uuid
+             * @description Maintenance template the window is created from; its start and completion messages are posted automatically
+             */
+            templateId?: string | null;
+            /** @description Minutes before the window to email subscribers a reminder (5–20160 each, distinct). Default: the template's lead times, else 24 hours and 1 hour; an empty list sends none */
+            reminderLeadMinutes?: number[] | null;
         };
         CreateStatusPageRequest: {
             /** @description Human-readable name for this status page */
@@ -6632,7 +7577,7 @@ export interface components {
              * @description Page visibility: PUBLIC, PASSWORD, or IP_RESTRICTED (default: PUBLIC)
              * @enum {string|null}
              */
-            visibility?: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED" | null;
+            visibility?: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED" | "LOGIN_REQUIRED" | null;
             /** @description Whether the page is enabled (default: true) */
             enabled?: boolean | null;
             /**
@@ -6819,6 +7764,15 @@ export interface components {
         CursorPageStatusEventDto: {
             /** @description Items on this page */
             data: components["schemas"]["StatusEventDto"][];
+            /** @description Opaque cursor for the next page; null when there are no more results */
+            nextCursor?: string | null;
+            /** @description Whether more results exist beyond this page */
+            hasMore: boolean;
+        };
+        /** @description Cursor-paginated response for time-series and append-only data */
+        CursorPageStatusPageAccessEventDto: {
+            /** @description Items on this page */
+            data: components["schemas"]["StatusPageAccessEventDto"][];
             /** @description Opaque cursor for the next page; null when there are no more results */
             nextCursor?: string | null;
             /** @description Whether more results exist beyond this page */
@@ -7677,11 +8631,10 @@ export interface components {
              */
             have?: number | null;
             /**
-             * @description Why permission was refused: scope or role
-             * @example role
-             * @enum {string|null}
+             * @description Why this was refused, such as scope, role, or no_route
+             * @example no_route
              */
-            reason?: "scope" | "role" | null;
+            reason?: string | null;
             next?: components["schemas"]["ErrorNext"] | null;
             /** @description Extra fields for this error, such as a missing secret key and environment */
             details?: {
@@ -7754,7 +8707,7 @@ export interface components {
              * @description Import validation code
              * @enum {string}
              */
-            code: "MONITOR_CONFIG_TYPE_MISMATCH" | "MONITOR_FREQUENCY_BELOW_PLAN_MIN" | "MONITOR_LIMIT_REACHED" | "MONITOR_AUTH_TYPE_UNSUPPORTED" | "MONITOR_HEARTBEAT_REGIONS_NOT_SUPPORTED" | "MONITOR_HEARTBEAT_INTERVAL_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_EXCEEDS_INTERVAL" | "MONITOR_HTTP_HEADERS_TOO_MANY" | "MONITOR_HTTP_HEADER_RESERVED" | "MONITOR_HTTP_BODY_METHOD_INVALID" | "MONITOR_HTTP_BODY_TOO_LARGE" | "MONITOR_ASSERTION_TYPE_NOT_ALLOWED" | "MONITOR_ALERT_CHANNEL_NOT_FOUND" | "MONITOR_TAGS_ADD_INVALID" | "MONITOR_TAGS_REMOVE_INVALID" | "MONITOR_TOKEN_ROTATION_HEARTBEAT_ONLY" | "MONITOR_CODE_CHECK_NOT_AVAILABLE" | "MONITOR_CODE_CHECK_LIMIT_REACHED" | "MONITOR_CODE_CHECK_REGION_UNAVAILABLE" | "MONITOR_CODE_CHECK_TEST_UNAVAILABLE" | "MONITOR_TEST_BUNDLE_UNAVAILABLE" | "MONITOR_BROWSER_CHECKS_DISABLED" | "MONITOR_ENVIRONMENT_REQUIRED" | "MONITOR_ENVIRONMENT_CLEAR_FORBIDDEN" | "MONITOR_PACKAGE_XOR_DEFINITION" | "MONITOR_PACKAGE_DIGEST_INVALID" | "MONITOR_PACKAGE_NOT_SUPPORTED" | "MONITOR_PACKAGE_PATH_INVALID" | "MONITOR_PACKAGE_CONCURRENT" | "MONITOR_DEFINITION_HAS_NO_REVISION" | "MONITOR_DEFINITION_IN_USE" | "MONITOR_STATUS_NOT_WRITABLE" | "MONITOR_PAUSED" | "MONITOR_OVERLAY_EXPIRES_IN_PAST" | "MONITOR_QUARANTINE_FIELDS_REQUIRED" | "MONITOR_MANAGED_BY_TAKEOVER_REQUIRED" | "MONITOR_HISTORY_PARAM_INVALID" | "MONITOR_TAKEOVER_FIELD_UNKNOWN" | "MONITOR_CAPTURE_POLICY_INVALID" | "MONITOR_RUN_PARALLEL_CODE_ONLY" | "REVISION_PACKAGE_BYTES_UNAVAILABLE" | "MONITOR_CODE_TYPE_REQUIRED" | "MONITOR_DEFINITION_REQUIRED" | "REVISION_NOT_ON_DEFINITION" | "REVISION_DIFF_CROSS_DEFINITION" | "DEFINITION_HEAD_INCOMPLETE" | "MONITOR_ASSERTION_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_ALREADY_EXISTS" | "MONITOR_AUTH_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_VAULT_FOREIGN_ORG" | "ALERT_CHANNEL_DISABLED" | "ALERT_CHANNEL_PLAN_REQUIRED" | "ALERT_CHANNEL_TYPE_IMMUTABLE" | "ALERT_CHANNEL_CONFIG_INVALID" | "ALERT_CHANNEL_SLACK_WEBHOOK_INVALID" | "ALERT_CHANNEL_DISCORD_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "ALERT_CHANNEL_TEAMS_WEBHOOK_HOST" | "ALERT_CHANNEL_WEBHOOK_URL_INVALID" | "ALERT_CHANNEL_WEBHOOK_HEADER_RESERVED" | "ALERT_CHANNEL_OPSGENIE_REGION_INVALID" | "ALERT_CHANNEL_PAGERDUTY_SEVERITY_INVALID" | "ALERT_CHANNEL_GOOGLE_CHAT_WEBHOOK_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_UNVERIFIED" | "ALERT_CHANNEL_PHONE_NUMBERS_COUNT_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_REQUIRED" | "ALERT_CHANNEL_VERIFIED_PHONE_NOT_FOUND" | "ALERT_CHANNEL_PHONE_DESTINATION_MISMATCH" | "ALERT_CHANNEL_VOICE_LANGUAGE_INVALID" | "NOTIFICATION_POLICY_RULE_TYPE_REQUIRED" | "NOTIFICATION_POLICY_RULE_TYPE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUE_REQUIRED" | "NOTIFICATION_POLICY_RULE_VALUE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUES_REQUIRED" | "NOTIFICATION_POLICY_RULE_MONITOR_IDS_REQUIRED" | "NOTIFICATION_POLICY_RULE_REGIONS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_INVALID" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_CONFLICT" | "NOTIFICATION_POLICY_ESCALATION_REQUIRED" | "NOTIFICATION_POLICY_STEPS_REQUIRED" | "NOTIFICATION_POLICY_ON_RESOLVE_INVALID" | "NOTIFICATION_POLICY_ON_REOPEN_INVALID" | "NOTIFICATION_POLICY_STEP_CHANNELS_EMPTY" | "NOTIFICATION_POLICY_STEP_DELAY_NEGATIVE" | "NOTIFICATION_POLICY_STEP_DELAY_TOO_LARGE" | "NOTIFICATION_POLICY_STEP_REPEAT_INVALID" | "NOTIFICATION_POLICY_STEP_REPEAT_TOO_LARGE" | "NOTIFICATION_POLICY_STEPS_TOO_MANY" | "NOTIFICATION_POLICY_STEP_CHANNEL_NOT_FOUND" | "NOTIFICATION_POLICY_DELETE_BLOCKED" | "MONITOR_POLICY_TRIGGER_RULES_EMPTY" | "MONITOR_POLICY_RULE_TYPE_REQUIRED" | "MONITOR_POLICY_RULE_SEVERITY_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_TYPE_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REGIONS_TOO_FEW" | "MONITOR_POLICY_CONFIRMATION_WAIT_TOO_SHORT" | "MONITOR_POLICY_CONFIRMATION_WAIT_BELOW_INVARIANT" | "MONITOR_POLICY_RECOVERY_REQUIRED" | "MONITOR_POLICY_RECOVERY_SUCCESSES_TOO_FEW" | "MONITOR_POLICY_RECOVERY_REGIONS_TOO_FEW" | "MONITOR_POLICY_RECOVERY_COOLDOWN_OUT_OF_RANGE" | "MONITOR_POLICY_FIELD_REQUIRED" | "MONITOR_POLICY_FIELD_NOT_POSITIVE" | "MONITOR_POLICY_FIELD_OUT_OF_RANGE" | "URL_INVALID" | "URL_SCHEME_UNSUPPORTED" | "URL_HOST_REQUIRED" | "URL_HOST_PRIVATE" | "RESOURCE_GROUP_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_ALREADY_PRESENT" | "RESOURCE_GROUP_MEMBER_TYPE_INVALID" | "RESOURCE_GROUP_THRESHOLD_VALUE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_TYPE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_OUT_OF_RANGE" | "RESOURCE_GROUP_SLUG_GENERATION_FAILED" | "STATUS_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SLUG_TAKEN" | "STATUS_PAGE_SLUG_REQUIRED" | "STATUS_PAGE_SLUG_RESERVED" | "STATUS_PAGE_VISIBILITY_UNSUPPORTED" | "STATUS_PAGE_FEATURE_PLAN_REQUIRED" | "STATUS_PAGE_HOSTNAME_FIRST_PARTY_RESERVED" | "STATUS_PAGE_HOSTNAME_TLD_RESERVED" | "STATUS_PAGE_HOSTNAME_TAKEN" | "STATUS_PAGE_DOMAIN_NOT_VERIFIED" | "STATUS_PAGE_COMPONENT_GROUP_NOT_FOUND" | "STATUS_PAGE_COMPONENT_MONITOR_REQUIRED" | "STATUS_PAGE_COMPONENT_GROUP_REQUIRED" | "STATUS_PAGE_COMPONENT_STATIC_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REQUIRED" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_NOT_FOUND" | "STATUS_PAGE_COMPONENT_DEPENDENCY_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REFS_INVALID" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_NOT_FAILED" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_TERMINAL" | "STATUS_PAGE_MEASURED_UPTIME_MONITOR_ONLY" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_IN_PAST" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_EXCEEDS_MAX" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_REQUIRED" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_INVALID" | "STATUS_PAGE_SUBSCRIBER_COMPONENT_NOT_FOUND" | "SP_INCIDENT_PUBLISH_RESOLVED" | "SP_INCIDENT_DISMISS_PUBLISHED" | "SP_INCIDENT_SCHEDULED_FOR_REQUIRED" | "SP_INCIDENT_SCHEDULED_UNTIL_BEFORE_FOR" | "SP_INCIDENT_AUTO_RESOLVE_REQUIRES_UNTIL" | "SP_INCIDENT_COMPONENT_FOREIGN" | "SP_INCIDENT_MONITORING_INCIDENT_NOT_FOUND" | "SUBSCRIPTION_PRICE_INACTIVE" | "SUBSCRIPTION_PRICE_UNAVAILABLE" | "SUBSCRIPTION_ALREADY_ACTIVE" | "SUBSCRIPTION_NOT_ACTIVE" | "SUBSCRIPTION_NO_SCHEDULED_CHANGE" | "SUBSCRIPTION_CHANGE_PENDING" | "SUBSCRIPTION_CANCELING" | "SUBSCRIPTION_CADENCE_UNAVAILABLE" | "SUBSCRIPTION_PRICES_INVALID" | "BILLING_OVERAGE_CAP_INVALID" | "BILLING_OVERAGE_NOT_ACTIVE" | "SERVICE_SUBSCRIPTION_FREE_TIER_LIMIT" | "SERVICE_SUBSCRIPTION_SERVICE_UNAVAILABLE" | "ACTOR_BAD_REQUEST" | "ORGANIZATION_ID_REQUIRED" | "WORKSPACE_REQUIRED" | "WORKSPACE_INTERNAL_ACTOR_NO_WORKSPACE" | "WORKSPACE_NOT_FOUND_ON_ORG" | "ENVIRONMENT_LIMIT_REACHED" | "ENVIRONMENT_SLUG_TAKEN" | "ENVIRONMENT_DELETE_BLOCKED" | "INBOUND_INBOX_NAME_BLANK" | "INBOUND_HTTP_RESPONSE_DELAY_INVALID" | "INBOUND_HTTP_RESPONSE_STATUS_INVALID" | "INBOUND_HTTP_RESPONSE_BODY_TOO_LARGE" | "INBOUND_HTTP_RESPONSE_BODY_INVALID" | "INBOUND_HTTP_RESPONSE_CONTENT_TYPE_INVALID" | "INBOUND_HTTP_RESPONSE_HEADERS_INVALID" | "INBOUND_EVENTS_CURSOR_INVALID" | "INBOUND_EVENTS_LIMIT_OUT_OF_RANGE" | "INBOUND_DOMAIN_CUSTOM_NAME_REQUIRED" | "INBOUND_DOMAIN_IN_ASSIGNED_ZONE" | "INBOUND_DOMAIN_NAME_TAKEN" | "INBOUND_DOMAIN_KIND_INVALID" | "INBOUND_DOMAIN_STATUS_INVALID" | "INBOUND_DOMAIN_NAME_INVALID" | "INBOUND_INJECT_TO_BLANK" | "INBOUND_INJECT_FROM_BLANK" | "INBOUND_INJECT_DOMAIN_DISABLED" | "INBOUND_INJECT_TO_INVALID" | "INBOUND_INJECT_FROM_INVALID" | "INBOUND_INJECT_HEADER_INVALID" | "INBOUND_WAIT_TO_REQUIRED" | "INBOUND_WAIT_TO_INVALID" | "INBOUND_WAIT_DOMAIN_REQUIRED" | "INBOUND_WEBHOOK_INBOX_LIMIT_REACHED" | "INBOUND_EMAIL_DOMAIN_LIMIT_REACHED" | "INBOUND_CUSTOM_MX_PLAN_REQUIRED" | "INBOUND_RETENTION_ABOVE_PLAN" | "INBOUND_EVENTS_MONTHLY_LIMIT_REACHED" | "INBOUND_ACTIVITY_INBOX_IDS_REQUIRED" | "INBOUND_ACTIVITY_INBOX_IDS_TOO_MANY" | "INBOUND_ACTIVITY_DOMAIN_IDS_REQUIRED" | "INBOUND_ACTIVITY_DOMAIN_IDS_TOO_MANY" | "TAG_NAME_TAKEN" | "SAVED_VIEW_TABLE_UNKNOWN" | "SAVED_VIEW_LIMIT_REACHED" | "SAVED_VIEW_FILTERS_TOO_LARGE" | "SECRET_KEY_TAKEN" | "SECRET_ENVIRONMENT_VALUE_BLANK" | "SECRET_REQUEST_ENVIRONMENT_QUERY" | "SECRET_REQUEST_HEAD_REQUIRED" | "SECRET_REQUEST_REMAP_SECRET_ID" | "SESSION_SETUP_FILE_BLANK" | "SESSION_HEAD_REQUIRED" | "RUN_NO_HEAD" | "RUN_KEYS_MISSING" | "SYNTHETICS_USAGE_CAPPED" | "RUN_LIST_PARAM_INVALID" | "ARTIFACT_BYTES_TOO_LARGE" | "SUPERVISOR_TOKEN_INVALID" | "LEASE_COMPLETION_CONFLICT" | "LEASE_FENCE_REJECTED" | "CAPACITY_TARGET_INVALID" | "ADMISSIONS_NOT_HELD" | "RUNTIME_UNKNOWN" | "RUNTIME_RETIRED" | "RUNTIME_NOT_AVAILABLE" | "RUNTIME_UNAVAILABLE" | "RUNTIME_NO_CAPACITY" | "RUNTIME_NO_ROUTE" | "ROLLOUT_CANARY_MISSING" | "RUNTIME_EOL" | "RUNTIME_AMBIGUOUS" | "RUNTIME_DIGEST_IMMUTABLE" | "RUNTIME_DIGEST_INVALID" | "API_KEY_LIMIT_REACHED" | "API_KEY_REVOKED" | "AUDIT_EXPORT_LIMIT_EXCEEDED" | "AUTH_FIELD_BLANK" | "AUTH_EMAIL_INVALID" | "AUTH_EMAIL_TAKEN" | "EMAIL_ALREADY_VERIFIED" | "ORG_EMAIL_TAKEN" | "ONBOARDING_STAGE_BACKWARD" | "INVITE_USER_ALREADY_MEMBER" | "INVITE_ALREADY_ACCEPTED" | "INVITE_REVOKED" | "INVITE_EXPIRED" | "INVITE_EMAIL_MISMATCH" | "MEMBER_LIMIT_REACHED" | "MAINTENANCE_WINDOW_END_BEFORE_START" | "FORENSICS_HASH_BLANK" | "FORENSICS_HASH_INVALID" | "CHECK_RESULTS_LIMIT_OUT_OF_RANGE" | "CHECK_RESULTS_WINDOW_INVALID" | "CHECK_RESULTS_CURSOR_INVALID" | "CHECK_RESULTS_REGION_INVALID" | "STATUS_DATA_STATUS_INVALID" | "STATUS_DATA_PERIOD_INVALID" | "STATUS_DATA_GRANULARITY_INVALID" | "STATUS_DATA_GRANULARITY_PERIOD_MISMATCH" | "STATUS_DATA_PERIOD_UNKNOWN" | "STATUS_DATA_FROM_REQUIRED_WITH_TO" | "STATUS_DATA_TO_IN_FUTURE" | "STATUS_DATA_FROM_AFTER_TO" | "STATUS_DATA_WINDOW_TOO_WIDE" | "STATUS_DATA_TYPES_INVALID" | "STATUS_DATA_CURSOR_INVALID" | "STATUS_DATA_LIMIT_OUT_OF_RANGE" | "STATUS_DATA_COMPONENT_IDS_TOO_MANY" | "INCIDENT_ACTIVE_EXISTS" | "INCIDENT_TRANSITION_INVALID" | "INCIDENT_SERVICE_NOT_FOUND" | "INCIDENT_SERVICE_INCIDENT_NOT_FOUND" | "INCIDENT_SERVICE_MISMATCH" | "INCIDENT_EVENTS_CURSOR_INVALID" | "INCIDENT_EVENTS_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_DISPATCH_INVALID_STATE" | "NOTIFICATION_POLICY_DISPATCHES_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_POLICY_DISPATCHES_WINDOW_INVALID" | "NOTIFICATION_POLICY_DISPATCHES_CURSOR_INVALID" | "WEBHOOK_LIMIT_REACHED" | "WEBHOOK_URL_BLANK" | "WEBHOOK_EVENT_TYPES_INVALID" | "WEBHOOK_EVENT_TYPE_INVALID" | "ALERT_DELIVERY_RETRY_NOT_FAILED" | "ADMIN_BACKFILL_TYPE_UNKNOWN" | "ADMIN_PUBLISH_BLOCKED" | "ADMIN_ADAPTER_TYPE_UNKNOWN" | "ADMIN_SEO_METADATA_INVALID" | "ADMIN_RELATED_SERVICES_TOO_MANY" | "ADMIN_RELATED_SERVICE_SELF" | "ADMIN_PROBE_NO_OFFICIAL_URL" | "ADMIN_PROBE_URL_MALFORMED" | "ADMIN_LIFECYCLE_TRANSITION_INVALID" | "CLOUDFLARE_REQUEST_FAILED" | "CLOUDFLARE_API_ERROR" | "FIELD_REQUIRED" | "FIELD_TOO_SMALL" | "FIELD_TOO_LARGE" | "FIELD_OUT_OF_RANGE" | "FIELD_PATTERN_MISMATCH" | "FIELD_INVALID_EMAIL" | "FIELD_INVALID_URL" | "FIELD_INVALID_FORMAT" | "FIELD_INVARIANT_VIOLATED" | "FIELD_VALIDATION_FAILED" | "REQUEST_BODY_REQUIRED" | "REQUEST_BODY_MALFORMED" | "REQUEST_BODY_TYPE_MISMATCH" | "REQUEST_PARAMETER_REQUIRED" | "REQUEST_MEDIA_TYPE_UNSUPPORTED" | "CARRIER_CREDITS_EXHAUSTED" | "SYNTHETICS_USAGE_RESERVED" | "TESTING_QUOTA_EXHAUSTED" | "RATE_LIMITED" | "NOTIFY_RATE" | "SCOPE_REQUIRED" | "RUN_TOKEN_ADDRESS_FORBIDDEN" | "MONITOR_OWNED_BY_OTHER" | "DEPLOY_LOCKED" | "LIVE_REVISION_CHANGED" | "CONFIRMATION_REQUIRED" | "UPDATE_REQUIRED" | "CLAIMED" | "REVISION_ROLLED_BACK" | "REVISION_NEVER_LIVE" | "ROLLBACK_INCIDENT_REQUIRED" | "REVISION_UNTESTED" | "REVISION_DISCARDED" | "REVISION_IS_LIVE" | "DRAFT_LIMIT" | "NO_TOKEN" | "CLIENT_TOO_OLD" | "MAX_RUNS_EXCEEDED" | "IMPORT_NOT_IN_BUNDLE" | "USE_PROBE" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_KEY_IN_PROGRESS" | "IDEMPOTENCY_KEY_ORPHANED" | "TRIGGER_UNSUPPORTED_TYPE" | "ENVIRONMENT_NOT_FOUND" | "EVIDENCE_EXPIRED" | "RUN_EXPIRED" | "BUNDLE_TOO_LARGE" | "BUNDLE_NOT_FOUND" | "IMPORT_NOT_IN_RUNTIME" | "SECRET_LITERAL" | "FIELD_UNKNOWN" | "API_KEY_EXPIRED" | "DEVICE_AUTHORIZATION_NOT_FOUND" | "DEVICE_AUTHORIZATION_EXPIRED" | "DEVICE_WORKSPACE_ORG_MISMATCH";
+            code: "MONITOR_CONFIG_TYPE_MISMATCH" | "MONITOR_FREQUENCY_BELOW_PLAN_MIN" | "MONITOR_LIMIT_REACHED" | "MONITOR_AUTH_TYPE_UNSUPPORTED" | "MONITOR_HEARTBEAT_REGIONS_NOT_SUPPORTED" | "MONITOR_HEARTBEAT_INTERVAL_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_EXCEEDS_INTERVAL" | "MONITOR_HTTP_HEADERS_TOO_MANY" | "MONITOR_HTTP_HEADER_RESERVED" | "MONITOR_HTTP_BODY_METHOD_INVALID" | "MONITOR_HTTP_BODY_TOO_LARGE" | "MONITOR_ASSERTION_TYPE_NOT_ALLOWED" | "MONITOR_ALERT_CHANNEL_NOT_FOUND" | "MONITOR_TAGS_ADD_INVALID" | "MONITOR_TAGS_REMOVE_INVALID" | "MONITOR_TOKEN_ROTATION_HEARTBEAT_ONLY" | "MONITOR_CODE_CHECK_NOT_AVAILABLE" | "MONITOR_CODE_CHECK_LIMIT_REACHED" | "MONITOR_CODE_CHECK_REGION_UNAVAILABLE" | "MONITOR_CODE_CHECK_TEST_UNAVAILABLE" | "MONITOR_TEST_BUNDLE_UNAVAILABLE" | "MONITOR_BROWSER_CHECKS_DISABLED" | "MONITOR_ENVIRONMENT_REQUIRED" | "MONITOR_ENVIRONMENT_CLEAR_FORBIDDEN" | "MONITOR_PACKAGE_XOR_DEFINITION" | "MONITOR_PACKAGE_DIGEST_INVALID" | "MONITOR_PACKAGE_NOT_SUPPORTED" | "MONITOR_PACKAGE_PATH_INVALID" | "MONITOR_PACKAGE_CONCURRENT" | "MONITOR_DEFINITION_HAS_NO_REVISION" | "MONITOR_DEFINITION_IN_USE" | "MONITOR_STATUS_NOT_WRITABLE" | "MONITOR_PAUSED" | "MONITOR_OVERLAY_EXPIRES_IN_PAST" | "MONITOR_QUARANTINE_FIELDS_REQUIRED" | "MONITOR_MANAGED_BY_TAKEOVER_REQUIRED" | "MONITOR_HISTORY_PARAM_INVALID" | "MONITOR_TAKEOVER_FIELD_UNKNOWN" | "MONITOR_CAPTURE_POLICY_INVALID" | "MONITOR_RUN_PARALLEL_CODE_ONLY" | "REVISION_PACKAGE_BYTES_UNAVAILABLE" | "MONITOR_CODE_TYPE_REQUIRED" | "MONITOR_DEFINITION_REQUIRED" | "REVISION_NOT_ON_DEFINITION" | "REVISION_DIFF_CROSS_DEFINITION" | "DEFINITION_HEAD_INCOMPLETE" | "MONITOR_ASSERTION_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_ALREADY_EXISTS" | "MONITOR_AUTH_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_VAULT_FOREIGN_ORG" | "ALERT_CHANNEL_DISABLED" | "ALERT_CHANNEL_PLAN_REQUIRED" | "ALERT_CHANNEL_TYPE_IMMUTABLE" | "ALERT_CHANNEL_CONFIG_INVALID" | "ALERT_CHANNEL_SLACK_WEBHOOK_INVALID" | "ALERT_CHANNEL_DISCORD_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "ALERT_CHANNEL_TEAMS_WEBHOOK_HOST" | "ALERT_CHANNEL_WEBHOOK_URL_INVALID" | "ALERT_CHANNEL_WEBHOOK_HEADER_RESERVED" | "ALERT_CHANNEL_OPSGENIE_REGION_INVALID" | "ALERT_CHANNEL_PAGERDUTY_SEVERITY_INVALID" | "ALERT_CHANNEL_GOOGLE_CHAT_WEBHOOK_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_UNVERIFIED" | "ALERT_CHANNEL_PHONE_NUMBERS_COUNT_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_REQUIRED" | "ALERT_CHANNEL_VERIFIED_PHONE_NOT_FOUND" | "ALERT_CHANNEL_PHONE_DESTINATION_MISMATCH" | "ALERT_CHANNEL_VOICE_LANGUAGE_INVALID" | "NOTIFICATION_POLICY_RULE_TYPE_REQUIRED" | "NOTIFICATION_POLICY_RULE_TYPE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUE_REQUIRED" | "NOTIFICATION_POLICY_RULE_VALUE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUES_REQUIRED" | "NOTIFICATION_POLICY_RULE_MONITOR_IDS_REQUIRED" | "NOTIFICATION_POLICY_RULE_REGIONS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_INVALID" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_CONFLICT" | "NOTIFICATION_POLICY_ESCALATION_REQUIRED" | "NOTIFICATION_POLICY_STEPS_REQUIRED" | "NOTIFICATION_POLICY_ON_RESOLVE_INVALID" | "NOTIFICATION_POLICY_ON_REOPEN_INVALID" | "NOTIFICATION_POLICY_STEP_CHANNELS_EMPTY" | "NOTIFICATION_POLICY_STEP_DELAY_NEGATIVE" | "NOTIFICATION_POLICY_STEP_DELAY_TOO_LARGE" | "NOTIFICATION_POLICY_STEP_REPEAT_INVALID" | "NOTIFICATION_POLICY_STEP_REPEAT_TOO_LARGE" | "NOTIFICATION_POLICY_STEPS_TOO_MANY" | "NOTIFICATION_POLICY_STEP_CHANNEL_NOT_FOUND" | "NOTIFICATION_POLICY_DELETE_BLOCKED" | "MONITOR_POLICY_TRIGGER_RULES_EMPTY" | "MONITOR_POLICY_RULE_TYPE_REQUIRED" | "MONITOR_POLICY_RULE_SEVERITY_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_TYPE_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REGIONS_TOO_FEW" | "MONITOR_POLICY_CONFIRMATION_WAIT_TOO_SHORT" | "MONITOR_POLICY_CONFIRMATION_WAIT_BELOW_INVARIANT" | "MONITOR_POLICY_RECOVERY_REQUIRED" | "MONITOR_POLICY_RECOVERY_SUCCESSES_TOO_FEW" | "MONITOR_POLICY_RECOVERY_REGIONS_TOO_FEW" | "MONITOR_POLICY_RECOVERY_COOLDOWN_OUT_OF_RANGE" | "MONITOR_POLICY_FIELD_REQUIRED" | "MONITOR_POLICY_FIELD_NOT_POSITIVE" | "MONITOR_POLICY_FIELD_OUT_OF_RANGE" | "URL_INVALID" | "URL_SCHEME_UNSUPPORTED" | "URL_HOST_REQUIRED" | "URL_HOST_PRIVATE" | "RESOURCE_GROUP_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_ALREADY_PRESENT" | "RESOURCE_GROUP_MEMBER_TYPE_INVALID" | "RESOURCE_GROUP_THRESHOLD_VALUE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_TYPE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_OUT_OF_RANGE" | "RESOURCE_GROUP_SLUG_GENERATION_FAILED" | "STATUS_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SLUG_TAKEN" | "STATUS_PAGE_SLUG_REQUIRED" | "STATUS_PAGE_SLUG_RESERVED" | "STATUS_PAGE_VISIBILITY_UNSUPPORTED" | "STATUS_PAGE_VISIBILITY_CHANGE_UI_ONLY" | "STATUS_PAGE_LOGIN_REQUIRED" | "STATUS_PAGE_FEATURE_PLAN_REQUIRED" | "STATUS_PAGE_HOSTNAME_FIRST_PARTY_RESERVED" | "STATUS_PAGE_HOSTNAME_TLD_RESERVED" | "STATUS_PAGE_HOSTNAME_TAKEN" | "STATUS_PAGE_DOMAIN_NOT_VERIFIED" | "STATUS_PAGE_COMPONENT_GROUP_NOT_FOUND" | "STATUS_PAGE_COMPONENT_MONITOR_REQUIRED" | "STATUS_PAGE_COMPONENT_GROUP_REQUIRED" | "STATUS_PAGE_COMPONENT_STATIC_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REQUIRED" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_NOT_FOUND" | "STATUS_PAGE_COMPONENT_DEPENDENCY_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REFS_INVALID" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_NOT_FAILED" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_TERMINAL" | "STATUS_PAGE_MEASURED_UPTIME_MONITOR_ONLY" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_IN_PAST" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_EXCEEDS_MAX" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_REQUIRED" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_INVALID" | "STATUS_PAGE_SUBSCRIBER_COMPONENT_NOT_FOUND" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_INVALID" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_NOT_PUBLIC" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_UNSUPPORTED" | "STATUS_PAGE_UPTIME_WINDOW_INCOMPLETE" | "STATUS_PAGE_UPTIME_FROM_AFTER_TO" | "STATUS_PAGE_UPTIME_FROM_IN_FUTURE" | "STATUS_PAGE_UPTIME_FROM_TOO_OLD" | "STATUS_PAGE_UPTIME_WINDOW_TOO_WIDE" | "STATUS_PAGE_GROUP_KEY_RESERVED" | "STATUS_PAGE_GROUP_KEY_TAKEN" | "STATUS_PAGE_ALREADY_IN_GROUP" | "STATUS_PAGE_GROUP_REORDER_MISMATCH" | "STATUS_PAGE_GROUP_EMPTY" | "STATUS_PAGE_GROUP_DOMAIN_EXISTS" | "SP_INCIDENT_PUBLISH_RESOLVED" | "SP_INCIDENT_DISMISS_PUBLISHED" | "SP_INCIDENT_SCHEDULED_FOR_REQUIRED" | "SP_INCIDENT_SCHEDULED_UNTIL_BEFORE_FOR" | "SP_INCIDENT_AUTO_RESOLVE_REQUIRES_UNTIL" | "SP_INCIDENT_COMPONENT_FOREIGN" | "SP_INCIDENT_MONITORING_INCIDENT_NOT_FOUND" | "SUBSCRIPTION_PRICE_INACTIVE" | "SUBSCRIPTION_PRICE_UNAVAILABLE" | "SUBSCRIPTION_ALREADY_ACTIVE" | "SUBSCRIPTION_NOT_ACTIVE" | "SUBSCRIPTION_NO_SCHEDULED_CHANGE" | "SUBSCRIPTION_CHANGE_PENDING" | "SUBSCRIPTION_CANCELING" | "SUBSCRIPTION_CADENCE_UNAVAILABLE" | "SUBSCRIPTION_PRICES_INVALID" | "BILLING_OVERAGE_CAP_INVALID" | "BILLING_OVERAGE_NOT_ACTIVE" | "SERVICE_SUBSCRIPTION_FREE_TIER_LIMIT" | "SERVICE_SUBSCRIPTION_SERVICE_UNAVAILABLE" | "ACTOR_BAD_REQUEST" | "ORGANIZATION_ID_REQUIRED" | "WORKSPACE_REQUIRED" | "WORKSPACE_INTERNAL_ACTOR_NO_WORKSPACE" | "WORKSPACE_NOT_FOUND_ON_ORG" | "ENVIRONMENT_LIMIT_REACHED" | "ENVIRONMENT_SLUG_TAKEN" | "ENVIRONMENT_DELETE_BLOCKED" | "INBOUND_INBOX_NAME_BLANK" | "INBOUND_HTTP_RESPONSE_DELAY_INVALID" | "INBOUND_HTTP_RESPONSE_STATUS_INVALID" | "INBOUND_HTTP_RESPONSE_BODY_TOO_LARGE" | "INBOUND_HTTP_RESPONSE_BODY_INVALID" | "INBOUND_HTTP_RESPONSE_CONTENT_TYPE_INVALID" | "INBOUND_HTTP_RESPONSE_HEADERS_INVALID" | "INBOUND_EVENTS_CURSOR_INVALID" | "INBOUND_EVENTS_LIMIT_OUT_OF_RANGE" | "INBOUND_DOMAIN_CUSTOM_NAME_REQUIRED" | "INBOUND_DOMAIN_IN_ASSIGNED_ZONE" | "INBOUND_DOMAIN_NAME_TAKEN" | "INBOUND_DOMAIN_KIND_INVALID" | "INBOUND_DOMAIN_STATUS_INVALID" | "INBOUND_DOMAIN_NAME_INVALID" | "INBOUND_INJECT_TO_BLANK" | "INBOUND_INJECT_FROM_BLANK" | "INBOUND_INJECT_DOMAIN_DISABLED" | "INBOUND_INJECT_TO_INVALID" | "INBOUND_INJECT_FROM_INVALID" | "INBOUND_INJECT_HEADER_INVALID" | "INBOUND_WAIT_TO_REQUIRED" | "INBOUND_WAIT_TO_INVALID" | "INBOUND_WAIT_DOMAIN_REQUIRED" | "INBOUND_WEBHOOK_INBOX_LIMIT_REACHED" | "INBOUND_EMAIL_DOMAIN_LIMIT_REACHED" | "INBOUND_CUSTOM_MX_PLAN_REQUIRED" | "INBOUND_RETENTION_ABOVE_PLAN" | "INBOUND_EVENTS_MONTHLY_LIMIT_REACHED" | "INBOUND_ACTIVITY_INBOX_IDS_REQUIRED" | "INBOUND_ACTIVITY_INBOX_IDS_TOO_MANY" | "INBOUND_ACTIVITY_DOMAIN_IDS_REQUIRED" | "INBOUND_ACTIVITY_DOMAIN_IDS_TOO_MANY" | "TAG_NAME_TAKEN" | "SAVED_VIEW_TABLE_UNKNOWN" | "SAVED_VIEW_LIMIT_REACHED" | "SAVED_VIEW_FILTERS_TOO_LARGE" | "SECRET_KEY_TAKEN" | "SECRET_ENVIRONMENT_VALUE_BLANK" | "SECRET_REQUEST_ENVIRONMENT_QUERY" | "SECRET_REQUEST_HEAD_REQUIRED" | "SECRET_REQUEST_REMAP_SECRET_ID" | "SESSION_SETUP_FILE_BLANK" | "SESSION_HEAD_REQUIRED" | "RUN_NO_HEAD" | "RUN_KEYS_MISSING" | "SYNTHETICS_USAGE_CAPPED" | "SCHEDULE_TICK_COVERED" | "RUN_LIST_PARAM_INVALID" | "ARTIFACT_BYTES_TOO_LARGE" | "SUPERVISOR_TOKEN_INVALID" | "LEASE_COMPLETION_CONFLICT" | "LEASE_FENCE_REJECTED" | "CAPACITY_TARGET_INVALID" | "ADMISSIONS_NOT_HELD" | "RUNTIME_UNKNOWN" | "RUNTIME_RETIRED" | "RUNTIME_NOT_AVAILABLE" | "RUNTIME_UNAVAILABLE" | "RUNTIME_NO_CAPACITY" | "RUNTIME_NO_ROUTE" | "ROLLOUT_CANARY_MISSING" | "RUNTIME_EOL" | "RUNTIME_AMBIGUOUS" | "RUNTIME_DIGEST_IMMUTABLE" | "RUNTIME_DIGEST_INVALID" | "API_KEY_LIMIT_REACHED" | "API_KEY_REVOKED" | "AUDIT_EXPORT_LIMIT_EXCEEDED" | "AUTH_FIELD_BLANK" | "AUTH_EMAIL_INVALID" | "AUTH_EMAIL_TAKEN" | "EMAIL_ALREADY_VERIFIED" | "ORG_EMAIL_TAKEN" | "ONBOARDING_STAGE_BACKWARD" | "INVITE_USER_ALREADY_MEMBER" | "INVITE_ALREADY_ACCEPTED" | "INVITE_REVOKED" | "INVITE_EXPIRED" | "INVITE_EMAIL_MISMATCH" | "MEMBER_LIMIT_REACHED" | "MAINTENANCE_WINDOW_END_BEFORE_START" | "FORENSICS_HASH_BLANK" | "FORENSICS_HASH_INVALID" | "CHECK_RESULTS_LIMIT_OUT_OF_RANGE" | "CHECK_RESULTS_WINDOW_INVALID" | "CHECK_RESULTS_CURSOR_INVALID" | "CHECK_RESULTS_REGION_INVALID" | "STATUS_DATA_STATUS_INVALID" | "STATUS_DATA_PERIOD_INVALID" | "STATUS_DATA_GRANULARITY_INVALID" | "STATUS_DATA_GRANULARITY_PERIOD_MISMATCH" | "STATUS_DATA_PERIOD_UNKNOWN" | "STATUS_DATA_FROM_REQUIRED_WITH_TO" | "STATUS_DATA_TO_IN_FUTURE" | "STATUS_DATA_FROM_AFTER_TO" | "STATUS_DATA_WINDOW_TOO_WIDE" | "STATUS_DATA_TYPES_INVALID" | "STATUS_DATA_CURSOR_INVALID" | "STATUS_DATA_LIMIT_OUT_OF_RANGE" | "STATUS_DATA_COMPONENT_IDS_TOO_MANY" | "INCIDENT_ACTIVE_EXISTS" | "INCIDENT_TRANSITION_INVALID" | "INCIDENT_SERVICE_NOT_FOUND" | "INCIDENT_SERVICE_INCIDENT_NOT_FOUND" | "INCIDENT_SERVICE_MISMATCH" | "INCIDENT_EVENTS_CURSOR_INVALID" | "INCIDENT_EVENTS_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_DISPATCH_INVALID_STATE" | "NOTIFICATION_POLICY_DISPATCHES_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_POLICY_DISPATCHES_WINDOW_INVALID" | "NOTIFICATION_POLICY_DISPATCHES_CURSOR_INVALID" | "WEBHOOK_LIMIT_REACHED" | "WEBHOOK_URL_BLANK" | "WEBHOOK_EVENT_TYPES_INVALID" | "WEBHOOK_EVENT_TYPE_INVALID" | "ALERT_DELIVERY_RETRY_NOT_FAILED" | "ADMIN_BACKFILL_TYPE_UNKNOWN" | "ADMIN_PUBLISH_BLOCKED" | "ADMIN_ADAPTER_TYPE_UNKNOWN" | "ADMIN_SEO_METADATA_INVALID" | "ADMIN_RELATED_SERVICES_TOO_MANY" | "ADMIN_RELATED_SERVICE_SELF" | "ADMIN_PROBE_NO_OFFICIAL_URL" | "ADMIN_PROBE_URL_MALFORMED" | "ADMIN_LIFECYCLE_TRANSITION_INVALID" | "CLOUDFLARE_REQUEST_FAILED" | "CLOUDFLARE_API_ERROR" | "FIELD_REQUIRED" | "FIELD_TOO_SMALL" | "FIELD_TOO_LARGE" | "FIELD_OUT_OF_RANGE" | "FIELD_PATTERN_MISMATCH" | "FIELD_INVALID_EMAIL" | "FIELD_INVALID_URL" | "FIELD_INVALID_FORMAT" | "FIELD_INVARIANT_VIOLATED" | "FIELD_VALIDATION_FAILED" | "REQUEST_BODY_REQUIRED" | "REQUEST_BODY_MALFORMED" | "REQUEST_BODY_TYPE_MISMATCH" | "REQUEST_PARAMETER_REQUIRED" | "REQUEST_MEDIA_TYPE_UNSUPPORTED" | "CARRIER_CREDITS_EXHAUSTED" | "SYNTHETICS_USAGE_RESERVED" | "TESTING_QUOTA_EXHAUSTED" | "RATE_LIMITED" | "NOTIFY_RATE" | "SCOPE_REQUIRED" | "RUN_TOKEN_ADDRESS_FORBIDDEN" | "MONITOR_OWNED_BY_OTHER" | "DEPLOY_LOCKED" | "LIVE_REVISION_CHANGED" | "CONFIRMATION_REQUIRED" | "UPDATE_REQUIRED" | "CLAIMED" | "REVISION_ROLLED_BACK" | "REVISION_NEVER_LIVE" | "ROLLBACK_INCIDENT_REQUIRED" | "REVISION_UNTESTED" | "REVISION_DISCARDED" | "REVISION_IS_LIVE" | "DRAFT_LIMIT" | "NO_TOKEN" | "CLIENT_TOO_OLD" | "MAX_RUNS_EXCEEDED" | "IMPORT_NOT_IN_BUNDLE" | "USE_PROBE" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_KEY_IN_PROGRESS" | "IDEMPOTENCY_KEY_ORPHANED" | "TRIGGER_UNSUPPORTED_TYPE" | "ENVIRONMENT_NOT_FOUND" | "EVIDENCE_EXPIRED" | "RUN_EXPIRED" | "BUNDLE_TOO_LARGE" | "BUNDLE_NOT_FOUND" | "IMPORT_NOT_IN_RUNTIME" | "SECRET_LITERAL" | "FIELD_UNKNOWN" | "API_KEY_EXPIRED" | "DEVICE_AUTHORIZATION_NOT_FOUND" | "DEVICE_AUTHORIZATION_EXPIRED" | "DEVICE_WORKSPACE_ORG_MISMATCH" | "SSO_CONNECTION_FROZEN_FIELD" | "SSO_DOMAIN_INVALID" | "SSO_DOMAIN_TAKEN" | "SSO_METADATA_INVALID" | "SSO_METADATA_FETCH_FAILED" | "SSO_METADATA_ENTITY_ID_CHANGED" | "SSO_CERTIFICATE_INVALID" | "SSO_SP_KEY_NO_NEXT" | "ACCOUNT_LINK_REFUSED" | "END_USER_DEACTIVATED" | "STATUS_PAGE_ACCESS_LOG_CURSOR_INVALID" | "STATUS_PAGE_SUBSCRIBER_CONVERSION_UNCONFIRMED" | "STATUS_PAGE_INVITE_PAGE_NOT_PRIVATE" | "STATUS_PAGE_INVITE_EMAIL_SIGN_IN_OFF" | "STATUS_PAGE_INVITE_NOT_OPEN" | "STATUS_PAGE_ACCESS_POLICY_IDLE_EXCEEDS_ABSOLUTE" | "STATUS_PAGE_UPTIME_MONTHS_OUT_OF_RANGE" | "STATUS_PAGE_SUBSCRIBER_GROUP_NOT_FOUND" | "STATUS_PAGE_EXPORT_FORMAT_UNSUPPORTED" | "STATUS_PAGE_TEMPLATE_NAME_TAKEN" | "STATUS_PAGE_TEMPLATE_COMPONENT_NOT_FOUND" | "STATUS_PAGE_TEMPLATE_FIELD_NOT_FOR_KIND" | "STATUS_PAGE_TEMPLATE_KIND_MISMATCH" | "STATUS_PAGE_TEMPLATE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_IN_PAST" | "SP_MAINTENANCE_REMINDER_NOT_FOR_INCIDENT" | "ORG_SSO_PLAN_REQUIRED" | "ORG_SSO_ENFORCEMENT_NOT_READY" | "ORG_SSO_DEFAULT_ROLE_INVALID" | "SP_POSTMORTEM_INCIDENT_NOT_RESOLVED" | "SP_POSTMORTEM_EMPTY" | "SP_INCIDENT_BACKFILL_DATES_INVALID" | "SP_INCIDENT_BACKFILL_ONLY" | "SP_INCIDENT_UPDATE_LAST" | "SP_INCIDENT_BACKFILLED_STATUS_LOCKED" | "STATUS_PAGE_TEMPLATE_VARIABLE_UNKNOWN" | "STATUS_PAGE_SUBSCRIBER_LIMIT_REACHED" | "STATUS_PAGE_SUBSCRIBERS_CLOSED" | "STATUS_PAGE_PRIVATE_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SSO_CONNECTION_LIMIT_REACHED" | "STATUS_PAGE_VIEWER_LIMIT_REACHED";
             /** @description Source file containing the import */
             file?: string | null;
             /**
@@ -8078,6 +9031,24 @@ export interface components {
              * @description ICMP round-trip time in milliseconds that triggers a warning only
              */
             warnMs: number;
+        };
+        /** @description Subscribers to import (1–5000 rows) */
+        ImportSubscriberRow: {
+            /**
+             * @description Delivery channel (EMAIL, SMS, WEBHOOK, TEAMS)
+             * @enum {string}
+             */
+            channel: "EMAIL" | "SMS" | "WEBHOOK" | "TEAMS";
+            /** @description Email address, phone number, webhook URL or Teams webhook URL */
+            destination: string;
+            /** @description Components to hear about; omit or empty for the whole page */
+            componentIds?: string[] | null;
+            /** @description Component groups to hear about, including components added to them later */
+            componentGroupIds?: string[] | null;
+        };
+        ImportSubscribersRequest: {
+            /** @description Subscribers to import (1–5000 rows) */
+            rows: components["schemas"]["ImportSubscriberRow"][];
         };
         /** @description Attachment metadata */
         InboundEmailAttachment: {
@@ -8726,6 +9697,10 @@ export interface components {
              * @description Timestamp when the invite was revoked; null if active
              */
             revokedAt?: string | null;
+        };
+        InviteStatusPageEndUsersRequest: {
+            /** @description Emails to invite (1–100); invalid ones are skipped */
+            emails: string[];
         };
         /** @description At most 100 monitor chips; counts cover the complete population */
         Item: {
@@ -9435,6 +10410,16 @@ export interface components {
             lastCheckOutcome?: "passed" | "degraded" | "failed" | null;
             /** @description Region of the most recent check */
             lastCheckRegion?: string | null;
+            /**
+             * Format: date-time
+             * @description When the most recent check in any region ran
+             */
+            lastCheckAt?: string | null;
+            /**
+             * Format: int32
+             * @description Response time of the most recent check, in milliseconds
+             */
+            lastCheckResponseTimeMs?: number | null;
             /** @description Why the latest failing region failed */
             lastFailureSummary?: string | null;
             /**
@@ -10192,6 +11177,34 @@ export interface components {
              */
             createdAt: string;
         };
+        /** @description Uptime of a component or component group over one calendar month (UTC) */
+        MonthlyUptimeBucketDto: {
+            /**
+             * @description Month in ISO format, e.g. 2026-10
+             * @example 2026-10
+             */
+            month: string;
+            /**
+             * Format: double
+             * @description Mean daily uptime percentage over the tracked days; null when no day was tracked
+             */
+            uptimePercentage?: number | null;
+            /**
+             * Format: int32
+             * @description Days in the month the item was tracked, including today's partial day
+             */
+            trackedDays: number;
+            /**
+             * Format: int64
+             * @description Seconds of major outage in the month
+             */
+            majorOutageSeconds: number;
+            /**
+             * Format: int64
+             * @description Seconds of partial outage in the month
+             */
+            partialOutageSeconds: number;
+        };
         /** @description Nearest earlier pass in another region when this region has none */
         NearestOtherRegion: {
             /**
@@ -10597,6 +11610,19 @@ export interface components {
             id: number;
             /** @description Organization name */
             name: string;
+        };
+        OrgSsoSettingsDto: {
+            /** @description Members must sign in through SSO; owners keep a break-glass sign-in */
+            enforced: boolean;
+            /** @description People from a verified domain who are not members yet join on first sign-in */
+            jitEnabled: boolean;
+            /**
+             * @description Role of people who join on first sign-in
+             * @enum {string}
+             */
+            defaultRole: "OWNER" | "ADMIN" | "MEMBER";
+            /** @description Whether the caller may require SSO now: they signed in through it, and a connection works */
+            enforcementReady: boolean;
         };
         /** @description One cell on the overview step last-30 strip */
         OverviewStepCellDto: {
@@ -11121,6 +12147,23 @@ export interface components {
             /** @description IDs of the tags to detach from the monitor */
             tagIds: string[];
         };
+        RenderStatusPageTemplateRequest: {
+            /**
+             * @description Stage to render (default: the template's initial status)
+             * @enum {string|null}
+             */
+            stage?: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED" | null;
+            /**
+             * Format: date-time
+             * @description Maintenance window start, for {{maintenance.start}}
+             */
+            scheduledFor?: string | null;
+            /**
+             * Format: date-time
+             * @description Maintenance window end, for {{maintenance.end}}
+             */
+            scheduledUntil?: string | null;
+        };
         /** @description Batch component reorder request */
         ReorderComponentsRequest: {
             /** @description Ordered list of component IDs with their new positions */
@@ -11132,6 +12175,10 @@ export interface components {
             sections: components["schemas"]["PageSection"][];
             /** @description Within-group component ordering; only needed for groups whose internal order changed */
             groupOrders?: components["schemas"]["GroupComponentOrder"][] | null;
+        };
+        ReorderStatusPageGroupMembersRequest: {
+            /** @description Every member status page id, in the new display order */
+            statusPageIds: string[];
         };
         ResolveIncidentRequest: {
             /** @description Optional resolution message or post-mortem notes */
@@ -12038,6 +13085,10 @@ export interface components {
              * @description Live queue position; null when not queued
              */
             queuePosition?: number | null;
+            /** @description True while this run's result is on its way but held up by a platform outage */
+            delayed?: boolean | null;
+            /** @description Whether some run evidence never arrived. The outcome is unaffected */
+            evidenceIncomplete: boolean;
             /**
              * Format: int64
              * @description Milliseconds since the last supervisor heartbeat
@@ -12083,7 +13134,7 @@ export interface components {
              * @description Platform cause for an execution error, inconclusive finish, or network failure
              * @enum {string|null}
              */
-            cause?: "platform" | "runtime_unavailable" | "testing_quota_exhausted" | "no_seat" | "lease_lost" | "target_unreachable" | "no_capacity" | "placement_failed" | "heartbeat_lost" | "lease_cap" | "open_expired" | "session_failed" | "log_unavailable" | null;
+            cause?: "platform" | "runtime_unavailable" | "testing_quota_exhausted" | "no_seat" | "lease_lost" | "target_unreachable" | "no_capacity" | "placement_failed" | "heartbeat_lost" | "lease_cap" | "open_expired" | "session_failed" | "log_unavailable" | "result_lost" | "cell_restarted" | null;
             /** @description Whether a finished run counts against the included run pool */
             billable: boolean;
             failure?: components["schemas"]["RunFailureDto"] | null;
@@ -12602,14 +13653,7 @@ export interface components {
              */
             diff: number;
         };
-        /** @description Whether a runtime can accept new runs in one probe region */
-        RuntimeRegionAvailability: {
-            /** @description Check region, such as us-east */
-            region: string;
-            /** @description Whether this runtime can run checks in the region */
-            available: boolean;
-        };
-        /** @description Customer-selectable runtime profile */
+        /** @description Default execution environment; null uses the catalog default */
         RuntimeProfileDto: {
             /** @description Runtime environment identifier */
             id: string;
@@ -12650,6 +13694,13 @@ export interface components {
             platformDefault: boolean;
             /** @description Whether each region can run this runtime */
             regions: components["schemas"]["RuntimeRegionAvailability"][];
+        };
+        /** @description Whether each region can run this runtime */
+        RuntimeRegionAvailability: {
+            /** @description Check region, such as us-east */
+            region: string;
+            /** @description Whether this runtime can run checks in the region */
+            available: boolean;
         };
         /** @description Bounded trace summary for a run */
         RunTraceSummaryDto: {
@@ -12717,7 +13768,7 @@ export interface components {
              * @description Maximum execution time in seconds (5–240)
              */
             timeoutSeconds?: number | null;
-            /** @description Runtime pin such as 2026.11; omit to pin the newest runtime that can run */
+            /** @description Runtime pin; omit to use the platform default */
             runtimeId?: string | null;
         };
         /** @description Last update time and author for a secret */
@@ -13225,6 +14276,12 @@ export interface components {
             /** @description Whether the resource should be enabled */
             enabled: boolean;
         };
+        SetIdpMetadataRequest: {
+            /** @description IdP metadata XML; give either xml or url */
+            xml?: string | null;
+            /** @description HTTPS URL of the IdP metadata, re-fetched every 15 minutes; give either xml or url */
+            url?: string | null;
+        };
         SetMonitorAuthRequest: {
             config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
         };
@@ -13241,6 +14298,13 @@ export interface components {
              * @description When the override expires (must be in the future, at most 24h from now)
              */
             expiresAt: string;
+        };
+        SetStatusPageGroupDefaultPageRequest: {
+            /**
+             * Format: uuid
+             * @description Member status page served at the group's root
+             */
+            statusPageId: string;
         };
         /** @description Short-lived URL for a stored object */
         SignedDownload: {
@@ -13448,6 +14512,9 @@ export interface components {
         SingleValueResponseOrganizationDto: {
             data: components["schemas"]["OrganizationDto"];
         };
+        SingleValueResponseOrgSsoSettingsDto: {
+            data: components["schemas"]["OrgSsoSettingsDto"];
+        };
         SingleValueResponseOverviewStepsDto: {
             data: components["schemas"]["OverviewStepsDto"];
         };
@@ -13538,6 +14605,24 @@ export interface components {
         SingleValueResponseSignedDownload: {
             data: components["schemas"]["SignedDownload"];
         };
+        SingleValueResponseSsoCertificateDto: {
+            data: components["schemas"]["SsoCertificateDto"];
+        };
+        SingleValueResponseSsoConnectionDto: {
+            data: components["schemas"]["SsoConnectionDto"];
+        };
+        SingleValueResponseSsoConnectionTestDto: {
+            data: components["schemas"]["SsoConnectionTestDto"];
+        };
+        SingleValueResponseSsoDomainDto: {
+            data: components["schemas"]["SsoDomainDto"];
+        };
+        SingleValueResponseStaffSessionsRevokedDto: {
+            data: components["schemas"]["StaffSessionsRevokedDto"];
+        };
+        SingleValueResponseStatusPageAccessPolicyDto: {
+            data: components["schemas"]["StatusPageAccessPolicyDto"];
+        };
         SingleValueResponseStatusPageComponentDto: {
             data: components["schemas"]["StatusPageComponentDto"];
         };
@@ -13550,6 +14635,21 @@ export interface components {
         SingleValueResponseStatusPageDto: {
             data: components["schemas"]["StatusPageDto"];
         };
+        SingleValueResponseStatusPageEndUserBulkDeactivationDto: {
+            data: components["schemas"]["StatusPageEndUserBulkDeactivationDto"];
+        };
+        SingleValueResponseStatusPageEndUserDto: {
+            data: components["schemas"]["StatusPageEndUserDto"];
+        };
+        SingleValueResponseStatusPageEndUserInviteDto: {
+            data: components["schemas"]["StatusPageEndUserInviteDto"];
+        };
+        SingleValueResponseStatusPageEndUserInviteResultDto: {
+            data: components["schemas"]["StatusPageEndUserInviteResultDto"];
+        };
+        SingleValueResponseStatusPageGroupDto: {
+            data: components["schemas"]["StatusPageGroupDto"];
+        };
         SingleValueResponseStatusPageIncidentDto: {
             data: components["schemas"]["StatusPageIncidentDto"];
         };
@@ -13559,11 +14659,29 @@ export interface components {
         SingleValueResponseStatusPageMeasuredComponentUptimeDto: {
             data: components["schemas"]["StatusPageMeasuredComponentUptimeDto"];
         };
+        SingleValueResponseStatusPageMonthlyUptimeDto: {
+            data: components["schemas"]["StatusPageMonthlyUptimeDto"];
+        };
         SingleValueResponseStatusPageNotificationDeliveryDto: {
             data: components["schemas"]["StatusPageNotificationDeliveryDto"];
         };
+        SingleValueResponseStatusPageSubscriberBulkResultDto: {
+            data: components["schemas"]["StatusPageSubscriberBulkResultDto"];
+        };
         SingleValueResponseStatusPageSubscriberDto: {
             data: components["schemas"]["StatusPageSubscriberDto"];
+        };
+        SingleValueResponseStatusPageSubscriberImportResultDto: {
+            data: components["schemas"]["StatusPageSubscriberImportResultDto"];
+        };
+        SingleValueResponseStatusPageTemplateDto: {
+            data: components["schemas"]["StatusPageTemplateDto"];
+        };
+        SingleValueResponseStatusPageTemplateRenderDto: {
+            data: components["schemas"]["StatusPageTemplateRenderDto"];
+        };
+        SingleValueResponseStatusPageVisibilityChangePreviewDto: {
+            data: components["schemas"]["StatusPageVisibilityChangePreviewDto"];
         };
         SingleValueResponseString: {
             data: string;
@@ -13702,6 +14820,161 @@ export interface components {
              */
             minDaysRemaining: number;
         };
+        /** @description IdP signing certificates */
+        SsoCertificateDto: {
+            /**
+             * Format: uuid
+             * @description Certificate identifier
+             */
+            id: string;
+            /** @description SHA-256 fingerprint as lowercase hex */
+            fingerprintSha256: string;
+            /** @description Certificate subject */
+            subject: string;
+            /**
+             * Format: date-time
+             * @description Start of validity
+             */
+            notBefore: string;
+            /**
+             * Format: date-time
+             * @description End of validity
+             */
+            notAfter: string;
+            /**
+             * @description Whether the IdP metadata or an admin supplied it
+             * @enum {string}
+             */
+            source: "METADATA" | "MANUAL";
+            /**
+             * Format: date-time
+             * @description When the certificate was stored
+             */
+            createdAt: string;
+        };
+        SsoConnectionDto: {
+            /**
+             * Format: uuid
+             * @description Connection identifier
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Status page the connection signs viewers in to; null for the organization's staff sign-in
+             */
+            statusPageId?: string | null;
+            /** @description Connection name */
+            name: string;
+            /** @description Whether sign-in through this connection is allowed */
+            enabled: boolean;
+            /**
+             * @description Who may sign in through the connection
+             * @enum {string}
+             */
+            signInScope: "ROUTED_DOMAINS" | "ANY_IDP_USER";
+            /** @description Entity ID to enter at the IdP */
+            spEntityId: string;
+            /** @description Assertion consumer service URL to enter at the IdP */
+            acsUrl: string;
+            /**
+             * Format: date-time
+             * @description When the ACS URL last moved to a new sign-in host; null if never
+             */
+            acsChangedAt?: string | null;
+            /** @description Entity ID read from the IdP metadata */
+            idpEntityId?: string | null;
+            /** @description IdP single sign-on URL read from the metadata */
+            idpSsoUrl?: string | null;
+            /** @description Metadata URL that is re-fetched every 15 minutes */
+            idpMetadataUrl?: string | null;
+            /**
+             * Format: date-time
+             * @description When the metadata was last read
+             */
+            metadataFetchedAt?: string | null;
+            /** @description Why the last metadata refresh failed; null when it worked */
+            metadataError?: string | null;
+            /** @description Email domains that sign in through the connection */
+            domains: components["schemas"]["SsoDomainDto"][];
+            /** @description IdP signing certificates */
+            certificates: components["schemas"]["SsoCertificateDto"][];
+            /**
+             * Format: date-time
+             * @description When the connection was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description When the connection last changed
+             */
+            updatedAt: string;
+        };
+        SsoConnectionTestDto: {
+            /**
+             * Format: uuid
+             * @description Test identifier
+             */
+            id: string;
+            /**
+             * @description Where the test stands
+             * @enum {string}
+             */
+            status: "PENDING" | "SUCCEEDED" | "FAILED";
+            /**
+             * @description Why the test failed; null unless it failed
+             * @enum {string|null}
+             */
+            failureReason?: "CONNECTION_NOT_FOUND" | "CONNECTION_DISABLED" | "CONNECTION_NOT_CONFIGURED" | "TEST_NOT_PENDING" | "UNSOLICITED_OR_EXPIRED" | "BROWSER_MISMATCH" | "MALFORMED_RESPONSE" | "INVALID_SIGNATURE" | "ENCRYPTED_ASSERTION_REFUSED" | "ISSUER_MISMATCH" | "AUDIENCE_MISMATCH" | "EXPIRED_OR_NOT_YET_VALID" | "IN_RESPONSE_TO_MISMATCH" | "DESTINATION_MISMATCH" | "REPLAY" | "ASSERTION_INVALID" | "EMAIL_MISSING" | "EMAIL_DOMAIN_NOT_ALLOWED" | "ACCOUNT_LINK_REFUSED" | "END_USER_DEACTIVATED" | "VIEWER_LIMIT_REACHED" | null;
+            /** @description What to change at the IdP or here; null unless the test failed */
+            failureMessage?: string | null;
+            /** @description Identifier that finds the failure in the logs; null unless it failed */
+            correlationId?: string | null;
+            /** @description Entity ID the IdP signed the assertion as */
+            assertedIssuer?: string | null;
+            /** @description Email address the IdP asserted */
+            assertedEmail?: string | null;
+            /** @description Display name the IdP asserted */
+            assertedName?: string | null;
+            /**
+             * Format: date-time
+             * @description When the test was started
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description When the IdP answered; null while pending
+             */
+            completedAt?: string | null;
+        };
+        /** @description Email domains that sign in through the connection */
+        SsoDomainDto: {
+            /**
+             * Format: uuid
+             * @description Domain identifier
+             */
+            id: string;
+            /** @description Email domain, lowercase */
+            domain: string;
+            /** @description Value for the TXT record at _devhelm-sso.<domain> */
+            verificationToken: string;
+            /**
+             * Format: date-time
+             * @description When the TXT record was confirmed; null while unverified
+             */
+            verifiedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When the domain was added
+             */
+            createdAt: string;
+        };
+        StaffSessionsRevokedDto: {
+            /**
+             * Format: int32
+             * @description How many SSO sessions were ended
+             */
+            revoked: number;
+        };
         /** @description Typed metadata about this transition (currently: actor source) */
         StateTransitionDetails: {
             /**
@@ -13742,6 +15015,54 @@ export interface components {
             maintenance?: components["schemas"]["MaintenanceEventDto"] | null;
             component?: components["schemas"]["ComponentTransitionEventDto"] | null;
             orgAnnotation?: components["schemas"]["OrgIncidentAnnotationDto"] | null;
+        };
+        /** @description Items on this page */
+        StatusPageAccessEventDto: {
+            /**
+             * Format: uuid
+             * @description Event identifier
+             */
+            id: string;
+            /**
+             * Format: date-time
+             * @description When it happened
+             */
+            occurredAt: string;
+            /**
+             * @description What happened
+             * @enum {string}
+             */
+            eventType: "SIGN_IN_SUCCEEDED" | "SIGN_IN_FAILED" | "SIGN_OUT" | "SESSION_REVOKED";
+            /** @description Email of the person it happened to; null when no person was identified */
+            endUserEmail?: string | null;
+            /**
+             * Format: uuid
+             * @description Sign-in connection involved, if any
+             */
+            connectionId?: string | null;
+            /** @description Why a sign-in failed; null for other events */
+            failureReason?: string | null;
+            /** @description Address the viewer connected from; null when an admin acted */
+            clientIp?: string | null;
+        };
+        StatusPageAccessPolicyDto: {
+            /**
+             * Format: int32
+             * @description Seconds a viewer stays signed in after signing in (3600–7776000)
+             */
+            sessionAbsoluteTtlSeconds: number;
+            /**
+             * Format: int32
+             * @description Seconds without a request before a viewer is signed out (300–7776000); equal to the session length means no idle timeout
+             */
+            sessionIdleTtlSeconds: number;
+            /** @description Whether the page has its own policy; false means these are the defaults */
+            explicit: boolean;
+            /**
+             * Format: date-time
+             * @description When the policy last changed; null for the defaults
+             */
+            updatedAt?: string | null;
         };
         /** @description Saved component configuration */
         StatusPageBindingSnapshot: {
@@ -13818,6 +15139,13 @@ export interface components {
              * @default true
              */
             showSubscribeButton: boolean;
+            /**
+             * @description Whether to prevent search engines from indexing the public page (default: false)
+             * @default false
+             */
+            noIndex: boolean;
+            /** @description IANA timezone for displayed status times (default: visitor timezone) */
+            timeZone?: string | null;
             /** @description Custom CSS injected via <style> on the public page — grants full style control */
             customCss?: string | null;
             /** @description Custom HTML injected into <head> on the public page — grants full script control (analytics, pixels) */
@@ -13895,6 +15223,18 @@ export interface components {
             pageOrder: number;
             defaultOpen: boolean;
             components?: components["schemas"]["StatusPageComponentDto"][] | null;
+            /**
+             * @description Worst current status of the group's components (all of them, including those left out of the page's overall status); OPERATIONAL when the group is empty (default: OPERATIONAL)
+             * @default OPERATIONAL
+             * @enum {string}
+             */
+            status: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE";
+            /**
+             * Format: int32
+             * @description Number of components in the group (default: 0)
+             * @default 0
+             */
+            componentCount: number;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -13935,8 +15275,13 @@ export interface components {
             description?: string | null;
             branding: components["schemas"]["StatusPageBranding"];
             /** @enum {string} */
-            visibility: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED";
+            visibility: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED" | "LOGIN_REQUIRED";
             enabled: boolean;
+            /**
+             * @description Email sign-in method besides SSO: PASSWORD or MAGIC_LINK; null when off
+             * @enum {string|null}
+             */
+            emailSignIn?: "PASSWORD" | "MAGIC_LINK" | null;
             /** @enum {string} */
             incidentMode: "MANUAL" | "REVIEW" | "AUTOMATIC";
             /** Format: int32 */
@@ -13951,10 +15296,117 @@ export interface components {
              * @enum {string|null}
              */
             managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
+            /** @description Channels visitors can subscribe with on the public page (EMAIL, TEAMS, WEBHOOK) */
+            subscriberChannels: ("EMAIL" | "SMS" | "WEBHOOK" | "TEAMS")[];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        StatusPageEndUserBulkDeactivationDto: {
+            /**
+             * Format: int32
+             * @description Emails that belong to people on the page, now deactivated
+             */
+            matched: number;
+            /**
+             * Format: int32
+             * @description Emails that belong to nobody on the page
+             */
+            unknown: number;
+            /** @description The emails counted in unknown, lowercase */
+            unknownEmails: string[];
+        };
+        StatusPageEndUserDto: {
+            /**
+             * Format: uuid
+             * @description End user identifier
+             */
+            id: string;
+            /** @description Email address, lowercase */
+            email: string;
+            /** @description Name the identity provider gave, if any */
+            name?: string | null;
+            /**
+             * @description Whether the person may sign in
+             * @enum {string}
+             */
+            status: "INVITED" | "ACTIVE" | "DEACTIVATED";
+            /**
+             * Format: date-time
+             * @description When the person last signed in; null if never
+             */
+            lastSignInAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When the person was first added
+             */
+            createdAt: string;
+        };
+        StatusPageEndUserInviteDto: {
+            /**
+             * Format: uuid
+             * @description Invite identifier
+             */
+            id: string;
+            endUser: components["schemas"]["StatusPageEndUserDto"];
+            /**
+             * Format: date-time
+             * @description When the invite email was sent
+             */
+            sentAt: string;
+            /**
+             * Format: date-time
+             * @description When the invite link stops working
+             */
+            expiresAt: string;
+        };
+        StatusPageEndUserInviteResultDto: {
+            /** @description Invites sent, one per email */
+            invited: components["schemas"]["StatusPageEndUserInviteDto"][];
+            /** @description Emails that got no invite, and why */
+            skipped: components["schemas"]["StatusPageEndUserInviteSkipDto"][];
+        };
+        /** @description Emails that got no invite, and why */
+        StatusPageEndUserInviteSkipDto: {
+            /** @description The email as given, trimmed */
+            email: string;
+            /**
+             * @description Why no invite was sent
+             * @enum {string}
+             */
+            reason: "INVALID_EMAIL" | "SSO" | "DEACTIVATED" | "ALREADY_ACTIVE";
+        };
+        StatusPageGroupDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            organizationId: number;
+            /** Format: int32 */
+            workspaceId: number;
+            name: string;
+            slug: string;
+            /** @enum {string} */
+            mode: "SEPARATE" | "UNIFIED";
+            /** Format: uuid */
+            defaultStatusPageId?: string | null;
+            members: components["schemas"]["StatusPageGroupMemberDto"][];
+            customDomain?: components["schemas"]["StatusPageCustomDomainDto"] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        StatusPageGroupMemberDto: {
+            /** Format: uuid */
+            statusPageId: string;
+            key: string;
+            /** Format: int32 */
+            position: number;
+            slug: string;
+            name: string;
+            /** @enum {string} */
+            visibility: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED" | "LOGIN_REQUIRED";
         };
         StatusPageIncidentComponentDto: {
             /** Format: uuid */
@@ -13981,6 +15433,28 @@ export interface components {
             autoResolve: boolean;
             /** Format: uuid */
             incidentId?: string | null;
+            /**
+             * Format: uuid
+             * @description Template the incident or maintenance window was created from; null for none
+             */
+            templateId?: string | null;
+            /** @description Maintenance only: minutes before the window that subscribers are reminded; null for incidents */
+            reminderLeadMinutes?: number[] | null;
+            /**
+             * @description Imported after the fact with its original dates; nobody was notified (default: false)
+             * @default false
+             */
+            backfilled: boolean;
+            /**
+             * Format: date-time
+             * @description When the postmortem was first published to subscribers; null if never
+             */
+            postmortemPublishedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description When subscribers were last emailed the postmortem; null if never
+             */
+            postmortemNotifiedAt?: string | null;
             /** Format: date-time */
             startedAt: string;
             /** Format: date-time */
@@ -14057,6 +15531,17 @@ export interface components {
              */
             uptimePercentage?: number | null;
         };
+        /** @description Monthly uptime per component and per component group, oldest month first */
+        StatusPageMonthlyUptimeDto: {
+            /** @description Map of component ID → monthly buckets */
+            components: {
+                [key: string]: components["schemas"]["MonthlyUptimeBucketDto"][];
+            };
+            /** @description Map of component group ID → monthly buckets */
+            groups: {
+                [key: string]: components["schemas"]["MonthlyUptimeBucketDto"][];
+            };
+        };
         /** @description Delivery receipt for a status page subscriber notification */
         StatusPageNotificationDeliveryDto: {
             /**
@@ -14092,12 +15577,12 @@ export interface components {
              * @description Notification event type that triggered this delivery
              * @enum {string}
              */
-            eventType: "SUBSCRIPTION_CONFIRMATION" | "INCIDENT_CREATED" | "INCIDENT_UPDATED" | "INCIDENT_RESOLVED";
+            eventType: "SUBSCRIPTION_CONFIRMATION" | "INCIDENT_CREATED" | "INCIDENT_UPDATED" | "INCIDENT_RESOLVED" | "MAINTENANCE_SCHEDULED" | "MAINTENANCE_UPDATED" | "MAINTENANCE_STARTED" | "MAINTENANCE_COMPLETED" | "MAINTENANCE_REMINDER" | "POSTMORTEM_PUBLISHED";
             /**
              * @description Current delivery status
              * @enum {string}
              */
-            status: "PENDING" | "DELIVERED" | "RETRY_PENDING" | "FAILED" | "CANCELLED" | "SKIPPED_NO_CREDIT" | "SKIPPED_UNVERIFIED" | "SKIPPED_OPTED_OUT" | "SKIPPED_RATE_LIMITED";
+            status: "PENDING" | "DELIVERED" | "RETRY_PENDING" | "FAILED" | "CANCELLED" | "SKIPPED_NO_CREDIT" | "SKIPPED_UNVERIFIED" | "SKIPPED_OPTED_OUT" | "SKIPPED_RATE_LIMITED" | "SKIPPED";
             /**
              * Format: int32
              * @description Number of delivery attempts made
@@ -14151,6 +15636,20 @@ export interface components {
              */
             updatedAt: string;
         };
+        StatusPageSubscriberBulkResultDto: {
+            /**
+             * Format: int32
+             * @description Subscribers on this page that were changed
+             */
+            matched: number;
+            /**
+             * Format: int32
+             * @description IDs that are not subscribers of this page
+             */
+            unknown: number;
+            /** @description The IDs counted in unknown */
+            unknownIds: string[];
+        };
         StatusPageSubscriberDto: {
             /**
              * Format: uuid
@@ -14160,16 +15659,23 @@ export interface components {
             /** @description Email when channel is EMAIL; null for other channels */
             email?: string | null;
             /**
-             * @description Delivery channel (EMAIL, SMS, WEBHOOK)
+             * @description Delivery channel (EMAIL, SMS, WEBHOOK, TEAMS)
              * @enum {string}
              */
-            channel: "EMAIL" | "SMS" | "WEBHOOK";
-            /** @description Channel destination (email, phone, or webhook URL) */
+            channel: "EMAIL" | "SMS" | "WEBHOOK" | "TEAMS";
+            /** @description Channel destination (email, phone, webhook URL or Teams webhook URL) */
             destination: string;
-            /** @description Scoped component IDs; null means whole page */
+            /** @description Scoped component IDs; null with no component groups means the whole page */
             componentIds?: string[] | null;
+            /** @description Component groups followed, including components added to them later; null for none */
+            componentGroupIds?: string[] | null;
             /** @description Whether the subscriber has confirmed opt-in */
             confirmed: boolean;
+            /**
+             * @description How the subscriber was added (SELF, ADMIN, IMPORT); null if not recorded
+             * @enum {string|null}
+             */
+            source?: "SELF" | "ADMIN" | "IMPORT" | "END_USER" | null;
             /** @description True when this call sent a confirmation email; omitted on list reads */
             confirmationSent?: boolean | null;
             /**
@@ -14177,6 +15683,178 @@ export interface components {
              * @description When the subscriber was created
              */
             createdAt: string;
+        };
+        /** @description Rows that were not imported, with the reason */
+        StatusPageSubscriberImportErrorDto: {
+            /**
+             * Format: int32
+             * @description Zero-based index of the row in the request
+             */
+            row: number;
+            /**
+             * @description Why the row was skipped
+             * @enum {string}
+             */
+            code: "MONITOR_CONFIG_TYPE_MISMATCH" | "MONITOR_FREQUENCY_BELOW_PLAN_MIN" | "MONITOR_LIMIT_REACHED" | "MONITOR_AUTH_TYPE_UNSUPPORTED" | "MONITOR_HEARTBEAT_REGIONS_NOT_SUPPORTED" | "MONITOR_HEARTBEAT_INTERVAL_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_EXCEEDS_INTERVAL" | "MONITOR_HTTP_HEADERS_TOO_MANY" | "MONITOR_HTTP_HEADER_RESERVED" | "MONITOR_HTTP_BODY_METHOD_INVALID" | "MONITOR_HTTP_BODY_TOO_LARGE" | "MONITOR_ASSERTION_TYPE_NOT_ALLOWED" | "MONITOR_ALERT_CHANNEL_NOT_FOUND" | "MONITOR_TAGS_ADD_INVALID" | "MONITOR_TAGS_REMOVE_INVALID" | "MONITOR_TOKEN_ROTATION_HEARTBEAT_ONLY" | "MONITOR_CODE_CHECK_NOT_AVAILABLE" | "MONITOR_CODE_CHECK_LIMIT_REACHED" | "MONITOR_CODE_CHECK_REGION_UNAVAILABLE" | "MONITOR_CODE_CHECK_TEST_UNAVAILABLE" | "MONITOR_TEST_BUNDLE_UNAVAILABLE" | "MONITOR_BROWSER_CHECKS_DISABLED" | "MONITOR_ENVIRONMENT_REQUIRED" | "MONITOR_ENVIRONMENT_CLEAR_FORBIDDEN" | "MONITOR_PACKAGE_XOR_DEFINITION" | "MONITOR_PACKAGE_DIGEST_INVALID" | "MONITOR_PACKAGE_NOT_SUPPORTED" | "MONITOR_PACKAGE_PATH_INVALID" | "MONITOR_PACKAGE_CONCURRENT" | "MONITOR_DEFINITION_HAS_NO_REVISION" | "MONITOR_DEFINITION_IN_USE" | "MONITOR_STATUS_NOT_WRITABLE" | "MONITOR_PAUSED" | "MONITOR_OVERLAY_EXPIRES_IN_PAST" | "MONITOR_QUARANTINE_FIELDS_REQUIRED" | "MONITOR_MANAGED_BY_TAKEOVER_REQUIRED" | "MONITOR_HISTORY_PARAM_INVALID" | "MONITOR_TAKEOVER_FIELD_UNKNOWN" | "MONITOR_CAPTURE_POLICY_INVALID" | "MONITOR_RUN_PARALLEL_CODE_ONLY" | "REVISION_PACKAGE_BYTES_UNAVAILABLE" | "MONITOR_CODE_TYPE_REQUIRED" | "MONITOR_DEFINITION_REQUIRED" | "REVISION_NOT_ON_DEFINITION" | "REVISION_DIFF_CROSS_DEFINITION" | "DEFINITION_HEAD_INCOMPLETE" | "MONITOR_ASSERTION_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_ALREADY_EXISTS" | "MONITOR_AUTH_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_VAULT_FOREIGN_ORG" | "ALERT_CHANNEL_DISABLED" | "ALERT_CHANNEL_PLAN_REQUIRED" | "ALERT_CHANNEL_TYPE_IMMUTABLE" | "ALERT_CHANNEL_CONFIG_INVALID" | "ALERT_CHANNEL_SLACK_WEBHOOK_INVALID" | "ALERT_CHANNEL_DISCORD_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "ALERT_CHANNEL_TEAMS_WEBHOOK_HOST" | "ALERT_CHANNEL_WEBHOOK_URL_INVALID" | "ALERT_CHANNEL_WEBHOOK_HEADER_RESERVED" | "ALERT_CHANNEL_OPSGENIE_REGION_INVALID" | "ALERT_CHANNEL_PAGERDUTY_SEVERITY_INVALID" | "ALERT_CHANNEL_GOOGLE_CHAT_WEBHOOK_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_UNVERIFIED" | "ALERT_CHANNEL_PHONE_NUMBERS_COUNT_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_REQUIRED" | "ALERT_CHANNEL_VERIFIED_PHONE_NOT_FOUND" | "ALERT_CHANNEL_PHONE_DESTINATION_MISMATCH" | "ALERT_CHANNEL_VOICE_LANGUAGE_INVALID" | "NOTIFICATION_POLICY_RULE_TYPE_REQUIRED" | "NOTIFICATION_POLICY_RULE_TYPE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUE_REQUIRED" | "NOTIFICATION_POLICY_RULE_VALUE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUES_REQUIRED" | "NOTIFICATION_POLICY_RULE_MONITOR_IDS_REQUIRED" | "NOTIFICATION_POLICY_RULE_REGIONS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_INVALID" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_CONFLICT" | "NOTIFICATION_POLICY_ESCALATION_REQUIRED" | "NOTIFICATION_POLICY_STEPS_REQUIRED" | "NOTIFICATION_POLICY_ON_RESOLVE_INVALID" | "NOTIFICATION_POLICY_ON_REOPEN_INVALID" | "NOTIFICATION_POLICY_STEP_CHANNELS_EMPTY" | "NOTIFICATION_POLICY_STEP_DELAY_NEGATIVE" | "NOTIFICATION_POLICY_STEP_DELAY_TOO_LARGE" | "NOTIFICATION_POLICY_STEP_REPEAT_INVALID" | "NOTIFICATION_POLICY_STEP_REPEAT_TOO_LARGE" | "NOTIFICATION_POLICY_STEPS_TOO_MANY" | "NOTIFICATION_POLICY_STEP_CHANNEL_NOT_FOUND" | "NOTIFICATION_POLICY_DELETE_BLOCKED" | "MONITOR_POLICY_TRIGGER_RULES_EMPTY" | "MONITOR_POLICY_RULE_TYPE_REQUIRED" | "MONITOR_POLICY_RULE_SEVERITY_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_TYPE_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REGIONS_TOO_FEW" | "MONITOR_POLICY_CONFIRMATION_WAIT_TOO_SHORT" | "MONITOR_POLICY_CONFIRMATION_WAIT_BELOW_INVARIANT" | "MONITOR_POLICY_RECOVERY_REQUIRED" | "MONITOR_POLICY_RECOVERY_SUCCESSES_TOO_FEW" | "MONITOR_POLICY_RECOVERY_REGIONS_TOO_FEW" | "MONITOR_POLICY_RECOVERY_COOLDOWN_OUT_OF_RANGE" | "MONITOR_POLICY_FIELD_REQUIRED" | "MONITOR_POLICY_FIELD_NOT_POSITIVE" | "MONITOR_POLICY_FIELD_OUT_OF_RANGE" | "URL_INVALID" | "URL_SCHEME_UNSUPPORTED" | "URL_HOST_REQUIRED" | "URL_HOST_PRIVATE" | "RESOURCE_GROUP_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_ALREADY_PRESENT" | "RESOURCE_GROUP_MEMBER_TYPE_INVALID" | "RESOURCE_GROUP_THRESHOLD_VALUE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_TYPE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_OUT_OF_RANGE" | "RESOURCE_GROUP_SLUG_GENERATION_FAILED" | "STATUS_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SLUG_TAKEN" | "STATUS_PAGE_SLUG_REQUIRED" | "STATUS_PAGE_SLUG_RESERVED" | "STATUS_PAGE_VISIBILITY_UNSUPPORTED" | "STATUS_PAGE_VISIBILITY_CHANGE_UI_ONLY" | "STATUS_PAGE_LOGIN_REQUIRED" | "STATUS_PAGE_FEATURE_PLAN_REQUIRED" | "STATUS_PAGE_HOSTNAME_FIRST_PARTY_RESERVED" | "STATUS_PAGE_HOSTNAME_TLD_RESERVED" | "STATUS_PAGE_HOSTNAME_TAKEN" | "STATUS_PAGE_DOMAIN_NOT_VERIFIED" | "STATUS_PAGE_COMPONENT_GROUP_NOT_FOUND" | "STATUS_PAGE_COMPONENT_MONITOR_REQUIRED" | "STATUS_PAGE_COMPONENT_GROUP_REQUIRED" | "STATUS_PAGE_COMPONENT_STATIC_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REQUIRED" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_NOT_FOUND" | "STATUS_PAGE_COMPONENT_DEPENDENCY_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REFS_INVALID" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_NOT_FAILED" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_TERMINAL" | "STATUS_PAGE_MEASURED_UPTIME_MONITOR_ONLY" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_IN_PAST" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_EXCEEDS_MAX" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_REQUIRED" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_INVALID" | "STATUS_PAGE_SUBSCRIBER_COMPONENT_NOT_FOUND" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_INVALID" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_NOT_PUBLIC" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_UNSUPPORTED" | "STATUS_PAGE_UPTIME_WINDOW_INCOMPLETE" | "STATUS_PAGE_UPTIME_FROM_AFTER_TO" | "STATUS_PAGE_UPTIME_FROM_IN_FUTURE" | "STATUS_PAGE_UPTIME_FROM_TOO_OLD" | "STATUS_PAGE_UPTIME_WINDOW_TOO_WIDE" | "STATUS_PAGE_GROUP_KEY_RESERVED" | "STATUS_PAGE_GROUP_KEY_TAKEN" | "STATUS_PAGE_ALREADY_IN_GROUP" | "STATUS_PAGE_GROUP_REORDER_MISMATCH" | "STATUS_PAGE_GROUP_EMPTY" | "STATUS_PAGE_GROUP_DOMAIN_EXISTS" | "SP_INCIDENT_PUBLISH_RESOLVED" | "SP_INCIDENT_DISMISS_PUBLISHED" | "SP_INCIDENT_SCHEDULED_FOR_REQUIRED" | "SP_INCIDENT_SCHEDULED_UNTIL_BEFORE_FOR" | "SP_INCIDENT_AUTO_RESOLVE_REQUIRES_UNTIL" | "SP_INCIDENT_COMPONENT_FOREIGN" | "SP_INCIDENT_MONITORING_INCIDENT_NOT_FOUND" | "SUBSCRIPTION_PRICE_INACTIVE" | "SUBSCRIPTION_PRICE_UNAVAILABLE" | "SUBSCRIPTION_ALREADY_ACTIVE" | "SUBSCRIPTION_NOT_ACTIVE" | "SUBSCRIPTION_NO_SCHEDULED_CHANGE" | "SUBSCRIPTION_CHANGE_PENDING" | "SUBSCRIPTION_CANCELING" | "SUBSCRIPTION_CADENCE_UNAVAILABLE" | "SUBSCRIPTION_PRICES_INVALID" | "BILLING_OVERAGE_CAP_INVALID" | "BILLING_OVERAGE_NOT_ACTIVE" | "SERVICE_SUBSCRIPTION_FREE_TIER_LIMIT" | "SERVICE_SUBSCRIPTION_SERVICE_UNAVAILABLE" | "ACTOR_BAD_REQUEST" | "ORGANIZATION_ID_REQUIRED" | "WORKSPACE_REQUIRED" | "WORKSPACE_INTERNAL_ACTOR_NO_WORKSPACE" | "WORKSPACE_NOT_FOUND_ON_ORG" | "ENVIRONMENT_LIMIT_REACHED" | "ENVIRONMENT_SLUG_TAKEN" | "ENVIRONMENT_DELETE_BLOCKED" | "INBOUND_INBOX_NAME_BLANK" | "INBOUND_HTTP_RESPONSE_DELAY_INVALID" | "INBOUND_HTTP_RESPONSE_STATUS_INVALID" | "INBOUND_HTTP_RESPONSE_BODY_TOO_LARGE" | "INBOUND_HTTP_RESPONSE_BODY_INVALID" | "INBOUND_HTTP_RESPONSE_CONTENT_TYPE_INVALID" | "INBOUND_HTTP_RESPONSE_HEADERS_INVALID" | "INBOUND_EVENTS_CURSOR_INVALID" | "INBOUND_EVENTS_LIMIT_OUT_OF_RANGE" | "INBOUND_DOMAIN_CUSTOM_NAME_REQUIRED" | "INBOUND_DOMAIN_IN_ASSIGNED_ZONE" | "INBOUND_DOMAIN_NAME_TAKEN" | "INBOUND_DOMAIN_KIND_INVALID" | "INBOUND_DOMAIN_STATUS_INVALID" | "INBOUND_DOMAIN_NAME_INVALID" | "INBOUND_INJECT_TO_BLANK" | "INBOUND_INJECT_FROM_BLANK" | "INBOUND_INJECT_DOMAIN_DISABLED" | "INBOUND_INJECT_TO_INVALID" | "INBOUND_INJECT_FROM_INVALID" | "INBOUND_INJECT_HEADER_INVALID" | "INBOUND_WAIT_TO_REQUIRED" | "INBOUND_WAIT_TO_INVALID" | "INBOUND_WAIT_DOMAIN_REQUIRED" | "INBOUND_WEBHOOK_INBOX_LIMIT_REACHED" | "INBOUND_EMAIL_DOMAIN_LIMIT_REACHED" | "INBOUND_CUSTOM_MX_PLAN_REQUIRED" | "INBOUND_RETENTION_ABOVE_PLAN" | "INBOUND_EVENTS_MONTHLY_LIMIT_REACHED" | "INBOUND_ACTIVITY_INBOX_IDS_REQUIRED" | "INBOUND_ACTIVITY_INBOX_IDS_TOO_MANY" | "INBOUND_ACTIVITY_DOMAIN_IDS_REQUIRED" | "INBOUND_ACTIVITY_DOMAIN_IDS_TOO_MANY" | "TAG_NAME_TAKEN" | "SAVED_VIEW_TABLE_UNKNOWN" | "SAVED_VIEW_LIMIT_REACHED" | "SAVED_VIEW_FILTERS_TOO_LARGE" | "SECRET_KEY_TAKEN" | "SECRET_ENVIRONMENT_VALUE_BLANK" | "SECRET_REQUEST_ENVIRONMENT_QUERY" | "SECRET_REQUEST_HEAD_REQUIRED" | "SECRET_REQUEST_REMAP_SECRET_ID" | "SESSION_SETUP_FILE_BLANK" | "SESSION_HEAD_REQUIRED" | "RUN_NO_HEAD" | "RUN_KEYS_MISSING" | "SYNTHETICS_USAGE_CAPPED" | "SCHEDULE_TICK_COVERED" | "RUN_LIST_PARAM_INVALID" | "ARTIFACT_BYTES_TOO_LARGE" | "SUPERVISOR_TOKEN_INVALID" | "LEASE_COMPLETION_CONFLICT" | "LEASE_FENCE_REJECTED" | "CAPACITY_TARGET_INVALID" | "ADMISSIONS_NOT_HELD" | "RUNTIME_UNKNOWN" | "RUNTIME_RETIRED" | "RUNTIME_NOT_AVAILABLE" | "RUNTIME_UNAVAILABLE" | "RUNTIME_NO_CAPACITY" | "RUNTIME_NO_ROUTE" | "ROLLOUT_CANARY_MISSING" | "RUNTIME_EOL" | "RUNTIME_AMBIGUOUS" | "RUNTIME_DIGEST_IMMUTABLE" | "RUNTIME_DIGEST_INVALID" | "API_KEY_LIMIT_REACHED" | "API_KEY_REVOKED" | "AUDIT_EXPORT_LIMIT_EXCEEDED" | "AUTH_FIELD_BLANK" | "AUTH_EMAIL_INVALID" | "AUTH_EMAIL_TAKEN" | "EMAIL_ALREADY_VERIFIED" | "ORG_EMAIL_TAKEN" | "ONBOARDING_STAGE_BACKWARD" | "INVITE_USER_ALREADY_MEMBER" | "INVITE_ALREADY_ACCEPTED" | "INVITE_REVOKED" | "INVITE_EXPIRED" | "INVITE_EMAIL_MISMATCH" | "MEMBER_LIMIT_REACHED" | "MAINTENANCE_WINDOW_END_BEFORE_START" | "FORENSICS_HASH_BLANK" | "FORENSICS_HASH_INVALID" | "CHECK_RESULTS_LIMIT_OUT_OF_RANGE" | "CHECK_RESULTS_WINDOW_INVALID" | "CHECK_RESULTS_CURSOR_INVALID" | "CHECK_RESULTS_REGION_INVALID" | "STATUS_DATA_STATUS_INVALID" | "STATUS_DATA_PERIOD_INVALID" | "STATUS_DATA_GRANULARITY_INVALID" | "STATUS_DATA_GRANULARITY_PERIOD_MISMATCH" | "STATUS_DATA_PERIOD_UNKNOWN" | "STATUS_DATA_FROM_REQUIRED_WITH_TO" | "STATUS_DATA_TO_IN_FUTURE" | "STATUS_DATA_FROM_AFTER_TO" | "STATUS_DATA_WINDOW_TOO_WIDE" | "STATUS_DATA_TYPES_INVALID" | "STATUS_DATA_CURSOR_INVALID" | "STATUS_DATA_LIMIT_OUT_OF_RANGE" | "STATUS_DATA_COMPONENT_IDS_TOO_MANY" | "INCIDENT_ACTIVE_EXISTS" | "INCIDENT_TRANSITION_INVALID" | "INCIDENT_SERVICE_NOT_FOUND" | "INCIDENT_SERVICE_INCIDENT_NOT_FOUND" | "INCIDENT_SERVICE_MISMATCH" | "INCIDENT_EVENTS_CURSOR_INVALID" | "INCIDENT_EVENTS_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_DISPATCH_INVALID_STATE" | "NOTIFICATION_POLICY_DISPATCHES_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_POLICY_DISPATCHES_WINDOW_INVALID" | "NOTIFICATION_POLICY_DISPATCHES_CURSOR_INVALID" | "WEBHOOK_LIMIT_REACHED" | "WEBHOOK_URL_BLANK" | "WEBHOOK_EVENT_TYPES_INVALID" | "WEBHOOK_EVENT_TYPE_INVALID" | "ALERT_DELIVERY_RETRY_NOT_FAILED" | "ADMIN_BACKFILL_TYPE_UNKNOWN" | "ADMIN_PUBLISH_BLOCKED" | "ADMIN_ADAPTER_TYPE_UNKNOWN" | "ADMIN_SEO_METADATA_INVALID" | "ADMIN_RELATED_SERVICES_TOO_MANY" | "ADMIN_RELATED_SERVICE_SELF" | "ADMIN_PROBE_NO_OFFICIAL_URL" | "ADMIN_PROBE_URL_MALFORMED" | "ADMIN_LIFECYCLE_TRANSITION_INVALID" | "CLOUDFLARE_REQUEST_FAILED" | "CLOUDFLARE_API_ERROR" | "FIELD_REQUIRED" | "FIELD_TOO_SMALL" | "FIELD_TOO_LARGE" | "FIELD_OUT_OF_RANGE" | "FIELD_PATTERN_MISMATCH" | "FIELD_INVALID_EMAIL" | "FIELD_INVALID_URL" | "FIELD_INVALID_FORMAT" | "FIELD_INVARIANT_VIOLATED" | "FIELD_VALIDATION_FAILED" | "REQUEST_BODY_REQUIRED" | "REQUEST_BODY_MALFORMED" | "REQUEST_BODY_TYPE_MISMATCH" | "REQUEST_PARAMETER_REQUIRED" | "REQUEST_MEDIA_TYPE_UNSUPPORTED" | "CARRIER_CREDITS_EXHAUSTED" | "SYNTHETICS_USAGE_RESERVED" | "TESTING_QUOTA_EXHAUSTED" | "RATE_LIMITED" | "NOTIFY_RATE" | "SCOPE_REQUIRED" | "RUN_TOKEN_ADDRESS_FORBIDDEN" | "MONITOR_OWNED_BY_OTHER" | "DEPLOY_LOCKED" | "LIVE_REVISION_CHANGED" | "CONFIRMATION_REQUIRED" | "UPDATE_REQUIRED" | "CLAIMED" | "REVISION_ROLLED_BACK" | "REVISION_NEVER_LIVE" | "ROLLBACK_INCIDENT_REQUIRED" | "REVISION_UNTESTED" | "REVISION_DISCARDED" | "REVISION_IS_LIVE" | "DRAFT_LIMIT" | "NO_TOKEN" | "CLIENT_TOO_OLD" | "MAX_RUNS_EXCEEDED" | "IMPORT_NOT_IN_BUNDLE" | "USE_PROBE" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_KEY_IN_PROGRESS" | "IDEMPOTENCY_KEY_ORPHANED" | "TRIGGER_UNSUPPORTED_TYPE" | "ENVIRONMENT_NOT_FOUND" | "EVIDENCE_EXPIRED" | "RUN_EXPIRED" | "BUNDLE_TOO_LARGE" | "BUNDLE_NOT_FOUND" | "IMPORT_NOT_IN_RUNTIME" | "SECRET_LITERAL" | "FIELD_UNKNOWN" | "API_KEY_EXPIRED" | "DEVICE_AUTHORIZATION_NOT_FOUND" | "DEVICE_AUTHORIZATION_EXPIRED" | "DEVICE_WORKSPACE_ORG_MISMATCH" | "SSO_CONNECTION_FROZEN_FIELD" | "SSO_DOMAIN_INVALID" | "SSO_DOMAIN_TAKEN" | "SSO_METADATA_INVALID" | "SSO_METADATA_FETCH_FAILED" | "SSO_METADATA_ENTITY_ID_CHANGED" | "SSO_CERTIFICATE_INVALID" | "SSO_SP_KEY_NO_NEXT" | "ACCOUNT_LINK_REFUSED" | "END_USER_DEACTIVATED" | "STATUS_PAGE_ACCESS_LOG_CURSOR_INVALID" | "STATUS_PAGE_SUBSCRIBER_CONVERSION_UNCONFIRMED" | "STATUS_PAGE_INVITE_PAGE_NOT_PRIVATE" | "STATUS_PAGE_INVITE_EMAIL_SIGN_IN_OFF" | "STATUS_PAGE_INVITE_NOT_OPEN" | "STATUS_PAGE_ACCESS_POLICY_IDLE_EXCEEDS_ABSOLUTE" | "STATUS_PAGE_UPTIME_MONTHS_OUT_OF_RANGE" | "STATUS_PAGE_SUBSCRIBER_GROUP_NOT_FOUND" | "STATUS_PAGE_EXPORT_FORMAT_UNSUPPORTED" | "STATUS_PAGE_TEMPLATE_NAME_TAKEN" | "STATUS_PAGE_TEMPLATE_COMPONENT_NOT_FOUND" | "STATUS_PAGE_TEMPLATE_FIELD_NOT_FOR_KIND" | "STATUS_PAGE_TEMPLATE_KIND_MISMATCH" | "STATUS_PAGE_TEMPLATE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_IN_PAST" | "SP_MAINTENANCE_REMINDER_NOT_FOR_INCIDENT" | "ORG_SSO_PLAN_REQUIRED" | "ORG_SSO_ENFORCEMENT_NOT_READY" | "ORG_SSO_DEFAULT_ROLE_INVALID" | "SP_POSTMORTEM_INCIDENT_NOT_RESOLVED" | "SP_POSTMORTEM_EMPTY" | "SP_INCIDENT_BACKFILL_DATES_INVALID" | "SP_INCIDENT_BACKFILL_ONLY" | "SP_INCIDENT_UPDATE_LAST" | "SP_INCIDENT_BACKFILLED_STATUS_LOCKED" | "STATUS_PAGE_TEMPLATE_VARIABLE_UNKNOWN" | "STATUS_PAGE_SUBSCRIBER_LIMIT_REACHED" | "STATUS_PAGE_SUBSCRIBERS_CLOSED" | "STATUS_PAGE_PRIVATE_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SSO_CONNECTION_LIMIT_REACHED" | "STATUS_PAGE_VIEWER_LIMIT_REACHED";
+            /** @description Field of the row that was rejected */
+            field?: string | null;
+            /** @description Human-readable reason */
+            message: string;
+        };
+        StatusPageSubscriberImportResultDto: {
+            /**
+             * Format: int32
+             * @description Rows that added a new subscriber
+             */
+            created: number;
+            /**
+             * Format: int32
+             * @description Rows that matched an existing subscriber and updated it
+             */
+            updated: number;
+            /** @description Rows that were not imported, with the reason */
+            errors: components["schemas"]["StatusPageSubscriberImportErrorDto"][];
+        };
+        /** @description Components for this stage; null uses the template's components */
+        StatusPageTemplateComponent: {
+            /**
+             * Format: uuid
+             * @description Status page component ID
+             */
+            componentId: string;
+            /**
+             * @description Component status while the incident or maintenance is at this stage
+             * @enum {string}
+             */
+            status: "OPERATIONAL" | "DEGRADED_PERFORMANCE" | "PARTIAL_OUTAGE" | "MAJOR_OUTAGE" | "UNDER_MAINTENANCE";
+        };
+        StatusPageTemplateDto: {
+            /**
+             * Format: uuid
+             * @description Template ID
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Status page the template belongs to
+             */
+            statusPageId: string;
+            /**
+             * @description INCIDENT or MAINTENANCE
+             * @enum {string}
+             */
+            kind: "INCIDENT" | "MAINTENANCE";
+            /** @description Name shown in the template picker */
+            name: string;
+            /** @description Incident or maintenance title, with variables */
+            title: string;
+            /**
+             * @description Impact level
+             * @enum {string}
+             */
+            impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL";
+            /**
+             * @description Status the incident starts in
+             * @enum {string}
+             */
+            initialStatus: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED";
+            /** @description Components the template marks, with their status */
+            components: components["schemas"]["StatusPageTemplateComponent"][];
+            /** @description Message per stage, keyed by status */
+            stages: {
+                [key: string]: components["schemas"]["StatusPageTemplateStage"];
+            };
+            /** @description Whether incidents from this template notify subscribers */
+            notifySubscribers: boolean;
+            /**
+             * Format: int32
+             * @description Maintenance only: default window length in minutes
+             */
+            defaultDurationMinutes?: number | null;
+            /** @description Maintenance only: complete the window automatically when it ends */
+            autoResolve?: boolean | null;
+            /** @description Maintenance only: minutes before the window to remind subscribers */
+            reminderLeadMinutes?: number[] | null;
+            /**
+             * Format: date-time
+             * @description When the template was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description When the template last changed
+             */
+            updatedAt: string;
+        };
+        StatusPageTemplateRenderDto: {
+            /** @description Title with variables filled in */
+            title: string;
+            /** @description The stage's message with variables filled in; null when the stage has none */
+            body?: string | null;
+            /** @description Components for the stage, with their status */
+            components: components["schemas"]["StatusPageTemplateComponent"][];
+        };
+        StatusPageTemplateRequest: {
+            /**
+             * @description INCIDENT or MAINTENANCE; ignored when replacing a template
+             * @enum {string}
+             */
+            kind: "INCIDENT" | "MAINTENANCE";
+            /** @description Name shown in the template picker, unique per status page */
+            name: string;
+            /** @description Incident or maintenance title; may use {{page.name}} and the maintenance variables */
+            title: string;
+            /**
+             * @description Impact level (default: MAJOR)
+             * @enum {string|null}
+             */
+            impact?: "NONE" | "MINOR" | "MAJOR" | "CRITICAL" | null;
+            /**
+             * @description Status the incident starts in (default: INVESTIGATING; always INVESTIGATING for maintenance)
+             * @enum {string|null}
+             */
+            initialStatus?: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED" | null;
+            /** @description Components the template marks, with their status */
+            components?: components["schemas"]["StatusPageTemplateComponent"][] | null;
+            /** @description Message per stage, keyed by status (INVESTIGATING, IDENTIFIED, MONITORING, RESOLVED) */
+            stages?: {
+                [key: string]: components["schemas"]["StatusPageTemplateStage"] | null;
+            } | null;
+            /** @description Whether incidents from this template notify subscribers (default: true) */
+            notifySubscribers?: boolean | null;
+            /**
+             * Format: int32
+             * @description Maintenance only: default window length in minutes (1–10080)
+             */
+            defaultDurationMinutes?: number | null;
+            /** @description Maintenance only: complete the window automatically when it ends */
+            autoResolve?: boolean | null;
+            /** @description Maintenance only: minutes before the window to remind subscribers (5–20160 each) */
+            reminderLeadMinutes?: number[] | null;
+        };
+        /** @description Message per stage, keyed by status (INVESTIGATING, IDENTIFIED, MONITORING, RESOLVED) */
+        StatusPageTemplateStage: {
+            /** @description Update message for this stage; may use {{page.name}}, {{maintenance.start}}, {{maintenance.end}} and {{components}} */
+            body: string;
+            /** @description Components for this stage; null uses the template's components */
+            components?: components["schemas"]["StatusPageTemplateComponent"][] | null;
+        };
+        StatusPageVisibilityChangePreviewDto: {
+            /**
+             * Format: int32
+             * @description Email subscribers that become invited end users
+             */
+            convertedSubscribers: number;
+            /**
+             * Format: int32
+             * @description End users created for them; the rest already exist
+             */
+            invitedEndUsers: number;
+            /**
+             * Format: int32
+             * @description Unconfirmed sign-ups that are dropped
+             */
+            droppedUnconfirmed: number;
         };
         StreamingResponseBody: Record<string, never>;
         /** @description Environment containing this value */
@@ -14571,6 +16249,15 @@ export interface components {
             /** Format: int32 */
             totalPages?: number | null;
         };
+        TableValueResultSsoConnectionDto: {
+            data: components["schemas"]["SsoConnectionDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
         TableValueResultStatusPageComponentDto: {
             data: components["schemas"]["StatusPageComponentDto"][];
             hasNext: boolean;
@@ -14607,6 +16294,33 @@ export interface components {
             /** Format: int32 */
             totalPages?: number | null;
         };
+        TableValueResultStatusPageEndUserDto: {
+            data: components["schemas"]["StatusPageEndUserDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
+        TableValueResultStatusPageEndUserInviteDto: {
+            data: components["schemas"]["StatusPageEndUserInviteDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
+        TableValueResultStatusPageGroupDto: {
+            data: components["schemas"]["StatusPageGroupDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
         TableValueResultStatusPageIncidentDto: {
             data: components["schemas"]["StatusPageIncidentDto"][];
             hasNext: boolean;
@@ -14627,6 +16341,15 @@ export interface components {
         };
         TableValueResultStatusPageSubscriberDto: {
             data: components["schemas"]["StatusPageSubscriberDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
+        TableValueResultStatusPageTemplateDto: {
+            data: components["schemas"]["StatusPageTemplateDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
@@ -15322,6 +17045,17 @@ export interface components {
             /** @description Organization website URL (max 255 chars) */
             websiteUrl?: string | null;
         };
+        UpdateOrgSsoSettingsRequest: {
+            /** @description Require SSO for members (owners keep a break-glass sign-in); null keeps the current value */
+            enforced?: boolean | null;
+            /** @description Let people from a verified domain join on first sign-in; null keeps the current value */
+            jitEnabled?: boolean | null;
+            /**
+             * @description Role of people who join on first sign-in (ADMIN or MEMBER); null keeps the current value
+             * @enum {string|null}
+             */
+            defaultRole?: "OWNER" | "ADMIN" | "MEMBER" | null;
+        };
         UpdatePagerDutyChannelConfig: {
             /** @enum {string} */
             channelType: "pagerduty";
@@ -15461,6 +17195,33 @@ export interface components {
             /** @description Routing key for alert routing */
             routingKey: string;
         };
+        UpdateSsoConnectionRequest: {
+            /** @description New connection name; null preserves current */
+            name?: string | null;
+            /** @description Whether sign-in through this connection is allowed; null preserves current */
+            enabled?: boolean | null;
+            /** @description Service provider entity ID; fixed at creation, a different value is rejected */
+            spEntityId?: string | null;
+            /** @description Assertion consumer service URL; fixed at creation, a different value is rejected */
+            acsUrl?: string | null;
+            /**
+             * @description Who may sign in through the connection; null preserves current
+             * @enum {string|null}
+             */
+            signInScope?: "ROUTED_DOMAINS" | "ANY_IDP_USER" | null;
+        };
+        UpdateStatusPageAccessPolicyRequest: {
+            /**
+             * Format: int32
+             * @description Seconds a viewer stays signed in after signing in (3600–7776000)
+             */
+            sessionAbsoluteTtlSeconds: number;
+            /**
+             * Format: int32
+             * @description Seconds without a request before a viewer is signed out (300–7776000, at most the session length); equal to the session length means no idle timeout
+             */
+            sessionIdleTtlSeconds: number;
+        };
         UpdateStatusPageComponentGroupRequest: {
             /** @description New group name; null preserves current */
             name?: string | null;
@@ -15501,6 +17262,15 @@ export interface components {
              */
             startDate?: string | null;
         };
+        UpdateStatusPageGroupRequest: {
+            /** @description New name; null preserves current */
+            name?: string | null;
+            /**
+             * @description New serving mode: SEPARATE or UNIFIED; null preserves current
+             * @enum {string|null}
+             */
+            mode?: "SEPARATE" | "UNIFIED" | null;
+        };
         UpdateStatusPageIncidentRequest: {
             /** @description New title; null preserves current */
             title?: string | null;
@@ -15534,6 +17304,10 @@ export interface components {
             scheduledUntil?: string | null;
             /** @description Whether the window auto-completes at scheduledUntil; null preserves current */
             autoResolve?: boolean | null;
+            /** @description Maintenance only: minutes before the window to remind subscribers (5–20160 each, distinct); null preserves current, an empty list removes the reminders still to come */
+            reminderLeadMinutes?: number[] | null;
+            /** @description Email the postmortem to subscribers (resolved incidents with a postmortem only). Sending the same text again is a no-op; changed text is sent again */
+            notifySubscribersOfPostmortem?: boolean | null;
         };
         UpdateStatusPageIncidentUpdateRequest: {
             /** @description Replacement update body in markdown */
@@ -15554,7 +17328,14 @@ export interface components {
              * @description Page visibility; null preserves current
              * @enum {string|null}
              */
-            visibility?: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED" | null;
+            visibility?: "PUBLIC" | "PASSWORD" | "IP_RESTRICTED" | "LOGIN_REQUIRED" | null;
+            /**
+             * @description Email sign-in method besides SSO: PASSWORD or MAGIC_LINK; null preserves current
+             * @enum {string|null}
+             */
+            emailSignIn?: "PASSWORD" | "MAGIC_LINK" | null;
+            /** @description Set to true to turn email sign-in off */
+            clearEmailSignIn?: boolean | null;
             /** @description Whether the page is enabled; null preserves current */
             enabled?: boolean | null;
             /**
@@ -15567,6 +17348,18 @@ export interface components {
              * @enum {string|null}
              */
             managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
+            /** @description Channels visitors can subscribe with (EMAIL, TEAMS, WEBHOOK); null preserves current */
+            subscriberChannels?: ("EMAIL" | "SMS" | "WEBHOOK" | "TEAMS")[] | null;
+            /** @description Confirms making a sign-in page public, which signs out its viewers */
+            confirmPublic?: boolean | null;
+            /** @description Confirms making a page private converts its email subscribers to invited end users */
+            confirmConvertSubscribers?: boolean | null;
+        };
+        UpdateSubscriberRequest: {
+            /** @description Components to hear about; empty with no component groups means the whole page */
+            componentIds: string[];
+            /** @description Component groups to hear about, including components added to them later; omit for none */
+            componentGroupIds?: string[] | null;
         };
         /** @description Request body for updating a tag; null fields are left unchanged */
         UpdateTagRequest: {
@@ -41100,6 +42893,1905 @@ export interface operations {
             };
         };
     };
+    listOrgSsoConnections: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultSsoConnectionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createOrgSsoConnection: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSsoConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoConnectionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getOrgSsoConnection: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoConnectionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteOrgSsoConnection: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateOrgSsoConnection: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSsoConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoConnectionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    addOrgSsoCertificate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddSsoCertificateRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoCertificateDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    removeOrgSsoCertificate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+                connectionId: string;
+                certificateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    addOrgSsoDomain: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddSsoDomainRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoDomainDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    removeOrgSsoDomain: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+                connectionId: string;
+                domainId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    verifyOrgSsoDomain: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+                connectionId: string;
+                domainId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoDomainDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    setOrgSsoIdpMetadata: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetIdpMetadataRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoConnectionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getOrgSsoSpMetadata: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    revokeOrgSsoSessions: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStaffSessionsRevokedDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getOrgSsoSettings: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseOrgSsoSettingsDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateOrgSsoSettings: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateOrgSsoSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseOrgSsoSettingsDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     listRegions: {
         parameters: {
             query?: never;
@@ -49881,6 +53573,1393 @@ export interface operations {
             };
         };
     };
+    listStatusPageGroups: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageGroupDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createStatusPageGroup: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStatusPageGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageGroupDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStatusPageGroup: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageGroupDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateStatusPageGroup: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusPageGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageGroupDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteStatusPageGroup: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    setStatusPageGroupDefaultPage: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetStatusPageGroupDefaultPageRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageGroupDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    attachStatusPageGroupDomain: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddCustomDomainRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageCustomDomainDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    removeStatusPageGroupDomain: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    addStatusPageGroupMember: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddStatusPageGroupMemberRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageGroupDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    removeStatusPageGroupMember: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                statusPageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageGroupDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reorderStatusPageGroupMembers: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderStatusPageGroupMembersRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageGroupDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     list_5: {
         parameters: {
             query?: never;
@@ -50403,6 +55482,516 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listStatusPageAccessLog: {
+        parameters: {
+            query?: {
+                eventType?: "SIGN_IN_SUCCEEDED" | "SIGN_IN_FAILED" | "SIGN_OUT" | "SESSION_REVOKED";
+                from?: string;
+                to?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CursorPageStatusPageAccessEventDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    exportStatusPageAccessLog: {
+        parameters: {
+            query?: {
+                eventType?: "SIGN_IN_SUCCEEDED" | "SIGN_IN_FAILED" | "SIGN_OUT" | "SESSION_REVOKED";
+                from?: string;
+                to?: string;
+            };
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": components["schemas"]["StreamingResponseBody"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStatusPageAccessPolicy: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageAccessPolicyDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateStatusPageAccessPolicy: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusPageAccessPolicyRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageAccessPolicyDto"];
+                };
             };
             /** @description Bad request — the payload failed validation */
             400: {
@@ -52276,6 +57865,1286 @@ export interface operations {
             };
         };
     };
+    listStatusPageEndUsers: {
+        parameters: {
+            query?: {
+                search?: string;
+                status?: "INVITED" | "ACTIVE" | "DEACTIVATED";
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
+            };
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageEndUserDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deactivateStatusPageEndUser: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                endUserId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageEndUserDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    revokeStatusPageEndUserInvite: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                endUserId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    resendStatusPageEndUserInvite: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                endUserId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageEndUserInviteDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reactivateStatusPageEndUser: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                endUserId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageEndUserDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    bulkDeactivateStatusPageEndUsers: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkDeactivateEndUsersRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageEndUserBulkDeactivationDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listStatusPageEndUserInvites: {
+        parameters: {
+            query?: {
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
+            };
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageEndUserInviteDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    inviteStatusPageEndUsers: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InviteStatusPageEndUsersRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageEndUserInviteResultDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    revokeStatusPageEndUserSessions: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    exportStatusPageData: {
+        parameters: {
+            query?: {
+                /** @description File format: csv or json (default: csv) */
+                format?: string;
+            };
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                /** @description What to export: subscribers */
+                kind: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": components["schemas"]["StreamingResponseBody"];
+                    "application/json": components["schemas"]["StreamingResponseBody"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     listGroups: {
         parameters: {
             query?: never;
@@ -53808,6 +60677,130 @@ export interface operations {
             };
         };
     };
+    deleteIncidentUpdate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                incidentId: string;
+                updateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     patchIncidentUpdate: {
         parameters: {
             query?: never;
@@ -55090,6 +62083,130 @@ export interface operations {
             };
         };
     };
+    deleteMaintenanceUpdate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                windowId: string;
+                updateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     patchMaintenanceUpdate: {
         parameters: {
             query?: never;
@@ -55224,7 +62341,7 @@ export interface operations {
         parameters: {
             query?: {
                 incidentId?: string;
-                eventType?: "SUBSCRIPTION_CONFIRMATION" | "INCIDENT_CREATED" | "INCIDENT_UPDATED" | "INCIDENT_RESOLVED";
+                eventType?: "SUBSCRIPTION_CONFIRMATION" | "INCIDENT_CREATED" | "INCIDENT_UPDATED" | "INCIDENT_RESOLVED" | "MAINTENANCE_SCHEDULED" | "MAINTENANCE_UPDATED" | "MAINTENANCE_STARTED" | "MAINTENANCE_COMPLETED" | "MAINTENANCE_REMINDER" | "POSTMORTEM_PUBLISHED";
             };
             header?: {
                 /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
@@ -55496,6 +62613,1782 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SingleValueResponseStatusPageNotificationDeliveryDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listSsoConnections: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultSsoConnectionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createSsoConnection: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSsoConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoConnectionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getSsoConnection: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoConnectionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteSsoConnection: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateSsoConnection: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSsoConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoConnectionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    addSsoCertificate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddSsoCertificateRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoCertificateDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    removeSsoCertificate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+                certificateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    addSsoDomain: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddSsoDomainRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoDomainDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    removeSsoDomain: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+                domainId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    verifySsoDomain: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+                domainId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoDomainDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    setSsoIdpMetadata: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetIdpMetadataRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoConnectionDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getSsoSpMetadata: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    startSsoConnectionTest: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoConnectionTestDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getSsoConnectionTest: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                connectionId: string;
+                testId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseSsoConnectionTestDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
@@ -55881,6 +64774,1541 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateSubscriber: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                subscriberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSubscriberRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageSubscriberDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    bulkDeleteStatusPageSubscribers: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkDeleteSubscribersRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageSubscriberBulkResultDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    bulkUpdateStatusPageSubscriberScope: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkUpdateSubscriberScopeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageSubscriberBulkResultDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    importSubscribers: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportSubscribersRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageSubscriberImportResultDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listStatusPageTemplates: {
+        parameters: {
+            query?: {
+                /** @description Only INCIDENT or MAINTENANCE templates */
+                kind?: "INCIDENT" | "MAINTENANCE";
+            };
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageTemplateDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createStatusPageTemplate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusPageTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageTemplateDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStatusPageTemplate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                templateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageTemplateDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateStatusPageTemplate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                templateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusPageTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageTemplateDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteStatusPageTemplate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                templateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    renderStatusPageTemplate: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                templateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenderStatusPageTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageTemplateRenderDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStatusPageMonthlyUptime: {
+        parameters: {
+            query?: {
+                /** @description Calendar months to return, the current one included (1–24) */
+                months?: number;
+            };
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageMonthlyUptimeDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    previewStatusPageVisibilityChange: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageVisibilityChangePreviewDto"];
+                };
             };
             /** @description Bad request — the payload failed validation */
             400: {

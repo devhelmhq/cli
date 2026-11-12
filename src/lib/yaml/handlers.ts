@@ -1003,6 +1003,8 @@ function normalizeBrandingForSnapshot(
     reportUrl: b.reportUrl ?? null,
     hidePoweredBy: b.hidePoweredBy ?? false,
     showSubscribeButton: b.showSubscribeButton ?? true,
+    noIndex: b.noIndex ?? false,
+    timeZone: b.timeZone ?? null,
     customCss: b.customCss ?? null,
     customHeadHtml: b.customHeadHtml ?? null,
   }

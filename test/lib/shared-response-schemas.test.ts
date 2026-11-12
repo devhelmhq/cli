@@ -8,10 +8,11 @@ const page = {
   workspaceId: 1,
   name: 'Test Page',
   slug: 'test-page',
-  branding: {brandColor: '#6F00EF', noIndex: true, timeZone: 'America/New_York'},
+  branding: {brandColor: '#6F00EF', noIndex: true, timeZone: 'America/New_York', futureBrandingFlag: true},
   visibility: 'PUBLIC',
   enabled: true,
   incidentMode: 'MANUAL',
+  subscriberChannels: ['EMAIL'],
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',
 }
@@ -22,6 +23,7 @@ describe('shared request and response schemas', () => {
     expect(result.branding).toMatchObject({
       noIndex: true,
       timeZone: 'America/New_York',
+      futureBrandingFlag: true,
     })
   })
 
@@ -29,7 +31,7 @@ describe('shared request and response schemas', () => {
     const result = schemas.CreateStatusPageRequest.safeParse({
       name: 'Test Page',
       slug: 'test-page',
-      branding: {brandColor: '#6F00EF', noIndex: true},
+      branding: {brandColor: '#6F00EF', futureBrandingFlag: true},
     })
     expect(result.success).toBe(false)
     if (!result.success) {

@@ -8,5 +8,5 @@
 | Field | Type | Required | Nullable | Description |
 |---|---|---|---|---|
 | `timeoutSeconds` | integer (int32) |  | ✓ | Maximum execution time in seconds (5–240) |
-| `runtimeId` | string |  | ✓ | Runtime pin such as 2026.11; omit to pin the newest runtime that can run |
+| `runtimeId` | string |  | ✓ | Runtime pin; omit to use the platform default |
 
