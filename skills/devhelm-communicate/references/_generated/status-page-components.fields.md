@@ -50,7 +50,7 @@
 | `currentStatus` | string | ✓ |  | Effective display status (incident > active override > binding) |
 | `overrideStatus` | string |  | ✓ | Active timed override status; null when unset or expired |
 | `overrideReason` | string |  | ✓ | Optional operator reason for the active override |
-| `overrideExpiresAt` | string (date-time) |  | ✓ | When the active override expires; null when unset or expired |
+| `overrideExpiresAt` | string (date-time) |  | ✓ | When the active override expires; null when it lasts until cleared or none is active |
 | `overrideActor` | integer (int32) |  | ✓ | User id who set the override; null for API-key actors or when inactive |
 | `showUptime` | boolean | ✓ |  |  |
 | `displayOrder` | integer (int32) | ✓ |  |  |
@@ -59,4 +59,5 @@
 | `startDate` | string (date-time) |  | ✓ |  |
 | `createdAt` | string (date-time) | ✓ |  |  |
 | `updatedAt` | string (date-time) | ✓ |  |  |
+| `audienceRestricted` | boolean |  |  | Visible only to the audiences that hold it, and to no viewer when none does (default: false) |
 

@@ -18,4 +18,5 @@
 | `notifySubscribers` | boolean |  | ✓ | Whether to email confirmed subscribers about this window (default: true) |
 | `templateId` | string (uuid) |  | ✓ | Maintenance template the window is created from; its start and completion messages are posted automatically |
 | `reminderLeadMinutes` | integer (int32)[] |  | ✓ | Minutes before the window to email subscribers a reminder (5–20160 each, distinct). Default: the template's lead times, else 24 hours and 1 hour; an empty list sends none |
+| `audienceIds` | string (uuid)[] |  | ✓ | Audiences that see the window; empty for everyone who sees its components |
 

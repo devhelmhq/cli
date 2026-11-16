@@ -518,6 +518,13 @@ const StatusPageSchema = z.object({
   visibility: z.enum(STATUS_PAGE_VISIBILITIES).optional(),
   enabled: z.boolean().optional(),
   incidentMode: z.enum(STATUS_PAGE_INCIDENT_MODES).optional(),
+  unresolvedReminderMinutes: z.number().int().min(0).max(1440).optional(),
+  emailSender: z.object({
+    senderDomainId: z.string().uuid().nullable().optional(),
+    fromLocalPart: z.string().min(1).max(64).nullable().optional(),
+    fromName: z.string().min(1).max(100).nullable().optional(),
+    replyTo: z.string().email().nullable().optional(),
+  }).strict().optional(),
   branding: StatusPageBrandingSchema.optional(),
   componentGroups: z.array(StatusPageComponentGroupSchema).optional(),
   components: z.array(StatusPageComponentSchema).optional(),

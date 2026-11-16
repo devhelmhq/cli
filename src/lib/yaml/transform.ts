@@ -410,5 +410,14 @@ export function toUpdateStatusPageRequest(page: YamlStatusPage): Schemas['Update
     visibility: page.visibility ?? null,
     enabled: page.enabled ?? null,
     incidentMode: page.incidentMode ?? null,
+    unresolvedReminderMinutes: page.unresolvedReminderMinutes ?? null,
+    emailSender: page.emailSender
+      ? {
+        senderDomainId: page.emailSender.senderDomainId ?? null,
+        fromLocalPart: page.emailSender.fromLocalPart ?? null,
+        fromName: page.emailSender.fromName ?? null,
+        replyTo: page.emailSender.replyTo ?? null,
+      }
+      : null,
   }
 }

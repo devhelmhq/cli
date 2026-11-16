@@ -18,6 +18,7 @@
 | `backfill` | boolean |  | ✓ | Import a past incident with its original dates: requires startedAt and resolvedAt, never notifies subscribers and leaves component statuses alone |
 | `startedAt` | string (date-time) |  | ✓ | Backfill only: when the incident started |
 | `resolvedAt` | string (date-time) |  | ✓ | Backfill only: when the incident was resolved |
+| `audienceIds` | string (uuid)[] |  | ✓ | Audiences that see the incident; empty for everyone who sees its components |
 
 ## `UpdateStatusPageIncidentRequest`
 
@@ -35,6 +36,7 @@
 | `autoResolve` | boolean |  | ✓ | Whether the window auto-completes at scheduledUntil; null preserves current |
 | `reminderLeadMinutes` | integer (int32)[] |  | ✓ | Maintenance only: minutes before the window to remind subscribers (5–20160 each, distinct); null preserves current, an empty list removes the reminders still to come |
 | `notifySubscribersOfPostmortem` | boolean |  | ✓ | Email the postmortem to subscribers (resolved incidents with a postmortem only). Sending the same text again is a no-op; changed text is sent again |
+| `audienceIds` | string (uuid)[] |  | ✓ | New audiences that see it; null preserves current, an empty list shows it to everyone |
 
 ## `StatusPageIncidentDto` (response shape)
 
@@ -65,4 +67,5 @@
 | `updates` | StatusPageIncidentUpdateDto[] |  | ✓ |  |
 | `createdAt` | string (date-time) | ✓ |  |  |
 | `updatedAt` | string (date-time) | ✓ |  |  |
+| `audienceIds` | string (uuid)[] | ✓ |  | Audiences that see it; empty for everyone who sees its components |
 

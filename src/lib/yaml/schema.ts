@@ -535,6 +535,17 @@ export interface YamlStatusPageComponent {
   startDate?: string
 }
 
+export interface YamlStatusPageEmailSender {
+  /** Verified sender domain id; null sends from DevHelm */
+  senderDomainId?: string | null
+  /** Mailbox name before the @ (default: status) */
+  fromLocalPart?: string | null
+  /** Display name in From, up to 100 characters (default: page name) */
+  fromName?: string | null
+  /** Address replies go to; null sends no Reply-To */
+  replyTo?: string | null
+}
+
 export interface YamlStatusPage {
   name: string
   slug: string
@@ -542,6 +553,14 @@ export interface YamlStatusPage {
   visibility?: StatusPageVisibility
   enabled?: boolean
   incidentMode?: StatusPageIncidentMode
+  /**
+   * Minutes without an update before the team is reminded (15–1440).
+   * 0 turns reminders off. Omit to leave the current value unchanged.
+   * Applied on update; the create call does not accept this field.
+   */
+  unresolvedReminderMinutes?: number
+  /** Who the page's email comes from. Omit to leave the current sender unchanged. */
+  emailSender?: YamlStatusPageEmailSender
   branding?: YamlStatusPageBranding
   componentGroups?: YamlStatusPageComponentGroup[]
   components?: YamlStatusPageComponent[]

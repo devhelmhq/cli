@@ -42,11 +42,20 @@ jobs:
         run: |
           npm ci
           npm run typegen
+          npm run zodgen
+          npm run descgen
+          npm run skillgen
 
       - name: Commit spec-sync branch
         id: commit
         run: |
-          if git diff --quiet src/lib/api.generated.ts docs/openapi/; then
+          if git diff --quiet \
+            src/lib/api.generated.ts \
+            src/lib/api-zod.generated.ts \
+            src/lib/spec-facts.generated.ts \
+            src/lib/descriptions.generated.ts \
+            docs/openapi/ \
+            skills; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -54,7 +63,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B spec-sync
-          git add src/lib/api.generated.ts docs/openapi/monitoring-api.json
+          git add \
+            src/lib/api.generated.ts \
+            src/lib/api-zod.generated.ts \
+            src/lib/spec-facts.generated.ts \
+            src/lib/descriptions.generated.ts \
+            docs/openapi/monitoring-api.json \
+            skills
           git commit -m "chore: update generated API types from latest spec"
           if git fetch origin spec-sync; then
             git push --force-with-lease=refs/heads/spec-sync:refs/remotes/origin/spec-sync origin HEAD:spec-sync
