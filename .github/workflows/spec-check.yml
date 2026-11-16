@@ -1,19 +1,30 @@
 name: Spec Check
 
+# spec_updated from devhelmhq/mono. Regenerates types onto the standing
+# spec-sync branch and enables auto-merge. The repository CI workflow is the
+# gate. This job does not run the test suite and does not open a second pull
+# request.
+
 on:
   repository_dispatch:
     types: [spec_updated]
 
+concurrency:
+  group: spec-sync
+  cancel-in-progress: true
+
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 jobs:
-  check-compatibility:
+  sync:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.SPEC_SYNC_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -27,47 +38,48 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.MONOREPO_DISPATCH_TOKEN }}
 
-      - run: npm ci
-      - run: npm run build
-      - run: npm test
-
       - name: Regenerate types from spec
-        run: npm run typegen
+        run: |
+          npm ci
+          npm run typegen
 
-      - name: Check for type changes
-        id: diff
+      - name: Commit spec-sync branch
+        id: commit
         run: |
           if git diff --quiet src/lib/api.generated.ts docs/openapi/; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-
-      - name: Open PR with updated types
-        if: steps.diff.outputs.changed == 'true'
-        run: |
+          echo "changed=true" >> "$GITHUB_OUTPUT"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          branch="chore/update-api-types-$(date +%Y%m%d%H%M%S)"
-          git checkout -b "$branch"
+          git checkout -B spec-sync
           git add src/lib/api.generated.ts docs/openapi/monitoring-api.json
           git commit -m "chore: update generated API types from latest spec"
-          git push -u origin "$branch"
-          gh pr create \
-            --title "chore: update generated API types" \
-            --body "Auto-generated from latest OpenAPI spec in the monorepo." \
-            --base main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          if git fetch origin spec-sync; then
+            git push --force-with-lease=refs/heads/spec-sync:refs/remotes/origin/spec-sync origin HEAD:spec-sync
+          else
+            git push -u origin HEAD:spec-sync
+          fi
 
-      - name: Report failure
-        if: failure()
-        run: |
-          gh issue create \
-            --title "⚠️ API spec change broke CLI build" \
-            --body "The monorepo pushed a spec update that caused CI failures.\n\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      - name: Open or update the spec-sync pull request
+        if: steps.commit.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SPEC_SYNC_TOKEN }}
+        run: |
+          existing="$(gh pr list --head spec-sync --base main --state open --json number --jq '.[0].number')"
+          if [ -z "$existing" ]; then
+            gh pr create \
+              --head spec-sync \
+              --base main \
+              --title "chore: update generated API types" \
+              --body "Standing spec sync. CI on this pull request is the gate. GitHub auto-merges it when the required checks pass."
+            existing="$(gh pr list --head spec-sync --base main --state open --json number --jq '.[0].number')"
+          fi
+          if ! gh pr merge "$existing" --auto --squash; then
+            enabled="$(gh pr view "$existing" --json autoMergeRequest --jq '.autoMergeRequest != null')"
+            [ "$enabled" = "true" ]
+          fi
 
       - name: Alert spec sync failure
         if: failure()
@@ -80,7 +92,8 @@ jobs:
             "client_payload": {
               "repo": "${{ github.repository }}",
               "workflow": "${{ github.workflow }}",
-              "run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              "run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "detail": "Spec Check could not update the standing spec-sync pull request."
             }
           }
           EOF
