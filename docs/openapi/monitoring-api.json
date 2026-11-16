@@ -28545,6 +28545,177 @@
         }
       }
     },
+    "/api/v1/monitors/batch-summary": {
+      "get": {
+        "tags": [
+          "Monitors"
+        ],
+        "summary": "Result summaries for several monitors",
+        "description": "The results summary of up to 100 monitors in one call, so a list page needs no per-monitor request. Monitors outside the workspace are left out.",
+        "operationId": "batchSummary",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "Monitor ids, comma-separated; at most 100",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "chartWindow",
+            "in": "query",
+            "description": "Chart window: 24h returns hourly buckets, 7d/30d/90d return daily buckets",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "24h",
+                "7d",
+                "30d",
+                "90d"
+              ]
+            }
+          },
+          {
+            "name": "X-DevHelm-Client",
+            "in": "header",
+            "description": "Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseMonitorBatchSummaryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required — the plan or quota does not allow this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone — the resource is no longer available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests — retry after the window resets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/monitors/bulk": {
       "post": {
         "tags": [
@@ -34404,6 +34575,646 @@
               "*/*": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required — the plan or quota does not allow this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone — the resource is no longer available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests — retry after the window resets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/orgs/{orgId}/sso/role-mappings": {
+      "get": {
+        "tags": [
+          "org-sso-role-mapping-controller"
+        ],
+        "summary": "List the IdP group to role mappings",
+        "operationId": "listOrgSsoRoleMappings",
+        "parameters": [
+          {
+            "name": "orgId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "X-DevHelm-Client",
+            "in": "header",
+            "description": "Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableValueResultOrgSsoRoleMappingDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required — the plan or quota does not allow this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone — the resource is no longer available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests — retry after the window resets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "org-sso-role-mapping-controller"
+        ],
+        "summary": "Map an IdP group to a role",
+        "operationId": "createOrgSsoRoleMapping",
+        "parameters": [
+          {
+            "name": "orgId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-DevHelm-Client",
+            "in": "header",
+            "description": "Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrgSsoRoleMappingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseOrgSsoRoleMappingDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required — the plan or quota does not allow this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone — the resource is no longer available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests — retry after the window resets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/orgs/{orgId}/sso/role-mappings/{mappingId}": {
+      "delete": {
+        "tags": [
+          "org-sso-role-mapping-controller"
+        ],
+        "summary": "Remove an IdP group to role mapping",
+        "operationId": "deleteOrgSsoRoleMapping",
+        "parameters": [
+          {
+            "name": "orgId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "mappingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-DevHelm-Client",
+            "in": "header",
+            "description": "Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required — the plan or quota does not allow this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone — the resource is no longer available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests — retry after the window resets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "org-sso-role-mapping-controller"
+        ],
+        "summary": "Change an IdP group to role mapping",
+        "operationId": "updateOrgSsoRoleMapping",
+        "parameters": [
+          {
+            "name": "orgId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "mappingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-DevHelm-Client",
+            "in": "header",
+            "description": "Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrgSsoRoleMappingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseOrgSsoRoleMappingDto"
                 }
               }
             }
@@ -52423,6 +53234,19 @@
             }
           },
           {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SSO",
+                "INVITED",
+                "SUBSCRIBER"
+              ]
+            }
+          },
+          {
             "name": "page",
             "in": "query",
             "description": "Zero-based page index (0..N)",
@@ -52476,6 +53300,159 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required — the plan or quota does not allow this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone — the resource is no longer available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests — retry after the window resets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/status-pages/{id}/end-users/{endUserId}": {
+      "delete": {
+        "tags": [
+          "status-page-end-user-controller"
+        ],
+        "summary": "Delete an end user with their subscriptions and sign-in history",
+        "operationId": "deleteStatusPageEndUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "endUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-DevHelm-Client",
+            "in": "header",
+            "description": "Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
           },
           "400": {
             "description": "Bad request — the payload failed validation",
@@ -53250,6 +54227,159 @@
         }
       }
     },
+    "/api/v1/status-pages/{id}/end-users/{endUserId}/sessions": {
+      "delete": {
+        "tags": [
+          "status-page-end-user-controller"
+        ],
+        "summary": "Sign one end user out everywhere",
+        "operationId": "signOutStatusPageEndUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "endUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-DevHelm-Client",
+            "in": "header",
+            "description": "Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required — the plan or quota does not allow this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone — the resource is no longer available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests — retry after the window resets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/status-pages/{id}/end-users/bulk-deactivate": {
       "post": {
         "tags": [
@@ -53303,6 +54433,176 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/SingleValueResponseStatusPageEndUserBulkDeactivationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — the payload failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required — the plan or quota does not allow this",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — the actor lacks permission for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found — the requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict — the request collides with current resource state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone — the resource is no longer available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests — retry after the window resets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error — see the message field for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway — an upstream provider returned an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable — try again shortly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/status-pages/{id}/end-users/bulk-sign-out": {
+      "post": {
+        "tags": [
+          "status-page-end-user-controller"
+        ],
+        "summary": "Sign end users out everywhere by email",
+        "operationId": "bulkSignOutStatusPageEndUsers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-DevHelm-Client",
+            "in": "header",
+            "description": "Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkSignOutEndUsersRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleValueResponseStatusPageEndUserBulkSignOutDto"
                 }
               }
             }
@@ -69879,7 +71179,8 @@
         "tags": [
           "Workspaces"
         ],
-        "summary": "Set workspace execution environment",
+        "summary": "Set workspace execution environment (deprecated)",
+        "description": "Deprecated. Choose the runtime per synthetic monitor with config.runtimeId.",
         "operationId": "updateRuntime",
         "parameters": [
           {
@@ -71388,6 +72689,26 @@
           }
         }
       },
+      "BulkSignOutEndUsersRequest": {
+        "required": [
+          "emails"
+        ],
+        "type": "object",
+        "properties": {
+          "emails": {
+            "maxItems": 1000,
+            "minItems": 0,
+            "type": "array",
+            "description": "Emails to sign out everywhere (1–1000)",
+            "items": {
+              "maxLength": 320,
+              "minLength": 0,
+              "type": "string",
+              "description": "Emails to sign out everywhere (1–1000)"
+            }
+          }
+        }
+      },
       "BulkDeleteSubscribersRequest": {
         "required": [
           "subscriberIds"
@@ -71729,7 +73050,9 @@
             "enum": [
               "OWNER",
               "ADMIN",
-              "MEMBER"
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
             ]
           }
         },
@@ -73084,7 +74407,9 @@
             "enum": [
               "OWNER",
               "ADMIN",
-              "MEMBER"
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
             ]
           }
         },
@@ -73432,6 +74757,33 @@
           }
         },
         "description": "Request body for creating a notification policy"
+      },
+      "CreateOrgSsoRoleMappingRequest": {
+        "required": [
+          "idpGroup",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "idpGroup": {
+            "maxLength": 256,
+            "minLength": 0,
+            "type": "string",
+            "description": "Group name or ID as the identity provider sends it (max 256)"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role for members of this group; any role except OWNER",
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
+            ]
+          }
+        },
+        "description": "Map an identity provider group to an organization role"
       },
       "CreateResourceGroupRequest": {
         "required": [
@@ -76795,6 +78147,7 @@
               "CHECK_RESULTS_WINDOW_INVALID",
               "CHECK_RESULTS_CURSOR_INVALID",
               "CHECK_RESULTS_REGION_INVALID",
+              "CHECK_RESULTS_IDS_INVALID",
               "STATUS_DATA_STATUS_INVALID",
               "STATUS_DATA_PERIOD_INVALID",
               "STATUS_DATA_GRANULARITY_INVALID",
@@ -76932,7 +78285,11 @@
               "STATUS_PAGE_SUBSCRIBERS_CLOSED",
               "STATUS_PAGE_PRIVATE_PAGE_LIMIT_REACHED",
               "STATUS_PAGE_SSO_CONNECTION_LIMIT_REACHED",
-              "STATUS_PAGE_VIEWER_LIMIT_REACHED"
+              "STATUS_PAGE_VIEWER_LIMIT_REACHED",
+              "MEMBER_ROLE_MANAGED_BY_SSO",
+              "ORG_SSO_ROLE_MAPPING_ROLE_INVALID",
+              "ORG_SSO_ROLE_MAPPING_DUPLICATE",
+              "AUDIT_LOG_PLAN_REQUIRED"
             ]
           },
           "file": {
@@ -79031,7 +80388,9 @@
             "enum": [
               "OWNER",
               "ADMIN",
-              "MEMBER"
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
             ]
           },
           "createdAt": {
@@ -79934,6 +81293,7 @@
           "createdAt",
           "email",
           "orgRole",
+          "roleSource",
           "status",
           "userId"
         ],
@@ -79955,11 +81315,21 @@
           },
           "orgRole": {
             "type": "string",
-            "description": "Member role within this organization (OWNER, ADMIN, MEMBER)",
+            "description": "Member role within this organization",
             "enum": [
               "OWNER",
               "ADMIN",
-              "MEMBER"
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
+            ]
+          },
+          "roleSource": {
+            "type": "string",
+            "description": "Where the role came from: MANUAL, or SSO when the identity provider's groups set it",
+            "enum": [
+              "MANUAL",
+              "SSO"
             ]
           },
           "status": {
@@ -80003,7 +81373,9 @@
             "enum": [
               "OWNER",
               "ADMIN",
-              "MEMBER"
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
             ]
           },
           "newRole": {
@@ -80012,7 +81384,18 @@
             "enum": [
               "OWNER",
               "ADMIN",
-              "MEMBER"
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "SSO when the identity provider's groups set the role; null for a manual change",
+            "nullable": true,
+            "enum": [
+              "MANUAL",
+              "SSO"
             ]
           }
         }
@@ -80374,6 +81757,40 @@
           }
         },
         "description": "Availability, p95 latency and ticks of one monitor over the window"
+      },
+      "MonitorBatchSummaryDto": {
+        "required": [
+          "monitors"
+        ],
+        "type": "object",
+        "properties": {
+          "monitors": {
+            "type": "array",
+            "description": "One entry per requested monitor that exists in the workspace",
+            "items": {
+              "$ref": "#/components/schemas/MonitorBatchSummaryItemDto"
+            }
+          }
+        },
+        "description": "Result summaries for a set of monitors"
+      },
+      "MonitorBatchSummaryItemDto": {
+        "required": [
+          "id",
+          "summary"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Monitor identifier",
+            "format": "uuid"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ResultSummaryDto"
+          }
+        },
+        "description": "Result summary of one monitor"
       },
       "MonitorCappedDto": {
         "type": "object",
@@ -83309,9 +84726,53 @@
         },
         "description": "Organization the key belongs to"
       },
+      "OrgSsoRoleMappingDto": {
+        "required": [
+          "createdAt",
+          "id",
+          "idpGroup",
+          "role",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Mapping identifier",
+            "format": "uuid"
+          },
+          "idpGroup": {
+            "type": "string",
+            "description": "Group name or ID as the identity provider sends it"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role a member of this group gets; the highest matching role wins",
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When the mapping was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When the mapping last changed",
+            "format": "date-time"
+          }
+        },
+        "description": "An identity provider group that grants an organization role at SSO sign-in"
+      },
       "OrgSsoSettingsDto": {
         "required": [
           "defaultRole",
+          "groupAttribute",
           "enforced",
           "jitEnabled",
           "enforcementReady"
@@ -83332,12 +84793,18 @@
             "enum": [
               "OWNER",
               "ADMIN",
-              "MEMBER"
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
             ]
           },
           "enforcementReady": {
             "type": "boolean",
             "description": "Whether the caller may require SSO now: they signed in through it, and a connection works"
+          },
+          "groupAttribute": {
+            "type": "string",
+            "description": "SAML attribute that carries the person's groups for role mapping"
           }
         }
       },
@@ -87422,7 +88889,7 @@
             }
           }
         },
-        "description": "Default execution environment; null uses the catalog default"
+        "description": "Deprecated workspace runtime default"
       },
       "RuntimeRegionAvailability": {
         "required": [
@@ -87590,7 +89057,7 @@
             "minLength": 0,
             "pattern": "^$|^[A-Za-z0-9._-]+$",
             "type": "string",
-            "description": "Runtime pin; omit to use the platform default",
+            "description": "Runtime this monitor runs on",
             "nullable": true
           }
         }
@@ -88802,8 +90269,10 @@
         "type": "object",
         "properties": {
           "xml": {
+            "maxLength": 1048576,
+            "minLength": 0,
             "type": "string",
-            "description": "IdP metadata XML; give either xml or url",
+            "description": "IdP metadata XML, at most 1 MiB; give either xml or url",
             "nullable": true
           },
           "url": {
@@ -89396,6 +90865,17 @@
           }
         }
       },
+      "SingleValueResponseMonitorBatchSummaryDto": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MonitorBatchSummaryDto"
+          }
+        }
+      },
       "SingleValueResponseMonitorDriftDto": {
         "required": [
           "data"
@@ -89613,6 +91093,17 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/OrganizationDto"
+          }
+        }
+      },
+      "SingleValueResponseOrgSsoRoleMappingDto": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/OrgSsoRoleMappingDto"
           }
         }
       },
@@ -90075,6 +91566,17 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/StatusPageEndUserBulkDeactivationDto"
+          }
+        }
+      },
+      "SingleValueResponseStatusPageEndUserBulkSignOutDto": {
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/StatusPageEndUserBulkSignOutDto"
           }
         }
       },
@@ -91816,11 +93318,40 @@
           }
         }
       },
+      "StatusPageEndUserBulkSignOutDto": {
+        "required": [
+          "unknownEmails",
+          "matched",
+          "unknown"
+        ],
+        "type": "object",
+        "properties": {
+          "matched": {
+            "type": "integer",
+            "description": "Emails that belong to people on the page, now signed out",
+            "format": "int32"
+          },
+          "unknown": {
+            "type": "integer",
+            "description": "Emails that belong to nobody on the page",
+            "format": "int32"
+          },
+          "unknownEmails": {
+            "type": "array",
+            "description": "The emails counted in unknown, lowercase",
+            "items": {
+              "type": "string",
+              "description": "The emails counted in unknown, lowercase"
+            }
+          }
+        }
+      },
       "StatusPageEndUserDto": {
         "required": [
           "createdAt",
           "email",
           "id",
+          "source",
           "status"
         ],
         "type": "object",
@@ -91858,6 +93389,23 @@
             "type": "string",
             "description": "When the person was first added",
             "format": "date-time"
+          },
+          "source": {
+            "type": "string",
+            "description": "How the person came onto the page",
+            "enum": [
+              "SSO",
+              "INVITED",
+              "SUBSCRIBER"
+            ]
+          },
+          "ssoConnection": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SsoConnectionDto"
+              }
+            ]
           }
         }
       },
@@ -91946,6 +93494,7 @@
           "name",
           "slug",
           "updatedAt",
+          "url",
           "organizationId",
           "workspaceId"
         ],
@@ -91977,6 +93526,11 @@
               "SEPARATE",
               "UNIFIED"
             ]
+          },
+          "url": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Where end users open the group: its served custom domain, else its first-party host"
           },
           "defaultStatusPageId": {
             "type": "string",
@@ -92013,6 +93567,7 @@
           "name",
           "slug",
           "statusPageId",
+          "url",
           "visibility",
           "position"
         ],
@@ -92046,6 +93601,11 @@
               "IP_RESTRICTED",
               "LOGIN_REQUIRED"
             ]
+          },
+          "url": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Where end users open this page: the group host and its code, or the page's own host"
           }
         }
       },
@@ -92947,6 +94507,7 @@
               "CHECK_RESULTS_WINDOW_INVALID",
               "CHECK_RESULTS_CURSOR_INVALID",
               "CHECK_RESULTS_REGION_INVALID",
+              "CHECK_RESULTS_IDS_INVALID",
               "STATUS_DATA_STATUS_INVALID",
               "STATUS_DATA_PERIOD_INVALID",
               "STATUS_DATA_GRANULARITY_INVALID",
@@ -93084,7 +94645,11 @@
               "STATUS_PAGE_SUBSCRIBERS_CLOSED",
               "STATUS_PAGE_PRIVATE_PAGE_LIMIT_REACHED",
               "STATUS_PAGE_SSO_CONNECTION_LIMIT_REACHED",
-              "STATUS_PAGE_VIEWER_LIMIT_REACHED"
+              "STATUS_PAGE_VIEWER_LIMIT_REACHED",
+              "MEMBER_ROLE_MANAGED_BY_SSO",
+              "ORG_SSO_ROLE_MAPPING_ROLE_INVALID",
+              "ORG_SSO_ROLE_MAPPING_DUPLICATE",
+              "AUDIT_LOG_PLAN_REQUIRED"
             ]
           },
           "field": {
@@ -94326,6 +95891,38 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/NotificationPolicyDto"
+            }
+          },
+          "hasNext": {
+            "type": "boolean"
+          },
+          "hasPrev": {
+            "type": "boolean"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "TableValueResultOrgSsoRoleMappingDto": {
+        "required": [
+          "data",
+          "hasNext",
+          "hasPrev"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrgSsoRoleMappingDto"
             }
           },
           "hasNext": {
@@ -97131,6 +98728,31 @@
           }
         }
       },
+      "UpdateOrgSsoRoleMappingRequest": {
+        "type": "object",
+        "properties": {
+          "idpGroup": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "description": "New group name or ID; null preserves current",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "description": "New role (not OWNER); null preserves current",
+            "nullable": true,
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
+            ]
+          }
+        },
+        "description": "Change an SSO role mapping"
+      },
       "UpdateOrgSsoSettingsRequest": {
         "type": "object",
         "properties": {
@@ -97146,13 +98768,22 @@
           },
           "defaultRole": {
             "type": "string",
-            "description": "Role of people who join on first sign-in (ADMIN or MEMBER); null keeps the current value",
+            "description": "Role of people who join on first sign-in (not OWNER); null keeps the current value",
             "nullable": true,
             "enum": [
               "OWNER",
               "ADMIN",
-              "MEMBER"
+              "MEMBER",
+              "INCIDENT_AUTHOR",
+              "VIEWER"
             ]
+          },
+          "groupAttribute": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string",
+            "description": "SAML attribute with the person's groups (default: groups); null keeps the current value",
+            "nullable": true
           }
         }
       },
@@ -98168,11 +99799,11 @@
             "minLength": 0,
             "pattern": "^[A-Za-z0-9._-]+$",
             "type": "string",
-            "description": "Runtime environment identifier; null uses the catalog default",
+            "description": "Deprecated runtime default",
             "nullable": true
           }
         },
-        "description": "Workspace execution environment selection"
+        "description": "Deprecated workspace runtime default"
       },
       "UpdateZapierChannelConfig": {
         "type": "object",
