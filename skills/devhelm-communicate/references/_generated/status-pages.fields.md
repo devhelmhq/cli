@@ -15,6 +15,8 @@
 | `enabled` | boolean |  | ✓ | Whether the page is enabled (default: true) |
 | `incidentMode` | "MANUAL" \| "REVIEW" \| "AUTOMATIC" |  | ✓ | Incident mode: MANUAL, REVIEW, or AUTOMATIC (default: AUTOMATIC) |
 | `managedBy` | "DASHBOARD" \| "CLI" \| "TERRAFORM" \| "MCP" \| "API" \| "GIT" |  | ✓ | Source creating this page: DASHBOARD, GIT, TERRAFORM, MCP or API (CLI = GIT until 2027-01-31). Defaults to API when omitted. |
+| `unresolvedReminderMinutes` | integer (int32) |  | ✓ | Minutes without an update before the team is reminded (15–1440), 0 turns off (default: 60) |
+| `emailSender` | any |  | ✓ |  |
 
 ## `UpdateStatusPageRequest`
 

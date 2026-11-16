@@ -8002,6 +8002,12 @@ export interface components {
              * @enum {string|null}
              */
             managedBy?: "DASHBOARD" | "CLI" | "TERRAFORM" | "MCP" | "API" | "GIT" | null;
+            /**
+             * Format: int32
+             * @description Minutes without an update before the team is reminded (15–1440), 0 turns off (default: 60)
+             */
+            unresolvedReminderMinutes?: number | null;
+            emailSender?: components["schemas"]["StatusPageEmailSenderRequest"] | null;
         };
         /** @description Request body for creating a tag */
         CreateTagRequest: {

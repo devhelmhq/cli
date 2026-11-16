@@ -1886,6 +1886,15 @@ const StatusPageBranding = z
   })
   .partial()
   .strict();
+const StatusPageEmailSenderRequest = z
+  .object({
+    senderDomainId: z.string().uuid().nullable(),
+    fromLocalPart: z.string().min(0).max(64).nullable(),
+    fromName: z.string().min(0).max(100).nullable(),
+    replyTo: z.string().min(0).max(254).nullable(),
+  })
+  .partial()
+  .strict();
 const CreateStatusPageRequest = z
   .object({
     name: z.string().min(0).max(255),
@@ -1904,16 +1913,9 @@ const CreateStatusPageRequest = z
     managedBy: z
       .enum(["DASHBOARD", "CLI", "TERRAFORM", "MCP", "API", "GIT"])
       .nullish(),
+    unresolvedReminderMinutes: z.number().int().nullish(),
+    emailSender: StatusPageEmailSenderRequest.nullish(),
   })
-  .strict();
-const StatusPageEmailSenderRequest = z
-  .object({
-    senderDomainId: z.string().uuid().nullable(),
-    fromLocalPart: z.string().min(0).max(64).nullable(),
-    fromName: z.string().min(0).max(100).nullable(),
-    replyTo: z.string().min(0).max(254).nullable(),
-  })
-  .partial()
   .strict();
 const UpdateStatusPageRequest = z
   .object({
@@ -7464,8 +7466,8 @@ export const schemas = {
   AddStatusPageGroupMemberRequest,
   ReorderStatusPageGroupMembersRequest,
   StatusPageBranding,
-  CreateStatusPageRequest,
   StatusPageEmailSenderRequest,
+  CreateStatusPageRequest,
   UpdateStatusPageRequest,
   UpdateStatusPageAccessPolicyRequest,
   CreateStatusPageComponentRequest,
