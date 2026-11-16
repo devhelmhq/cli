@@ -396,6 +396,15 @@ export function toCreateStatusPageRequest(page: YamlStatusPage): Schemas['Create
     enabled: page.enabled ?? null,
     incidentMode: page.incidentMode ?? null,
     managedBy: 'CLI',
+    unresolvedReminderMinutes: page.unresolvedReminderMinutes ?? null,
+    emailSender: page.emailSender
+      ? {
+        senderDomainId: page.emailSender.senderDomainId ?? null,
+        fromLocalPart: page.emailSender.fromLocalPart ?? null,
+        fromName: page.emailSender.fromName ?? null,
+        replyTo: page.emailSender.replyTo ?? null,
+      }
+      : null,
   }
 }
 

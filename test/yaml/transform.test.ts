@@ -553,6 +553,24 @@ describe('transforms', () => {
       expect(req.branding).toBeNull()
     })
 
+    it('sends the reminder and sender on create', () => {
+      const page: YamlStatusPage = {
+        name: 'S', slug: 's',
+        unresolvedReminderMinutes: 15,
+        emailSender: {fromLocalPart: 'updates', fromName: 'Acme'},
+      }
+      const req = toCreateStatusPageRequest(page)
+      expect(req.unresolvedReminderMinutes).toBe(15)
+      expect(req.emailSender).toMatchObject({fromLocalPart: 'updates', fromName: 'Acme'})
+    })
+
+    it('omits reminder and sender as null so create uses the API defaults', () => {
+      const page: YamlStatusPage = {name: 'S', slug: 's'}
+      const req = toCreateStatusPageRequest(page)
+      expect(req.unresolvedReminderMinutes).toBeNull()
+      expect(req.emailSender).toBeNull()
+    })
+
     it('does not include children in create request', () => {
       const page: YamlStatusPage = {
         name: 'S', slug: 's',

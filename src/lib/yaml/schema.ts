@@ -555,11 +555,10 @@ export interface YamlStatusPage {
   incidentMode?: StatusPageIncidentMode
   /**
    * Minutes without an update before the team is reminded (15–1440).
-   * 0 turns reminders off. Omit to leave the current value unchanged.
-   * Applied on update; the create call does not accept this field.
+   * 0 turns reminders off. Omit on create for the default of 60; omit on update to keep the current value.
    */
   unresolvedReminderMinutes?: number
-  /** Who the page's email comes from. Omit to leave the current sender unchanged. */
+  /** Who the page's email comes from. Omit on create for the DevHelm sender; omit on update to keep the current sender. */
   emailSender?: YamlStatusPageEmailSender
   branding?: YamlStatusPageBranding
   componentGroups?: YamlStatusPageComponentGroup[]
