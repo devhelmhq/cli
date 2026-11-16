@@ -151,7 +151,8 @@ const MAPPINGS: FieldMapping[] = [
     apiSchemaNames: ['CreateStatusPageRequest', 'UpdateStatusPageRequest'],
     yamlFields: [
       'name', 'slug', 'description', 'visibility', 'enabled',
-      'incidentMode', 'branding', 'componentGroups', 'components',
+      'incidentMode', 'unresolvedReminderMinutes', 'emailSender',
+      'branding', 'componentGroups', 'components',
     ],
     yamlOnlyFields: YAML_ONLY_FIELDS['statusPage'],
     apiOnlyFields: API_ONLY_FIELDS['statusPage'],
@@ -272,6 +273,8 @@ const SNAPSHOT_COMPONENT_DTO_ONLY = [
   'serviceSubscriptionId', 'serviceName', 'serviceSlug',
   'displayOrder', 'pageOrder', 'currentStatus', 'createdAt', 'updatedAt',
   'overrideActor', 'overrideExpiresAt', 'overrideReason', 'overrideStatus',
+  // Derived from which audiences hold the component. Not desired YAML state.
+  'audienceRestricted',
 ]
 
 const SNAPSHOT_GROUP_FIELDS = ['name', 'description', 'defaultOpen']
@@ -281,6 +284,8 @@ const SNAPSHOT_GROUP_DTO_ONLY = [
   'components', 'createdAt', 'updatedAt',
   // Server-computed rollups of the group's components, not desired state.
   'status', 'componentCount',
+  // Derived from which audiences hold the group. Not desired YAML state.
+  'audienceRestricted',
 ]
 
 describe('Snapshot ↔ DTO field parity', () => {

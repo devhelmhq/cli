@@ -32,6 +32,8 @@
 | `subscriberChannels` | "EMAIL" \| "SMS" \| "WEBHOOK" \| "TEAMS"[] |  | ✓ | Channels visitors can subscribe with (EMAIL, TEAMS, WEBHOOK); null preserves current |
 | `confirmPublic` | boolean |  | ✓ | Confirms making a sign-in page public, which signs out its viewers |
 | `confirmConvertSubscribers` | boolean |  | ✓ | Confirms making a page private converts its email subscribers to invited end users |
+| `unresolvedReminderMinutes` | integer (int32) |  | ✓ | Minutes without an update before the team is reminded (15–1440), 0 turns off; null preserves current |
+| `emailSender` | any |  | ✓ |  |
 
 ## `StatusPageDto` (response shape)
 
@@ -54,6 +56,8 @@
 | `openIncident` | any |  | ✓ |  |
 | `managedBy` | string |  | ✓ | Source that created/owns this status page: DASHBOARD, GIT, TERRAFORM, MCP or API. Null on pages created before this attribution column existed. |
 | `subscriberChannels` | string[] | ✓ |  | Channels visitors can subscribe with on the public page (EMAIL, TEAMS, WEBHOOK) |
+| `unresolvedReminderMinutes` | integer (int32) |  | ✓ | Minutes without an update before the team is reminded; null when reminders are off |
+| `emailSender` | StatusPageEmailSenderDto | ✓ |  |  |
 | `createdAt` | string (date-time) | ✓ |  |  |
 | `updatedAt` | string (date-time) | ✓ |  |  |
 

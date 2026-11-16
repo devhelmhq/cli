@@ -963,14 +963,21 @@ const dependencyHandler = defineHandler<YamlDependency, Schemas['ServiceSubscrip
 
 // ── Status Page ─────────────────────────────────────────────────────────
 
-type StatusPageSnapshot = {
-  name: string
-  slug: string
-  description: string | null
-  visibility: string
-  enabled: boolean
-  incidentMode: string
-  branding: Schemas['StatusPageBranding'] | null
+// Derived from the update request. One-shot acknowledgements and provenance
+// are not page state, so a new update field fails compilation here until the
+// snapshot functions assign it.
+type StatusPageSnapshot = Required<Omit<Schemas['UpdateStatusPageRequest'],
+  'managedBy' | 'clearEmailSignIn' | 'confirmPublic' | 'confirmConvertSubscribers'>>
+
+function emailSenderSnapshot(
+  sender: NonNullable<StatusPageSnapshot['emailSender']> | null | undefined,
+): NonNullable<StatusPageSnapshot['emailSender']> {
+  return {
+    senderDomainId: sender?.senderDomainId ?? null,
+    fromLocalPart: sender?.fromLocalPart ?? null,
+    fromName: sender?.fromName ?? null,
+    replyTo: sender?.replyTo ?? null,
+  }
 }
 
 /**
@@ -1470,11 +1477,14 @@ const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto']
 
   toDesiredSnapshot: (yaml, api) => ({
     name: yaml.name,
-    slug: yaml.slug,
     description: yaml.description ?? api.description ?? null,
     visibility: yaml.visibility ?? api.visibility ?? 'PUBLIC',
     enabled: yaml.enabled ?? api.enabled ?? true,
     incidentMode: yaml.incidentMode ?? api.incidentMode ?? 'AUTOMATIC',
+    emailSignIn: api.emailSignIn ?? null,
+    subscriberChannels: api.subscriberChannels ?? null,
+    unresolvedReminderMinutes: yaml.unresolvedReminderMinutes ?? api.unresolvedReminderMinutes ?? null,
+    emailSender: emailSenderSnapshot(yaml.emailSender ?? api.emailSender),
     // When YAML omits `branding`, adopt the current API value so diff stays
     // silent. When YAML provides it, that becomes the authoritative shape.
     branding: yaml.branding
@@ -1483,11 +1493,14 @@ const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto']
   }),
   toCurrentSnapshot: (api) => ({
     name: api.name ?? '',
-    slug: api.slug ?? '',
     description: api.description ?? null,
     visibility: api.visibility ?? 'PUBLIC',
     enabled: api.enabled ?? true,
     incidentMode: api.incidentMode ?? 'AUTOMATIC',
+    emailSignIn: api.emailSignIn ?? null,
+    subscriberChannels: api.subscriberChannels ?? null,
+    unresolvedReminderMinutes: api.unresolvedReminderMinutes ?? null,
+    emailSender: emailSenderSnapshot(api.emailSender),
     branding: normalizeBrandingForSnapshot(api.branding),
   }),
 

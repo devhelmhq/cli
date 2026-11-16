@@ -602,7 +602,13 @@ const AddIncidentUpdateRequest = z
 const CreateInviteRequest = z
   .object({
     email: z.string().min(1).email(),
-    roleOffered: z.enum(["OWNER", "ADMIN", "MEMBER"]),
+    roleOffered: z.enum([
+      "OWNER",
+      "ADMIN",
+      "MEMBER",
+      "INCIDENT_AUTHOR",
+      "VIEWER",
+    ]),
   })
   .strict();
 const CreateMaintenanceWindowRequest = z
@@ -626,7 +632,9 @@ const UpdateMaintenanceWindowRequest = z
   })
   .strict();
 const ChangeRoleRequest = z
-  .object({ orgRole: z.enum(["OWNER", "ADMIN", "MEMBER"]) })
+  .object({
+    orgRole: z.enum(["OWNER", "ADMIN", "MEMBER", "INCIDENT_AUTHOR", "VIEWER"]),
+  })
   .strict();
 const ChangeStatusRequest = z
   .object({
@@ -1500,6 +1508,7 @@ const CreateSsoConnectionRequest = z
   .object({
     name: z.string().min(0).max(120),
     signInScope: z.enum(["ROUTED_DOMAINS", "ANY_IDP_USER"]).nullish(),
+    provider: z.enum(["ENTRA", "OKTA", "GOOGLE", "OTHER"]).nullish(),
   })
   .strict();
 const UpdateSsoConnectionRequest = z
@@ -1509,6 +1518,7 @@ const UpdateSsoConnectionRequest = z
     spEntityId: z.string().nullable(),
     acsUrl: z.string().nullable(),
     signInScope: z.enum(["ROUTED_DOMAINS", "ANY_IDP_USER"]).nullable(),
+    provider: z.enum(["ENTRA", "OKTA", "GOOGLE", "OTHER"]).nullable(),
   })
   .partial()
   .strict();
@@ -1519,14 +1529,43 @@ const AddSsoDomainRequest = z
   .object({ domain: z.string().min(0).max(253) })
   .strict();
 const SetIdpMetadataRequest = z
-  .object({ xml: z.string().nullable(), url: z.string().nullable() })
+  .object({
+    xml: z.string().min(0).max(1048576).nullable(),
+    url: z.string().nullable(),
+  })
+  .partial()
+  .strict();
+const CreateOrgSsoRoleMappingRequest = z
+  .object({
+    idpGroup: z.string().min(0).max(256),
+    role: z.enum(["OWNER", "ADMIN", "MEMBER", "INCIDENT_AUTHOR", "VIEWER"]),
+  })
+  .strict();
+const PreviewOrgSsoRoleMappingRequest = z
+  .object({
+    mappingId: z.string().uuid(),
+    role: z
+      .enum(["OWNER", "ADMIN", "MEMBER", "INCIDENT_AUTHOR", "VIEWER"])
+      .nullish(),
+  })
+  .strict();
+const UpdateOrgSsoRoleMappingRequest = z
+  .object({
+    idpGroup: z.string().min(1).max(256).nullable(),
+    role: z
+      .enum(["OWNER", "ADMIN", "MEMBER", "INCIDENT_AUTHOR", "VIEWER"])
+      .nullable(),
+  })
   .partial()
   .strict();
 const UpdateOrgSsoSettingsRequest = z
   .object({
     enforced: z.boolean().nullable(),
     jitEnabled: z.boolean().nullable(),
-    defaultRole: z.enum(["OWNER", "ADMIN", "MEMBER"]).nullable(),
+    defaultRole: z
+      .enum(["OWNER", "ADMIN", "MEMBER", "INCIDENT_AUTHOR", "VIEWER"])
+      .nullable(),
+    groupAttribute: z.string().min(1).max(512).nullable(),
   })
   .partial()
   .strict();
@@ -1727,6 +1766,9 @@ const UpdateSecretRequest = z
 const WriteSecretEnvironmentValueRequest = z
   .object({ value: z.string().min(1) })
   .strict();
+const CreateSenderDomainRequest = z
+  .object({ domain: z.string().min(0).max(253) })
+  .strict();
 const UpdateAlertSensitivityRequest = z
   .object({
     alertSensitivity: z
@@ -1864,6 +1906,15 @@ const CreateStatusPageRequest = z
       .nullish(),
   })
   .strict();
+const StatusPageEmailSenderRequest = z
+  .object({
+    senderDomainId: z.string().uuid().nullable(),
+    fromLocalPart: z.string().min(0).max(64).nullable(),
+    fromName: z.string().min(0).max(100).nullable(),
+    replyTo: z.string().min(0).max(254).nullable(),
+  })
+  .partial()
+  .strict();
 const UpdateStatusPageRequest = z
   .object({
     name: z.string().min(0).max(255).nullable(),
@@ -1885,6 +1936,8 @@ const UpdateStatusPageRequest = z
       .nullable(),
     confirmPublic: z.boolean().nullable(),
     confirmConvertSubscribers: z.boolean().nullable(),
+    unresolvedReminderMinutes: z.number().int().nullable(),
+    emailSender: StatusPageEmailSenderRequest.nullable(),
   })
   .partial()
   .strict();
@@ -1932,7 +1985,7 @@ const SetStatusPageComponentOverrideRequest = z
       "UNDER_MAINTENANCE",
     ]),
     reason: z.string().min(0).max(2000).nullish(),
-    expiresAt: z.string().datetime({ offset: true }),
+    expiresAt: z.string().datetime({ offset: true }).nullish(),
   })
   .strict();
 const ComponentPosition = z
@@ -1946,6 +1999,9 @@ const ReorderComponentsRequest = z
   .object({ positions: z.array(ComponentPosition).min(1) })
   .strict();
 const BulkDeactivateEndUsersRequest = z
+  .object({ emails: z.array(z.string().min(0).max(320)).max(1000) })
+  .strict();
+const BulkSignOutEndUsersRequest = z
   .object({ emails: z.array(z.string().min(0).max(320)).max(1000) })
   .strict();
 const InviteStatusPageEndUsersRequest = z
@@ -1996,6 +2052,7 @@ const CreateStatusPageIncidentRequest = z
     backfill: z.boolean().nullish(),
     startedAt: z.string().datetime({ offset: true }).nullish(),
     resolvedAt: z.string().datetime({ offset: true }).nullish(),
+    audienceIds: z.array(z.string().uuid()).max(50).nullish(),
   })
   .strict();
 const UpdateStatusPageIncidentRequest = z
@@ -2022,6 +2079,7 @@ const UpdateStatusPageIncidentRequest = z
       .max(5)
       .nullable(),
     notifySubscribersOfPostmortem: z.boolean().nullable(),
+    audienceIds: z.array(z.string().uuid()).max(50).nullable(),
   })
   .partial()
   .strict();
@@ -2035,6 +2093,7 @@ const PublishStatusPageIncidentRequest = z
     body: z.string().nullable(),
     affectedComponents: z.array(AffectedComponent).nullable(),
     notifySubscribers: z.boolean().nullable(),
+    audienceIds: z.array(z.string().uuid()).max(50).nullable(),
   })
   .partial()
   .strict();
@@ -2092,6 +2151,7 @@ const CreateStatusPageMaintenanceRequest = z
       .array(z.number().int().gte(5).lte(20160))
       .max(5)
       .nullish(),
+    audienceIds: z.array(z.string().uuid()).max(50).nullish(),
   })
   .strict();
 const AdminAddSubscriberRequest = z
@@ -2309,6 +2369,28 @@ const UpdateWorkspaceRuntimeRequest = z
   })
   .partial()
   .strict();
+const CreateStatusPageAudienceRequest = z
+  .object({
+    name: z.string(),
+    componentIds: z.array(z.string().uuid()).nullish(),
+    componentGroupIds: z.array(z.string().uuid()).nullish(),
+    emails: z.array(z.string()).nullish(),
+    domains: z.array(z.string()).nullish(),
+  })
+  .strict();
+const UpdateStatusPageAudienceRequest = z
+  .object({
+    name: z.string().nullable(),
+    componentIds: z.array(z.string().uuid()).nullable(),
+    componentGroupIds: z.array(z.string().uuid()).nullable(),
+    emails: z.array(z.string()).nullable(),
+    domains: z.array(z.string()).nullable(),
+  })
+  .partial()
+  .strict();
+const SetStatusPageAudiencesRequest = z
+  .object({ audienceIds: z.array(z.string().uuid()).max(50) })
+  .strict();
 const AlertDeliveryDto = z
   .object({
     id: z.string().uuid(),
@@ -2510,6 +2592,7 @@ const MemberRoleChangedMetadata = z
     kind: z.literal("member_role_changed"),
     oldRole: z.string(),
     newRole: z.string(),
+    source: z.string().nullish(),
   })
   .passthrough();
 const EvidencePurgedMetadata = z
@@ -3822,6 +3905,15 @@ const StatusPageOpenIncidentSummaryDto = z
     updatedAt: z.string().datetime({ offset: true }),
   })
   .passthrough();
+const StatusPageEmailSenderDto = z
+  .object({
+    senderDomainId: z.string().uuid().nullable(),
+    fromLocalPart: z.string().nullable(),
+    fromName: z.string().nullable(),
+    replyTo: z.string().nullable(),
+  })
+  .partial()
+  .passthrough();
 const StatusPageDto = z
   .object({
     id: z.string().uuid(),
@@ -3841,6 +3933,8 @@ const StatusPageDto = z
     openIncident: StatusPageOpenIncidentSummaryDto.nullish(),
     managedBy: z.string().nullish(),
     subscriberChannels: z.array(z.string()),
+    unresolvedReminderMinutes: z.number().int().nullish(),
+    emailSender: StatusPageEmailSenderDto,
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
   })
@@ -4525,6 +4619,7 @@ const MemberDto = z
     email: z.string(),
     name: z.string().nullish(),
     orgRole: z.string(),
+    roleSource: z.string(),
     status: z.string(),
     createdAt: z.string().datetime({ offset: true }),
   })
@@ -4567,6 +4662,32 @@ const MonitorBatchHistoryItemDto = z
   .passthrough();
 const MonitorBatchHistoryDto = z
   .object({ monitors: z.array(MonitorBatchHistoryItemDto) })
+  .passthrough();
+const RegionStatusDto = z
+  .object({
+    region: z.string(),
+    passed: z.boolean(),
+    responseTimeMs: z.number().int().nullish(),
+    timestamp: z.string().datetime({ offset: true }),
+    severityHint: z.string().nullish(),
+    failureReason: z.string().nullish(),
+  })
+  .passthrough();
+const ResultSummaryDto = z
+  .object({
+    currentStatus: z.string(),
+    latestPerRegion: z.array(RegionStatusDto),
+    chartData: z.array(ChartBucketDto),
+    uptime24h: z.number().nullish(),
+    uptimeWindow: z.number().nullish(),
+    lastPingAt: z.string().datetime({ offset: true }).nullish(),
+  })
+  .passthrough();
+const MonitorBatchSummaryItemDto = z
+  .object({ id: z.string().uuid(), summary: ResultSummaryDto })
+  .passthrough();
+const MonitorBatchSummaryDto = z
+  .object({ monitors: z.array(MonitorBatchSummaryItemDto) })
   .passthrough();
 const MonitorDriftCodeDto = z
   .object({
@@ -4975,6 +5096,9 @@ const OfficialSla = z
   })
   .partial()
   .passthrough();
+const OrgSsoRoleMappingPreviewDto = z
+  .object({ changedMemberCount: z.number().int() })
+  .passthrough();
 const OrganizationDto = z
   .object({
     id: z.number().int(),
@@ -4985,12 +5109,22 @@ const OrganizationDto = z
     websiteUrl: z.string().nullish(),
   })
   .passthrough();
+const OrgSsoRoleMappingDto = z
+  .object({
+    id: z.string().uuid(),
+    idpGroup: z.string(),
+    role: z.string(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
 const OrgSsoSettingsDto = z
   .object({
     enforced: z.boolean(),
     jitEnabled: z.boolean(),
     defaultRole: z.string(),
     enforcementReady: z.boolean(),
+    groupAttribute: z.string(),
   })
   .passthrough();
 const OverviewStepCellDto = z
@@ -5062,16 +5196,6 @@ const RegionResultSeriesDto = z
     bucketSeconds: z.number().int(),
     previousUptimePercent: z.number().nullish(),
     regions: z.array(RegionSeriesDto),
-  })
-  .passthrough();
-const RegionStatusDto = z
-  .object({
-    region: z.string(),
-    passed: z.boolean(),
-    responseTimeMs: z.number().int().nullish(),
-    timestamp: z.string().datetime({ offset: true }),
-    severityHint: z.string().nullish(),
-    failureReason: z.string().nullish(),
   })
   .passthrough();
 const RelatedIncidentsResponse = z
@@ -5164,16 +5288,6 @@ const ResourceGroupDto = z
     managedBy: z.string().nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
-  })
-  .passthrough();
-const ResultSummaryDto = z
-  .object({
-    currentStatus: z.string(),
-    latestPerRegion: z.array(RegionStatusDto),
-    chartData: z.array(ChartBucketDto),
-    uptime24h: z.number().nullish(),
-    uptimeWindow: z.number().nullish(),
-    lastPingAt: z.string().datetime({ offset: true }).nullish(),
   })
   .passthrough();
 const RevisionDiffHunkDto = z
@@ -5379,6 +5493,19 @@ const SecretAuditDto = z
   .partial()
   .passthrough();
 const SecretUsageDto = z.object({ monitors: z.array(MonitorDto) }).passthrough();
+const SenderDomainDto = z
+  .object({
+    id: z.string().uuid(),
+    domain: z.string().min(1),
+    status: z.string(),
+    failureReason: z.string().nullish(),
+    records: z.array(EmailDnsRecordDto),
+    verifiedAt: z.string().datetime({ offset: true }).nullish(),
+    lastCheckedAt: z.string().datetime({ offset: true }).nullish(),
+    pendingSince: z.string().datetime({ offset: true }),
+    createdAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
 const SeoMetadataDto = z
   .object({
     shortDescription: z.string().nullable(),
@@ -5723,6 +5850,9 @@ const SingleValueResponseMonitorAuthDto = z
 const SingleValueResponseMonitorBatchHistoryDto = z
   .object({ data: MonitorBatchHistoryDto })
   .passthrough();
+const SingleValueResponseMonitorBatchSummaryDto = z
+  .object({ data: MonitorBatchSummaryDto })
+  .passthrough();
 const SingleValueResponseMonitorDriftDto = z
   .object({ data: MonitorDriftDto })
   .passthrough();
@@ -5778,8 +5908,14 @@ const SingleValueResponseNotificationDispatchDto = z
 const SingleValueResponseNotificationPolicyDto = z
   .object({ data: NotificationPolicyDto })
   .passthrough();
+const SingleValueResponseOrgSsoRoleMappingPreviewDto = z
+  .object({ data: OrgSsoRoleMappingPreviewDto })
+  .passthrough();
 const SingleValueResponseOrganizationDto = z
   .object({ data: OrganizationDto })
+  .passthrough();
+const SingleValueResponseOrgSsoRoleMappingDto = z
+  .object({ data: OrgSsoRoleMappingDto })
   .passthrough();
 const SingleValueResponseOrgSsoSettingsDto = z
   .object({ data: OrgSsoSettingsDto })
@@ -5838,6 +5974,9 @@ const SingleValueResponseSecretDto = z.object({ data: SecretDto }).passthrough()
 const SingleValueResponseSecretUsageDto = z
   .object({ data: SecretUsageDto })
   .passthrough();
+const SingleValueResponseSenderDomainDto = z
+  .object({ data: SenderDomainDto })
+  .passthrough();
 const SingleValueResponseServiceDayDetailDto = z
   .object({ data: ServiceDayDetailDto })
   .passthrough();
@@ -5892,6 +6031,7 @@ const SsoConnectionDto = z
     name: z.string(),
     enabled: z.boolean(),
     signInScope: z.string(),
+    provider: z.string().nullish(),
     spEntityId: z.string(),
     acsUrl: z.string(),
     acsChangedAt: z.string().datetime({ offset: true }).nullish(),
@@ -5971,6 +6111,7 @@ const StatusPageComponentDto = z
     startDate: z.string().datetime({ offset: true }).nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
+    audienceRestricted: z.boolean().optional().default(false),
   })
   .passthrough();
 const SingleValueResponseStatusPageComponentDto = z
@@ -5990,6 +6131,7 @@ const StatusPageComponentGroupDto = z
     componentCount: z.number().int().optional().default(0),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
+    audienceRestricted: z.boolean().optional().default(false),
   })
   .passthrough();
 const SingleValueResponseStatusPageComponentGroupDto = z
@@ -6029,6 +6171,16 @@ const StatusPageEndUserBulkDeactivationDto = z
 const SingleValueResponseStatusPageEndUserBulkDeactivationDto = z
   .object({ data: StatusPageEndUserBulkDeactivationDto })
   .passthrough();
+const StatusPageEndUserBulkSignOutDto = z
+  .object({
+    matched: z.number().int(),
+    unknown: z.number().int(),
+    unknownEmails: z.array(z.string()),
+  })
+  .passthrough();
+const SingleValueResponseStatusPageEndUserBulkSignOutDto = z
+  .object({ data: StatusPageEndUserBulkSignOutDto })
+  .passthrough();
 const StatusPageEndUserDto = z
   .object({
     id: z.string().uuid(),
@@ -6037,6 +6189,8 @@ const StatusPageEndUserDto = z
     status: z.string(),
     lastSignInAt: z.string().datetime({ offset: true }).nullish(),
     createdAt: z.string().datetime({ offset: true }),
+    source: z.string(),
+    ssoConnection: SsoConnectionDto.nullish(),
   })
   .passthrough();
 const SingleValueResponseStatusPageEndUserDto = z
@@ -6073,6 +6227,7 @@ const StatusPageGroupMemberDto = z
     slug: z.string().min(1),
     name: z.string().min(1),
     visibility: z.string(),
+    url: z.string().min(1),
   })
   .passthrough();
 const StatusPageGroupDto = z
@@ -6083,6 +6238,7 @@ const StatusPageGroupDto = z
     name: z.string().min(1),
     slug: z.string().min(1),
     mode: z.string(),
+    url: z.string().min(1),
     defaultStatusPageId: z.string().uuid().nullish(),
     members: z.array(StatusPageGroupMemberDto),
     customDomain: StatusPageCustomDomainDto.nullish(),
@@ -6138,6 +6294,7 @@ const StatusPageIncidentDto = z
     updates: z.array(StatusPageIncidentUpdateDto).nullish(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
+    audienceIds: z.array(z.string().uuid()),
   })
   .passthrough();
 const SingleValueResponseStatusPageIncidentDto = z
@@ -6196,6 +6353,83 @@ const StatusPageNotificationDeliveryDto = z
   .passthrough();
 const SingleValueResponseStatusPageNotificationDeliveryDto = z
   .object({ data: StatusPageNotificationDeliveryDto })
+  .passthrough();
+const StatusPageReportRowDto = z
+  .object({
+    id: z.string().uuid(),
+    kind: z.string(),
+    name: z.string().min(1),
+    uptimePercentage: z.number().nullish(),
+    trackedDays: z.number().int(),
+    downtimeMinutes: z.number().int(),
+    majorOutageMinutes: z.number().int(),
+    partialOutageMinutes: z.number().int(),
+    incidentCount: z.number().int(),
+    incidentIds: z.array(z.string().uuid()),
+  })
+  .passthrough();
+const StatusPageReportIncidentDto = z
+  .object({
+    id: z.string().uuid(),
+    title: z.string().min(1),
+    impact: z.string(),
+    status: z.string(),
+    startedAt: z.string().datetime({ offset: true }),
+    resolvedAt: z.string().datetime({ offset: true }).nullish(),
+    componentIds: z.array(z.string().uuid()),
+  })
+  .passthrough();
+const StatusPageReportGroupDto = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string().min(1),
+    componentIds: z.array(z.string().uuid()),
+    uptimePercentage: z.number().nullish(),
+    trackedDays: z.number().int(),
+    downtimeMinutes: z.number().int(),
+    majorOutageMinutes: z.number().int(),
+    partialOutageMinutes: z.number().int(),
+    incidentCount: z.number().int(),
+    incidentIds: z.array(z.string().uuid()),
+  })
+  .passthrough();
+const StatusPageReportComponentDto = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string().min(1),
+    groupId: z.string().uuid().nullish(),
+    uptimePercentage: z.number().nullish(),
+    trackedDays: z.number().int(),
+    downtimeMinutes: z.number().int(),
+    majorOutageMinutes: z.number().int(),
+    partialOutageMinutes: z.number().int(),
+    incidentCount: z.number().int(),
+    incidentIds: z.array(z.string().uuid()),
+  })
+  .passthrough();
+const StatusPageReportDto = z
+  .object({
+    from: z.string(),
+    to: z.string(),
+    groupBy: z.string(),
+    rows: z.array(StatusPageReportRowDto),
+    incidents: z.array(StatusPageReportIncidentDto),
+    groups: z.array(StatusPageReportGroupDto),
+    components: z.array(StatusPageReportComponentDto),
+  })
+  .passthrough();
+const SingleValueResponseStatusPageReportDto = z
+  .object({ data: StatusPageReportDto })
+  .passthrough();
+const StatusPageSenderTestDto = z
+  .object({
+    from: z.string().min(1),
+    replyTo: z.string().nullish(),
+    to: z.string().min(1),
+  })
+  .passthrough();
+const SingleValueResponseStatusPageSenderTestDto = z
+  .object({ data: StatusPageSenderTestDto })
   .passthrough();
 const StatusPageSubscriberBulkResultDto = z
   .object({
@@ -6661,6 +6895,15 @@ const TableValueResultNotificationPolicyDto = z
     totalPages: z.number().int().nullish(),
   })
   .passthrough();
+const TableValueResultOrgSsoRoleMappingDto = z
+  .object({
+    data: z.array(OrgSsoRoleMappingDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .passthrough();
 const TableValueResultResourceGroupDto = z
   .object({
     data: z.array(ResourceGroupDto),
@@ -6727,6 +6970,15 @@ const TableValueResultScheduledMaintenanceDto = z
 const TableValueResultSecretDto = z
   .object({
     data: z.array(SecretDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .passthrough();
+const TableValueResultSenderDomainDto = z
+  .object({
+    data: z.array(SenderDomainDto),
     hasNext: z.boolean(),
     hasPrev: z.boolean(),
     totalElements: z.number().int().nullish(),
@@ -6962,6 +7214,42 @@ const WebhookEventCatalogEntry = z
 const WebhookEventCatalogResponse = z
   .object({ data: z.array(WebhookEventCatalogEntry) })
   .passthrough();
+const StatusPageAudienceDto = z
+  .object({
+    id: z.string().uuid(),
+    statusPageId: z.string().uuid(),
+    name: z.string(),
+    componentIds: z.array(z.string().uuid()),
+    componentGroupIds: z.array(z.string().uuid()),
+    emails: z.array(z.string()),
+    domains: z.array(z.string()),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+    endUserCount: z.number().int(),
+  })
+  .passthrough();
+const SingleValueResponseStatusPageAudienceDto = z
+  .object({ data: StatusPageAudienceDto })
+  .passthrough();
+const TableValueResultStatusPageAudienceDto = z
+  .object({
+    data: z.array(StatusPageAudienceDto),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+    totalElements: z.number().int().nullish(),
+    totalPages: z.number().int().nullish(),
+  })
+  .passthrough();
+const StatusPageAudienceDeletePreviewDto = z
+  .object({
+    losingAccessCount: z.number().int(),
+    componentIds: z.array(z.string().uuid()),
+    componentGroupIds: z.array(z.string().uuid()),
+  })
+  .passthrough();
+const SingleValueResponseStatusPageAudienceDeletePreviewDto = z
+  .object({ data: StatusPageAudienceDeletePreviewDto })
+  .passthrough();
 
 export const schemas = {
   ErrorCategory,
@@ -7139,6 +7427,9 @@ export const schemas = {
   AddSsoCertificateRequest,
   AddSsoDomainRequest,
   SetIdpMetadataRequest,
+  CreateOrgSsoRoleMappingRequest,
+  PreviewOrgSsoRoleMappingRequest,
+  UpdateOrgSsoRoleMappingRequest,
   UpdateOrgSsoSettingsRequest,
   RetryStrategy,
   CreateResourceGroupRequest,
@@ -7163,6 +7454,7 @@ export const schemas = {
   CreateSecretRequest,
   UpdateSecretRequest,
   WriteSecretEnvironmentValueRequest,
+  CreateSenderDomainRequest,
   UpdateAlertSensitivityRequest,
   ServiceSubscribeRequest,
   CreateStatusPageGroupRequest,
@@ -7173,6 +7465,7 @@ export const schemas = {
   ReorderStatusPageGroupMembersRequest,
   StatusPageBranding,
   CreateStatusPageRequest,
+  StatusPageEmailSenderRequest,
   UpdateStatusPageRequest,
   UpdateStatusPageAccessPolicyRequest,
   CreateStatusPageComponentRequest,
@@ -7181,6 +7474,7 @@ export const schemas = {
   ComponentPosition,
   ReorderComponentsRequest,
   BulkDeactivateEndUsersRequest,
+  BulkSignOutEndUsersRequest,
   InviteStatusPageEndUsersRequest,
   StreamingResponseBody,
   CreateStatusPageComponentGroupRequest,
@@ -7218,6 +7512,9 @@ export const schemas = {
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
   UpdateWorkspaceRuntimeRequest,
+  CreateStatusPageAudienceRequest,
+  UpdateStatusPageAudienceRequest,
+  SetStatusPageAudiencesRequest,
   AlertDeliveryDto,
   NotificationDispatchDto,
   SkippedDispatch,
@@ -7383,6 +7680,7 @@ export const schemas = {
   Flakiness,
   StatusPageBrandingWireResponse,
   StatusPageOpenIncidentSummaryDto,
+  StatusPageEmailSenderDto,
   StatusPageDto,
   StatusPageBindingSnapshot,
   RestorableBinding,
@@ -7454,6 +7752,10 @@ export const schemas = {
   MonitorDisplayTickDto,
   MonitorBatchHistoryItemDto,
   MonitorBatchHistoryDto,
+  RegionStatusDto,
+  ResultSummaryDto,
+  MonitorBatchSummaryItemDto,
+  MonitorBatchSummaryDto,
   MonitorDriftCodeDto,
   MonitorDriftFieldDto,
   MonitorDriftSettingDto,
@@ -7496,7 +7798,9 @@ export const schemas = {
   NotificationPolicyWindowStatsDto,
   NotificationPolicyDto,
   OfficialSla,
+  OrgSsoRoleMappingPreviewDto,
   OrganizationDto,
+  OrgSsoRoleMappingDto,
   OrgSsoSettingsDto,
   OverviewStepCellDto,
   OverviewStepDto,
@@ -7507,7 +7811,6 @@ export const schemas = {
   RegionDto,
   RegionSeriesDto,
   RegionResultSeriesDto,
-  RegionStatusDto,
   RelatedIncidentsResponse,
   ResourceGroupDeleteBlockerDto,
   RetryStrategyWireResponse,
@@ -7515,7 +7818,6 @@ export const schemas = {
   ResourceGroupMemberIncidentMarkDto,
   ResourceGroupMemberDto,
   ResourceGroupDto,
-  ResultSummaryDto,
   RevisionDiffHunkDto,
   RevisionDiffDto,
   RevisionFilesDto,
@@ -7538,6 +7840,7 @@ export const schemas = {
   ScheduledMaintenanceDto,
   SecretAuditDto,
   SecretUsageDto,
+  SenderDomainDto,
   SeoMetadataDto,
   ServiceBreakdown,
   ServiceComponentDto,
@@ -7598,6 +7901,7 @@ export const schemas = {
   SingleValueResponseMonitorAssertionDto,
   SingleValueResponseMonitorAuthDto,
   SingleValueResponseMonitorBatchHistoryDto,
+  SingleValueResponseMonitorBatchSummaryDto,
   SingleValueResponseMonitorDriftDto,
   SingleValueResponseMonitorDto,
   SingleValueResponseMonitorFleetSummaryDto,
@@ -7617,7 +7921,9 @@ export const schemas = {
   SingleValueResponseNetworkRowDto,
   SingleValueResponseNotificationDispatchDto,
   SingleValueResponseNotificationPolicyDto,
+  SingleValueResponseOrgSsoRoleMappingPreviewDto,
   SingleValueResponseOrganizationDto,
+  SingleValueResponseOrgSsoRoleMappingDto,
   SingleValueResponseOrgSsoSettingsDto,
   SingleValueResponseOverviewStepsDto,
   SingleValueResponsePolicySnapshotDto,
@@ -7639,6 +7945,7 @@ export const schemas = {
   SingleValueResponseSecretAuditDto,
   SingleValueResponseSecretDto,
   SingleValueResponseSecretUsageDto,
+  SingleValueResponseSenderDomainDto,
   SingleValueResponseServiceDayDetailDto,
   SingleValueResponseServiceDetailDto,
   SingleValueResponseServiceIncidentDetailDto,
@@ -7668,6 +7975,8 @@ export const schemas = {
   SingleValueResponseStatusPageDto,
   StatusPageEndUserBulkDeactivationDto,
   SingleValueResponseStatusPageEndUserBulkDeactivationDto,
+  StatusPageEndUserBulkSignOutDto,
+  SingleValueResponseStatusPageEndUserBulkSignOutDto,
   StatusPageEndUserDto,
   SingleValueResponseStatusPageEndUserDto,
   StatusPageEndUserInviteDto,
@@ -7690,6 +7999,14 @@ export const schemas = {
   SingleValueResponseStatusPageMonthlyUptimeDto,
   StatusPageNotificationDeliveryDto,
   SingleValueResponseStatusPageNotificationDeliveryDto,
+  StatusPageReportRowDto,
+  StatusPageReportIncidentDto,
+  StatusPageReportGroupDto,
+  StatusPageReportComponentDto,
+  StatusPageReportDto,
+  SingleValueResponseStatusPageReportDto,
+  StatusPageSenderTestDto,
+  SingleValueResponseStatusPageSenderTestDto,
   StatusPageSubscriberBulkResultDto,
   SingleValueResponseStatusPageSubscriberBulkResultDto,
   StatusPageSubscriberDto,
@@ -7755,6 +8072,7 @@ export const schemas = {
   TableValueResultNotificationDispatchDto,
   TableValueResultNotificationDto,
   TableValueResultNotificationPolicyDto,
+  TableValueResultOrgSsoRoleMappingDto,
   TableValueResultResourceGroupDto,
   TableValueResultRevisionDto,
   TableValueResultRuleEvaluationDto,
@@ -7763,6 +8081,7 @@ export const schemas = {
   TableValueResultRuntimeProfileDto,
   TableValueResultScheduledMaintenanceDto,
   TableValueResultSecretDto,
+  TableValueResultSenderDomainDto,
   TableValueResultServiceComponentDto,
   TableValueResultServiceIncidentDto,
   TableValueResultServiceSubscriptionDto,
@@ -7791,5 +8110,10 @@ export const schemas = {
   WaitWebhookEventResponse,
   WebhookEventCatalogEntry,
   WebhookEventCatalogResponse,
+  StatusPageAudienceDto,
+  SingleValueResponseStatusPageAudienceDto,
+  TableValueResultStatusPageAudienceDto,
+  StatusPageAudienceDeletePreviewDto,
+  SingleValueResponseStatusPageAudienceDeletePreviewDto,
 };
 
