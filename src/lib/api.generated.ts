@@ -4432,7 +4432,8 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
+        /** Change the key of a page in the group */
+        put: operations["updateStatusPageGroupMember"];
         post?: never;
         /** Remove a status page from the group */
         delete: operations["removeStatusPageGroupMember"];
@@ -4810,6 +4811,23 @@ export interface paths {
         };
         /** List end users of a status page */
         get: operations["listStatusPageEndUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/end-users/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Count end users by status and sign-ins over the last 7 days */
+        get: operations["getStatusPageEndUserStats"];
         put?: never;
         post?: never;
         delete?: never;
@@ -15204,6 +15222,46 @@ export interface components {
         SingleValueResponseStatusPageEndUserBulkSignOutDto: {
             data: components["schemas"]["StatusPageEndUserBulkSignOutDto"];
         };
+        StatusPageEndUserStatsDto: {
+            /**
+             * Format: int64
+             * @description End users who may sign in
+             */
+            active: number;
+            /**
+             * Format: int64
+             * @description Active end users who sign in through SSO
+             */
+            activeSso: number;
+            /**
+             * Format: int64
+             * @description End users invited who have not signed in yet
+             */
+            invited: number;
+            /**
+             * Format: int64
+             * @description Invites whose link has expired
+             */
+            expiredInvites: number;
+            /**
+             * Format: int64
+             * @description End users who may not sign in
+             */
+            deactivated: number;
+            /**
+             * Format: int64
+             * @description Successful sign-ins in the last 7 days
+             */
+            signIns: number;
+            /**
+             * Format: int64
+             * @description Failed sign-ins in the last 7 days
+             */
+            failedSignIns: number;
+        };
+        SingleValueResponseStatusPageEndUserStatsDto: {
+            data: components["schemas"]["StatusPageEndUserStatsDto"];
+        };
         SingleValueResponseStatusPageEndUserDto: {
             data: components["schemas"]["StatusPageEndUserDto"];
         };
@@ -18171,6 +18229,10 @@ export interface components {
              * @description Date from which to start showing uptime; null preserves current. Bars never extend earlier than the underlying monitor's createdAt regardless of value
              */
             startDate?: string | null;
+        };
+        UpdateStatusPageGroupMemberRequest: {
+            /** @description New key that selects this page inside the group, e.g. eu (1-32 characters) */
+            key: string;
         };
         UpdateStatusPageGroupRequest: {
             /** @description New name; null preserves current */
@@ -57010,6 +57072,135 @@ export interface operations {
             };
         };
     };
+    updateStatusPageGroupMember: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                statusPageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusPageGroupMemberRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageGroupDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     removeStatusPageGroupMember: {
         parameters: {
             query?: never;
@@ -57893,6 +58084,8 @@ export interface operations {
                 eventType?: "SIGN_IN_SUCCEEDED" | "SIGN_IN_FAILED" | "SIGN_OUT" | "SESSION_REVOKED";
                 from?: string;
                 to?: string;
+                /** @description Only sign-ins through this SSO connection */
+                connectionId?: string;
                 cursor?: string;
                 limit?: number;
             };
@@ -61086,6 +61279,130 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["TableValueResultStatusPageEndUserDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStatusPageEndUserStats: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageEndUserStatsDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
