@@ -3064,23 +3064,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/orgs/{orgId}/sso/role-mappings/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Count the members whose role a mapping change or removal would change */
-        post: operations["previewOrgSsoRoleMapping"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/orgs/{orgId}/sso/role-mappings/{mappingId}": {
         parameters: {
             query?: never;
@@ -3097,6 +3080,23 @@ export interface paths {
         head?: never;
         /** Change an IdP group to role mapping */
         patch: operations["updateOrgSsoRoleMapping"];
+        trace?: never;
+    };
+    "/api/v1/orgs/{orgId}/sso/role-mappings/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Count the members whose role a mapping change or removal would change */
+        post: operations["previewOrgSsoRoleMapping"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/orgs/{orgId}/sso/sessions": {
@@ -4547,6 +4547,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/status-pages/{id}/audiences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List audiences of a status page */
+        get: operations["listStatusPageAudiences"];
+        put?: never;
+        /** Create an audience */
+        post: operations["createStatusPageAudience"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/audiences/{audienceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an audience */
+        get: operations["getStatusPageAudience"];
+        /** Change an audience */
+        put: operations["updateStatusPageAudience"];
+        post?: never;
+        /** Delete an audience */
+        delete: operations["deleteStatusPageAudience"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/audiences/{audienceId}/delete-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Preview who loses access when an audience is deleted */
+        get: operations["previewStatusPageAudienceDelete"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/status-pages/{id}/components": {
         parameters: {
             query?: never;
@@ -4578,6 +4632,23 @@ export interface paths {
         post?: never;
         /** Remove a component from the status page */
         delete: operations["deleteComponent"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/components/{componentId}/audiences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set which audiences see a component */
+        put: operations["setStatusPageComponentAudiences"];
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -4901,26 +4972,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/status-pages/{id}/export/reports": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Download a status page report as CSV or JSON
-         * @description One row per component or component group, as in GET /reports. Each page allows 6 report exports an hour; more get 429 RATE_LIMITED. Every export is audited.
-         */
-        get: operations["exportStatusPageReport"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/status-pages/{id}/end-users/sessions": {
         parameters: {
             query?: never;
@@ -4938,6 +4989,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/status-pages/{id}/export/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download status page data (subscribers) as CSV or JSON
+         * @description Needs the status_pages:notify scope. Each page allows 60 exports an hour; more get 429 RATE_LIMITED. Every export is audited when it starts and again when it finishes.
+         */
+        get: operations["exportStatusPageData"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/status-pages/{id}/export/end-users": {
         parameters: {
             query?: never;
@@ -4947,7 +5018,7 @@ export interface paths {
         };
         /**
          * Download a private status page's viewers as CSV or JSON
-         * @description Needs an org admin or the status_pages:access_admin scope. Each page allows 6 viewer exports an hour; more get 429 RATE_LIMITED. Every export is audited.
+         * @description Needs an org admin or the status_pages:access_admin scope. Each page allows 60 viewer exports an hour; more get 429 RATE_LIMITED. Every export is audited.
          */
         get: operations["exportStatusPageEndUsers"];
         put?: never;
@@ -4967,7 +5038,7 @@ export interface paths {
         };
         /**
          * Download a status page's incidents and their updates as CSV or JSON
-         * @description One row per update, with the incident's fields on every row. Each page allows 6 incident exports an hour; more get 429 RATE_LIMITED. Every export is audited.
+         * @description One row per update, with the incident's fields on every row. Each page allows 60 incident exports an hour; more get 429 RATE_LIMITED. Every export is audited.
          */
         get: operations["exportStatusPageIncidents"];
         put?: never;
@@ -4987,7 +5058,7 @@ export interface paths {
         };
         /**
          * Download a status page's maintenance windows and their updates as CSV or JSON
-         * @description One row per update, with the window's fields on every row. Each page allows 6 maintenance exports an hour; more get 429 RATE_LIMITED. Every export is audited.
+         * @description One row per update, with the window's fields on every row. Each page allows 60 maintenance exports an hour; more get 429 RATE_LIMITED. Every export is audited.
          */
         get: operations["exportStatusPageMaintenance"];
         put?: never;
@@ -4998,7 +5069,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/status-pages/{id}/export/{kind}": {
+    "/api/v1/status-pages/{id}/export/reports": {
         parameters: {
             query?: never;
             header?: never;
@@ -5006,10 +5077,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Download status page data (subscribers) as CSV or JSON
-         * @description Needs the status_pages:notify scope. Each page allows 6 exports an hour; more get 429 RATE_LIMITED. Every export is audited when it starts and again when it finishes.
+         * Download a status page report as CSV or JSON
+         * @description One row per checked group or component, in page order, as in GET /reports; nothing checked exports every row. Each page allows 60 report exports an hour; more get 429 RATE_LIMITED. Every export is audited.
          */
-        get: operations["exportStatusPageData"];
+        get: operations["exportStatusPageReport"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5049,6 +5120,23 @@ export interface paths {
         post?: never;
         /** Delete a component group (components become ungrouped) */
         delete: operations["deleteGroup"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/status-pages/{id}/groups/{groupId}/audiences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set which audiences see a component group */
+        put: operations["setStatusPageGroupAudiences"];
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -5348,8 +5436,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Uptime, downtime and incidents per component or component group over a date range
-         * @description The range is in UTC days, at most 366 days long, and defaults to the last 30 days. The same report downloads as CSV or JSON from /export/reports.
+         * Uptime, downtime and incidents per component group and component over a date range
+         * @description Groups and components come in page order. The range is in UTC days, at most 366 days long, within the last 730 days and not in the future; it defaults to the last 30 days. The same report downloads as CSV or JSON from /export/reports.
          */
         get: operations["getStatusPageReport"];
         put?: never;
@@ -6234,94 +6322,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/status-pages/{id}/audiences": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List audiences of a status page */
-        get: operations["listStatusPageAudiences"];
-        put?: never;
-        /** Create an audience */
-        post: operations["createStatusPageAudience"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/status-pages/{id}/audiences/{audienceId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get an audience */
-        get: operations["getStatusPageAudience"];
-        /** Change an audience */
-        put: operations["updateStatusPageAudience"];
-        post?: never;
-        /** Delete an audience */
-        delete: operations["deleteStatusPageAudience"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/status-pages/{id}/audiences/{audienceId}/delete-preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Preview who loses access when an audience is deleted */
-        get: operations["previewStatusPageAudienceDelete"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/status-pages/{id}/components/{componentId}/audiences": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Set which audiences see a component */
-        put: operations["setStatusPageComponentAudiences"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/status-pages/{id}/groups/{groupId}/audiences": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Set which audiences see a component group */
-        put: operations["setStatusPageGroupAudiences"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -6925,10 +6925,6 @@ export interface components {
             /** @description Emails to deactivate (1–1000) */
             emails: string[];
         };
-        BulkSignOutEndUsersRequest: {
-            /** @description Emails to sign out everywhere (1–1000) */
-            emails: string[];
-        };
         BulkDeleteSubscribersRequest: {
             /** @description Subscriber IDs to remove (1–1000); IDs not on this page are reported, not removed */
             subscriberIds: string[];
@@ -6959,6 +6955,10 @@ export interface components {
             succeeded: string[];
             /** @description Monitors on which the action failed, with the reason for each failure */
             failed: components["schemas"]["FailureDetail"][];
+        };
+        BulkSignOutEndUsersRequest: {
+            /** @description Emails to sign out everywhere (1–1000) */
+            emails: string[];
         };
         BulkUpdateSubscriberScopeRequest: {
             /** @description Subscriber IDs to change (1–1000); IDs not on this page are reported, not changed */
@@ -7804,6 +7804,19 @@ export interface components {
              * @enum {string|null}
              */
             provider?: "ENTRA" | "OKTA" | "GOOGLE" | "OTHER" | null;
+        };
+        /** @description Create an audience on a private status page */
+        CreateStatusPageAudienceRequest: {
+            /** @description Audience name, unique on the page (1–100 characters) */
+            name: string;
+            /** @description Components of this page only the audience sees */
+            componentIds?: string[] | null;
+            /** @description Component groups of this page only the audience sees */
+            componentGroupIds?: string[] | null;
+            /** @description Viewer emails in the audience, matched ignoring case */
+            emails?: string[] | null;
+            /** @description Email domains whose viewers are in the audience, e.g. acme.com */
+            domains?: string[] | null;
         };
         CreateStatusPageComponentGroupRequest: {
             /** @description Group display name */
@@ -9125,7 +9138,7 @@ export interface components {
              * @description Import validation code
              * @enum {string}
              */
-            code: "MONITOR_CONFIG_TYPE_MISMATCH" | "MONITOR_FREQUENCY_BELOW_PLAN_MIN" | "MONITOR_LIMIT_REACHED" | "MONITOR_AUTH_TYPE_UNSUPPORTED" | "MONITOR_HEARTBEAT_REGIONS_NOT_SUPPORTED" | "MONITOR_HEARTBEAT_INTERVAL_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_EXCEEDS_INTERVAL" | "MONITOR_HTTP_HEADERS_TOO_MANY" | "MONITOR_HTTP_HEADER_RESERVED" | "MONITOR_HTTP_BODY_METHOD_INVALID" | "MONITOR_HTTP_BODY_TOO_LARGE" | "MONITOR_ASSERTION_TYPE_NOT_ALLOWED" | "MONITOR_ALERT_CHANNEL_NOT_FOUND" | "MONITOR_TAGS_ADD_INVALID" | "MONITOR_TAGS_REMOVE_INVALID" | "MONITOR_TOKEN_ROTATION_HEARTBEAT_ONLY" | "MONITOR_CODE_CHECK_NOT_AVAILABLE" | "MONITOR_CODE_CHECK_LIMIT_REACHED" | "MONITOR_CODE_CHECK_REGION_UNAVAILABLE" | "MONITOR_CODE_CHECK_TEST_UNAVAILABLE" | "MONITOR_TEST_BUNDLE_UNAVAILABLE" | "MONITOR_BROWSER_CHECKS_DISABLED" | "MONITOR_ENVIRONMENT_REQUIRED" | "MONITOR_ENVIRONMENT_CLEAR_FORBIDDEN" | "MONITOR_PACKAGE_XOR_DEFINITION" | "MONITOR_PACKAGE_DIGEST_INVALID" | "MONITOR_PACKAGE_NOT_SUPPORTED" | "MONITOR_PACKAGE_PATH_INVALID" | "MONITOR_PACKAGE_CONCURRENT" | "MONITOR_DEFINITION_HAS_NO_REVISION" | "MONITOR_DEFINITION_IN_USE" | "MONITOR_STATUS_NOT_WRITABLE" | "MONITOR_PAUSED" | "MONITOR_OVERLAY_EXPIRES_IN_PAST" | "MONITOR_QUARANTINE_FIELDS_REQUIRED" | "MONITOR_MANAGED_BY_TAKEOVER_REQUIRED" | "MONITOR_HISTORY_PARAM_INVALID" | "MONITOR_TAKEOVER_FIELD_UNKNOWN" | "MONITOR_CAPTURE_POLICY_INVALID" | "MONITOR_RUN_PARALLEL_CODE_ONLY" | "REVISION_PACKAGE_BYTES_UNAVAILABLE" | "MONITOR_CODE_TYPE_REQUIRED" | "MONITOR_DEFINITION_REQUIRED" | "REVISION_NOT_ON_DEFINITION" | "REVISION_DIFF_CROSS_DEFINITION" | "DEFINITION_HEAD_INCOMPLETE" | "MONITOR_ASSERTION_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_ALREADY_EXISTS" | "MONITOR_AUTH_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_VAULT_FOREIGN_ORG" | "ALERT_CHANNEL_DISABLED" | "ALERT_CHANNEL_PLAN_REQUIRED" | "ALERT_CHANNEL_TYPE_IMMUTABLE" | "ALERT_CHANNEL_CONFIG_INVALID" | "ALERT_CHANNEL_SLACK_WEBHOOK_INVALID" | "ALERT_CHANNEL_DISCORD_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "ALERT_CHANNEL_TEAMS_WEBHOOK_HOST" | "ALERT_CHANNEL_WEBHOOK_URL_INVALID" | "ALERT_CHANNEL_WEBHOOK_HEADER_RESERVED" | "ALERT_CHANNEL_OPSGENIE_REGION_INVALID" | "ALERT_CHANNEL_PAGERDUTY_SEVERITY_INVALID" | "ALERT_CHANNEL_GOOGLE_CHAT_WEBHOOK_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_UNVERIFIED" | "ALERT_CHANNEL_PHONE_NUMBERS_COUNT_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_REQUIRED" | "ALERT_CHANNEL_VERIFIED_PHONE_NOT_FOUND" | "ALERT_CHANNEL_PHONE_DESTINATION_MISMATCH" | "ALERT_CHANNEL_VOICE_LANGUAGE_INVALID" | "NOTIFICATION_POLICY_RULE_TYPE_REQUIRED" | "NOTIFICATION_POLICY_RULE_TYPE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUE_REQUIRED" | "NOTIFICATION_POLICY_RULE_VALUE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUES_REQUIRED" | "NOTIFICATION_POLICY_RULE_MONITOR_IDS_REQUIRED" | "NOTIFICATION_POLICY_RULE_REGIONS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_INVALID" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_CONFLICT" | "NOTIFICATION_POLICY_ESCALATION_REQUIRED" | "NOTIFICATION_POLICY_STEPS_REQUIRED" | "NOTIFICATION_POLICY_ON_RESOLVE_INVALID" | "NOTIFICATION_POLICY_ON_REOPEN_INVALID" | "NOTIFICATION_POLICY_STEP_CHANNELS_EMPTY" | "NOTIFICATION_POLICY_STEP_DELAY_NEGATIVE" | "NOTIFICATION_POLICY_STEP_DELAY_TOO_LARGE" | "NOTIFICATION_POLICY_STEP_REPEAT_INVALID" | "NOTIFICATION_POLICY_STEP_REPEAT_TOO_LARGE" | "NOTIFICATION_POLICY_STEPS_TOO_MANY" | "NOTIFICATION_POLICY_STEP_CHANNEL_NOT_FOUND" | "NOTIFICATION_POLICY_DELETE_BLOCKED" | "MONITOR_POLICY_TRIGGER_RULES_EMPTY" | "MONITOR_POLICY_RULE_TYPE_REQUIRED" | "MONITOR_POLICY_RULE_SEVERITY_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_TYPE_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REGIONS_TOO_FEW" | "MONITOR_POLICY_CONFIRMATION_WAIT_TOO_SHORT" | "MONITOR_POLICY_CONFIRMATION_WAIT_BELOW_INVARIANT" | "MONITOR_POLICY_RECOVERY_REQUIRED" | "MONITOR_POLICY_RECOVERY_SUCCESSES_TOO_FEW" | "MONITOR_POLICY_RECOVERY_REGIONS_TOO_FEW" | "MONITOR_POLICY_RECOVERY_COOLDOWN_OUT_OF_RANGE" | "MONITOR_POLICY_FIELD_REQUIRED" | "MONITOR_POLICY_FIELD_NOT_POSITIVE" | "MONITOR_POLICY_FIELD_OUT_OF_RANGE" | "URL_INVALID" | "URL_SCHEME_UNSUPPORTED" | "URL_HOST_REQUIRED" | "URL_HOST_PRIVATE" | "RESOURCE_GROUP_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_ALREADY_PRESENT" | "RESOURCE_GROUP_MEMBER_TYPE_INVALID" | "RESOURCE_GROUP_THRESHOLD_VALUE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_TYPE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_OUT_OF_RANGE" | "RESOURCE_GROUP_SLUG_GENERATION_FAILED" | "STATUS_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SLUG_TAKEN" | "STATUS_PAGE_SLUG_REQUIRED" | "STATUS_PAGE_SLUG_RESERVED" | "STATUS_PAGE_VISIBILITY_UNSUPPORTED" | "STATUS_PAGE_VISIBILITY_CHANGE_UI_ONLY" | "STATUS_PAGE_LOGIN_REQUIRED" | "STATUS_PAGE_FEATURE_PLAN_REQUIRED" | "STATUS_PAGE_HOSTNAME_FIRST_PARTY_RESERVED" | "STATUS_PAGE_HOSTNAME_TLD_RESERVED" | "STATUS_PAGE_HOSTNAME_TAKEN" | "STATUS_PAGE_DOMAIN_NOT_VERIFIED" | "STATUS_PAGE_COMPONENT_GROUP_NOT_FOUND" | "STATUS_PAGE_COMPONENT_MONITOR_REQUIRED" | "STATUS_PAGE_COMPONENT_GROUP_REQUIRED" | "STATUS_PAGE_COMPONENT_STATIC_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REQUIRED" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_NOT_FOUND" | "STATUS_PAGE_COMPONENT_DEPENDENCY_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REFS_INVALID" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_NOT_FAILED" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_TERMINAL" | "STATUS_PAGE_MEASURED_UPTIME_MONITOR_ONLY" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_IN_PAST" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_EXCEEDS_MAX" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_REQUIRED" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_INVALID" | "STATUS_PAGE_SUBSCRIBER_COMPONENT_NOT_FOUND" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_INVALID" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_NOT_PUBLIC" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_UNSUPPORTED" | "STATUS_PAGE_UPTIME_WINDOW_INCOMPLETE" | "STATUS_PAGE_UPTIME_FROM_AFTER_TO" | "STATUS_PAGE_UPTIME_FROM_IN_FUTURE" | "STATUS_PAGE_UPTIME_FROM_TOO_OLD" | "STATUS_PAGE_UPTIME_WINDOW_TOO_WIDE" | "STATUS_PAGE_GROUP_KEY_RESERVED" | "STATUS_PAGE_GROUP_KEY_TAKEN" | "STATUS_PAGE_ALREADY_IN_GROUP" | "STATUS_PAGE_GROUP_REORDER_MISMATCH" | "STATUS_PAGE_GROUP_EMPTY" | "STATUS_PAGE_GROUP_DOMAIN_EXISTS" | "SP_INCIDENT_PUBLISH_RESOLVED" | "SP_INCIDENT_DISMISS_PUBLISHED" | "SP_INCIDENT_SCHEDULED_FOR_REQUIRED" | "SP_INCIDENT_SCHEDULED_UNTIL_BEFORE_FOR" | "SP_INCIDENT_AUTO_RESOLVE_REQUIRES_UNTIL" | "SP_INCIDENT_COMPONENT_FOREIGN" | "SP_INCIDENT_MONITORING_INCIDENT_NOT_FOUND" | "SUBSCRIPTION_PRICE_INACTIVE" | "SUBSCRIPTION_PRICE_UNAVAILABLE" | "SUBSCRIPTION_ALREADY_ACTIVE" | "SUBSCRIPTION_NOT_ACTIVE" | "SUBSCRIPTION_NO_SCHEDULED_CHANGE" | "SUBSCRIPTION_CHANGE_PENDING" | "SUBSCRIPTION_CANCELING" | "SUBSCRIPTION_CADENCE_UNAVAILABLE" | "SUBSCRIPTION_PRICES_INVALID" | "BILLING_OVERAGE_CAP_INVALID" | "BILLING_OVERAGE_NOT_ACTIVE" | "SERVICE_SUBSCRIPTION_FREE_TIER_LIMIT" | "SERVICE_SUBSCRIPTION_SERVICE_UNAVAILABLE" | "ACTOR_BAD_REQUEST" | "ORGANIZATION_ID_REQUIRED" | "WORKSPACE_REQUIRED" | "WORKSPACE_INTERNAL_ACTOR_NO_WORKSPACE" | "WORKSPACE_NOT_FOUND_ON_ORG" | "ENVIRONMENT_LIMIT_REACHED" | "ENVIRONMENT_SLUG_TAKEN" | "ENVIRONMENT_DELETE_BLOCKED" | "INBOUND_INBOX_NAME_BLANK" | "INBOUND_HTTP_RESPONSE_DELAY_INVALID" | "INBOUND_HTTP_RESPONSE_STATUS_INVALID" | "INBOUND_HTTP_RESPONSE_BODY_TOO_LARGE" | "INBOUND_HTTP_RESPONSE_BODY_INVALID" | "INBOUND_HTTP_RESPONSE_CONTENT_TYPE_INVALID" | "INBOUND_HTTP_RESPONSE_HEADERS_INVALID" | "INBOUND_EVENTS_CURSOR_INVALID" | "INBOUND_EVENTS_LIMIT_OUT_OF_RANGE" | "INBOUND_DOMAIN_CUSTOM_NAME_REQUIRED" | "INBOUND_DOMAIN_IN_ASSIGNED_ZONE" | "INBOUND_DOMAIN_NAME_TAKEN" | "INBOUND_DOMAIN_KIND_INVALID" | "INBOUND_DOMAIN_STATUS_INVALID" | "INBOUND_DOMAIN_NAME_INVALID" | "INBOUND_INJECT_TO_BLANK" | "INBOUND_INJECT_FROM_BLANK" | "INBOUND_INJECT_DOMAIN_DISABLED" | "INBOUND_INJECT_TO_INVALID" | "INBOUND_INJECT_FROM_INVALID" | "INBOUND_INJECT_HEADER_INVALID" | "INBOUND_WAIT_TO_REQUIRED" | "INBOUND_WAIT_TO_INVALID" | "INBOUND_WAIT_DOMAIN_REQUIRED" | "INBOUND_WEBHOOK_INBOX_LIMIT_REACHED" | "INBOUND_EMAIL_DOMAIN_LIMIT_REACHED" | "INBOUND_CUSTOM_MX_PLAN_REQUIRED" | "INBOUND_RETENTION_ABOVE_PLAN" | "INBOUND_EVENTS_MONTHLY_LIMIT_REACHED" | "INBOUND_ACTIVITY_INBOX_IDS_REQUIRED" | "INBOUND_ACTIVITY_INBOX_IDS_TOO_MANY" | "INBOUND_ACTIVITY_DOMAIN_IDS_REQUIRED" | "INBOUND_ACTIVITY_DOMAIN_IDS_TOO_MANY" | "TAG_NAME_TAKEN" | "SAVED_VIEW_TABLE_UNKNOWN" | "SAVED_VIEW_LIMIT_REACHED" | "SAVED_VIEW_FILTERS_TOO_LARGE" | "SECRET_KEY_TAKEN" | "SECRET_ENVIRONMENT_VALUE_BLANK" | "SECRET_REQUEST_ENVIRONMENT_QUERY" | "SECRET_REQUEST_HEAD_REQUIRED" | "SECRET_REQUEST_REMAP_SECRET_ID" | "SESSION_SETUP_FILE_BLANK" | "SESSION_HEAD_REQUIRED" | "RUN_NO_HEAD" | "RUN_KEYS_MISSING" | "SYNTHETICS_USAGE_CAPPED" | "SCHEDULE_TICK_COVERED" | "RUN_LIST_PARAM_INVALID" | "ARTIFACT_BYTES_TOO_LARGE" | "SUPERVISOR_TOKEN_INVALID" | "LEASE_COMPLETION_CONFLICT" | "LEASE_FENCE_REJECTED" | "CAPACITY_TARGET_INVALID" | "ADMISSIONS_NOT_HELD" | "RUNTIME_UNKNOWN" | "RUNTIME_RETIRED" | "RUNTIME_NOT_AVAILABLE" | "RUNTIME_UNAVAILABLE" | "RUNTIME_NO_CAPACITY" | "RUNTIME_NO_ROUTE" | "ROLLOUT_CANARY_MISSING" | "RUNTIME_EOL" | "RUNTIME_AMBIGUOUS" | "RUNTIME_DIGEST_IMMUTABLE" | "RUNTIME_DIGEST_INVALID" | "API_KEY_LIMIT_REACHED" | "API_KEY_REVOKED" | "AUDIT_EXPORT_LIMIT_EXCEEDED" | "AUTH_FIELD_BLANK" | "AUTH_EMAIL_INVALID" | "AUTH_EMAIL_TAKEN" | "EMAIL_ALREADY_VERIFIED" | "ORG_EMAIL_TAKEN" | "ONBOARDING_STAGE_BACKWARD" | "INVITE_USER_ALREADY_MEMBER" | "INVITE_ALREADY_ACCEPTED" | "INVITE_REVOKED" | "INVITE_EXPIRED" | "INVITE_EMAIL_MISMATCH" | "MEMBER_LIMIT_REACHED" | "MAINTENANCE_WINDOW_END_BEFORE_START" | "FORENSICS_HASH_BLANK" | "FORENSICS_HASH_INVALID" | "CHECK_RESULTS_LIMIT_OUT_OF_RANGE" | "CHECK_RESULTS_WINDOW_INVALID" | "CHECK_RESULTS_CURSOR_INVALID" | "CHECK_RESULTS_REGION_INVALID" | "CHECK_RESULTS_IDS_INVALID" | "STATUS_DATA_STATUS_INVALID" | "STATUS_DATA_PERIOD_INVALID" | "STATUS_DATA_GRANULARITY_INVALID" | "STATUS_DATA_GRANULARITY_PERIOD_MISMATCH" | "STATUS_DATA_PERIOD_UNKNOWN" | "STATUS_DATA_FROM_REQUIRED_WITH_TO" | "STATUS_DATA_TO_IN_FUTURE" | "STATUS_DATA_FROM_AFTER_TO" | "STATUS_DATA_WINDOW_TOO_WIDE" | "STATUS_DATA_TYPES_INVALID" | "STATUS_DATA_CURSOR_INVALID" | "STATUS_DATA_LIMIT_OUT_OF_RANGE" | "STATUS_DATA_COMPONENT_IDS_TOO_MANY" | "INCIDENT_ACTIVE_EXISTS" | "INCIDENT_TRANSITION_INVALID" | "INCIDENT_SERVICE_NOT_FOUND" | "INCIDENT_SERVICE_INCIDENT_NOT_FOUND" | "INCIDENT_SERVICE_MISMATCH" | "INCIDENT_EVENTS_CURSOR_INVALID" | "INCIDENT_EVENTS_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_DISPATCH_INVALID_STATE" | "NOTIFICATION_POLICY_DISPATCHES_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_POLICY_DISPATCHES_WINDOW_INVALID" | "NOTIFICATION_POLICY_DISPATCHES_CURSOR_INVALID" | "WEBHOOK_LIMIT_REACHED" | "WEBHOOK_URL_BLANK" | "WEBHOOK_EVENT_TYPES_INVALID" | "WEBHOOK_EVENT_TYPE_INVALID" | "ALERT_DELIVERY_RETRY_NOT_FAILED" | "ADMIN_BACKFILL_TYPE_UNKNOWN" | "ADMIN_PUBLISH_BLOCKED" | "ADMIN_ADAPTER_TYPE_UNKNOWN" | "ADMIN_SEO_METADATA_INVALID" | "ADMIN_RELATED_SERVICES_TOO_MANY" | "ADMIN_RELATED_SERVICE_SELF" | "ADMIN_PROBE_NO_OFFICIAL_URL" | "ADMIN_PROBE_URL_MALFORMED" | "ADMIN_LIFECYCLE_TRANSITION_INVALID" | "CLOUDFLARE_REQUEST_FAILED" | "CLOUDFLARE_API_ERROR" | "FIELD_REQUIRED" | "FIELD_TOO_SMALL" | "FIELD_TOO_LARGE" | "FIELD_OUT_OF_RANGE" | "FIELD_PATTERN_MISMATCH" | "FIELD_INVALID_EMAIL" | "FIELD_INVALID_URL" | "FIELD_INVALID_FORMAT" | "FIELD_INVARIANT_VIOLATED" | "FIELD_VALIDATION_FAILED" | "REQUEST_BODY_REQUIRED" | "REQUEST_BODY_MALFORMED" | "REQUEST_BODY_TYPE_MISMATCH" | "REQUEST_PARAMETER_REQUIRED" | "REQUEST_MEDIA_TYPE_UNSUPPORTED" | "CARRIER_CREDITS_EXHAUSTED" | "SYNTHETICS_USAGE_RESERVED" | "TESTING_QUOTA_EXHAUSTED" | "RATE_LIMITED" | "NOTIFY_RATE" | "SCOPE_REQUIRED" | "RUN_TOKEN_ADDRESS_FORBIDDEN" | "MONITOR_OWNED_BY_OTHER" | "DEPLOY_LOCKED" | "LIVE_REVISION_CHANGED" | "CONFIRMATION_REQUIRED" | "UPDATE_REQUIRED" | "CLAIMED" | "REVISION_ROLLED_BACK" | "REVISION_NEVER_LIVE" | "ROLLBACK_INCIDENT_REQUIRED" | "REVISION_UNTESTED" | "REVISION_DISCARDED" | "REVISION_IS_LIVE" | "DRAFT_LIMIT" | "NO_TOKEN" | "CLIENT_TOO_OLD" | "MAX_RUNS_EXCEEDED" | "IMPORT_NOT_IN_BUNDLE" | "USE_PROBE" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_KEY_IN_PROGRESS" | "IDEMPOTENCY_KEY_ORPHANED" | "TRIGGER_UNSUPPORTED_TYPE" | "ENVIRONMENT_NOT_FOUND" | "EVIDENCE_EXPIRED" | "RUN_EXPIRED" | "BUNDLE_TOO_LARGE" | "BUNDLE_NOT_FOUND" | "IMPORT_NOT_IN_RUNTIME" | "SECRET_LITERAL" | "FIELD_UNKNOWN" | "API_KEY_EXPIRED" | "DEVICE_AUTHORIZATION_NOT_FOUND" | "DEVICE_AUTHORIZATION_EXPIRED" | "DEVICE_WORKSPACE_ORG_MISMATCH" | "SSO_CONNECTION_FROZEN_FIELD" | "SSO_CONNECTION_ALREADY_EXISTS" | "SSO_DOMAIN_INVALID" | "SSO_DOMAIN_TAKEN" | "SSO_METADATA_INVALID" | "SSO_METADATA_FETCH_FAILED" | "SSO_METADATA_ENTITY_ID_CHANGED" | "SSO_CERTIFICATE_INVALID" | "SSO_SP_KEY_NO_NEXT" | "ACCOUNT_LINK_REFUSED" | "END_USER_DEACTIVATED" | "STATUS_PAGE_ACCESS_LOG_CURSOR_INVALID" | "STATUS_PAGE_SUBSCRIBER_CONVERSION_UNCONFIRMED" | "STATUS_PAGE_INVITE_PAGE_NOT_PRIVATE" | "STATUS_PAGE_INVITE_EMAIL_SIGN_IN_OFF" | "STATUS_PAGE_INVITE_NOT_OPEN" | "STATUS_PAGE_ACCESS_POLICY_IDLE_EXCEEDS_ABSOLUTE" | "STATUS_PAGE_UPTIME_MONTHS_OUT_OF_RANGE" | "STATUS_PAGE_SUBSCRIBER_GROUP_NOT_FOUND" | "STATUS_PAGE_EXPORT_FORMAT_UNSUPPORTED" | "STATUS_PAGE_TEMPLATE_NAME_TAKEN" | "STATUS_PAGE_TEMPLATE_COMPONENT_NOT_FOUND" | "STATUS_PAGE_TEMPLATE_FIELD_NOT_FOR_KIND" | "STATUS_PAGE_TEMPLATE_KIND_MISMATCH" | "STATUS_PAGE_TEMPLATE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_IN_PAST" | "SP_MAINTENANCE_REMINDER_NOT_FOR_INCIDENT" | "ORG_SSO_PLAN_REQUIRED" | "ORG_SSO_ENFORCEMENT_NOT_READY" | "ORG_SSO_DEFAULT_ROLE_INVALID" | "SP_POSTMORTEM_INCIDENT_NOT_RESOLVED" | "SP_POSTMORTEM_EMPTY" | "SP_INCIDENT_BACKFILL_DATES_INVALID" | "SP_INCIDENT_BACKFILL_ONLY" | "SP_INCIDENT_UPDATE_LAST" | "SP_INCIDENT_BACKFILLED_STATUS_LOCKED" | "STATUS_PAGE_TEMPLATE_VARIABLE_UNKNOWN" | "STATUS_PAGE_SUBSCRIBER_LIMIT_REACHED" | "STATUS_PAGE_SUBSCRIBERS_CLOSED" | "STATUS_PAGE_PRIVATE_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SSO_CONNECTION_LIMIT_REACHED" | "STATUS_PAGE_VIEWER_LIMIT_REACHED" | "MEMBER_ROLE_MANAGED_BY_SSO" | "ORG_SSO_ROLE_MAPPING_ROLE_INVALID" | "ORG_SSO_ROLE_MAPPING_DUPLICATE" | "AUDIT_LOG_PLAN_REQUIRED" | "STATUS_PAGE_UNRESOLVED_REMINDER_MINUTES_INVALID" | "STATUS_PAGE_REPORT_GROUP_BY_INVALID" | "SENDER_DOMAIN_INVALID" | "SENDER_DOMAIN_RESERVED" | "SENDER_DOMAIN_TAKEN" | "SENDER_DOMAIN_LIMIT_REACHED" | "SENDER_DOMAIN_NOT_FOUND" | "SENDER_DOMAIN_NOT_VERIFIED" | "SENDER_FROM_LOCAL_PART_INVALID" | "SENDER_FROM_NAME_INVALID" | "SENDER_REPLY_TO_INVALID" | "SENDER_TEST_USER_REQUIRED" | "SENDER_DOMAIN_PUBLIC_SUFFIX" | "STATUS_PAGE_AUDIENCE_NAME_INVALID" | "STATUS_PAGE_AUDIENCE_NAME_TAKEN" | "STATUS_PAGE_AUDIENCE_COMPONENT_NOT_FOUND" | "STATUS_PAGE_AUDIENCE_GROUP_NOT_FOUND" | "STATUS_PAGE_AUDIENCE_EMAIL_INVALID" | "STATUS_PAGE_AUDIENCE_DOMAIN_INVALID" | "STATUS_PAGE_AUDIENCE_LIMIT_REACHED" | "STATUS_PAGE_AUDIENCE_MEMBER_LIMIT_REACHED" | "STATUS_PAGE_GROUP_AUDIENCE_CONFLICT" | "STATUS_PAGE_REPORT_RANGE_INVALID";
+            code: "MONITOR_CONFIG_TYPE_MISMATCH" | "MONITOR_FREQUENCY_BELOW_PLAN_MIN" | "MONITOR_LIMIT_REACHED" | "MONITOR_AUTH_TYPE_UNSUPPORTED" | "MONITOR_HEARTBEAT_REGIONS_NOT_SUPPORTED" | "MONITOR_HEARTBEAT_INTERVAL_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_EXCEEDS_INTERVAL" | "MONITOR_HTTP_HEADERS_TOO_MANY" | "MONITOR_HTTP_HEADER_RESERVED" | "MONITOR_HTTP_BODY_METHOD_INVALID" | "MONITOR_HTTP_BODY_TOO_LARGE" | "MONITOR_ASSERTION_TYPE_NOT_ALLOWED" | "MONITOR_ALERT_CHANNEL_NOT_FOUND" | "MONITOR_TAGS_ADD_INVALID" | "MONITOR_TAGS_REMOVE_INVALID" | "MONITOR_TOKEN_ROTATION_HEARTBEAT_ONLY" | "MONITOR_CODE_CHECK_NOT_AVAILABLE" | "MONITOR_CODE_CHECK_LIMIT_REACHED" | "MONITOR_CODE_CHECK_REGION_UNAVAILABLE" | "MONITOR_CODE_CHECK_TEST_UNAVAILABLE" | "MONITOR_TEST_BUNDLE_UNAVAILABLE" | "MONITOR_BROWSER_CHECKS_DISABLED" | "MONITOR_ENVIRONMENT_REQUIRED" | "MONITOR_ENVIRONMENT_CLEAR_FORBIDDEN" | "MONITOR_PACKAGE_XOR_DEFINITION" | "MONITOR_PACKAGE_DIGEST_INVALID" | "MONITOR_PACKAGE_NOT_SUPPORTED" | "MONITOR_PACKAGE_PATH_INVALID" | "MONITOR_PACKAGE_CONCURRENT" | "MONITOR_DEFINITION_HAS_NO_REVISION" | "MONITOR_DEFINITION_IN_USE" | "MONITOR_STATUS_NOT_WRITABLE" | "MONITOR_PAUSED" | "MONITOR_OVERLAY_EXPIRES_IN_PAST" | "MONITOR_QUARANTINE_FIELDS_REQUIRED" | "MONITOR_MANAGED_BY_TAKEOVER_REQUIRED" | "MONITOR_HISTORY_PARAM_INVALID" | "MONITOR_TAKEOVER_FIELD_UNKNOWN" | "MONITOR_CAPTURE_POLICY_INVALID" | "MONITOR_RUN_PARALLEL_CODE_ONLY" | "REVISION_PACKAGE_BYTES_UNAVAILABLE" | "MONITOR_CODE_TYPE_REQUIRED" | "MONITOR_DEFINITION_REQUIRED" | "REVISION_NOT_ON_DEFINITION" | "REVISION_DIFF_CROSS_DEFINITION" | "DEFINITION_HEAD_INCOMPLETE" | "MONITOR_ASSERTION_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_ALREADY_EXISTS" | "MONITOR_AUTH_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_VAULT_FOREIGN_ORG" | "ALERT_CHANNEL_DISABLED" | "ALERT_CHANNEL_PLAN_REQUIRED" | "ALERT_CHANNEL_TYPE_IMMUTABLE" | "ALERT_CHANNEL_CONFIG_INVALID" | "ALERT_CHANNEL_SLACK_WEBHOOK_INVALID" | "ALERT_CHANNEL_DISCORD_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "ALERT_CHANNEL_TEAMS_WEBHOOK_HOST" | "ALERT_CHANNEL_WEBHOOK_URL_INVALID" | "ALERT_CHANNEL_WEBHOOK_HEADER_RESERVED" | "ALERT_CHANNEL_OPSGENIE_REGION_INVALID" | "ALERT_CHANNEL_PAGERDUTY_SEVERITY_INVALID" | "ALERT_CHANNEL_GOOGLE_CHAT_WEBHOOK_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_UNVERIFIED" | "ALERT_CHANNEL_PHONE_NUMBERS_COUNT_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_REQUIRED" | "ALERT_CHANNEL_VERIFIED_PHONE_NOT_FOUND" | "ALERT_CHANNEL_PHONE_DESTINATION_MISMATCH" | "ALERT_CHANNEL_VOICE_LANGUAGE_INVALID" | "NOTIFICATION_POLICY_RULE_TYPE_REQUIRED" | "NOTIFICATION_POLICY_RULE_TYPE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUE_REQUIRED" | "NOTIFICATION_POLICY_RULE_VALUE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUES_REQUIRED" | "NOTIFICATION_POLICY_RULE_MONITOR_IDS_REQUIRED" | "NOTIFICATION_POLICY_RULE_REGIONS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_INVALID" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_CONFLICT" | "NOTIFICATION_POLICY_ESCALATION_REQUIRED" | "NOTIFICATION_POLICY_STEPS_REQUIRED" | "NOTIFICATION_POLICY_ON_RESOLVE_INVALID" | "NOTIFICATION_POLICY_ON_REOPEN_INVALID" | "NOTIFICATION_POLICY_STEP_CHANNELS_EMPTY" | "NOTIFICATION_POLICY_STEP_DELAY_NEGATIVE" | "NOTIFICATION_POLICY_STEP_DELAY_TOO_LARGE" | "NOTIFICATION_POLICY_STEP_REPEAT_INVALID" | "NOTIFICATION_POLICY_STEP_REPEAT_TOO_LARGE" | "NOTIFICATION_POLICY_STEPS_TOO_MANY" | "NOTIFICATION_POLICY_STEP_CHANNEL_NOT_FOUND" | "NOTIFICATION_POLICY_DELETE_BLOCKED" | "MONITOR_POLICY_TRIGGER_RULES_EMPTY" | "MONITOR_POLICY_RULE_TYPE_REQUIRED" | "MONITOR_POLICY_RULE_SEVERITY_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_TYPE_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REGIONS_TOO_FEW" | "MONITOR_POLICY_CONFIRMATION_WAIT_TOO_SHORT" | "MONITOR_POLICY_CONFIRMATION_WAIT_BELOW_INVARIANT" | "MONITOR_POLICY_RECOVERY_REQUIRED" | "MONITOR_POLICY_RECOVERY_SUCCESSES_TOO_FEW" | "MONITOR_POLICY_RECOVERY_REGIONS_TOO_FEW" | "MONITOR_POLICY_RECOVERY_COOLDOWN_OUT_OF_RANGE" | "MONITOR_POLICY_FIELD_REQUIRED" | "MONITOR_POLICY_FIELD_NOT_POSITIVE" | "MONITOR_POLICY_FIELD_OUT_OF_RANGE" | "URL_INVALID" | "URL_SCHEME_UNSUPPORTED" | "URL_HOST_REQUIRED" | "URL_HOST_PRIVATE" | "RESOURCE_GROUP_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_ALREADY_PRESENT" | "RESOURCE_GROUP_MEMBER_TYPE_INVALID" | "RESOURCE_GROUP_THRESHOLD_VALUE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_TYPE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_OUT_OF_RANGE" | "RESOURCE_GROUP_SLUG_GENERATION_FAILED" | "STATUS_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SLUG_TAKEN" | "STATUS_PAGE_SLUG_REQUIRED" | "STATUS_PAGE_SLUG_RESERVED" | "STATUS_PAGE_VISIBILITY_UNSUPPORTED" | "STATUS_PAGE_VISIBILITY_CHANGE_UI_ONLY" | "STATUS_PAGE_LOGIN_REQUIRED" | "STATUS_PAGE_FEATURE_PLAN_REQUIRED" | "STATUS_PAGE_HOSTNAME_FIRST_PARTY_RESERVED" | "STATUS_PAGE_HOSTNAME_TLD_RESERVED" | "STATUS_PAGE_HOSTNAME_TAKEN" | "STATUS_PAGE_DOMAIN_NOT_VERIFIED" | "STATUS_PAGE_COMPONENT_GROUP_NOT_FOUND" | "STATUS_PAGE_COMPONENT_MONITOR_REQUIRED" | "STATUS_PAGE_COMPONENT_GROUP_REQUIRED" | "STATUS_PAGE_COMPONENT_STATIC_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REQUIRED" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_NOT_FOUND" | "STATUS_PAGE_COMPONENT_DEPENDENCY_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REFS_INVALID" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_NOT_FAILED" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_TERMINAL" | "STATUS_PAGE_MEASURED_UPTIME_MONITOR_ONLY" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_IN_PAST" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_EXCEEDS_MAX" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_REQUIRED" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_INVALID" | "STATUS_PAGE_SUBSCRIBER_COMPONENT_NOT_FOUND" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_INVALID" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_NOT_PUBLIC" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_UNSUPPORTED" | "STATUS_PAGE_UPTIME_WINDOW_INCOMPLETE" | "STATUS_PAGE_UPTIME_FROM_AFTER_TO" | "STATUS_PAGE_UPTIME_FROM_IN_FUTURE" | "STATUS_PAGE_UPTIME_FROM_TOO_OLD" | "STATUS_PAGE_UPTIME_WINDOW_TOO_WIDE" | "STATUS_PAGE_GROUP_KEY_RESERVED" | "STATUS_PAGE_GROUP_KEY_TAKEN" | "STATUS_PAGE_ALREADY_IN_GROUP" | "STATUS_PAGE_GROUP_REORDER_MISMATCH" | "STATUS_PAGE_GROUP_EMPTY" | "STATUS_PAGE_GROUP_DOMAIN_EXISTS" | "SP_INCIDENT_PUBLISH_RESOLVED" | "SP_INCIDENT_DISMISS_PUBLISHED" | "SP_INCIDENT_SCHEDULED_FOR_REQUIRED" | "SP_INCIDENT_SCHEDULED_UNTIL_BEFORE_FOR" | "SP_INCIDENT_AUTO_RESOLVE_REQUIRES_UNTIL" | "SP_INCIDENT_COMPONENT_FOREIGN" | "SP_INCIDENT_MONITORING_INCIDENT_NOT_FOUND" | "SUBSCRIPTION_PRICE_INACTIVE" | "SUBSCRIPTION_PRICE_UNAVAILABLE" | "SUBSCRIPTION_ALREADY_ACTIVE" | "SUBSCRIPTION_NOT_ACTIVE" | "SUBSCRIPTION_NO_SCHEDULED_CHANGE" | "SUBSCRIPTION_CHANGE_PENDING" | "SUBSCRIPTION_CANCELING" | "SUBSCRIPTION_CADENCE_UNAVAILABLE" | "SUBSCRIPTION_PRICES_INVALID" | "BILLING_OVERAGE_CAP_INVALID" | "BILLING_OVERAGE_NOT_ACTIVE" | "SERVICE_SUBSCRIPTION_FREE_TIER_LIMIT" | "SERVICE_SUBSCRIPTION_SERVICE_UNAVAILABLE" | "ACTOR_BAD_REQUEST" | "ORGANIZATION_ID_REQUIRED" | "WORKSPACE_REQUIRED" | "WORKSPACE_INTERNAL_ACTOR_NO_WORKSPACE" | "WORKSPACE_NOT_FOUND_ON_ORG" | "ENVIRONMENT_LIMIT_REACHED" | "ENVIRONMENT_SLUG_TAKEN" | "ENVIRONMENT_DELETE_BLOCKED" | "INBOUND_INBOX_NAME_BLANK" | "INBOUND_HTTP_RESPONSE_DELAY_INVALID" | "INBOUND_HTTP_RESPONSE_STATUS_INVALID" | "INBOUND_HTTP_RESPONSE_BODY_TOO_LARGE" | "INBOUND_HTTP_RESPONSE_BODY_INVALID" | "INBOUND_HTTP_RESPONSE_CONTENT_TYPE_INVALID" | "INBOUND_HTTP_RESPONSE_HEADERS_INVALID" | "INBOUND_EVENTS_CURSOR_INVALID" | "INBOUND_EVENTS_LIMIT_OUT_OF_RANGE" | "INBOUND_DOMAIN_CUSTOM_NAME_REQUIRED" | "INBOUND_DOMAIN_IN_ASSIGNED_ZONE" | "INBOUND_DOMAIN_NAME_TAKEN" | "INBOUND_DOMAIN_KIND_INVALID" | "INBOUND_DOMAIN_STATUS_INVALID" | "INBOUND_DOMAIN_NAME_INVALID" | "INBOUND_INJECT_TO_BLANK" | "INBOUND_INJECT_FROM_BLANK" | "INBOUND_INJECT_DOMAIN_DISABLED" | "INBOUND_INJECT_TO_INVALID" | "INBOUND_INJECT_FROM_INVALID" | "INBOUND_INJECT_HEADER_INVALID" | "INBOUND_WAIT_TO_REQUIRED" | "INBOUND_WAIT_TO_INVALID" | "INBOUND_WAIT_DOMAIN_REQUIRED" | "INBOUND_WEBHOOK_INBOX_LIMIT_REACHED" | "INBOUND_EMAIL_DOMAIN_LIMIT_REACHED" | "INBOUND_CUSTOM_MX_PLAN_REQUIRED" | "INBOUND_RETENTION_ABOVE_PLAN" | "INBOUND_EVENTS_MONTHLY_LIMIT_REACHED" | "INBOUND_ACTIVITY_INBOX_IDS_REQUIRED" | "INBOUND_ACTIVITY_INBOX_IDS_TOO_MANY" | "INBOUND_ACTIVITY_DOMAIN_IDS_REQUIRED" | "INBOUND_ACTIVITY_DOMAIN_IDS_TOO_MANY" | "TAG_NAME_TAKEN" | "SAVED_VIEW_TABLE_UNKNOWN" | "SAVED_VIEW_LIMIT_REACHED" | "SAVED_VIEW_FILTERS_TOO_LARGE" | "SECRET_KEY_TAKEN" | "SECRET_ENVIRONMENT_VALUE_BLANK" | "SECRET_REQUEST_ENVIRONMENT_QUERY" | "SECRET_REQUEST_HEAD_REQUIRED" | "SECRET_REQUEST_REMAP_SECRET_ID" | "SESSION_SETUP_FILE_BLANK" | "SESSION_HEAD_REQUIRED" | "RUN_NO_HEAD" | "RUN_KEYS_MISSING" | "SYNTHETICS_USAGE_CAPPED" | "SCHEDULE_TICK_COVERED" | "RUN_LIST_PARAM_INVALID" | "ARTIFACT_BYTES_TOO_LARGE" | "SUPERVISOR_TOKEN_INVALID" | "LEASE_COMPLETION_CONFLICT" | "LEASE_FENCE_REJECTED" | "CAPACITY_TARGET_INVALID" | "ADMISSIONS_NOT_HELD" | "RUNTIME_UNKNOWN" | "RUNTIME_RETIRED" | "RUNTIME_NOT_AVAILABLE" | "RUNTIME_UNAVAILABLE" | "RUNTIME_NO_CAPACITY" | "RUNTIME_NO_ROUTE" | "ROLLOUT_CANARY_MISSING" | "RUNTIME_EOL" | "RUNTIME_AMBIGUOUS" | "RUNTIME_DIGEST_IMMUTABLE" | "RUNTIME_DIGEST_INVALID" | "API_KEY_LIMIT_REACHED" | "API_KEY_REVOKED" | "AUDIT_EXPORT_LIMIT_EXCEEDED" | "AUTH_FIELD_BLANK" | "AUTH_EMAIL_INVALID" | "AUTH_EMAIL_TAKEN" | "EMAIL_ALREADY_VERIFIED" | "ORG_EMAIL_TAKEN" | "ONBOARDING_STAGE_BACKWARD" | "INVITE_USER_ALREADY_MEMBER" | "INVITE_ALREADY_ACCEPTED" | "INVITE_REVOKED" | "INVITE_EXPIRED" | "INVITE_EMAIL_MISMATCH" | "MEMBER_LIMIT_REACHED" | "MAINTENANCE_WINDOW_END_BEFORE_START" | "FORENSICS_HASH_BLANK" | "FORENSICS_HASH_INVALID" | "CHECK_RESULTS_LIMIT_OUT_OF_RANGE" | "CHECK_RESULTS_WINDOW_INVALID" | "CHECK_RESULTS_CURSOR_INVALID" | "CHECK_RESULTS_REGION_INVALID" | "CHECK_RESULTS_IDS_INVALID" | "STATUS_DATA_STATUS_INVALID" | "STATUS_DATA_PERIOD_INVALID" | "STATUS_DATA_GRANULARITY_INVALID" | "STATUS_DATA_GRANULARITY_PERIOD_MISMATCH" | "STATUS_DATA_PERIOD_UNKNOWN" | "STATUS_DATA_FROM_REQUIRED_WITH_TO" | "STATUS_DATA_TO_IN_FUTURE" | "STATUS_DATA_FROM_AFTER_TO" | "STATUS_DATA_WINDOW_TOO_WIDE" | "STATUS_DATA_TYPES_INVALID" | "STATUS_DATA_CURSOR_INVALID" | "STATUS_DATA_LIMIT_OUT_OF_RANGE" | "STATUS_DATA_COMPONENT_IDS_TOO_MANY" | "INCIDENT_ACTIVE_EXISTS" | "INCIDENT_TRANSITION_INVALID" | "INCIDENT_SERVICE_NOT_FOUND" | "INCIDENT_SERVICE_INCIDENT_NOT_FOUND" | "INCIDENT_SERVICE_MISMATCH" | "INCIDENT_EVENTS_CURSOR_INVALID" | "INCIDENT_EVENTS_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_DISPATCH_INVALID_STATE" | "NOTIFICATION_POLICY_DISPATCHES_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_POLICY_DISPATCHES_WINDOW_INVALID" | "NOTIFICATION_POLICY_DISPATCHES_CURSOR_INVALID" | "WEBHOOK_LIMIT_REACHED" | "WEBHOOK_URL_BLANK" | "WEBHOOK_EVENT_TYPES_INVALID" | "WEBHOOK_EVENT_TYPE_INVALID" | "ALERT_DELIVERY_RETRY_NOT_FAILED" | "ADMIN_BACKFILL_TYPE_UNKNOWN" | "ADMIN_PUBLISH_BLOCKED" | "ADMIN_ADAPTER_TYPE_UNKNOWN" | "ADMIN_SEO_METADATA_INVALID" | "ADMIN_RELATED_SERVICES_TOO_MANY" | "ADMIN_RELATED_SERVICE_SELF" | "ADMIN_PROBE_NO_OFFICIAL_URL" | "ADMIN_PROBE_URL_MALFORMED" | "ADMIN_LIFECYCLE_TRANSITION_INVALID" | "CLOUDFLARE_REQUEST_FAILED" | "CLOUDFLARE_API_ERROR" | "FIELD_REQUIRED" | "FIELD_TOO_SMALL" | "FIELD_TOO_LARGE" | "FIELD_OUT_OF_RANGE" | "FIELD_PATTERN_MISMATCH" | "FIELD_INVALID_EMAIL" | "FIELD_INVALID_URL" | "FIELD_INVALID_FORMAT" | "FIELD_INVARIANT_VIOLATED" | "FIELD_VALIDATION_FAILED" | "REQUEST_BODY_REQUIRED" | "REQUEST_BODY_MALFORMED" | "REQUEST_BODY_TYPE_MISMATCH" | "REQUEST_PARAMETER_REQUIRED" | "REQUEST_MEDIA_TYPE_UNSUPPORTED" | "CARRIER_CREDITS_EXHAUSTED" | "SYNTHETICS_USAGE_RESERVED" | "TESTING_QUOTA_EXHAUSTED" | "RATE_LIMITED" | "NOTIFY_RATE" | "SCOPE_REQUIRED" | "RUN_TOKEN_ADDRESS_FORBIDDEN" | "MONITOR_OWNED_BY_OTHER" | "DEPLOY_LOCKED" | "LIVE_REVISION_CHANGED" | "CONFIRMATION_REQUIRED" | "UPDATE_REQUIRED" | "CLAIMED" | "REVISION_ROLLED_BACK" | "REVISION_NEVER_LIVE" | "ROLLBACK_INCIDENT_REQUIRED" | "REVISION_UNTESTED" | "REVISION_DISCARDED" | "REVISION_IS_LIVE" | "DRAFT_LIMIT" | "NO_TOKEN" | "CLIENT_TOO_OLD" | "MAX_RUNS_EXCEEDED" | "IMPORT_NOT_IN_BUNDLE" | "USE_PROBE" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_KEY_IN_PROGRESS" | "IDEMPOTENCY_KEY_ORPHANED" | "TRIGGER_UNSUPPORTED_TYPE" | "ENVIRONMENT_NOT_FOUND" | "EVIDENCE_EXPIRED" | "RUN_EXPIRED" | "BUNDLE_TOO_LARGE" | "BUNDLE_NOT_FOUND" | "IMPORT_NOT_IN_RUNTIME" | "SECRET_LITERAL" | "FIELD_UNKNOWN" | "API_KEY_EXPIRED" | "DEVICE_AUTHORIZATION_NOT_FOUND" | "DEVICE_AUTHORIZATION_EXPIRED" | "DEVICE_WORKSPACE_ORG_MISMATCH" | "SSO_CONNECTION_FROZEN_FIELD" | "SSO_CONNECTION_ALREADY_EXISTS" | "SSO_DOMAIN_INVALID" | "SSO_DOMAIN_TAKEN" | "SSO_METADATA_INVALID" | "SSO_METADATA_FETCH_FAILED" | "SSO_METADATA_ENTITY_ID_CHANGED" | "SSO_CERTIFICATE_INVALID" | "SSO_SP_KEY_NO_NEXT" | "ACCOUNT_LINK_REFUSED" | "END_USER_DEACTIVATED" | "STATUS_PAGE_ACCESS_LOG_CURSOR_INVALID" | "STATUS_PAGE_SUBSCRIBER_CONVERSION_UNCONFIRMED" | "STATUS_PAGE_INVITE_PAGE_NOT_PRIVATE" | "STATUS_PAGE_INVITE_EMAIL_SIGN_IN_OFF" | "STATUS_PAGE_INVITE_NOT_OPEN" | "STATUS_PAGE_ACCESS_POLICY_IDLE_EXCEEDS_ABSOLUTE" | "STATUS_PAGE_UPTIME_MONTHS_OUT_OF_RANGE" | "STATUS_PAGE_SUBSCRIBER_GROUP_NOT_FOUND" | "STATUS_PAGE_EXPORT_FORMAT_UNSUPPORTED" | "STATUS_PAGE_TEMPLATE_NAME_TAKEN" | "STATUS_PAGE_TEMPLATE_COMPONENT_NOT_FOUND" | "STATUS_PAGE_TEMPLATE_FIELD_NOT_FOR_KIND" | "STATUS_PAGE_TEMPLATE_KIND_MISMATCH" | "STATUS_PAGE_TEMPLATE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_IN_PAST" | "SP_MAINTENANCE_REMINDER_NOT_FOR_INCIDENT" | "ORG_SSO_PLAN_REQUIRED" | "ORG_SSO_ENFORCEMENT_NOT_READY" | "ORG_SSO_DEFAULT_ROLE_INVALID" | "SP_POSTMORTEM_INCIDENT_NOT_RESOLVED" | "SP_POSTMORTEM_EMPTY" | "SP_INCIDENT_BACKFILL_DATES_INVALID" | "SP_INCIDENT_BACKFILL_ONLY" | "SP_INCIDENT_UPDATE_LAST" | "SP_INCIDENT_BACKFILLED_STATUS_LOCKED" | "STATUS_PAGE_TEMPLATE_VARIABLE_UNKNOWN" | "STATUS_PAGE_SUBSCRIBER_LIMIT_REACHED" | "STATUS_PAGE_SUBSCRIBERS_CLOSED" | "STATUS_PAGE_PRIVATE_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SSO_CONNECTION_LIMIT_REACHED" | "STATUS_PAGE_VIEWER_LIMIT_REACHED" | "MEMBER_ROLE_MANAGED_BY_SSO" | "ORG_SSO_ROLE_MAPPING_ROLE_INVALID" | "ORG_SSO_ROLE_MAPPING_DUPLICATE" | "AUDIT_LOG_PLAN_REQUIRED" | "STATUS_PAGE_UNRESOLVED_REMINDER_MINUTES_INVALID" | "STATUS_PAGE_REPORT_RANGE_INVALID" | "SENDER_DOMAIN_INVALID" | "SENDER_DOMAIN_RESERVED" | "SENDER_DOMAIN_TAKEN" | "SENDER_DOMAIN_LIMIT_REACHED" | "SENDER_DOMAIN_NOT_FOUND" | "SENDER_DOMAIN_NOT_VERIFIED" | "SENDER_FROM_LOCAL_PART_INVALID" | "SENDER_FROM_NAME_INVALID" | "SENDER_REPLY_TO_INVALID" | "SENDER_TEST_USER_REQUIRED" | "SENDER_DOMAIN_PUBLIC_SUFFIX" | "STATUS_PAGE_AUDIENCE_NAME_INVALID" | "STATUS_PAGE_AUDIENCE_NAME_TAKEN" | "STATUS_PAGE_AUDIENCE_COMPONENT_NOT_FOUND" | "STATUS_PAGE_AUDIENCE_GROUP_NOT_FOUND" | "STATUS_PAGE_AUDIENCE_EMAIL_INVALID" | "STATUS_PAGE_AUDIENCE_DOMAIN_INVALID" | "STATUS_PAGE_AUDIENCE_LIMIT_REACHED" | "STATUS_PAGE_AUDIENCE_MEMBER_LIMIT_REACHED" | "STATUS_PAGE_GROUP_AUDIENCE_CONFLICT" | "SP_INCIDENT_AUDIENCE_NOT_FOUND" | "SP_INCIDENT_AUDIENCE_CANNOT_SEE_COMPONENT";
             /** @description Source file containing the import */
             file?: string | null;
             /**
@@ -10562,7 +10575,7 @@ export interface components {
              */
             newRole: "OWNER" | "ADMIN" | "MEMBER" | "INCIDENT_AUTHOR" | "VIEWER";
             /**
-             * @description SSO when the identity provider's groups set the role; null for a manual change
+             * @description SSO when the IdP set the role; MANUAL for an admin change or a released mapping
              * @enum {string|null}
              */
             source?: "MANUAL" | "SSO" | null;
@@ -11998,14 +12011,6 @@ export interface components {
             /** @description OpsGenie API region: us or eu */
             region?: string | null;
         };
-        /** @description What a role mapping change would do */
-        OrgSsoRoleMappingPreviewDto: {
-            /**
-             * Format: int32
-             * @description Members whose role would change
-             */
-            changedMemberCount: number;
-        };
         /** @description Organization account details */
         OrganizationDto: {
             /**
@@ -12085,6 +12090,14 @@ export interface components {
              * @description When the mapping last changed
              */
             updatedAt: string;
+        };
+        /** @description What a role mapping change would do */
+        OrgSsoRoleMappingPreviewDto: {
+            /**
+             * Format: int32
+             * @description Members whose role would change
+             */
+            changedMemberCount: number;
         };
         OrgSsoSettingsDto: {
             /** @description Members must sign in through SSO; owners keep a break-glass sign-in */
@@ -14813,6 +14826,10 @@ export interface components {
         SetMonitorAuthRequest: {
             config: components["schemas"]["ApiKeyAuthConfig"] | components["schemas"]["BasicAuthConfig"] | components["schemas"]["BearerAuthConfig"] | components["schemas"]["HeaderAuthConfig"];
         };
+        SetStatusPageAudiencesRequest: {
+            /** @description Audiences that see it; an empty list makes it visible to every viewer */
+            audienceIds: string[];
+        };
         SetStatusPageComponentOverrideRequest: {
             /**
              * @description Override status while active; takes precedence over binding until expiry/clear
@@ -15040,14 +15057,14 @@ export interface components {
         SingleValueResponseNotificationPolicyDto: {
             data: components["schemas"]["NotificationPolicyDto"];
         };
-        SingleValueResponseOrgSsoRoleMappingPreviewDto: {
-            data: components["schemas"]["OrgSsoRoleMappingPreviewDto"];
-        };
         SingleValueResponseOrganizationDto: {
             data: components["schemas"]["OrganizationDto"];
         };
         SingleValueResponseOrgSsoRoleMappingDto: {
             data: components["schemas"]["OrgSsoRoleMappingDto"];
+        };
+        SingleValueResponseOrgSsoRoleMappingPreviewDto: {
+            data: components["schemas"]["OrgSsoRoleMappingPreviewDto"];
         };
         SingleValueResponseOrgSsoSettingsDto: {
             data: components["schemas"]["OrgSsoSettingsDto"];
@@ -15162,6 +15179,12 @@ export interface components {
         };
         SingleValueResponseStatusPageAccessPolicyDto: {
             data: components["schemas"]["StatusPageAccessPolicyDto"];
+        };
+        SingleValueResponseStatusPageAudienceDeletePreviewDto: {
+            data: components["schemas"]["StatusPageAudienceDeletePreviewDto"];
+        };
+        SingleValueResponseStatusPageAudienceDto: {
+            data: components["schemas"]["StatusPageAudienceDto"];
         };
         SingleValueResponseStatusPageComponentDto: {
             data: components["schemas"]["StatusPageComponentDto"];
@@ -15618,6 +15641,56 @@ export interface components {
              */
             updatedAt?: string | null;
         };
+        /** @description Who loses access to what when an audience is deleted */
+        StatusPageAudienceDeletePreviewDto: {
+            /**
+             * Format: int32
+             * @description Active end users in the audience who lose at least one component
+             */
+            losingAccessCount: number;
+            /** @description Components of the audience that someone loses, in page order */
+            componentIds: string[];
+            /** @description Component groups of the audience that someone loses, in page order */
+            componentGroupIds: string[];
+        };
+        /** @description A named group of viewers of a private status page and the components only they see */
+        StatusPageAudienceDto: {
+            /**
+             * Format: uuid
+             * @description Audience identifier
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Status page this audience belongs to
+             */
+            statusPageId: string;
+            /** @description Audience name, unique on the page */
+            name: string;
+            /** @description Components visible only to this page's audiences that hold them */
+            componentIds: string[];
+            /** @description Component groups visible only to this page's audiences that hold them */
+            componentGroupIds: string[];
+            /** @description Viewer emails in the audience; masked for viewers below incident author */
+            emails: string[];
+            /** @description Email domains whose viewers are in the audience, e.g. acme.com */
+            domains: string[];
+            /**
+             * Format: int32
+             * @description Active end users of the page the audience's emails and domains match now
+             */
+            endUserCount: number;
+            /**
+             * Format: date-time
+             * @description When the audience was created
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description When the audience last changed
+             */
+            updatedAt: string;
+        };
         /** @description Saved component configuration */
         StatusPageBindingSnapshot: {
             /** @description Component display name */
@@ -15757,17 +15830,17 @@ export interface components {
             /** Format: int32 */
             pageOrder: number;
             excludeFromOverall: boolean;
+            /**
+             * @description Visible only to the audiences that hold it, and to no viewer when none does (default: false)
+             * @default false
+             */
+            audienceRestricted: boolean;
             /** Format: date-time */
             startDate?: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
-            /**
-             * @description Visible only to the audiences that hold it, and to no viewer when none does (default: false)
-             * @default false
-             */
-            audienceRestricted: boolean;
         };
         StatusPageComponentGroupDto: {
             /** Format: uuid */
@@ -15781,6 +15854,11 @@ export interface components {
             /** Format: int32 */
             pageOrder: number;
             defaultOpen: boolean;
+            /**
+             * @description Visible only to the audiences that hold it, and to no viewer when none does (default: false)
+             * @default false
+             */
+            audienceRestricted: boolean;
             components?: components["schemas"]["StatusPageComponentDto"][] | null;
             /**
              * @description Worst current status of the group's components (all of them, including those left out of the page's overall status); OPERATIONAL when the group is empty (default: OPERATIONAL)
@@ -15798,11 +15876,6 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
-            /**
-             * @description Visible only to the audiences that hold it, and to no viewer when none does (default: false)
-             * @default false
-             */
-            audienceRestricted: boolean;
         };
         StatusPageCustomDomainDto: {
             /** Format: uuid */
@@ -16089,12 +16162,12 @@ export interface components {
             postmortemUrl?: string | null;
             affectedComponents?: components["schemas"]["StatusPageIncidentComponentDto"][] | null;
             updates?: components["schemas"]["StatusPageIncidentUpdateDto"][] | null;
+            /** @description Audiences that see it; empty for everyone who sees its components */
+            audienceIds: string[];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
-            /** @description Audiences that see it; empty for everyone who sees its components */
-            audienceIds: string[];
         };
         StatusPageIncidentUpdateDto: {
             /** Format: uuid */
@@ -16260,7 +16333,54 @@ export interface components {
              */
             updatedAt: string;
         };
-        /** @description Uptime and incidents per component or component group over a date range (UTC days) */
+        /** @description Uptime, downtime and incidents of one component over the report's range */
+        StatusPageReportComponentDto: {
+            /**
+             * Format: uuid
+             * @description Component id
+             */
+            id: string;
+            /** @description Component name */
+            name: string;
+            /**
+             * Format: uuid
+             * @description Group the component belongs to; null when ungrouped
+             */
+            groupId?: string | null;
+            /**
+             * Format: double
+             * @description Mean daily uptime percentage over the tracked days; null when no day was tracked
+             */
+            uptimePercentage?: number | null;
+            /**
+             * Format: int32
+             * @description Days in the range the component was tracked, including today's partial day
+             */
+            trackedDays: number;
+            /**
+             * Format: int64
+             * @description Outage minutes weighted like uptime: major outage in full, partial outage at 30%
+             */
+            downtimeMinutes: number;
+            /**
+             * Format: int64
+             * @description Minutes of major outage in the range
+             */
+            majorOutageMinutes: number;
+            /**
+             * Format: int64
+             * @description Minutes of partial outage in the range
+             */
+            partialOutageMinutes: number;
+            /**
+             * Format: int32
+             * @description Published incidents in the range that affected the component
+             */
+            incidentCount: number;
+            /** @description Ids of those incidents, oldest first, as listed in the report's incidents */
+            incidentIds: string[];
+        };
+        /** @description Uptime and incidents per component group and component over a date range (UTC days) */
         StatusPageReportDto: {
             /**
              * Format: date
@@ -16269,22 +16389,59 @@ export interface components {
             from: string;
             /**
              * Format: date
-             * @description Last day of the range (UTC), capped at today
+             * @description Last day of the range (UTC)
              */
             to: string;
-            /**
-             * @description What the rows are grouped by
-             * @enum {string}
-             */
-            groupBy: "COMPONENT" | "COMPONENT_GROUP";
-            /** @description One row per component, or per component group plus each ungrouped component */
-            rows: components["schemas"]["StatusPageReportRowDto"][];
-            /** @description Published incidents (not maintenance) that overlap the range, oldest first */
-            incidents: components["schemas"]["StatusPageReportIncidentDto"][];
             /** @description Component groups of the page, in page order */
             groups: components["schemas"]["StatusPageReportGroupDto"][];
             /** @description Every component of the page in page order, each group's members after it */
             components: components["schemas"]["StatusPageReportComponentDto"][];
+            /** @description Published incidents (not maintenance) that overlap the range, oldest first */
+            incidents: components["schemas"]["StatusPageReportIncidentDto"][];
+        };
+        /** @description Uptime, downtime and incidents of one component group over the report's range */
+        StatusPageReportGroupDto: {
+            /**
+             * Format: uuid
+             * @description Component group id
+             */
+            id: string;
+            /** @description Component group name */
+            name: string;
+            /** @description Ids of the group's components, in page order */
+            componentIds: string[];
+            /**
+             * Format: double
+             * @description Group uptime percentage, as the public page shows it; null when no day was tracked
+             */
+            uptimePercentage?: number | null;
+            /**
+             * Format: int32
+             * @description Days in the range the group was tracked, including today's partial day
+             */
+            trackedDays: number;
+            /**
+             * Format: int64
+             * @description Outage minutes weighted like uptime: major outage in full, partial outage at 30%
+             */
+            downtimeMinutes: number;
+            /**
+             * Format: int64
+             * @description Minutes of major outage in the range
+             */
+            majorOutageMinutes: number;
+            /**
+             * Format: int64
+             * @description Minutes of partial outage in the range
+             */
+            partialOutageMinutes: number;
+            /**
+             * Format: int32
+             * @description Published incidents in the range that affected the group's components
+             */
+            incidentCount: number;
+            /** @description Ids of those incidents, oldest first, as listed in the report's incidents */
+            incidentIds: string[];
         };
         /** @description A published incident that overlaps the report's range */
         StatusPageReportIncidentDto: {
@@ -16317,53 +16474,6 @@ export interface components {
             resolvedAt?: string | null;
             /** @description Ids of the components the incident affected */
             componentIds: string[];
-        };
-        /** @description Uptime, downtime and incidents of one component or component group over the report's range */
-        StatusPageReportRowDto: {
-            /**
-             * Format: uuid
-             * @description Component or component group id
-             */
-            id: string;
-            /**
-             * @description Whether the row is a component or a component group
-             * @enum {string}
-             */
-            kind: "COMPONENT" | "COMPONENT_GROUP";
-            /** @description Component or component group name */
-            name: string;
-            /**
-             * Format: double
-             * @description Mean daily uptime percentage over the tracked days; null when no day was tracked
-             */
-            uptimePercentage?: number | null;
-            /**
-             * Format: int32
-             * @description Days in the range the item was tracked, including today's partial day
-             */
-            trackedDays: number;
-            /**
-             * Format: int64
-             * @description Outage minutes weighted like uptime: major outage in full, partial outage at 30%
-             */
-            downtimeMinutes: number;
-            /**
-             * Format: int64
-             * @description Minutes of major outage in the range
-             */
-            majorOutageMinutes: number;
-            /**
-             * Format: int64
-             * @description Minutes of partial outage in the range
-             */
-            partialOutageMinutes: number;
-            /**
-             * Format: int32
-             * @description Published incidents in the range that affected the item
-             */
-            incidentCount: number;
-            /** @description Ids of those incidents, oldest first; details are in the report's incidents */
-            incidentIds: string[];
         };
         /** @description The test email that was sent */
         StatusPageSenderTestDto: {
@@ -16433,7 +16543,7 @@ export interface components {
              * @description Why the row was skipped
              * @enum {string}
              */
-            code: "MONITOR_CONFIG_TYPE_MISMATCH" | "MONITOR_FREQUENCY_BELOW_PLAN_MIN" | "MONITOR_LIMIT_REACHED" | "MONITOR_AUTH_TYPE_UNSUPPORTED" | "MONITOR_HEARTBEAT_REGIONS_NOT_SUPPORTED" | "MONITOR_HEARTBEAT_INTERVAL_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_EXCEEDS_INTERVAL" | "MONITOR_HTTP_HEADERS_TOO_MANY" | "MONITOR_HTTP_HEADER_RESERVED" | "MONITOR_HTTP_BODY_METHOD_INVALID" | "MONITOR_HTTP_BODY_TOO_LARGE" | "MONITOR_ASSERTION_TYPE_NOT_ALLOWED" | "MONITOR_ALERT_CHANNEL_NOT_FOUND" | "MONITOR_TAGS_ADD_INVALID" | "MONITOR_TAGS_REMOVE_INVALID" | "MONITOR_TOKEN_ROTATION_HEARTBEAT_ONLY" | "MONITOR_CODE_CHECK_NOT_AVAILABLE" | "MONITOR_CODE_CHECK_LIMIT_REACHED" | "MONITOR_CODE_CHECK_REGION_UNAVAILABLE" | "MONITOR_CODE_CHECK_TEST_UNAVAILABLE" | "MONITOR_TEST_BUNDLE_UNAVAILABLE" | "MONITOR_BROWSER_CHECKS_DISABLED" | "MONITOR_ENVIRONMENT_REQUIRED" | "MONITOR_ENVIRONMENT_CLEAR_FORBIDDEN" | "MONITOR_PACKAGE_XOR_DEFINITION" | "MONITOR_PACKAGE_DIGEST_INVALID" | "MONITOR_PACKAGE_NOT_SUPPORTED" | "MONITOR_PACKAGE_PATH_INVALID" | "MONITOR_PACKAGE_CONCURRENT" | "MONITOR_DEFINITION_HAS_NO_REVISION" | "MONITOR_DEFINITION_IN_USE" | "MONITOR_STATUS_NOT_WRITABLE" | "MONITOR_PAUSED" | "MONITOR_OVERLAY_EXPIRES_IN_PAST" | "MONITOR_QUARANTINE_FIELDS_REQUIRED" | "MONITOR_MANAGED_BY_TAKEOVER_REQUIRED" | "MONITOR_HISTORY_PARAM_INVALID" | "MONITOR_TAKEOVER_FIELD_UNKNOWN" | "MONITOR_CAPTURE_POLICY_INVALID" | "MONITOR_RUN_PARALLEL_CODE_ONLY" | "REVISION_PACKAGE_BYTES_UNAVAILABLE" | "MONITOR_CODE_TYPE_REQUIRED" | "MONITOR_DEFINITION_REQUIRED" | "REVISION_NOT_ON_DEFINITION" | "REVISION_DIFF_CROSS_DEFINITION" | "DEFINITION_HEAD_INCOMPLETE" | "MONITOR_ASSERTION_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_ALREADY_EXISTS" | "MONITOR_AUTH_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_VAULT_FOREIGN_ORG" | "ALERT_CHANNEL_DISABLED" | "ALERT_CHANNEL_PLAN_REQUIRED" | "ALERT_CHANNEL_TYPE_IMMUTABLE" | "ALERT_CHANNEL_CONFIG_INVALID" | "ALERT_CHANNEL_SLACK_WEBHOOK_INVALID" | "ALERT_CHANNEL_DISCORD_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "ALERT_CHANNEL_TEAMS_WEBHOOK_HOST" | "ALERT_CHANNEL_WEBHOOK_URL_INVALID" | "ALERT_CHANNEL_WEBHOOK_HEADER_RESERVED" | "ALERT_CHANNEL_OPSGENIE_REGION_INVALID" | "ALERT_CHANNEL_PAGERDUTY_SEVERITY_INVALID" | "ALERT_CHANNEL_GOOGLE_CHAT_WEBHOOK_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_UNVERIFIED" | "ALERT_CHANNEL_PHONE_NUMBERS_COUNT_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_REQUIRED" | "ALERT_CHANNEL_VERIFIED_PHONE_NOT_FOUND" | "ALERT_CHANNEL_PHONE_DESTINATION_MISMATCH" | "ALERT_CHANNEL_VOICE_LANGUAGE_INVALID" | "NOTIFICATION_POLICY_RULE_TYPE_REQUIRED" | "NOTIFICATION_POLICY_RULE_TYPE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUE_REQUIRED" | "NOTIFICATION_POLICY_RULE_VALUE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUES_REQUIRED" | "NOTIFICATION_POLICY_RULE_MONITOR_IDS_REQUIRED" | "NOTIFICATION_POLICY_RULE_REGIONS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_INVALID" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_CONFLICT" | "NOTIFICATION_POLICY_ESCALATION_REQUIRED" | "NOTIFICATION_POLICY_STEPS_REQUIRED" | "NOTIFICATION_POLICY_ON_RESOLVE_INVALID" | "NOTIFICATION_POLICY_ON_REOPEN_INVALID" | "NOTIFICATION_POLICY_STEP_CHANNELS_EMPTY" | "NOTIFICATION_POLICY_STEP_DELAY_NEGATIVE" | "NOTIFICATION_POLICY_STEP_DELAY_TOO_LARGE" | "NOTIFICATION_POLICY_STEP_REPEAT_INVALID" | "NOTIFICATION_POLICY_STEP_REPEAT_TOO_LARGE" | "NOTIFICATION_POLICY_STEPS_TOO_MANY" | "NOTIFICATION_POLICY_STEP_CHANNEL_NOT_FOUND" | "NOTIFICATION_POLICY_DELETE_BLOCKED" | "MONITOR_POLICY_TRIGGER_RULES_EMPTY" | "MONITOR_POLICY_RULE_TYPE_REQUIRED" | "MONITOR_POLICY_RULE_SEVERITY_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_TYPE_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REGIONS_TOO_FEW" | "MONITOR_POLICY_CONFIRMATION_WAIT_TOO_SHORT" | "MONITOR_POLICY_CONFIRMATION_WAIT_BELOW_INVARIANT" | "MONITOR_POLICY_RECOVERY_REQUIRED" | "MONITOR_POLICY_RECOVERY_SUCCESSES_TOO_FEW" | "MONITOR_POLICY_RECOVERY_REGIONS_TOO_FEW" | "MONITOR_POLICY_RECOVERY_COOLDOWN_OUT_OF_RANGE" | "MONITOR_POLICY_FIELD_REQUIRED" | "MONITOR_POLICY_FIELD_NOT_POSITIVE" | "MONITOR_POLICY_FIELD_OUT_OF_RANGE" | "URL_INVALID" | "URL_SCHEME_UNSUPPORTED" | "URL_HOST_REQUIRED" | "URL_HOST_PRIVATE" | "RESOURCE_GROUP_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_ALREADY_PRESENT" | "RESOURCE_GROUP_MEMBER_TYPE_INVALID" | "RESOURCE_GROUP_THRESHOLD_VALUE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_TYPE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_OUT_OF_RANGE" | "RESOURCE_GROUP_SLUG_GENERATION_FAILED" | "STATUS_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SLUG_TAKEN" | "STATUS_PAGE_SLUG_REQUIRED" | "STATUS_PAGE_SLUG_RESERVED" | "STATUS_PAGE_VISIBILITY_UNSUPPORTED" | "STATUS_PAGE_VISIBILITY_CHANGE_UI_ONLY" | "STATUS_PAGE_LOGIN_REQUIRED" | "STATUS_PAGE_FEATURE_PLAN_REQUIRED" | "STATUS_PAGE_HOSTNAME_FIRST_PARTY_RESERVED" | "STATUS_PAGE_HOSTNAME_TLD_RESERVED" | "STATUS_PAGE_HOSTNAME_TAKEN" | "STATUS_PAGE_DOMAIN_NOT_VERIFIED" | "STATUS_PAGE_COMPONENT_GROUP_NOT_FOUND" | "STATUS_PAGE_COMPONENT_MONITOR_REQUIRED" | "STATUS_PAGE_COMPONENT_GROUP_REQUIRED" | "STATUS_PAGE_COMPONENT_STATIC_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REQUIRED" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_NOT_FOUND" | "STATUS_PAGE_COMPONENT_DEPENDENCY_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REFS_INVALID" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_NOT_FAILED" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_TERMINAL" | "STATUS_PAGE_MEASURED_UPTIME_MONITOR_ONLY" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_IN_PAST" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_EXCEEDS_MAX" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_REQUIRED" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_INVALID" | "STATUS_PAGE_SUBSCRIBER_COMPONENT_NOT_FOUND" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_INVALID" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_NOT_PUBLIC" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_UNSUPPORTED" | "STATUS_PAGE_UPTIME_WINDOW_INCOMPLETE" | "STATUS_PAGE_UPTIME_FROM_AFTER_TO" | "STATUS_PAGE_UPTIME_FROM_IN_FUTURE" | "STATUS_PAGE_UPTIME_FROM_TOO_OLD" | "STATUS_PAGE_UPTIME_WINDOW_TOO_WIDE" | "STATUS_PAGE_GROUP_KEY_RESERVED" | "STATUS_PAGE_GROUP_KEY_TAKEN" | "STATUS_PAGE_ALREADY_IN_GROUP" | "STATUS_PAGE_GROUP_REORDER_MISMATCH" | "STATUS_PAGE_GROUP_EMPTY" | "STATUS_PAGE_GROUP_DOMAIN_EXISTS" | "SP_INCIDENT_PUBLISH_RESOLVED" | "SP_INCIDENT_DISMISS_PUBLISHED" | "SP_INCIDENT_SCHEDULED_FOR_REQUIRED" | "SP_INCIDENT_SCHEDULED_UNTIL_BEFORE_FOR" | "SP_INCIDENT_AUTO_RESOLVE_REQUIRES_UNTIL" | "SP_INCIDENT_COMPONENT_FOREIGN" | "SP_INCIDENT_MONITORING_INCIDENT_NOT_FOUND" | "SUBSCRIPTION_PRICE_INACTIVE" | "SUBSCRIPTION_PRICE_UNAVAILABLE" | "SUBSCRIPTION_ALREADY_ACTIVE" | "SUBSCRIPTION_NOT_ACTIVE" | "SUBSCRIPTION_NO_SCHEDULED_CHANGE" | "SUBSCRIPTION_CHANGE_PENDING" | "SUBSCRIPTION_CANCELING" | "SUBSCRIPTION_CADENCE_UNAVAILABLE" | "SUBSCRIPTION_PRICES_INVALID" | "BILLING_OVERAGE_CAP_INVALID" | "BILLING_OVERAGE_NOT_ACTIVE" | "SERVICE_SUBSCRIPTION_FREE_TIER_LIMIT" | "SERVICE_SUBSCRIPTION_SERVICE_UNAVAILABLE" | "ACTOR_BAD_REQUEST" | "ORGANIZATION_ID_REQUIRED" | "WORKSPACE_REQUIRED" | "WORKSPACE_INTERNAL_ACTOR_NO_WORKSPACE" | "WORKSPACE_NOT_FOUND_ON_ORG" | "ENVIRONMENT_LIMIT_REACHED" | "ENVIRONMENT_SLUG_TAKEN" | "ENVIRONMENT_DELETE_BLOCKED" | "INBOUND_INBOX_NAME_BLANK" | "INBOUND_HTTP_RESPONSE_DELAY_INVALID" | "INBOUND_HTTP_RESPONSE_STATUS_INVALID" | "INBOUND_HTTP_RESPONSE_BODY_TOO_LARGE" | "INBOUND_HTTP_RESPONSE_BODY_INVALID" | "INBOUND_HTTP_RESPONSE_CONTENT_TYPE_INVALID" | "INBOUND_HTTP_RESPONSE_HEADERS_INVALID" | "INBOUND_EVENTS_CURSOR_INVALID" | "INBOUND_EVENTS_LIMIT_OUT_OF_RANGE" | "INBOUND_DOMAIN_CUSTOM_NAME_REQUIRED" | "INBOUND_DOMAIN_IN_ASSIGNED_ZONE" | "INBOUND_DOMAIN_NAME_TAKEN" | "INBOUND_DOMAIN_KIND_INVALID" | "INBOUND_DOMAIN_STATUS_INVALID" | "INBOUND_DOMAIN_NAME_INVALID" | "INBOUND_INJECT_TO_BLANK" | "INBOUND_INJECT_FROM_BLANK" | "INBOUND_INJECT_DOMAIN_DISABLED" | "INBOUND_INJECT_TO_INVALID" | "INBOUND_INJECT_FROM_INVALID" | "INBOUND_INJECT_HEADER_INVALID" | "INBOUND_WAIT_TO_REQUIRED" | "INBOUND_WAIT_TO_INVALID" | "INBOUND_WAIT_DOMAIN_REQUIRED" | "INBOUND_WEBHOOK_INBOX_LIMIT_REACHED" | "INBOUND_EMAIL_DOMAIN_LIMIT_REACHED" | "INBOUND_CUSTOM_MX_PLAN_REQUIRED" | "INBOUND_RETENTION_ABOVE_PLAN" | "INBOUND_EVENTS_MONTHLY_LIMIT_REACHED" | "INBOUND_ACTIVITY_INBOX_IDS_REQUIRED" | "INBOUND_ACTIVITY_INBOX_IDS_TOO_MANY" | "INBOUND_ACTIVITY_DOMAIN_IDS_REQUIRED" | "INBOUND_ACTIVITY_DOMAIN_IDS_TOO_MANY" | "TAG_NAME_TAKEN" | "SAVED_VIEW_TABLE_UNKNOWN" | "SAVED_VIEW_LIMIT_REACHED" | "SAVED_VIEW_FILTERS_TOO_LARGE" | "SECRET_KEY_TAKEN" | "SECRET_ENVIRONMENT_VALUE_BLANK" | "SECRET_REQUEST_ENVIRONMENT_QUERY" | "SECRET_REQUEST_HEAD_REQUIRED" | "SECRET_REQUEST_REMAP_SECRET_ID" | "SESSION_SETUP_FILE_BLANK" | "SESSION_HEAD_REQUIRED" | "RUN_NO_HEAD" | "RUN_KEYS_MISSING" | "SYNTHETICS_USAGE_CAPPED" | "SCHEDULE_TICK_COVERED" | "RUN_LIST_PARAM_INVALID" | "ARTIFACT_BYTES_TOO_LARGE" | "SUPERVISOR_TOKEN_INVALID" | "LEASE_COMPLETION_CONFLICT" | "LEASE_FENCE_REJECTED" | "CAPACITY_TARGET_INVALID" | "ADMISSIONS_NOT_HELD" | "RUNTIME_UNKNOWN" | "RUNTIME_RETIRED" | "RUNTIME_NOT_AVAILABLE" | "RUNTIME_UNAVAILABLE" | "RUNTIME_NO_CAPACITY" | "RUNTIME_NO_ROUTE" | "ROLLOUT_CANARY_MISSING" | "RUNTIME_EOL" | "RUNTIME_AMBIGUOUS" | "RUNTIME_DIGEST_IMMUTABLE" | "RUNTIME_DIGEST_INVALID" | "API_KEY_LIMIT_REACHED" | "API_KEY_REVOKED" | "AUDIT_EXPORT_LIMIT_EXCEEDED" | "AUTH_FIELD_BLANK" | "AUTH_EMAIL_INVALID" | "AUTH_EMAIL_TAKEN" | "EMAIL_ALREADY_VERIFIED" | "ORG_EMAIL_TAKEN" | "ONBOARDING_STAGE_BACKWARD" | "INVITE_USER_ALREADY_MEMBER" | "INVITE_ALREADY_ACCEPTED" | "INVITE_REVOKED" | "INVITE_EXPIRED" | "INVITE_EMAIL_MISMATCH" | "MEMBER_LIMIT_REACHED" | "MAINTENANCE_WINDOW_END_BEFORE_START" | "FORENSICS_HASH_BLANK" | "FORENSICS_HASH_INVALID" | "CHECK_RESULTS_LIMIT_OUT_OF_RANGE" | "CHECK_RESULTS_WINDOW_INVALID" | "CHECK_RESULTS_CURSOR_INVALID" | "CHECK_RESULTS_REGION_INVALID" | "CHECK_RESULTS_IDS_INVALID" | "STATUS_DATA_STATUS_INVALID" | "STATUS_DATA_PERIOD_INVALID" | "STATUS_DATA_GRANULARITY_INVALID" | "STATUS_DATA_GRANULARITY_PERIOD_MISMATCH" | "STATUS_DATA_PERIOD_UNKNOWN" | "STATUS_DATA_FROM_REQUIRED_WITH_TO" | "STATUS_DATA_TO_IN_FUTURE" | "STATUS_DATA_FROM_AFTER_TO" | "STATUS_DATA_WINDOW_TOO_WIDE" | "STATUS_DATA_TYPES_INVALID" | "STATUS_DATA_CURSOR_INVALID" | "STATUS_DATA_LIMIT_OUT_OF_RANGE" | "STATUS_DATA_COMPONENT_IDS_TOO_MANY" | "INCIDENT_ACTIVE_EXISTS" | "INCIDENT_TRANSITION_INVALID" | "INCIDENT_SERVICE_NOT_FOUND" | "INCIDENT_SERVICE_INCIDENT_NOT_FOUND" | "INCIDENT_SERVICE_MISMATCH" | "INCIDENT_EVENTS_CURSOR_INVALID" | "INCIDENT_EVENTS_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_DISPATCH_INVALID_STATE" | "NOTIFICATION_POLICY_DISPATCHES_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_POLICY_DISPATCHES_WINDOW_INVALID" | "NOTIFICATION_POLICY_DISPATCHES_CURSOR_INVALID" | "WEBHOOK_LIMIT_REACHED" | "WEBHOOK_URL_BLANK" | "WEBHOOK_EVENT_TYPES_INVALID" | "WEBHOOK_EVENT_TYPE_INVALID" | "ALERT_DELIVERY_RETRY_NOT_FAILED" | "ADMIN_BACKFILL_TYPE_UNKNOWN" | "ADMIN_PUBLISH_BLOCKED" | "ADMIN_ADAPTER_TYPE_UNKNOWN" | "ADMIN_SEO_METADATA_INVALID" | "ADMIN_RELATED_SERVICES_TOO_MANY" | "ADMIN_RELATED_SERVICE_SELF" | "ADMIN_PROBE_NO_OFFICIAL_URL" | "ADMIN_PROBE_URL_MALFORMED" | "ADMIN_LIFECYCLE_TRANSITION_INVALID" | "CLOUDFLARE_REQUEST_FAILED" | "CLOUDFLARE_API_ERROR" | "FIELD_REQUIRED" | "FIELD_TOO_SMALL" | "FIELD_TOO_LARGE" | "FIELD_OUT_OF_RANGE" | "FIELD_PATTERN_MISMATCH" | "FIELD_INVALID_EMAIL" | "FIELD_INVALID_URL" | "FIELD_INVALID_FORMAT" | "FIELD_INVARIANT_VIOLATED" | "FIELD_VALIDATION_FAILED" | "REQUEST_BODY_REQUIRED" | "REQUEST_BODY_MALFORMED" | "REQUEST_BODY_TYPE_MISMATCH" | "REQUEST_PARAMETER_REQUIRED" | "REQUEST_MEDIA_TYPE_UNSUPPORTED" | "CARRIER_CREDITS_EXHAUSTED" | "SYNTHETICS_USAGE_RESERVED" | "TESTING_QUOTA_EXHAUSTED" | "RATE_LIMITED" | "NOTIFY_RATE" | "SCOPE_REQUIRED" | "RUN_TOKEN_ADDRESS_FORBIDDEN" | "MONITOR_OWNED_BY_OTHER" | "DEPLOY_LOCKED" | "LIVE_REVISION_CHANGED" | "CONFIRMATION_REQUIRED" | "UPDATE_REQUIRED" | "CLAIMED" | "REVISION_ROLLED_BACK" | "REVISION_NEVER_LIVE" | "ROLLBACK_INCIDENT_REQUIRED" | "REVISION_UNTESTED" | "REVISION_DISCARDED" | "REVISION_IS_LIVE" | "DRAFT_LIMIT" | "NO_TOKEN" | "CLIENT_TOO_OLD" | "MAX_RUNS_EXCEEDED" | "IMPORT_NOT_IN_BUNDLE" | "USE_PROBE" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_KEY_IN_PROGRESS" | "IDEMPOTENCY_KEY_ORPHANED" | "TRIGGER_UNSUPPORTED_TYPE" | "ENVIRONMENT_NOT_FOUND" | "EVIDENCE_EXPIRED" | "RUN_EXPIRED" | "BUNDLE_TOO_LARGE" | "BUNDLE_NOT_FOUND" | "IMPORT_NOT_IN_RUNTIME" | "SECRET_LITERAL" | "FIELD_UNKNOWN" | "API_KEY_EXPIRED" | "DEVICE_AUTHORIZATION_NOT_FOUND" | "DEVICE_AUTHORIZATION_EXPIRED" | "DEVICE_WORKSPACE_ORG_MISMATCH" | "SSO_CONNECTION_FROZEN_FIELD" | "SSO_CONNECTION_ALREADY_EXISTS" | "SSO_DOMAIN_INVALID" | "SSO_DOMAIN_TAKEN" | "SSO_METADATA_INVALID" | "SSO_METADATA_FETCH_FAILED" | "SSO_METADATA_ENTITY_ID_CHANGED" | "SSO_CERTIFICATE_INVALID" | "SSO_SP_KEY_NO_NEXT" | "ACCOUNT_LINK_REFUSED" | "END_USER_DEACTIVATED" | "STATUS_PAGE_ACCESS_LOG_CURSOR_INVALID" | "STATUS_PAGE_SUBSCRIBER_CONVERSION_UNCONFIRMED" | "STATUS_PAGE_INVITE_PAGE_NOT_PRIVATE" | "STATUS_PAGE_INVITE_EMAIL_SIGN_IN_OFF" | "STATUS_PAGE_INVITE_NOT_OPEN" | "STATUS_PAGE_ACCESS_POLICY_IDLE_EXCEEDS_ABSOLUTE" | "STATUS_PAGE_UPTIME_MONTHS_OUT_OF_RANGE" | "STATUS_PAGE_SUBSCRIBER_GROUP_NOT_FOUND" | "STATUS_PAGE_EXPORT_FORMAT_UNSUPPORTED" | "STATUS_PAGE_TEMPLATE_NAME_TAKEN" | "STATUS_PAGE_TEMPLATE_COMPONENT_NOT_FOUND" | "STATUS_PAGE_TEMPLATE_FIELD_NOT_FOR_KIND" | "STATUS_PAGE_TEMPLATE_KIND_MISMATCH" | "STATUS_PAGE_TEMPLATE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_IN_PAST" | "SP_MAINTENANCE_REMINDER_NOT_FOR_INCIDENT" | "ORG_SSO_PLAN_REQUIRED" | "ORG_SSO_ENFORCEMENT_NOT_READY" | "ORG_SSO_DEFAULT_ROLE_INVALID" | "SP_POSTMORTEM_INCIDENT_NOT_RESOLVED" | "SP_POSTMORTEM_EMPTY" | "SP_INCIDENT_BACKFILL_DATES_INVALID" | "SP_INCIDENT_BACKFILL_ONLY" | "SP_INCIDENT_UPDATE_LAST" | "SP_INCIDENT_BACKFILLED_STATUS_LOCKED" | "STATUS_PAGE_TEMPLATE_VARIABLE_UNKNOWN" | "STATUS_PAGE_SUBSCRIBER_LIMIT_REACHED" | "STATUS_PAGE_SUBSCRIBERS_CLOSED" | "STATUS_PAGE_PRIVATE_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SSO_CONNECTION_LIMIT_REACHED" | "STATUS_PAGE_VIEWER_LIMIT_REACHED" | "MEMBER_ROLE_MANAGED_BY_SSO" | "ORG_SSO_ROLE_MAPPING_ROLE_INVALID" | "ORG_SSO_ROLE_MAPPING_DUPLICATE" | "AUDIT_LOG_PLAN_REQUIRED" | "STATUS_PAGE_UNRESOLVED_REMINDER_MINUTES_INVALID" | "STATUS_PAGE_REPORT_GROUP_BY_INVALID" | "SENDER_DOMAIN_INVALID" | "SENDER_DOMAIN_RESERVED" | "SENDER_DOMAIN_TAKEN" | "SENDER_DOMAIN_LIMIT_REACHED" | "SENDER_DOMAIN_NOT_FOUND" | "SENDER_DOMAIN_NOT_VERIFIED" | "SENDER_FROM_LOCAL_PART_INVALID" | "SENDER_FROM_NAME_INVALID" | "SENDER_REPLY_TO_INVALID" | "SENDER_TEST_USER_REQUIRED" | "SENDER_DOMAIN_PUBLIC_SUFFIX" | "STATUS_PAGE_AUDIENCE_NAME_INVALID" | "STATUS_PAGE_AUDIENCE_NAME_TAKEN" | "STATUS_PAGE_AUDIENCE_COMPONENT_NOT_FOUND" | "STATUS_PAGE_AUDIENCE_GROUP_NOT_FOUND" | "STATUS_PAGE_AUDIENCE_EMAIL_INVALID" | "STATUS_PAGE_AUDIENCE_DOMAIN_INVALID" | "STATUS_PAGE_AUDIENCE_LIMIT_REACHED" | "STATUS_PAGE_AUDIENCE_MEMBER_LIMIT_REACHED" | "STATUS_PAGE_GROUP_AUDIENCE_CONFLICT" | "STATUS_PAGE_REPORT_RANGE_INVALID";
+            code: "MONITOR_CONFIG_TYPE_MISMATCH" | "MONITOR_FREQUENCY_BELOW_PLAN_MIN" | "MONITOR_LIMIT_REACHED" | "MONITOR_AUTH_TYPE_UNSUPPORTED" | "MONITOR_HEARTBEAT_REGIONS_NOT_SUPPORTED" | "MONITOR_HEARTBEAT_INTERVAL_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_TOO_SHORT" | "MONITOR_HEARTBEAT_GRACE_EXCEEDS_INTERVAL" | "MONITOR_HTTP_HEADERS_TOO_MANY" | "MONITOR_HTTP_HEADER_RESERVED" | "MONITOR_HTTP_BODY_METHOD_INVALID" | "MONITOR_HTTP_BODY_TOO_LARGE" | "MONITOR_ASSERTION_TYPE_NOT_ALLOWED" | "MONITOR_ALERT_CHANNEL_NOT_FOUND" | "MONITOR_TAGS_ADD_INVALID" | "MONITOR_TAGS_REMOVE_INVALID" | "MONITOR_TOKEN_ROTATION_HEARTBEAT_ONLY" | "MONITOR_CODE_CHECK_NOT_AVAILABLE" | "MONITOR_CODE_CHECK_LIMIT_REACHED" | "MONITOR_CODE_CHECK_REGION_UNAVAILABLE" | "MONITOR_CODE_CHECK_TEST_UNAVAILABLE" | "MONITOR_TEST_BUNDLE_UNAVAILABLE" | "MONITOR_BROWSER_CHECKS_DISABLED" | "MONITOR_ENVIRONMENT_REQUIRED" | "MONITOR_ENVIRONMENT_CLEAR_FORBIDDEN" | "MONITOR_PACKAGE_XOR_DEFINITION" | "MONITOR_PACKAGE_DIGEST_INVALID" | "MONITOR_PACKAGE_NOT_SUPPORTED" | "MONITOR_PACKAGE_PATH_INVALID" | "MONITOR_PACKAGE_CONCURRENT" | "MONITOR_DEFINITION_HAS_NO_REVISION" | "MONITOR_DEFINITION_IN_USE" | "MONITOR_STATUS_NOT_WRITABLE" | "MONITOR_PAUSED" | "MONITOR_OVERLAY_EXPIRES_IN_PAST" | "MONITOR_QUARANTINE_FIELDS_REQUIRED" | "MONITOR_MANAGED_BY_TAKEOVER_REQUIRED" | "MONITOR_HISTORY_PARAM_INVALID" | "MONITOR_TAKEOVER_FIELD_UNKNOWN" | "MONITOR_CAPTURE_POLICY_INVALID" | "MONITOR_RUN_PARALLEL_CODE_ONLY" | "REVISION_PACKAGE_BYTES_UNAVAILABLE" | "MONITOR_CODE_TYPE_REQUIRED" | "MONITOR_DEFINITION_REQUIRED" | "REVISION_NOT_ON_DEFINITION" | "REVISION_DIFF_CROSS_DEFINITION" | "DEFINITION_HEAD_INCOMPLETE" | "MONITOR_ASSERTION_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_ALREADY_EXISTS" | "MONITOR_AUTH_NOT_SUPPORTED_FOR_TYPE" | "MONITOR_AUTH_VAULT_FOREIGN_ORG" | "ALERT_CHANNEL_DISABLED" | "ALERT_CHANNEL_PLAN_REQUIRED" | "ALERT_CHANNEL_TYPE_IMMUTABLE" | "ALERT_CHANNEL_CONFIG_INVALID" | "ALERT_CHANNEL_SLACK_WEBHOOK_INVALID" | "ALERT_CHANNEL_DISCORD_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_INVALID" | "ALERT_CHANNEL_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "ALERT_CHANNEL_TEAMS_WEBHOOK_HOST" | "ALERT_CHANNEL_WEBHOOK_URL_INVALID" | "ALERT_CHANNEL_WEBHOOK_HEADER_RESERVED" | "ALERT_CHANNEL_OPSGENIE_REGION_INVALID" | "ALERT_CHANNEL_PAGERDUTY_SEVERITY_INVALID" | "ALERT_CHANNEL_GOOGLE_CHAT_WEBHOOK_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_UNVERIFIED" | "ALERT_CHANNEL_PHONE_NUMBERS_COUNT_INVALID" | "ALERT_CHANNEL_PHONE_NUMBER_REQUIRED" | "ALERT_CHANNEL_VERIFIED_PHONE_NOT_FOUND" | "ALERT_CHANNEL_PHONE_DESTINATION_MISMATCH" | "ALERT_CHANNEL_VOICE_LANGUAGE_INVALID" | "NOTIFICATION_POLICY_RULE_TYPE_REQUIRED" | "NOTIFICATION_POLICY_RULE_TYPE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUE_REQUIRED" | "NOTIFICATION_POLICY_RULE_VALUE_INVALID" | "NOTIFICATION_POLICY_RULE_VALUES_REQUIRED" | "NOTIFICATION_POLICY_RULE_MONITOR_IDS_REQUIRED" | "NOTIFICATION_POLICY_RULE_REGIONS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_REQUIRED" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_INVALID" | "NOTIFICATION_POLICY_RULE_INCIDENT_STATUS_CONFLICT" | "NOTIFICATION_POLICY_ESCALATION_REQUIRED" | "NOTIFICATION_POLICY_STEPS_REQUIRED" | "NOTIFICATION_POLICY_ON_RESOLVE_INVALID" | "NOTIFICATION_POLICY_ON_REOPEN_INVALID" | "NOTIFICATION_POLICY_STEP_CHANNELS_EMPTY" | "NOTIFICATION_POLICY_STEP_DELAY_NEGATIVE" | "NOTIFICATION_POLICY_STEP_DELAY_TOO_LARGE" | "NOTIFICATION_POLICY_STEP_REPEAT_INVALID" | "NOTIFICATION_POLICY_STEP_REPEAT_TOO_LARGE" | "NOTIFICATION_POLICY_STEPS_TOO_MANY" | "NOTIFICATION_POLICY_STEP_CHANNEL_NOT_FOUND" | "NOTIFICATION_POLICY_DELETE_BLOCKED" | "MONITOR_POLICY_TRIGGER_RULES_EMPTY" | "MONITOR_POLICY_RULE_TYPE_REQUIRED" | "MONITOR_POLICY_RULE_SEVERITY_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_TYPE_REQUIRED" | "MONITOR_POLICY_CONFIRMATION_REGIONS_TOO_FEW" | "MONITOR_POLICY_CONFIRMATION_WAIT_TOO_SHORT" | "MONITOR_POLICY_CONFIRMATION_WAIT_BELOW_INVARIANT" | "MONITOR_POLICY_RECOVERY_REQUIRED" | "MONITOR_POLICY_RECOVERY_SUCCESSES_TOO_FEW" | "MONITOR_POLICY_RECOVERY_REGIONS_TOO_FEW" | "MONITOR_POLICY_RECOVERY_COOLDOWN_OUT_OF_RANGE" | "MONITOR_POLICY_FIELD_REQUIRED" | "MONITOR_POLICY_FIELD_NOT_POSITIVE" | "MONITOR_POLICY_FIELD_OUT_OF_RANGE" | "URL_INVALID" | "URL_SCHEME_UNSUPPORTED" | "URL_HOST_REQUIRED" | "URL_HOST_PRIVATE" | "RESOURCE_GROUP_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_LIMIT_REACHED" | "RESOURCE_GROUP_MEMBER_ALREADY_PRESENT" | "RESOURCE_GROUP_MEMBER_TYPE_INVALID" | "RESOURCE_GROUP_THRESHOLD_VALUE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_TYPE_REQUIRED" | "RESOURCE_GROUP_THRESHOLD_OUT_OF_RANGE" | "RESOURCE_GROUP_SLUG_GENERATION_FAILED" | "STATUS_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SLUG_TAKEN" | "STATUS_PAGE_SLUG_REQUIRED" | "STATUS_PAGE_SLUG_RESERVED" | "STATUS_PAGE_VISIBILITY_UNSUPPORTED" | "STATUS_PAGE_VISIBILITY_CHANGE_UI_ONLY" | "STATUS_PAGE_LOGIN_REQUIRED" | "STATUS_PAGE_FEATURE_PLAN_REQUIRED" | "STATUS_PAGE_HOSTNAME_FIRST_PARTY_RESERVED" | "STATUS_PAGE_HOSTNAME_TLD_RESERVED" | "STATUS_PAGE_HOSTNAME_TAKEN" | "STATUS_PAGE_DOMAIN_NOT_VERIFIED" | "STATUS_PAGE_COMPONENT_GROUP_NOT_FOUND" | "STATUS_PAGE_COMPONENT_MONITOR_REQUIRED" | "STATUS_PAGE_COMPONENT_GROUP_REQUIRED" | "STATUS_PAGE_COMPONENT_STATIC_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REQUIRED" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_NOT_FOUND" | "STATUS_PAGE_COMPONENT_DEPENDENCY_REFS_INVALID" | "STATUS_PAGE_COMPONENT_SUBSCRIPTION_REFS_INVALID" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_NOT_FAILED" | "STATUS_PAGE_NOTIFICATION_DELIVERY_RETRY_TERMINAL" | "STATUS_PAGE_MEASURED_UPTIME_MONITOR_ONLY" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_IN_PAST" | "STATUS_PAGE_COMPONENT_OVERRIDE_EXPIRES_AT_EXCEEDS_MAX" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_REQUIRED" | "STATUS_PAGE_SUBSCRIBER_DESTINATION_INVALID" | "STATUS_PAGE_SUBSCRIBER_COMPONENT_NOT_FOUND" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_INVALID" | "STATUS_PAGE_SUBSCRIBER_TEAMS_WEBHOOK_CLASSIC_RETIRED" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_NOT_PUBLIC" | "STATUS_PAGE_SUBSCRIBER_CHANNEL_UNSUPPORTED" | "STATUS_PAGE_UPTIME_WINDOW_INCOMPLETE" | "STATUS_PAGE_UPTIME_FROM_AFTER_TO" | "STATUS_PAGE_UPTIME_FROM_IN_FUTURE" | "STATUS_PAGE_UPTIME_FROM_TOO_OLD" | "STATUS_PAGE_UPTIME_WINDOW_TOO_WIDE" | "STATUS_PAGE_GROUP_KEY_RESERVED" | "STATUS_PAGE_GROUP_KEY_TAKEN" | "STATUS_PAGE_ALREADY_IN_GROUP" | "STATUS_PAGE_GROUP_REORDER_MISMATCH" | "STATUS_PAGE_GROUP_EMPTY" | "STATUS_PAGE_GROUP_DOMAIN_EXISTS" | "SP_INCIDENT_PUBLISH_RESOLVED" | "SP_INCIDENT_DISMISS_PUBLISHED" | "SP_INCIDENT_SCHEDULED_FOR_REQUIRED" | "SP_INCIDENT_SCHEDULED_UNTIL_BEFORE_FOR" | "SP_INCIDENT_AUTO_RESOLVE_REQUIRES_UNTIL" | "SP_INCIDENT_COMPONENT_FOREIGN" | "SP_INCIDENT_MONITORING_INCIDENT_NOT_FOUND" | "SUBSCRIPTION_PRICE_INACTIVE" | "SUBSCRIPTION_PRICE_UNAVAILABLE" | "SUBSCRIPTION_ALREADY_ACTIVE" | "SUBSCRIPTION_NOT_ACTIVE" | "SUBSCRIPTION_NO_SCHEDULED_CHANGE" | "SUBSCRIPTION_CHANGE_PENDING" | "SUBSCRIPTION_CANCELING" | "SUBSCRIPTION_CADENCE_UNAVAILABLE" | "SUBSCRIPTION_PRICES_INVALID" | "BILLING_OVERAGE_CAP_INVALID" | "BILLING_OVERAGE_NOT_ACTIVE" | "SERVICE_SUBSCRIPTION_FREE_TIER_LIMIT" | "SERVICE_SUBSCRIPTION_SERVICE_UNAVAILABLE" | "ACTOR_BAD_REQUEST" | "ORGANIZATION_ID_REQUIRED" | "WORKSPACE_REQUIRED" | "WORKSPACE_INTERNAL_ACTOR_NO_WORKSPACE" | "WORKSPACE_NOT_FOUND_ON_ORG" | "ENVIRONMENT_LIMIT_REACHED" | "ENVIRONMENT_SLUG_TAKEN" | "ENVIRONMENT_DELETE_BLOCKED" | "INBOUND_INBOX_NAME_BLANK" | "INBOUND_HTTP_RESPONSE_DELAY_INVALID" | "INBOUND_HTTP_RESPONSE_STATUS_INVALID" | "INBOUND_HTTP_RESPONSE_BODY_TOO_LARGE" | "INBOUND_HTTP_RESPONSE_BODY_INVALID" | "INBOUND_HTTP_RESPONSE_CONTENT_TYPE_INVALID" | "INBOUND_HTTP_RESPONSE_HEADERS_INVALID" | "INBOUND_EVENTS_CURSOR_INVALID" | "INBOUND_EVENTS_LIMIT_OUT_OF_RANGE" | "INBOUND_DOMAIN_CUSTOM_NAME_REQUIRED" | "INBOUND_DOMAIN_IN_ASSIGNED_ZONE" | "INBOUND_DOMAIN_NAME_TAKEN" | "INBOUND_DOMAIN_KIND_INVALID" | "INBOUND_DOMAIN_STATUS_INVALID" | "INBOUND_DOMAIN_NAME_INVALID" | "INBOUND_INJECT_TO_BLANK" | "INBOUND_INJECT_FROM_BLANK" | "INBOUND_INJECT_DOMAIN_DISABLED" | "INBOUND_INJECT_TO_INVALID" | "INBOUND_INJECT_FROM_INVALID" | "INBOUND_INJECT_HEADER_INVALID" | "INBOUND_WAIT_TO_REQUIRED" | "INBOUND_WAIT_TO_INVALID" | "INBOUND_WAIT_DOMAIN_REQUIRED" | "INBOUND_WEBHOOK_INBOX_LIMIT_REACHED" | "INBOUND_EMAIL_DOMAIN_LIMIT_REACHED" | "INBOUND_CUSTOM_MX_PLAN_REQUIRED" | "INBOUND_RETENTION_ABOVE_PLAN" | "INBOUND_EVENTS_MONTHLY_LIMIT_REACHED" | "INBOUND_ACTIVITY_INBOX_IDS_REQUIRED" | "INBOUND_ACTIVITY_INBOX_IDS_TOO_MANY" | "INBOUND_ACTIVITY_DOMAIN_IDS_REQUIRED" | "INBOUND_ACTIVITY_DOMAIN_IDS_TOO_MANY" | "TAG_NAME_TAKEN" | "SAVED_VIEW_TABLE_UNKNOWN" | "SAVED_VIEW_LIMIT_REACHED" | "SAVED_VIEW_FILTERS_TOO_LARGE" | "SECRET_KEY_TAKEN" | "SECRET_ENVIRONMENT_VALUE_BLANK" | "SECRET_REQUEST_ENVIRONMENT_QUERY" | "SECRET_REQUEST_HEAD_REQUIRED" | "SECRET_REQUEST_REMAP_SECRET_ID" | "SESSION_SETUP_FILE_BLANK" | "SESSION_HEAD_REQUIRED" | "RUN_NO_HEAD" | "RUN_KEYS_MISSING" | "SYNTHETICS_USAGE_CAPPED" | "SCHEDULE_TICK_COVERED" | "RUN_LIST_PARAM_INVALID" | "ARTIFACT_BYTES_TOO_LARGE" | "SUPERVISOR_TOKEN_INVALID" | "LEASE_COMPLETION_CONFLICT" | "LEASE_FENCE_REJECTED" | "CAPACITY_TARGET_INVALID" | "ADMISSIONS_NOT_HELD" | "RUNTIME_UNKNOWN" | "RUNTIME_RETIRED" | "RUNTIME_NOT_AVAILABLE" | "RUNTIME_UNAVAILABLE" | "RUNTIME_NO_CAPACITY" | "RUNTIME_NO_ROUTE" | "ROLLOUT_CANARY_MISSING" | "RUNTIME_EOL" | "RUNTIME_AMBIGUOUS" | "RUNTIME_DIGEST_IMMUTABLE" | "RUNTIME_DIGEST_INVALID" | "API_KEY_LIMIT_REACHED" | "API_KEY_REVOKED" | "AUDIT_EXPORT_LIMIT_EXCEEDED" | "AUTH_FIELD_BLANK" | "AUTH_EMAIL_INVALID" | "AUTH_EMAIL_TAKEN" | "EMAIL_ALREADY_VERIFIED" | "ORG_EMAIL_TAKEN" | "ONBOARDING_STAGE_BACKWARD" | "INVITE_USER_ALREADY_MEMBER" | "INVITE_ALREADY_ACCEPTED" | "INVITE_REVOKED" | "INVITE_EXPIRED" | "INVITE_EMAIL_MISMATCH" | "MEMBER_LIMIT_REACHED" | "MAINTENANCE_WINDOW_END_BEFORE_START" | "FORENSICS_HASH_BLANK" | "FORENSICS_HASH_INVALID" | "CHECK_RESULTS_LIMIT_OUT_OF_RANGE" | "CHECK_RESULTS_WINDOW_INVALID" | "CHECK_RESULTS_CURSOR_INVALID" | "CHECK_RESULTS_REGION_INVALID" | "CHECK_RESULTS_IDS_INVALID" | "STATUS_DATA_STATUS_INVALID" | "STATUS_DATA_PERIOD_INVALID" | "STATUS_DATA_GRANULARITY_INVALID" | "STATUS_DATA_GRANULARITY_PERIOD_MISMATCH" | "STATUS_DATA_PERIOD_UNKNOWN" | "STATUS_DATA_FROM_REQUIRED_WITH_TO" | "STATUS_DATA_TO_IN_FUTURE" | "STATUS_DATA_FROM_AFTER_TO" | "STATUS_DATA_WINDOW_TOO_WIDE" | "STATUS_DATA_TYPES_INVALID" | "STATUS_DATA_CURSOR_INVALID" | "STATUS_DATA_LIMIT_OUT_OF_RANGE" | "STATUS_DATA_COMPONENT_IDS_TOO_MANY" | "INCIDENT_ACTIVE_EXISTS" | "INCIDENT_TRANSITION_INVALID" | "INCIDENT_SERVICE_NOT_FOUND" | "INCIDENT_SERVICE_INCIDENT_NOT_FOUND" | "INCIDENT_SERVICE_MISMATCH" | "INCIDENT_EVENTS_CURSOR_INVALID" | "INCIDENT_EVENTS_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_DISPATCH_INVALID_STATE" | "NOTIFICATION_POLICY_DISPATCHES_LIMIT_OUT_OF_RANGE" | "NOTIFICATION_POLICY_DISPATCHES_WINDOW_INVALID" | "NOTIFICATION_POLICY_DISPATCHES_CURSOR_INVALID" | "WEBHOOK_LIMIT_REACHED" | "WEBHOOK_URL_BLANK" | "WEBHOOK_EVENT_TYPES_INVALID" | "WEBHOOK_EVENT_TYPE_INVALID" | "ALERT_DELIVERY_RETRY_NOT_FAILED" | "ADMIN_BACKFILL_TYPE_UNKNOWN" | "ADMIN_PUBLISH_BLOCKED" | "ADMIN_ADAPTER_TYPE_UNKNOWN" | "ADMIN_SEO_METADATA_INVALID" | "ADMIN_RELATED_SERVICES_TOO_MANY" | "ADMIN_RELATED_SERVICE_SELF" | "ADMIN_PROBE_NO_OFFICIAL_URL" | "ADMIN_PROBE_URL_MALFORMED" | "ADMIN_LIFECYCLE_TRANSITION_INVALID" | "CLOUDFLARE_REQUEST_FAILED" | "CLOUDFLARE_API_ERROR" | "FIELD_REQUIRED" | "FIELD_TOO_SMALL" | "FIELD_TOO_LARGE" | "FIELD_OUT_OF_RANGE" | "FIELD_PATTERN_MISMATCH" | "FIELD_INVALID_EMAIL" | "FIELD_INVALID_URL" | "FIELD_INVALID_FORMAT" | "FIELD_INVARIANT_VIOLATED" | "FIELD_VALIDATION_FAILED" | "REQUEST_BODY_REQUIRED" | "REQUEST_BODY_MALFORMED" | "REQUEST_BODY_TYPE_MISMATCH" | "REQUEST_PARAMETER_REQUIRED" | "REQUEST_MEDIA_TYPE_UNSUPPORTED" | "CARRIER_CREDITS_EXHAUSTED" | "SYNTHETICS_USAGE_RESERVED" | "TESTING_QUOTA_EXHAUSTED" | "RATE_LIMITED" | "NOTIFY_RATE" | "SCOPE_REQUIRED" | "RUN_TOKEN_ADDRESS_FORBIDDEN" | "MONITOR_OWNED_BY_OTHER" | "DEPLOY_LOCKED" | "LIVE_REVISION_CHANGED" | "CONFIRMATION_REQUIRED" | "UPDATE_REQUIRED" | "CLAIMED" | "REVISION_ROLLED_BACK" | "REVISION_NEVER_LIVE" | "ROLLBACK_INCIDENT_REQUIRED" | "REVISION_UNTESTED" | "REVISION_DISCARDED" | "REVISION_IS_LIVE" | "DRAFT_LIMIT" | "NO_TOKEN" | "CLIENT_TOO_OLD" | "MAX_RUNS_EXCEEDED" | "IMPORT_NOT_IN_BUNDLE" | "USE_PROBE" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_KEY_IN_PROGRESS" | "IDEMPOTENCY_KEY_ORPHANED" | "TRIGGER_UNSUPPORTED_TYPE" | "ENVIRONMENT_NOT_FOUND" | "EVIDENCE_EXPIRED" | "RUN_EXPIRED" | "BUNDLE_TOO_LARGE" | "BUNDLE_NOT_FOUND" | "IMPORT_NOT_IN_RUNTIME" | "SECRET_LITERAL" | "FIELD_UNKNOWN" | "API_KEY_EXPIRED" | "DEVICE_AUTHORIZATION_NOT_FOUND" | "DEVICE_AUTHORIZATION_EXPIRED" | "DEVICE_WORKSPACE_ORG_MISMATCH" | "SSO_CONNECTION_FROZEN_FIELD" | "SSO_CONNECTION_ALREADY_EXISTS" | "SSO_DOMAIN_INVALID" | "SSO_DOMAIN_TAKEN" | "SSO_METADATA_INVALID" | "SSO_METADATA_FETCH_FAILED" | "SSO_METADATA_ENTITY_ID_CHANGED" | "SSO_CERTIFICATE_INVALID" | "SSO_SP_KEY_NO_NEXT" | "ACCOUNT_LINK_REFUSED" | "END_USER_DEACTIVATED" | "STATUS_PAGE_ACCESS_LOG_CURSOR_INVALID" | "STATUS_PAGE_SUBSCRIBER_CONVERSION_UNCONFIRMED" | "STATUS_PAGE_INVITE_PAGE_NOT_PRIVATE" | "STATUS_PAGE_INVITE_EMAIL_SIGN_IN_OFF" | "STATUS_PAGE_INVITE_NOT_OPEN" | "STATUS_PAGE_ACCESS_POLICY_IDLE_EXCEEDS_ABSOLUTE" | "STATUS_PAGE_UPTIME_MONTHS_OUT_OF_RANGE" | "STATUS_PAGE_SUBSCRIBER_GROUP_NOT_FOUND" | "STATUS_PAGE_EXPORT_FORMAT_UNSUPPORTED" | "STATUS_PAGE_TEMPLATE_NAME_TAKEN" | "STATUS_PAGE_TEMPLATE_COMPONENT_NOT_FOUND" | "STATUS_PAGE_TEMPLATE_FIELD_NOT_FOR_KIND" | "STATUS_PAGE_TEMPLATE_KIND_MISMATCH" | "STATUS_PAGE_TEMPLATE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_LEAD_DUPLICATE" | "SP_MAINTENANCE_REMINDER_IN_PAST" | "SP_MAINTENANCE_REMINDER_NOT_FOR_INCIDENT" | "ORG_SSO_PLAN_REQUIRED" | "ORG_SSO_ENFORCEMENT_NOT_READY" | "ORG_SSO_DEFAULT_ROLE_INVALID" | "SP_POSTMORTEM_INCIDENT_NOT_RESOLVED" | "SP_POSTMORTEM_EMPTY" | "SP_INCIDENT_BACKFILL_DATES_INVALID" | "SP_INCIDENT_BACKFILL_ONLY" | "SP_INCIDENT_UPDATE_LAST" | "SP_INCIDENT_BACKFILLED_STATUS_LOCKED" | "STATUS_PAGE_TEMPLATE_VARIABLE_UNKNOWN" | "STATUS_PAGE_SUBSCRIBER_LIMIT_REACHED" | "STATUS_PAGE_SUBSCRIBERS_CLOSED" | "STATUS_PAGE_PRIVATE_PAGE_LIMIT_REACHED" | "STATUS_PAGE_SSO_CONNECTION_LIMIT_REACHED" | "STATUS_PAGE_VIEWER_LIMIT_REACHED" | "MEMBER_ROLE_MANAGED_BY_SSO" | "ORG_SSO_ROLE_MAPPING_ROLE_INVALID" | "ORG_SSO_ROLE_MAPPING_DUPLICATE" | "AUDIT_LOG_PLAN_REQUIRED" | "STATUS_PAGE_UNRESOLVED_REMINDER_MINUTES_INVALID" | "STATUS_PAGE_REPORT_RANGE_INVALID" | "SENDER_DOMAIN_INVALID" | "SENDER_DOMAIN_RESERVED" | "SENDER_DOMAIN_TAKEN" | "SENDER_DOMAIN_LIMIT_REACHED" | "SENDER_DOMAIN_NOT_FOUND" | "SENDER_DOMAIN_NOT_VERIFIED" | "SENDER_FROM_LOCAL_PART_INVALID" | "SENDER_FROM_NAME_INVALID" | "SENDER_REPLY_TO_INVALID" | "SENDER_TEST_USER_REQUIRED" | "SENDER_DOMAIN_PUBLIC_SUFFIX" | "STATUS_PAGE_AUDIENCE_NAME_INVALID" | "STATUS_PAGE_AUDIENCE_NAME_TAKEN" | "STATUS_PAGE_AUDIENCE_COMPONENT_NOT_FOUND" | "STATUS_PAGE_AUDIENCE_GROUP_NOT_FOUND" | "STATUS_PAGE_AUDIENCE_EMAIL_INVALID" | "STATUS_PAGE_AUDIENCE_DOMAIN_INVALID" | "STATUS_PAGE_AUDIENCE_LIMIT_REACHED" | "STATUS_PAGE_AUDIENCE_MEMBER_LIMIT_REACHED" | "STATUS_PAGE_GROUP_AUDIENCE_CONFLICT" | "SP_INCIDENT_AUDIENCE_NOT_FOUND" | "SP_INCIDENT_AUDIENCE_CANNOT_SEE_COMPONENT";
             /** @description Field of the row that was rejected */
             field?: string | null;
             /** @description Human-readable reason */
@@ -17007,6 +17117,15 @@ export interface components {
         };
         TableValueResultSsoConnectionDto: {
             data: components["schemas"]["SsoConnectionDto"][];
+            hasNext: boolean;
+            hasPrev: boolean;
+            /** Format: int64 */
+            totalElements?: number | null;
+            /** Format: int32 */
+            totalPages?: number | null;
+        };
+        TableValueResultStatusPageAudienceDto: {
+            data: components["schemas"]["StatusPageAudienceDto"][];
             hasNext: boolean;
             hasPrev: boolean;
             /** Format: int64 */
@@ -17995,6 +18114,19 @@ export interface components {
              */
             sessionIdleTtlSeconds: number;
         };
+        /** @description Change an audience of a private status page */
+        UpdateStatusPageAudienceRequest: {
+            /** @description New audience name; null preserves current */
+            name?: string | null;
+            /** @description New component list; null preserves current */
+            componentIds?: string[] | null;
+            /** @description New component group list; null preserves current */
+            componentGroupIds?: string[] | null;
+            /** @description New viewer email list; null preserves current */
+            emails?: string[] | null;
+            /** @description New email domain list; null preserves current */
+            domains?: string[] | null;
+        };
         UpdateStatusPageComponentGroupRequest: {
             /** @description New group name; null preserves current */
             name?: string | null;
@@ -18690,193 +18822,6 @@ export interface components {
             channelType: "zapier";
             /** @description Zapier/n8n/Make catch webhook URL */
             webhookUrl: string;
-        };
-        /** @description Create an audience on a private status page */
-        CreateStatusPageAudienceRequest: {
-            /** @description Audience name, unique on the page (1–100 characters) */
-            name: string;
-            /** @description Components of this page only the audience sees */
-            componentIds?: string[] | null;
-            /** @description Component groups of this page only the audience sees */
-            componentGroupIds?: string[] | null;
-            /** @description Viewer emails in the audience, matched ignoring case */
-            emails?: string[] | null;
-            /** @description Email domains whose viewers are in the audience, e.g. acme.com */
-            domains?: string[] | null;
-        };
-        SingleValueResponseStatusPageAudienceDto: {
-            data: components["schemas"]["StatusPageAudienceDto"];
-        };
-        /** @description A named group of viewers of a private status page and the components only they see */
-        StatusPageAudienceDto: {
-            /**
-             * Format: uuid
-             * @description Audience identifier
-             */
-            id: string;
-            /**
-             * Format: uuid
-             * @description Status page this audience belongs to
-             */
-            statusPageId: string;
-            /** @description Audience name, unique on the page */
-            name: string;
-            /** @description Components visible only to this page's audiences that hold them */
-            componentIds: string[];
-            /** @description Component groups visible only to this page's audiences that hold them */
-            componentGroupIds: string[];
-            /** @description Viewer emails in the audience; masked for viewers below incident author */
-            emails: string[];
-            /** @description Email domains whose viewers are in the audience, e.g. acme.com */
-            domains: string[];
-            /**
-             * Format: date-time
-             * @description When the audience was created
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @description When the audience last changed
-             */
-            updatedAt: string;
-            /**
-             * Format: int32
-             * @description Active end users of the page the audience's emails and domains match now
-             */
-            endUserCount: number;
-        };
-        TableValueResultStatusPageAudienceDto: {
-            data: components["schemas"]["StatusPageAudienceDto"][];
-            hasNext: boolean;
-            hasPrev: boolean;
-            /** Format: int64 */
-            totalElements?: number | null;
-            /** Format: int32 */
-            totalPages?: number | null;
-        };
-        /** @description Change an audience of a private status page */
-        UpdateStatusPageAudienceRequest: {
-            /** @description New audience name; null preserves current */
-            name?: string | null;
-            /** @description New component list; null preserves current */
-            componentIds?: string[] | null;
-            /** @description New component group list; null preserves current */
-            componentGroupIds?: string[] | null;
-            /** @description New viewer email list; null preserves current */
-            emails?: string[] | null;
-            /** @description New email domain list; null preserves current */
-            domains?: string[] | null;
-        };
-        /** @description Uptime, downtime and incidents of one component over the report's range */
-        StatusPageReportComponentDto: {
-            /**
-             * Format: uuid
-             * @description Component id
-             */
-            id: string;
-            /** @description Component name */
-            name: string;
-            /**
-             * Format: uuid
-             * @description Group the component belongs to; null when ungrouped
-             */
-            groupId?: string | null;
-            /**
-             * Format: double
-             * @description Mean daily uptime percentage over the tracked days; null when no day was tracked
-             */
-            uptimePercentage?: number | null;
-            /**
-             * Format: int32
-             * @description Days in the range the component was tracked, including today's partial day
-             */
-            trackedDays: number;
-            /**
-             * Format: int64
-             * @description Outage minutes weighted like uptime: major outage in full, partial outage at 30%
-             */
-            downtimeMinutes: number;
-            /**
-             * Format: int64
-             * @description Minutes of major outage in the range
-             */
-            majorOutageMinutes: number;
-            /**
-             * Format: int64
-             * @description Minutes of partial outage in the range
-             */
-            partialOutageMinutes: number;
-            /**
-             * Format: int32
-             * @description Published incidents in the range that affected the component
-             */
-            incidentCount: number;
-            /** @description Ids of those incidents, oldest first, as listed in the report's incidents */
-            incidentIds: string[];
-        };
-        /** @description Uptime, downtime and incidents of one component group over the report's range */
-        StatusPageReportGroupDto: {
-            /**
-             * Format: uuid
-             * @description Component group id
-             */
-            id: string;
-            /** @description Component group name */
-            name: string;
-            /** @description Ids of the group's components, in page order */
-            componentIds: string[];
-            /**
-             * Format: double
-             * @description Group uptime percentage, as the public page shows it; null when no day was tracked
-             */
-            uptimePercentage?: number | null;
-            /**
-             * Format: int32
-             * @description Days in the range the group was tracked, including today's partial day
-             */
-            trackedDays: number;
-            /**
-             * Format: int64
-             * @description Outage minutes weighted like uptime: major outage in full, partial outage at 30%
-             */
-            downtimeMinutes: number;
-            /**
-             * Format: int64
-             * @description Minutes of major outage in the range
-             */
-            majorOutageMinutes: number;
-            /**
-             * Format: int64
-             * @description Minutes of partial outage in the range
-             */
-            partialOutageMinutes: number;
-            /**
-             * Format: int32
-             * @description Published incidents in the range that affected the group's components
-             */
-            incidentCount: number;
-            /** @description Ids of those incidents, oldest first, as listed in the report's incidents */
-            incidentIds: string[];
-        };
-        /** @description Who loses access to what when an audience is deleted */
-        StatusPageAudienceDeletePreviewDto: {
-            /**
-             * Format: int32
-             * @description Active end users in the audience who lose at least one component
-             */
-            losingAccessCount: number;
-            /** @description Components of the audience that someone loses, in page order */
-            componentIds: string[];
-            /** @description Component groups of the audience that someone loses, in page order */
-            componentGroupIds: string[];
-        };
-        SingleValueResponseStatusPageAudienceDeletePreviewDto: {
-            data: components["schemas"]["StatusPageAudienceDeletePreviewDto"];
-        };
-        /** @description Who sees one component or component group, set in one call */
-        SetStatusPageAudiencesRequest: {
-            /** @description Audiences that see it; an empty list makes it visible to every viewer */
-            audienceIds: string[];
         };
     };
     responses: never;
@@ -45765,136 +45710,6 @@ export interface operations {
             };
         };
     };
-    previewOrgSsoRoleMapping: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
-                "Idempotency-Key"?: string;
-                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
-                "X-DevHelm-Client"?: string;
-            };
-            path: {
-                orgId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PreviewOrgSsoRoleMappingRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseOrgSsoRoleMappingPreviewDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required — the plan or quota does not allow this */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone — the resource is no longer available */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests — retry after the window resets */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
     deleteOrgSsoRoleMapping: {
         parameters: {
             query?: never;
@@ -46044,6 +45859,136 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SingleValueResponseOrgSsoRoleMappingDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    previewOrgSsoRoleMapping: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                orgId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewOrgSsoRoleMappingRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseOrgSsoRoleMappingPreviewDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */
@@ -58447,6 +58392,764 @@ export interface operations {
             };
         };
     };
+    listStatusPageAudiences: {
+        parameters: {
+            query?: {
+                endUserId?: string;
+            };
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageAudienceDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createStatusPageAudience: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
+                "Idempotency-Key"?: string;
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStatusPageAudienceRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageAudienceDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStatusPageAudience: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                audienceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageAudienceDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateStatusPageAudience: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                audienceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusPageAudienceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageAudienceDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteStatusPageAudience: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                audienceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    previewStatusPageAudienceDelete: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                audienceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SingleValueResponseStatusPageAudienceDeletePreviewDto"];
+                };
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     listComponents: {
         parameters: {
             query?: never;
@@ -58851,6 +59554,135 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    setStatusPageComponentAudiences: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                componentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetStatusPageAudiencesRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageAudienceDto"];
+                };
             };
             /** @description Bad request — the payload failed validation */
             400: {
@@ -61623,22 +62455,9 @@ export interface operations {
             };
         };
     };
-    exportStatusPageReport: {
+    revokeStatusPageEndUserSessions: {
         parameters: {
-            query?: {
-                /** @description First day of the range (UTC), e.g. 2026-10-01; set with to */
-                from?: string;
-                /** @description Last day of the range (UTC), e.g. 2026-10-31; set with from */
-                to?: string;
-                /** @description Rows per component or componentGroup (default: component) */
-                groupBy?: string;
-                /** @description File format: csv or json (default: csv) */
-                format?: string;
-                /** @description Component group to export; repeat for more (default: every row) */
-                groupId?: string[];
-                /** @description Component to export; repeat for more (default: every row) */
-                componentId?: string[];
-            };
+            query?: never;
             header?: {
                 /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
                 "X-DevHelm-Client"?: string;
@@ -61650,15 +62469,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "text/csv": components["schemas"]["StreamingResponseBody"];
-                    "application/json": components["schemas"]["StreamingResponseBody"];
-                };
+                content?: never;
             };
             /** @description Bad request — the payload failed validation */
             400: {
@@ -61761,26 +62577,34 @@ export interface operations {
             };
         };
     };
-    revokeStatusPageEndUserSessions: {
+    exportStatusPageData: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description File format: csv or json (default: csv) */
+                format?: string;
+            };
             header?: {
                 /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
                 "X-DevHelm-Client"?: string;
             };
             path: {
                 id: string;
+                /** @description What to export: subscribers */
+                kind: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description No Content */
-            204: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "text/csv": components["schemas"]["StreamingResponseBody"];
+                    "application/json": components["schemas"]["StreamingResponseBody"];
+                };
             };
             /** @description Bad request — the payload failed validation */
             400: {
@@ -62267,9 +63091,17 @@ export interface operations {
             };
         };
     };
-    exportStatusPageData: {
+    exportStatusPageReport: {
         parameters: {
             query?: {
+                /** @description First day of the range (UTC), e.g. 2026-10-01; set with to */
+                from?: string;
+                /** @description Last day of the range (UTC), e.g. 2026-10-31; set with from */
+                to?: string;
+                /** @description Component group to export; repeat for more (default: every row) */
+                groupId?: string[];
+                /** @description Component to export; repeat for more (default: every row) */
+                componentId?: string[];
                 /** @description File format: csv or json (default: csv) */
                 format?: string;
             };
@@ -62279,8 +63111,6 @@ export interface operations {
             };
             path: {
                 id: string;
-                /** @description What to export: subscribers */
-                kind: string;
             };
             cookie?: never;
         };
@@ -62801,6 +63631,135 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request — the payload failed validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized — missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Payment required — the plan or quota does not allow this */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden — the actor lacks permission for this resource */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found — the requested resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict — the request collides with current resource state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone — the resource is no longer available */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests — retry after the window resets */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal server error — see the message field for details */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Bad gateway — an upstream provider returned an error */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service unavailable — try again shortly */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    setStatusPageGroupAudiences: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
+                "X-DevHelm-Client"?: string;
+            };
+            path: {
+                id: string;
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetStatusPageAudiencesRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TableValueResultStatusPageAudienceDto"];
+                };
             };
             /** @description Bad request — the payload failed validation */
             400: {
@@ -65975,8 +66934,6 @@ export interface operations {
                 from?: string;
                 /** @description Last day of the range (UTC), e.g. 2026-10-31; set with from */
                 to?: string;
-                /** @description Rows per component or componentGroup (default: component) */
-                groupBy?: string;
             };
             header?: {
                 /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
@@ -74968,1022 +75925,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SingleValueResponseWorkspaceDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required — the plan or quota does not allow this */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone — the resource is no longer available */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests — retry after the window resets */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    listStatusPageAudiences: {
-        parameters: {
-            query?: {
-                endUserId?: string;
-            };
-            header?: {
-                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
-                "X-DevHelm-Client"?: string;
-            };
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultStatusPageAudienceDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required — the plan or quota does not allow this */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone — the resource is no longer available */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests — retry after the window resets */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    createStatusPageAudience: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Replays the stored response for 24h when the same key is sent again (1–255 visible ASCII) */
-                "Idempotency-Key"?: string;
-                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
-                "X-DevHelm-Client"?: string;
-            };
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateStatusPageAudienceRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseStatusPageAudienceDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required — the plan or quota does not allow this */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone — the resource is no longer available */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests — retry after the window resets */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    getStatusPageAudience: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
-                "X-DevHelm-Client"?: string;
-            };
-            path: {
-                id: string;
-                audienceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseStatusPageAudienceDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required — the plan or quota does not allow this */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone — the resource is no longer available */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests — retry after the window resets */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    updateStatusPageAudience: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
-                "X-DevHelm-Client"?: string;
-            };
-            path: {
-                id: string;
-                audienceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateStatusPageAudienceRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseStatusPageAudienceDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required — the plan or quota does not allow this */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone — the resource is no longer available */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests — retry after the window resets */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    deleteStatusPageAudience: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
-                "X-DevHelm-Client"?: string;
-            };
-            path: {
-                id: string;
-                audienceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required — the plan or quota does not allow this */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone — the resource is no longer available */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests — retry after the window resets */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    previewStatusPageAudienceDelete: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
-                "X-DevHelm-Client"?: string;
-            };
-            path: {
-                id: string;
-                audienceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["SingleValueResponseStatusPageAudienceDeletePreviewDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required — the plan or quota does not allow this */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone — the resource is no longer available */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests — retry after the window resets */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    setStatusPageComponentAudiences: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
-                "X-DevHelm-Client"?: string;
-            };
-            path: {
-                id: string;
-                componentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetStatusPageAudiencesRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultStatusPageAudienceDto"];
-                };
-            };
-            /** @description Bad request — the payload failed validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized — missing or invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required — the plan or quota does not allow this */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Forbidden — the actor lacks permission for this resource */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found — the requested resource does not exist */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict — the request collides with current resource state */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone — the resource is no longer available */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests — retry after the window resets */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error — see the message field for details */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Bad gateway — an upstream provider returned an error */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable — try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    setStatusPageGroupAudiences: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Calling surface and version, e.g. cli/1.4.0 or sdk-js/2.0.0 */
-                "X-DevHelm-Client"?: string;
-            };
-            path: {
-                id: string;
-                groupId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetStatusPageAudiencesRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["TableValueResultStatusPageAudienceDto"];
                 };
             };
             /** @description Bad request — the payload failed validation */

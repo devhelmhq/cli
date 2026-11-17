@@ -65,7 +65,7 @@
 | `postmortemUrl` | string |  | ✓ |  |
 | `affectedComponents` | StatusPageIncidentComponentDto[] |  | ✓ |  |
 | `updates` | StatusPageIncidentUpdateDto[] |  | ✓ |  |
+| `audienceIds` | string (uuid)[] | ✓ |  | Audiences that see it; empty for everyone who sees its components |
 | `createdAt` | string (date-time) | ✓ |  |  |
 | `updatedAt` | string (date-time) | ✓ |  |  |
-| `audienceIds` | string (uuid)[] | ✓ |  | Audiences that see it; empty for everyone who sees its components |
 
