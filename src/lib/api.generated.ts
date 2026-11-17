@@ -15681,6 +15681,10 @@ export interface components {
             connectionId?: string | null;
             /** @description Why a sign-in failed; null for other events */
             failureReason?: string | null;
+            /** @description Reference the person saw when their sign-in failed; null for other events */
+            correlationId?: string | null;
+            /** @description Status codes the IdP refused the sign-in with, e.g. Responder/InvalidNameIDPolicy */
+            idpStatusCode?: string | null;
             /** @description Address the viewer connected from; null when an admin acted */
             clientIp?: string | null;
         };
