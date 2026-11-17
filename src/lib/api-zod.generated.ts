@@ -4199,6 +4199,8 @@ const StatusPageAccessEventDto = z
     endUserEmail: z.string().nullish(),
     connectionId: z.string().uuid().nullish(),
     failureReason: z.string().nullish(),
+    correlationId: z.string().nullish(),
+    idpStatusCode: z.string().nullish(),
     clientIp: z.string().nullish(),
   })
   .passthrough();
