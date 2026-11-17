@@ -6058,6 +6058,8 @@ const SsoConnectionTestDto = z
     failureReason: z.string().nullish(),
     failureMessage: z.string().nullish(),
     correlationId: z.string().nullish(),
+    idpStatusCode: z.string().nullish(),
+    idpStatusMessage: z.string().nullish(),
     assertedIssuer: z.string().nullish(),
     assertedEmail: z.string().nullish(),
     assertedName: z.string().nullish(),

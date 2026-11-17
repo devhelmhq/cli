@@ -15501,11 +15501,15 @@ export interface components {
              * @description Why the test failed; null unless it failed
              * @enum {string|null}
              */
-            failureReason?: "CONNECTION_NOT_FOUND" | "CONNECTION_DISABLED" | "CONNECTION_NOT_CONFIGURED" | "TEST_NOT_PENDING" | "UNSOLICITED_OR_EXPIRED" | "BROWSER_MISMATCH" | "MALFORMED_RESPONSE" | "INVALID_SIGNATURE" | "ENCRYPTED_ASSERTION_REFUSED" | "ISSUER_MISMATCH" | "AUDIENCE_MISMATCH" | "EXPIRED_OR_NOT_YET_VALID" | "IN_RESPONSE_TO_MISMATCH" | "DESTINATION_MISMATCH" | "REPLAY" | "ASSERTION_INVALID" | "EMAIL_MISSING" | "EMAIL_DOMAIN_NOT_ALLOWED" | "ACCOUNT_LINK_REFUSED" | "END_USER_DEACTIVATED" | "VIEWER_LIMIT_REACHED" | null;
+            failureReason?: "CONNECTION_NOT_FOUND" | "CONNECTION_DISABLED" | "CONNECTION_NOT_CONFIGURED" | "TEST_NOT_PENDING" | "UNSOLICITED_OR_EXPIRED" | "BROWSER_MISMATCH" | "MALFORMED_RESPONSE" | "IDP_REFUSED" | "INVALID_SIGNATURE" | "ENCRYPTED_ASSERTION_REFUSED" | "ISSUER_MISMATCH" | "AUDIENCE_MISMATCH" | "EXPIRED_OR_NOT_YET_VALID" | "IN_RESPONSE_TO_MISMATCH" | "DESTINATION_MISMATCH" | "REPLAY" | "ASSERTION_INVALID" | "EMAIL_MISSING" | "EMAIL_DOMAIN_NOT_ALLOWED" | "ACCOUNT_LINK_REFUSED" | "END_USER_DEACTIVATED" | "VIEWER_LIMIT_REACHED" | null;
             /** @description What to change at the IdP or here; null unless the test failed */
             failureMessage?: string | null;
             /** @description Identifier that finds the failure in the logs; null unless it failed */
             correlationId?: string | null;
+            /** @description Status codes the IdP refused the sign-in with, e.g. Responder/InvalidNameIDPolicy */
+            idpStatusCode?: string | null;
+            /** @description Message the IdP sent with its refusal */
+            idpStatusMessage?: string | null;
             /** @description Entity ID the IdP signed the assertion as */
             assertedIssuer?: string | null;
             /** @description Email address the IdP asserted */
