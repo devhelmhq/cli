@@ -56,8 +56,8 @@
 | `displayOrder` | integer (int32) | ✓ |  |  |
 | `pageOrder` | integer (int32) | ✓ |  |  |
 | `excludeFromOverall` | boolean | ✓ |  |  |
+| `audienceRestricted` | boolean |  |  | Visible only to the audiences that hold it, and to no viewer when none does (default: false) |
 | `startDate` | string (date-time) |  | ✓ |  |
 | `createdAt` | string (date-time) | ✓ |  |  |
 | `updatedAt` | string (date-time) | ✓ |  |  |
-| `audienceRestricted` | boolean |  |  | Visible only to the audiences that hold it, and to no viewer when none does (default: false) |
 
