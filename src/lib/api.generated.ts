@@ -16645,6 +16645,7 @@ export interface components {
         StatusPageTemplateRequest: {
             /**
              * @description INCIDENT or MAINTENANCE; ignored when replacing a template
+             * @example INCIDENT
              * @enum {string}
              */
             kind: "INCIDENT" | "MAINTENANCE";
