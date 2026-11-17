@@ -1822,6 +1822,9 @@ const AddCustomDomainRequest = z
 const AddStatusPageGroupMemberRequest = z
   .object({ statusPageId: z.string().uuid(), key: z.string().min(0).max(64) })
   .strict();
+const UpdateStatusPageGroupMemberRequest = z
+  .object({ key: z.string().min(0).max(64) })
+  .strict();
 const ReorderStatusPageGroupMembersRequest = z
   .object({ statusPageIds: z.array(z.string().uuid()).min(1) })
   .strict();
@@ -6212,6 +6215,20 @@ const StatusPageEndUserBulkSignOutDto = z
 const SingleValueResponseStatusPageEndUserBulkSignOutDto = z
   .object({ data: StatusPageEndUserBulkSignOutDto })
   .passthrough();
+const StatusPageEndUserStatsDto = z
+  .object({
+    active: z.number().int(),
+    activeSso: z.number().int(),
+    invited: z.number().int(),
+    expiredInvites: z.number().int(),
+    deactivated: z.number().int(),
+    signIns: z.number().int(),
+    failedSignIns: z.number().int(),
+  })
+  .passthrough();
+const SingleValueResponseStatusPageEndUserStatsDto = z
+  .object({ data: StatusPageEndUserStatsDto })
+  .passthrough();
 const StatusPageEndUserDto = z
   .object({
     id: z.string().uuid(),
@@ -7450,6 +7467,7 @@ export const schemas = {
   SetStatusPageGroupDefaultPageRequest,
   AddCustomDomainRequest,
   AddStatusPageGroupMemberRequest,
+  UpdateStatusPageGroupMemberRequest,
   ReorderStatusPageGroupMembersRequest,
   StatusPageBranding,
   StatusPageEmailSenderRequest,
@@ -7969,6 +7987,8 @@ export const schemas = {
   SingleValueResponseStatusPageEndUserBulkDeactivationDto,
   StatusPageEndUserBulkSignOutDto,
   SingleValueResponseStatusPageEndUserBulkSignOutDto,
+  StatusPageEndUserStatsDto,
+  SingleValueResponseStatusPageEndUserStatsDto,
   StatusPageEndUserDto,
   SingleValueResponseStatusPageEndUserDto,
   StatusPageEndUserInviteDto,
