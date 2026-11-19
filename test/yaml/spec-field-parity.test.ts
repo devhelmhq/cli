@@ -82,10 +82,11 @@ const API_ONLY_FIELDS: Record<string, string[]> = {
     'managedBy', 'alertPolicyId', 'defaultEnvironmentId',
   ],
   // Update-only page settings managed outside devhelm.yml: `emailSignIn` /
-  // `clearEmailSignIn` (end-user sign-in method), `subscriberChannels`, and the
-  // one-shot `confirmPublic` / `confirmConvertSubscribers` acknowledgements.
+  // `clearEmailSignIn` (end-user sign-in method), `ssoRoutingMode` (SSO routing
+  // of the sign-in screen), `subscriberChannels`, and the one-shot
+  // `confirmPublic` / `confirmConvertSubscribers` acknowledgements.
   statusPage: [
-    'managedBy', 'emailSignIn', 'clearEmailSignIn', 'subscriberChannels',
+    'managedBy', 'emailSignIn', 'clearEmailSignIn', 'ssoRoutingMode', 'subscriberChannels',
     'confirmPublic', 'confirmConvertSubscribers',
   ],
   statusPageComponent: ['monitorId', 'resourceGroupId', 'serviceSubscriptionId', 'groupId', 'displayOrder', 'removeFromGroup'],

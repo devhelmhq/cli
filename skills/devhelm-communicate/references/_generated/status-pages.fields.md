@@ -36,6 +36,7 @@
 | `confirmConvertSubscribers` | boolean |  | ✓ | Confirms making a page private converts its email subscribers to invited end users |
 | `unresolvedReminderMinutes` | integer (int32) |  | ✓ | Minutes without an update before the team is reminded (15–1440), 0 turns off; null preserves current |
 | `emailSender` | any |  | ✓ |  |
+| `ssoRoutingMode` | "EMAIL_DOMAIN" \| "BUTTONS" |  | ✓ | How sign-in reaches SSO connections: EMAIL_DOMAIN or BUTTONS; null preserves current |
 
 ## `StatusPageDto` (response shape)
 
@@ -51,6 +52,7 @@
 | `visibility` | string | ✓ |  |  |
 | `enabled` | boolean | ✓ |  |  |
 | `emailSignIn` | string |  | ✓ | Email sign-in method besides SSO: PASSWORD or MAGIC_LINK; null when off |
+| `ssoRoutingMode` | string |  | ✓ | How sign-in reaches SSO connections: EMAIL_DOMAIN or BUTTONS |
 | `incidentMode` | string | ✓ |  |  |
 | `componentCount` | integer (int32) |  | ✓ |  |
 | `subscriberCount` | integer (int64) |  | ✓ |  |

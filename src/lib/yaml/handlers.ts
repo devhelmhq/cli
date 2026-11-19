@@ -966,8 +966,10 @@ const dependencyHandler = defineHandler<YamlDependency, Schemas['ServiceSubscrip
 // Derived from the update request. One-shot acknowledgements and provenance
 // are not page state, so a new update field fails compilation here until the
 // snapshot functions assign it.
+// `ssoRoutingMode` (how a private page's sign-in screen reaches its SSO connections) is a dashboard
+// setting: devhelm.yml never sends it, so an apply never resets the page's choice.
 type StatusPageSnapshot = Required<Omit<Schemas['UpdateStatusPageRequest'],
-  'managedBy' | 'clearEmailSignIn' | 'confirmPublic' | 'confirmConvertSubscribers'>>
+  'managedBy' | 'clearEmailSignIn' | 'confirmPublic' | 'confirmConvertSubscribers' | 'ssoRoutingMode'>>
 
 function emailSenderSnapshot(
   sender: NonNullable<StatusPageSnapshot['emailSender']> | null | undefined,
