@@ -6219,20 +6219,6 @@ const StatusPageEndUserBulkSignOutDto = z
 const SingleValueResponseStatusPageEndUserBulkSignOutDto = z
   .object({ data: StatusPageEndUserBulkSignOutDto })
   .passthrough();
-const StatusPageEndUserStatsDto = z
-  .object({
-    active: z.number().int(),
-    activeSso: z.number().int(),
-    invited: z.number().int(),
-    expiredInvites: z.number().int(),
-    deactivated: z.number().int(),
-    signIns: z.number().int(),
-    failedSignIns: z.number().int(),
-  })
-  .passthrough();
-const SingleValueResponseStatusPageEndUserStatsDto = z
-  .object({ data: StatusPageEndUserStatsDto })
-  .passthrough();
 const StatusPageEndUserDto = z
   .object({
     id: z.string().uuid(),
@@ -6270,6 +6256,20 @@ const StatusPageEndUserInviteResultDto = z
   .passthrough();
 const SingleValueResponseStatusPageEndUserInviteResultDto = z
   .object({ data: StatusPageEndUserInviteResultDto })
+  .passthrough();
+const StatusPageEndUserStatsDto = z
+  .object({
+    active: z.number().int(),
+    activeSso: z.number().int(),
+    invited: z.number().int(),
+    expiredInvites: z.number().int(),
+    deactivated: z.number().int(),
+    signIns: z.number().int(),
+    failedSignIns: z.number().int(),
+  })
+  .passthrough();
+const SingleValueResponseStatusPageEndUserStatsDto = z
+  .object({ data: StatusPageEndUserStatsDto })
   .passthrough();
 const StatusPageGroupMemberDto = z
   .object({
@@ -7991,8 +7991,6 @@ export const schemas = {
   SingleValueResponseStatusPageEndUserBulkDeactivationDto,
   StatusPageEndUserBulkSignOutDto,
   SingleValueResponseStatusPageEndUserBulkSignOutDto,
-  StatusPageEndUserStatsDto,
-  SingleValueResponseStatusPageEndUserStatsDto,
   StatusPageEndUserDto,
   SingleValueResponseStatusPageEndUserDto,
   StatusPageEndUserInviteDto,
@@ -8000,6 +7998,8 @@ export const schemas = {
   StatusPageEndUserInviteSkipDto,
   StatusPageEndUserInviteResultDto,
   SingleValueResponseStatusPageEndUserInviteResultDto,
+  StatusPageEndUserStatsDto,
+  SingleValueResponseStatusPageEndUserStatsDto,
   StatusPageGroupMemberDto,
   StatusPageGroupDto,
   SingleValueResponseStatusPageGroupDto,
