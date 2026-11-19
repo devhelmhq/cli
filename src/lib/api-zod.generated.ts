@@ -1943,6 +1943,7 @@ const UpdateStatusPageRequest = z
     confirmConvertSubscribers: z.boolean().nullable(),
     unresolvedReminderMinutes: z.number().int().nullable(),
     emailSender: StatusPageEmailSenderRequest.nullable(),
+    ssoRoutingMode: z.enum(["EMAIL_DOMAIN", "BUTTONS"]).nullable(),
   })
   .partial()
   .strict();
@@ -3931,6 +3932,7 @@ const StatusPageDto = z
     visibility: z.string(),
     enabled: z.boolean(),
     emailSignIn: z.string().nullish(),
+    ssoRoutingMode: z.string().nullish(),
     incidentMode: z.string(),
     componentCount: z.number().int().nullish(),
     subscriberCount: z.number().int().nullish(),
