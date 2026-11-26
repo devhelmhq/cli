@@ -266,11 +266,48 @@ describe('differ', () => {
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('pruneOrgCli deletes tags outside state', async () => {
+    it('pruneOrgCli does not delete types without an owner field (tags)', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})
       const changeset = await diff({tags: []}, refs, {pruneOrgCli: true})
-      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['T', 'org-cli']])
+      expect(changeset.deletes).toHaveLength(0)
+    })
+
+    it('pruneAll deletes types without an owner field (tags) as org-all', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})
+      const changeset = await diff({tags: []}, refs, {pruneAll: true})
+      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['T', 'org-all']])
+    })
+
+    it('pruneOrgCli deletes only CLI/GIT-owned alert channels, not dashboard or unowned ones', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('alertChannels', 'cli-ch', {id: '1', refKey: 'cli-ch', managedBy: 'CLI', raw: {managedBy: 'CLI'}})
+      refs.set('alertChannels', 'git-ch', {id: '2', refKey: 'git-ch', managedBy: 'GIT', raw: {managedBy: 'GIT'}})
+      refs.set('alertChannels', 'dash-ch', {id: '3', refKey: 'dash-ch', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'}})
+      refs.set('alertChannels', 'tf-ch', {id: '4', refKey: 'tf-ch', managedBy: 'TERRAFORM', raw: {managedBy: 'TERRAFORM'}})
+      refs.set('alertChannels', 'null-ch', {id: '5', refKey: 'null-ch', raw: {managedBy: null}})
+      const changeset = await diff({alertChannels: []}, refs, {pruneOrgCli: true})
+      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['cli-ch', 'org-cli'], ['git-ch', 'org-cli']])
+    })
+
+    it('pruneOrgCli keeps dashboard resource groups and status pages', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('resourceGroups', 'g', {id: '1', refKey: 'g', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'}})
+      refs.set('statusPages', 'sp', {id: '2', refKey: 'sp', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'}})
+      const changeset = await diff({resourceGroups: [], statusPages: []}, refs, {pruneOrgCli: true})
+      expect(changeset.deletes).toHaveLength(0)
+    })
+
+    it('plain prune still deletes tracked state resources of unowned types', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})
+      const state = {
+        version: '3' as const, serial: 1, lastDeployedAt: '2026-05-05T00:00:00Z',
+        resources: {'tags.T': {apiId: '1', resourceType: 'tag' as never, children: {}}},
+      }
+      const changeset = await diff({tags: []}, refs, {prune: true}, state)
+      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['T', 'state']])
     })
 
     it('does not delete without prune flag', async () => {

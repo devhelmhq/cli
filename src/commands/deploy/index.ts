@@ -46,8 +46,8 @@ export default class Deploy extends DevhelmCommand {
     prune: Flags.boolean({description: 'Delete resources tracked in .devhelm/state.json and monitors this project owns that are absent from the config', default: false}),
     'prune-org-cli': Flags.boolean({
       description:
-        'Also delete CLI-managed resources elsewhere in the org that are absent from YAML. ' +
-        'Use with caution in shared workspaces; widens --prune to the legacy org-wide CLI scope.',
+        'Also delete resources elsewhere in the org that the API reports as CLI- or Git-managed and that are absent from YAML. ' +
+        'Resource types with no owner tracking (tags, environments, secrets, notification policies, webhooks, dependencies) are only pruned via state or --prune-all.',
       default: false,
     }),
     'prune-all': Flags.boolean({

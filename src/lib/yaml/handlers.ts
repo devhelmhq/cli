@@ -480,6 +480,7 @@ type AlertChannelSnapshot = { name: string; channelType: string; configHash: str
 const alertChannelHandler = defineHandler<YamlAlertChannel, Schemas['AlertChannelDto'], AlertChannelSnapshot>({
   resourceType: 'alertChannel',
   refType: 'alertChannels',
+  getManagedBy: (api) => api.managedBy ?? undefined,
   configKey: 'alertChannels',
   listPath: '/api/v1/alert-channels',
 
@@ -645,6 +646,7 @@ type ResourceGroupSnapshot = Omit<ResourceGroupSnapshotBase, 'defaultRetryStrate
 const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceGroupDto'], ResourceGroupSnapshot>({
   resourceType: 'resourceGroup',
   refType: 'resourceGroups',
+  getManagedBy: (api) => api.managedBy ?? undefined,
   configKey: 'resourceGroups',
   listPath: '/api/v1/resource-groups',
 
@@ -1470,6 +1472,7 @@ async function reconcileStatusPageChildren(
 const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto'], StatusPageSnapshot>({
   resourceType: 'statusPage',
   refType: 'statusPages',
+  getManagedBy: (api) => api.managedBy ?? undefined,
   configKey: 'statusPages',
   listPath: '/api/v1/status-pages',
 
