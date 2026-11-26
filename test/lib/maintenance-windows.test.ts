@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest'
-import {buildMaintenanceWindowBody} from '../../src/lib/maintenance-windows.js'
+import {buildMaintenanceWindowBody, buildMaintenanceWindowUpdateBody} from '../../src/lib/maintenance-windows.js'
 
 describe('buildMaintenanceWindowBody', () => {
   it('produces a minimal create body when only start/end/monitor are given', () => {
@@ -57,5 +57,57 @@ describe('buildMaintenanceWindowBody', () => {
     // --org-wide writes monitorId: null.
     const body = buildMaintenanceWindowBody({orgWide: false}, 'update')
     expect('monitorId' in body).toBe(false)
+  })
+})
+
+describe('buildMaintenanceWindowUpdateBody', () => {
+  const existing = {
+    monitorId: '11111111-1111-4111-8111-111111111111',
+    startsAt: '2026-06-01T14:00:00Z',
+    endsAt: '2026-06-01T14:30:00Z',
+    repeatRule: 'FREQ=WEEKLY',
+    suppressAlerts: false,
+    reason: 'Deploy',
+  }
+
+  it('keeps monitor scope, repeat rule, suppressAlerts and reason when only --end is passed', () => {
+    expect(buildMaintenanceWindowUpdateBody(existing, {end: '2026-06-01T15:00:00Z'})).toEqual({
+      ...existing,
+      endsAt: '2026-06-01T15:00:00Z',
+    })
+  })
+
+  it('never turns a single-monitor window org-wide when no scope flag is passed', () => {
+    const body = buildMaintenanceWindowUpdateBody(existing, {reason: 'New'})
+    expect(body.monitorId).toBe(existing.monitorId)
+    expect(body.reason).toBe('New')
+  })
+
+  it('--org-wide converts to org-wide', () => {
+    expect(buildMaintenanceWindowUpdateBody(existing, {orgWide: true}).monitorId).toBeNull()
+  })
+
+  it('--monitor reassigns', () => {
+    const other = '22222222-2222-4222-8222-222222222222'
+    expect(buildMaintenanceWindowUpdateBody(existing, {monitor: other}).monitorId).toBe(other)
+  })
+
+  it('empty --reason and --repeat-rule clear the fields', () => {
+    const body = buildMaintenanceWindowUpdateBody(existing, {reason: '', repeatRule: ''})
+    expect(body.reason).toBeNull()
+    expect(body.repeatRule).toBeNull()
+  })
+
+  it('--no-suppress-alerts overrides an existing true', () => {
+    const body = buildMaintenanceWindowUpdateBody({...existing, suppressAlerts: true}, {suppressAlerts: false})
+    expect(body.suppressAlerts).toBe(false)
+  })
+
+  it('carries an org-wide window as monitorId null and omits absent optional fields', () => {
+    const body = buildMaintenanceWindowUpdateBody(
+      {startsAt: 's', endsAt: 'e', monitorId: null, reason: null, repeatRule: null, suppressAlerts: null},
+      {},
+    )
+    expect(body).toEqual({startsAt: 's', endsAt: 'e', monitorId: null})
   })
 })

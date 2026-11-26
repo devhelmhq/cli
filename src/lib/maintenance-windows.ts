@@ -19,8 +19,10 @@ export interface MaintenanceWindowFlags {
   /**
    * `update` mode also accepts an explicit "clear" intent, e.g. when
    * the user passes `--reason ""` to wipe a previous value. Today
-   * we surface that via empty string only — keeping the API's nullish
-   * semantics (`null` clears the field, omission preserves it).
+   * we surface that via empty string only (`null` on the wire clears it).
+   * The update API is a full-replace PUT: omission clears or resets the
+   * field, so `update` overlays these flags on the existing window via
+   * `buildMaintenanceWindowUpdateBody`.
    */
 }
 
@@ -63,4 +65,35 @@ export function buildMaintenanceWindowBody(
   }
 
   return body
+}
+
+/** The fields of an existing window that a full-replace PUT must carry over. */
+export interface ExistingMaintenanceWindow {
+  monitorId?: string | null
+  startsAt: string
+  endsAt: string
+  repeatRule?: string | null
+  suppressAlerts?: boolean | null
+  reason?: string | null
+}
+
+/**
+ * Body for `update`: the existing window overlaid with the flags given.
+ * The API's PUT is full-replace, so every field the user did not pass is
+ * taken from the existing window; otherwise a single-monitor window would
+ * silently become org-wide and reason/repeatRule/suppressAlerts would reset.
+ */
+export function buildMaintenanceWindowUpdateBody(
+  existing: ExistingMaintenanceWindow,
+  flags: MaintenanceWindowFlags,
+): Record<string, unknown> {
+  const body: Record<string, unknown> = {
+    startsAt: existing.startsAt,
+    endsAt: existing.endsAt,
+    monitorId: existing.monitorId ?? null,
+  }
+  if (existing.reason != null) body.reason = existing.reason
+  if (existing.repeatRule != null) body.repeatRule = existing.repeatRule
+  if (existing.suppressAlerts != null) body.suppressAlerts = existing.suppressAlerts
+  return {...body, ...buildMaintenanceWindowBody(flags, 'update')}
 }
