@@ -1164,6 +1164,21 @@ describe('differ', () => {
       expect(changeset.updates).toHaveLength(0)
     })
 
+    it('resource group alertChannels (direct route) diffs by resolved ids', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('alertChannels', 'ch1', {id: 'ch-uuid-1', refKey: 'ch1', raw: {}})
+      refs.set('alertChannels', 'ch2', {id: 'ch-uuid-2', refKey: 'ch2', raw: {}})
+      refs.set('resourceGroups', 'G', {id: 'rg-1', refKey: 'G', raw: {
+        name: 'G', alertChannelIds: ['ch-uuid-1', 'ch-uuid-2'],
+      }})
+      const same = await diff({resourceGroups: [{name: 'G', alertChannels: ['ch2', 'ch1']}]}, refs)
+      expect(same.updates).toHaveLength(0)
+      const changed = await diff({resourceGroups: [{name: 'G', alertChannels: ['ch1']}]}, refs)
+      expect(changed.updates).toHaveLength(1)
+      const omitted = await diff({resourceGroups: [{name: 'G'}]}, refs)
+      expect(omitted.updates).toHaveLength(0)
+    })
+
     it('detects update when webhook API has no subscribedEvents but YAML has events', async () => {
       const refs = new ResolvedRefs()
       refs.set('webhooks', 'https://hooks.com/nonevents', {id: 'wh-1', refKey: 'https://hooks.com/nonevents', raw: {

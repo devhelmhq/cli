@@ -665,9 +665,16 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
       ? sortedIds(yaml.defaultRegions)
       : (api.defaultRegions ? sortedIds(nonNullStrings(api.defaultRegions)) : null),
     defaultRetryStrategy: yaml.defaultRetryStrategy ?? api.defaultRetryStrategy ?? null,
-    defaultAlertChannels: yaml.defaultAlertChannels !== undefined
-      ? sortedIds(yaml.defaultAlertChannels.map((n) => refs.resolve('alertChannels', n) ?? n))
-      : (api.defaultAlertChannels ? sortedIds(nonNullStrings(api.defaultAlertChannels)) : null),
+    ...(() => {
+      // alertChannels is the direct route; defaultAlertChannels is its deprecated alias.
+      const names = yaml.alertChannels ?? yaml.defaultAlertChannels
+      const ids = names !== undefined
+        ? sortedIds(names.map((n) => refs.resolve('alertChannels', n) ?? n))
+        : (api.alertChannelIds ?? api.defaultAlertChannels
+          ? sortedIds(nonNullStrings((api.alertChannelIds ?? api.defaultAlertChannels)!))
+          : null)
+      return {alertChannelIds: ids, defaultAlertChannels: ids}
+    })(),
     defaultEnvironmentId: yaml.defaultEnvironment !== undefined
       ? (refs.resolve('environments', yaml.defaultEnvironment) ?? null)
       : (api.defaultEnvironmentId ?? null),
@@ -684,7 +691,11 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
     defaultFrequency: api.defaultFrequency ?? null,
     defaultRegions: api.defaultRegions ? sortedIds(nonNullStrings(api.defaultRegions)) : null,
     defaultRetryStrategy: api.defaultRetryStrategy ?? null,
-    defaultAlertChannels: api.defaultAlertChannels ? sortedIds(nonNullStrings(api.defaultAlertChannels)) : null,
+    ...(() => {
+      const raw = api.alertChannelIds ?? api.defaultAlertChannels
+      const ids = raw ? sortedIds(nonNullStrings(raw)) : null
+      return {alertChannelIds: ids, defaultAlertChannels: ids}
+    })(),
     defaultEnvironmentId: api.defaultEnvironmentId ?? null,
     healthThresholdType: api.healthThresholdType ?? null,
     healthThresholdValue: api.healthThresholdValue ?? null,

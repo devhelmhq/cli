@@ -382,6 +382,7 @@ const ResourceGroupSchema = z.object({
   defaultFrequency: z.number().int().min(MIN_FREQUENCY).max(MAX_FREQUENCY).optional(),
   defaultRegions: z.array(z.string()).optional(),
   defaultRetryStrategy: RetryStrategySchema.optional(),
+  alertChannels: z.array(z.string()).optional(),
   defaultAlertChannels: z.array(z.string()).optional(),
   defaultEnvironment: z.string().optional(),
   healthThresholdType: z.enum(HEALTH_THRESHOLD_TYPES).optional(),

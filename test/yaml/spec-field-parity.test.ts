@@ -51,7 +51,7 @@ const YAML_ONLY_FIELDS: Record<string, string[]> = {
   alertChannel: [],
   notificationPolicy: [],
   resourceGroup: [
-    'alertPolicy', 'defaultAlertChannels', 'defaultEnvironment',
+    'alertPolicy', 'alertChannels', 'defaultAlertChannels', 'defaultEnvironment',
     'monitors', 'services',
   ],
   statusPage: ['componentGroups', 'components'],
@@ -79,7 +79,7 @@ const API_ONLY_FIELDS: Record<string, string[]> = {
   alertChannel: ['managedBy'],
   notificationPolicy: [],
   resourceGroup: [
-    'managedBy', 'alertPolicyId', 'defaultEnvironmentId',
+    'managedBy', 'alertPolicyId', 'alertChannelIds', 'defaultEnvironmentId',
   ],
   // Update-only page settings managed outside devhelm.yml: `emailSignIn` /
   // `clearEmailSignIn` (end-user sign-in method), `ssoRoutingMode` (SSO routing
@@ -140,7 +140,7 @@ const MAPPINGS: FieldMapping[] = [
     apiSchemaNames: ['CreateResourceGroupRequest', 'UpdateResourceGroupRequest'],
     yamlFields: [
       'name', 'description', 'alertPolicy', 'defaultFrequency', 'defaultRegions',
-      'defaultRetryStrategy', 'defaultAlertChannels', 'defaultEnvironment',
+      'defaultRetryStrategy', 'alertChannels', 'defaultAlertChannels', 'defaultEnvironment',
       'healthThresholdType', 'healthThresholdValue', 'suppressMemberAlerts',
       'confirmationDelaySeconds', 'recoveryCooldownMinutes', 'monitors', 'services',
     ],

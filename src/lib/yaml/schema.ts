@@ -406,6 +406,8 @@ export interface YamlResourceGroup {
   defaultFrequency?: number
   defaultRegions?: string[]
   defaultRetryStrategy?: YamlRetryStrategy
+  alertChannels?: string[]
+  /** @deprecated alias of alertChannels */
   defaultAlertChannels?: string[]
   defaultEnvironment?: string
   healthThresholdType?: (typeof HEALTH_THRESHOLD_TYPES)[number]
