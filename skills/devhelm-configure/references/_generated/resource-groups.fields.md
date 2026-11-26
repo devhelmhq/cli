@@ -9,11 +9,12 @@
 |---|---|---|---|---|
 | `name` | string | ✓ |  | Human-readable name for this group |
 | `description` | string |  | ✓ | Optional description (max 500) |
-| `alertPolicyId` | string (uuid) |  | ✓ | Optional notification policy to apply for this group |
+| `alertPolicyId` | string (uuid) |  | ✓ | Notification policy that runs for this group's incidents |
+| `alertChannelIds` | string (uuid)[] |  | ✓ | Channels notified for this group's incidents |
 | `defaultFrequency` | integer (int32) |  | ✓ | Default check frequency in seconds applied to members (30–86400) |
 | `defaultRegions` | string[] |  | ✓ | Default regions applied to member monitors |
 | `defaultRetryStrategy` | any |  | ✓ |  |
-| `defaultAlertChannels` | string (uuid)[] |  | ✓ | Default alert channel IDs applied to member monitors |
+| `defaultAlertChannels` | string (uuid)[] |  | ✓ | Deprecated alias of alertChannelIds |
 | `defaultEnvironmentId` | string (uuid) |  | ✓ | Default environment ID applied to member monitors |
 | `healthThresholdType` | "COUNT" \| "PERCENTAGE" |  | ✓ | Health threshold type: COUNT or PERCENTAGE |
 | `healthThresholdValue` | number |  | ✓ | Health threshold value: count (0+) or percentage (0–100) |
@@ -28,11 +29,12 @@
 |---|---|---|---|---|
 | `name` | string | ✓ |  | Human-readable name for this group |
 | `description` | string |  | ✓ | Optional description (max 500); null clears the existing value |
-| `alertPolicyId` | string (uuid) |  | ✓ | Optional notification policy to apply for this group; null clears the existing value |
+| `alertPolicyId` | string (uuid) |  | ✓ | Notification policy that runs for this group's incidents; null clears the existing value |
+| `alertChannelIds` | string (uuid)[] |  | ✓ | Channels notified for this group's incidents; null clears the existing value |
 | `defaultFrequency` | integer (int32) |  | ✓ | Default check frequency in seconds for members (30–86400); null clears |
 | `defaultRegions` | string[] |  | ✓ | Default regions for member monitors; null clears |
 | `defaultRetryStrategy` | any |  | ✓ |  |
-| `defaultAlertChannels` | string (uuid)[] |  | ✓ | Default alert channel IDs for member monitors; null clears |
+| `defaultAlertChannels` | string (uuid)[] |  | ✓ | Deprecated alias of alertChannelIds; null clears the existing value |
 | `defaultEnvironmentId` | string (uuid) |  | ✓ | Default environment ID for member monitors; null clears |
 | `healthThresholdType` | "COUNT" \| "PERCENTAGE" |  | ✓ | Health threshold type: COUNT or PERCENTAGE; null disables threshold |
 | `healthThresholdValue` | number |  | ✓ | Health threshold value; null disables threshold |
@@ -50,11 +52,12 @@
 | `name` | string | ✓ |  | Human-readable group name |
 | `slug` | string | ✓ |  | URL-safe group identifier |
 | `description` | string |  | ✓ | Optional group description |
-| `alertPolicyId` | string (uuid) |  | ✓ | Notification policy applied to this group |
+| `alertPolicyId` | string (uuid) |  | ✓ | Notification policy that runs for this group's incidents |
+| `alertChannelIds` | string (uuid)[] |  | ✓ | Channels notified for this group's incidents |
 | `defaultFrequency` | integer (int32) |  | ✓ | Default check frequency in seconds for member monitors |
 | `defaultRegions` | string[] |  | ✓ | Default regions for member monitors |
 | `defaultRetryStrategy` | any |  | ✓ |  |
-| `defaultAlertChannels` | string (uuid)[] |  | ✓ | Default alert channel IDs for member monitors |
+| `defaultAlertChannels` | string (uuid)[] |  | ✓ | Deprecated alias of alertChannelIds |
 | `defaultEnvironmentId` | string (uuid) |  | ✓ | Default environment ID for member monitors |
 | `healthThresholdType` | string |  | ✓ | Health threshold type: COUNT or PERCENTAGE |
 | `healthThresholdValue` | number |  | ✓ | Health threshold value |
