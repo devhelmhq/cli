@@ -2,6 +2,7 @@ import {createProjectContext} from '../../src/lib/yaml/project-context.js'
 import {describe, it, expect} from 'vitest'
 import {diff, formatPlan} from '../../src/lib/yaml/differ.js'
 import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
+import {getHandler} from '../../src/lib/yaml/handlers.js'
 import type {DevhelmConfig} from '../../src/lib/yaml/schema.js'
 
 function emptyRefs(): ResolvedRefs {
@@ -308,6 +309,36 @@ describe('differ', () => {
       }
       const changeset = await diff({tags: []}, refs, {prune: true}, state)
       expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['T', 'state']])
+    })
+
+    describe('real handler getManagedBy feeds prune-org-cli selection', () => {
+      const cases: Array<{type: 'alertChannel' | 'resourceGroup' | 'statusPage'; ref: 'alertChannels' | 'resourceGroups' | 'statusPages'}> = [
+        {type: 'alertChannel', ref: 'alertChannels'},
+        {type: 'resourceGroup', ref: 'resourceGroups'},
+        {type: 'statusPage', ref: 'statusPages'},
+      ]
+      for (const {type, ref} of cases) {
+        it(`${type}: hook maps DTO managedBy; only CLI and GIT are selected by --prune-org-cli`, async () => {
+          const handler = getHandler(type)
+          const owners = ['CLI', 'GIT', 'DASHBOARD', null] as const
+          const refs = new ResolvedRefs()
+          owners.forEach((owner, i) => {
+            const dto = {id: `id-${i}`, name: `n${i}`, slug: `s${i}`, managedBy: owner}
+            // Mirror the resolver: managedBy on the entry comes only from the handler hook;
+            // `raw` stays the DTO but we strip managedBy so the hook is the sole source.
+            const rawWithoutOwner = {id: dto.id, name: dto.name, slug: dto.slug}
+            refs.set(ref, `r${i}`, {id: dto.id, refKey: `r${i}`, managedBy: handler.getManagedBy!(dto), raw: rawWithoutOwner})
+          })
+          expect(owners.map((_, i) => handler.getManagedBy!({managedBy: owners[i]}))).toEqual(['CLI', 'GIT', 'DASHBOARD', undefined])
+          const config = {[ref]: []} as DevhelmConfig
+          const cs = await diff(config, refs, {pruneOrgCli: true})
+          expect(cs.deletes.map((d) => d.refKey)).toEqual(['r0', 'r1'])
+          const all = await diff(config, refs, {pruneAll: true})
+          expect(all.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([
+            ['r0', 'org-cli'], ['r1', 'org-cli'], ['r2', 'org-all'], ['r3', 'org-all'],
+          ])
+        })
+      }
     })
 
     it('does not delete without prune flag', async () => {
