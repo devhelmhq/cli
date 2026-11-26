@@ -121,7 +121,7 @@ export function toCreateResourceGroupRequest(
       maxRetries: group.defaultRetryStrategy.maxRetries,
       interval: group.defaultRetryStrategy.interval,
     } : undefined,
-    defaultAlertChannels: group.defaultAlertChannels?.map((n) => refs.resolve('alertChannels', n) ?? n) ?? null,
+    alertChannelIds: (group.alertChannels ?? group.defaultAlertChannels)?.map((n) => refs.resolve('alertChannels', n) ?? n) ?? null,
     defaultEnvironmentId: group.defaultEnvironment ? refs.resolve('environments', group.defaultEnvironment) ?? null : null,
     healthThresholdType: group.healthThresholdType ?? null,
     healthThresholdValue: group.healthThresholdValue ?? null,

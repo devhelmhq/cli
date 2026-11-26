@@ -261,7 +261,7 @@ describe('transforms', () => {
         description: 'API services',
         defaultFrequency: 30,
         defaultRegions: ['us-east'],
-        defaultAlertChannels: ['ops-slack'],
+        alertChannels: ['ops-slack'],
         defaultEnvironment: 'prod',
         alertPolicy: 'critical',
         healthThresholdType: 'PERCENTAGE',
@@ -272,6 +272,7 @@ describe('transforms', () => {
       expect(req.description).toBe('API services')
       expect(req.defaultFrequency).toBe(30)
       expect(req.defaultRegions).toEqual(['us-east'])
+      expect(req.alertChannelIds).toEqual(['ch-123'])
       expect(req.alertPolicyId).toBe('pol-1')
       expect(req.defaultEnvironmentId).toBe('env-1')
       expect(req.healthThresholdType).toBe('PERCENTAGE')

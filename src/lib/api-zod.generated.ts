@@ -1581,6 +1581,7 @@ const CreateResourceGroupRequest = z
     name: z.string().min(0).max(255),
     description: z.string().min(0).max(500).nullish(),
     alertPolicyId: z.string().uuid().nullish(),
+    alertChannelIds: z.array(z.string().uuid()).nullish(),
     defaultFrequency: z.number().int().gte(30).lte(86400).nullish(),
     defaultRegions: z.array(z.string()).nullish(),
     defaultRetryStrategy: RetryStrategy.nullish(),
@@ -1601,6 +1602,7 @@ const UpdateResourceGroupRequest = z
     name: z.string().min(0).max(255),
     description: z.string().min(0).max(500).nullish(),
     alertPolicyId: z.string().uuid().nullish(),
+    alertChannelIds: z.array(z.string().uuid()).nullish(),
     defaultFrequency: z.number().int().gte(30).lte(86400).nullish(),
     defaultRegions: z.array(z.string()).nullish(),
     defaultRetryStrategy: RetryStrategy.nullish(),
@@ -1769,6 +1771,16 @@ const WriteSecretEnvironmentValueRequest = z
 const CreateSenderDomainRequest = z
   .object({ domain: z.string().min(0).max(253) })
   .strict();
+const UpdateServiceSubscriptionRequest = z
+  .object({
+    alertSensitivity: z
+      .string()
+      .regex(/ALL|AWARENESS|INCIDENTS_ONLY|MAJOR_ONLY/)
+      .nullable(),
+    alertChannelIds: z.array(z.string().uuid()).nullable(),
+  })
+  .partial()
+  .strict();
 const UpdateAlertSensitivityRequest = z
   .object({
     alertSensitivity: z
@@ -1784,6 +1796,7 @@ const ServiceSubscribeRequest = z
       .string()
       .regex(/ALL|AWARENESS|INCIDENTS_ONLY|MAJOR_ONLY/)
       .nullable(),
+    alertChannelIds: z.array(z.string().uuid()).nullable(),
   })
   .partial()
   .strict();
@@ -2407,6 +2420,7 @@ const AlertDeliveryDto = z
     channelType: z.string(),
     status: z.string(),
     eventType: z.string(),
+    route: z.string().nullish(),
     stepNumber: z.number().int(),
     fireCount: z.number().int(),
     attemptCount: z.number().int(),
@@ -4322,15 +4336,6 @@ const DefinitionHeadDto = z
 const DefinitionDetailDto = z
   .object({ definition: DefinitionDto, heads: z.array(DefinitionHeadDto) })
   .passthrough();
-const DekRotationResultDto = z
-  .object({
-    previousDekVersion: z.number().int(),
-    newDekVersion: z.number().int(),
-    secretsReEncrypted: z.number().int(),
-    channelsReEncrypted: z.number().int(),
-    rotatedAt: z.string().datetime({ offset: true }),
-  })
-  .passthrough();
 const DeleteChannelResult = z
   .object({
     affectedPolicies: z.number().int(),
@@ -5280,6 +5285,7 @@ const ResourceGroupDto = z
     slug: z.string().min(1),
     description: z.string().nullish(),
     alertPolicyId: z.string().uuid().nullish(),
+    alertChannelIds: z.array(z.string().uuid()).nullish(),
     defaultFrequency: z.number().int().nullish(),
     defaultRegions: z.array(z.string()).nullish(),
     defaultRetryStrategy: RetryStrategyWireResponse.nullish(),
@@ -5703,6 +5709,7 @@ const ServiceSubscriptionDto = z
     componentId: z.string().uuid().nullish(),
     component: ServiceComponentDto.nullish(),
     alertSensitivity: z.string().min(1),
+    alertChannelIds: z.array(z.string().uuid()).nullish(),
     subscribedAt: z.string().datetime({ offset: true }),
     boundStatusPageComponents: z.array(StatusPageBoundComponentDto).nullish(),
   })
@@ -5775,9 +5782,6 @@ const SingleValueResponseDefinitionDetailDto = z
   .passthrough();
 const SingleValueResponseDefinitionHeadDto = z
   .object({ data: DefinitionHeadDto })
-  .passthrough();
-const SingleValueResponseDekRotationResultDto = z
-  .object({ data: DekRotationResultDto })
   .passthrough();
 const SingleValueResponseDeployLockDto = z
   .object({ data: DeployLockDto })
@@ -6598,7 +6602,13 @@ const SingleValueResponseSyntheticsUsagePeriodDto = z
   .passthrough();
 const SingleValueResponseTagDto = z.object({ data: TagDto }).passthrough();
 const TestChannelResult = z
-  .object({ success: z.boolean(), message: z.string() })
+  .object({
+    success: z.boolean(),
+    message: z.string(),
+    channelId: z.string().uuid().nullish(),
+    route: z.string().nullish(),
+    noRoute: z.boolean().nullish(),
+  })
   .passthrough();
 const SingleValueResponseTestChannelResult = z
   .object({ data: TestChannelResult })
@@ -7464,6 +7474,7 @@ export const schemas = {
   UpdateSecretRequest,
   WriteSecretEnvironmentValueRequest,
   CreateSenderDomainRequest,
+  UpdateServiceSubscriptionRequest,
   UpdateAlertSensitivityRequest,
   ServiceSubscribeRequest,
   CreateStatusPageGroupRequest,
@@ -7722,7 +7733,6 @@ export const schemas = {
   LinkedIncidentDto,
   DefinitionHeadDto,
   DefinitionDetailDto,
-  DekRotationResultDto,
   DeleteChannelResult,
   DeliveryAttemptDto,
   Slot,
@@ -7884,7 +7894,6 @@ export const schemas = {
   SingleValueResponseDashboardOverviewDto,
   SingleValueResponseDefinitionDetailDto,
   SingleValueResponseDefinitionHeadDto,
-  SingleValueResponseDekRotationResultDto,
   SingleValueResponseDeployLockDto,
   SingleValueResponseDeviceAuthorizationDto,
   SingleValueResponseDeviceTokenDto,

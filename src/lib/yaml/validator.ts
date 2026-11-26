@@ -319,6 +319,11 @@ function validateResourceGroup(group: YamlResourceGroup, path: string, ctx: Vali
       ctx.checkRef('alertChannels', name, `${path}.defaultAlertChannels`)
     }
   }
+  if (group.alertChannels) {
+    for (const name of group.alertChannels) {
+      ctx.checkRef('alertChannels', name, `${path}.alertChannels`)
+    }
+  }
   if (group.defaultEnvironment) {
     ctx.checkRef('environments', group.defaultEnvironment, `${path}.defaultEnvironment`)
   }

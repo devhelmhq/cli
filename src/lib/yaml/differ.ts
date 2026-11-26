@@ -260,9 +260,12 @@ function classifyDeleteScope(
     if (project && isGitOwner(type) && raw?.owner?.project === project) return 'state'
     return isGitOwner(type) ? 'org-cli' : 'org-all'
   }
-  // Other resource types carry no owner on the API: `--prune-org-cli`
-  // deletes anything absent from YAML, `--prune-all` likewise.
-  return 'org-cli'
+  // Other types: `--prune-org-cli` deletes only what the API proves CLI/Git
+  // owns (`managedBy` CLI or GIT). Dashboard/API/Terraform/MCP owners, a null
+  // owner, and types with no owner field at all (tags, environments, secrets,
+  // notification policies, webhooks, dependencies) need `--prune-all`.
+  const managedBy = entry.managedBy ?? (entry.raw as {managedBy?: string | null} | undefined)?.managedBy ?? undefined
+  return isGitOwner(managedBy) ? 'org-cli' : 'org-all'
 }
 
 function memberKey(memberType: string, nameOrSlug: string): string {

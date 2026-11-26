@@ -480,6 +480,7 @@ type AlertChannelSnapshot = { name: string; channelType: string; configHash: str
 const alertChannelHandler = defineHandler<YamlAlertChannel, Schemas['AlertChannelDto'], AlertChannelSnapshot>({
   resourceType: 'alertChannel',
   refType: 'alertChannels',
+  getManagedBy: (api) => api.managedBy ?? undefined,
   configKey: 'alertChannels',
   listPath: '/api/v1/alert-channels',
 
@@ -645,6 +646,7 @@ type ResourceGroupSnapshot = Omit<ResourceGroupSnapshotBase, 'defaultRetryStrate
 const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceGroupDto'], ResourceGroupSnapshot>({
   resourceType: 'resourceGroup',
   refType: 'resourceGroups',
+  getManagedBy: (api) => api.managedBy ?? undefined,
   configKey: 'resourceGroups',
   listPath: '/api/v1/resource-groups',
 
@@ -663,9 +665,16 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
       ? sortedIds(yaml.defaultRegions)
       : (api.defaultRegions ? sortedIds(nonNullStrings(api.defaultRegions)) : null),
     defaultRetryStrategy: yaml.defaultRetryStrategy ?? api.defaultRetryStrategy ?? null,
-    defaultAlertChannels: yaml.defaultAlertChannels !== undefined
-      ? sortedIds(yaml.defaultAlertChannels.map((n) => refs.resolve('alertChannels', n) ?? n))
-      : (api.defaultAlertChannels ? sortedIds(nonNullStrings(api.defaultAlertChannels)) : null),
+    ...(() => {
+      // alertChannels is the direct route; defaultAlertChannels is its deprecated alias.
+      const names = yaml.alertChannels ?? yaml.defaultAlertChannels
+      const ids = names !== undefined
+        ? sortedIds(names.map((n) => refs.resolve('alertChannels', n) ?? n))
+        : (api.alertChannelIds ?? api.defaultAlertChannels
+          ? sortedIds(nonNullStrings((api.alertChannelIds ?? api.defaultAlertChannels)!))
+          : null)
+      return {alertChannelIds: ids, defaultAlertChannels: ids}
+    })(),
     defaultEnvironmentId: yaml.defaultEnvironment !== undefined
       ? (refs.resolve('environments', yaml.defaultEnvironment) ?? null)
       : (api.defaultEnvironmentId ?? null),
@@ -682,7 +691,11 @@ const resourceGroupHandler = defineHandler<YamlResourceGroup, Schemas['ResourceG
     defaultFrequency: api.defaultFrequency ?? null,
     defaultRegions: api.defaultRegions ? sortedIds(nonNullStrings(api.defaultRegions)) : null,
     defaultRetryStrategy: api.defaultRetryStrategy ?? null,
-    defaultAlertChannels: api.defaultAlertChannels ? sortedIds(nonNullStrings(api.defaultAlertChannels)) : null,
+    ...(() => {
+      const raw = api.alertChannelIds ?? api.defaultAlertChannels
+      const ids = raw ? sortedIds(nonNullStrings(raw)) : null
+      return {alertChannelIds: ids, defaultAlertChannels: ids}
+    })(),
     defaultEnvironmentId: api.defaultEnvironmentId ?? null,
     healthThresholdType: api.healthThresholdType ?? null,
     healthThresholdValue: api.healthThresholdValue ?? null,
@@ -1470,6 +1483,7 @@ async function reconcileStatusPageChildren(
 const statusPageHandler = defineHandler<YamlStatusPage, Schemas['StatusPageDto'], StatusPageSnapshot>({
   resourceType: 'statusPage',
   refType: 'statusPages',
+  getManagedBy: (api) => api.managedBy ?? undefined,
   configKey: 'statusPages',
   listPath: '/api/v1/status-pages',
 

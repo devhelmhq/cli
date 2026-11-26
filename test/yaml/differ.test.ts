@@ -2,6 +2,7 @@ import {createProjectContext} from '../../src/lib/yaml/project-context.js'
 import {describe, it, expect} from 'vitest'
 import {diff, formatPlan} from '../../src/lib/yaml/differ.js'
 import {ResolvedRefs} from '../../src/lib/yaml/resolver.js'
+import {getHandler} from '../../src/lib/yaml/handlers.js'
 import type {DevhelmConfig} from '../../src/lib/yaml/schema.js'
 
 function emptyRefs(): ResolvedRefs {
@@ -266,11 +267,78 @@ describe('differ', () => {
       expect(changeset.deletes).toHaveLength(0)
     })
 
-    it('pruneOrgCli deletes tags outside state', async () => {
+    it('pruneOrgCli does not delete types without an owner field (tags)', async () => {
       const refs = new ResolvedRefs()
       refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})
       const changeset = await diff({tags: []}, refs, {pruneOrgCli: true})
-      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['T', 'org-cli']])
+      expect(changeset.deletes).toHaveLength(0)
+    })
+
+    it('pruneAll deletes types without an owner field (tags) as org-all', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})
+      const changeset = await diff({tags: []}, refs, {pruneAll: true})
+      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['T', 'org-all']])
+    })
+
+    it('pruneOrgCli deletes only CLI/GIT-owned alert channels, not dashboard or unowned ones', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('alertChannels', 'cli-ch', {id: '1', refKey: 'cli-ch', managedBy: 'CLI', raw: {managedBy: 'CLI'}})
+      refs.set('alertChannels', 'git-ch', {id: '2', refKey: 'git-ch', managedBy: 'GIT', raw: {managedBy: 'GIT'}})
+      refs.set('alertChannels', 'dash-ch', {id: '3', refKey: 'dash-ch', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'}})
+      refs.set('alertChannels', 'tf-ch', {id: '4', refKey: 'tf-ch', managedBy: 'TERRAFORM', raw: {managedBy: 'TERRAFORM'}})
+      refs.set('alertChannels', 'null-ch', {id: '5', refKey: 'null-ch', raw: {managedBy: null}})
+      const changeset = await diff({alertChannels: []}, refs, {pruneOrgCli: true})
+      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['cli-ch', 'org-cli'], ['git-ch', 'org-cli']])
+    })
+
+    it('pruneOrgCli keeps dashboard resource groups and status pages', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('resourceGroups', 'g', {id: '1', refKey: 'g', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'}})
+      refs.set('statusPages', 'sp', {id: '2', refKey: 'sp', managedBy: 'DASHBOARD', raw: {managedBy: 'DASHBOARD'}})
+      const changeset = await diff({resourceGroups: [], statusPages: []}, refs, {pruneOrgCli: true})
+      expect(changeset.deletes).toHaveLength(0)
+    })
+
+    it('plain prune still deletes tracked state resources of unowned types', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('tags', 'T', {id: '1', refKey: 'T', raw: {name: 'T'}})
+      const state = {
+        version: '3' as const, serial: 1, lastDeployedAt: '2026-05-05T00:00:00Z',
+        resources: {'tags.T': {apiId: '1', resourceType: 'tag' as never, children: {}}},
+      }
+      const changeset = await diff({tags: []}, refs, {prune: true}, state)
+      expect(changeset.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([['T', 'state']])
+    })
+
+    describe('real handler getManagedBy feeds prune-org-cli selection', () => {
+      const cases: Array<{type: 'alertChannel' | 'resourceGroup' | 'statusPage'; ref: 'alertChannels' | 'resourceGroups' | 'statusPages'}> = [
+        {type: 'alertChannel', ref: 'alertChannels'},
+        {type: 'resourceGroup', ref: 'resourceGroups'},
+        {type: 'statusPage', ref: 'statusPages'},
+      ]
+      for (const {type, ref} of cases) {
+        it(`${type}: hook maps DTO managedBy; only CLI and GIT are selected by --prune-org-cli`, async () => {
+          const handler = getHandler(type)
+          const owners = ['CLI', 'GIT', 'DASHBOARD', null] as const
+          const refs = new ResolvedRefs()
+          owners.forEach((owner, i) => {
+            const dto = {id: `id-${i}`, name: `n${i}`, slug: `s${i}`, managedBy: owner}
+            // Mirror the resolver: managedBy on the entry comes only from the handler hook;
+            // `raw` stays the DTO but we strip managedBy so the hook is the sole source.
+            const rawWithoutOwner = {id: dto.id, name: dto.name, slug: dto.slug}
+            refs.set(ref, `r${i}`, {id: dto.id, refKey: `r${i}`, managedBy: handler.getManagedBy!(dto), raw: rawWithoutOwner})
+          })
+          expect(owners.map((_, i) => handler.getManagedBy!({managedBy: owners[i]}))).toEqual(['CLI', 'GIT', 'DASHBOARD', undefined])
+          const config = {[ref]: []} as DevhelmConfig
+          const cs = await diff(config, refs, {pruneOrgCli: true})
+          expect(cs.deletes.map((d) => d.refKey)).toEqual(['r0', 'r1'])
+          const all = await diff(config, refs, {pruneAll: true})
+          expect(all.deletes.map((d) => [d.refKey, d.pruneScope])).toEqual([
+            ['r0', 'org-cli'], ['r1', 'org-cli'], ['r2', 'org-all'], ['r3', 'org-all'],
+          ])
+        })
+      }
     })
 
     it('does not delete without prune flag', async () => {
@@ -1094,6 +1162,21 @@ describe('differ', () => {
       }
       const changeset = await diff(config, refs)
       expect(changeset.updates).toHaveLength(0)
+    })
+
+    it('resource group alertChannels (direct route) diffs by resolved ids', async () => {
+      const refs = new ResolvedRefs()
+      refs.set('alertChannels', 'ch1', {id: 'ch-uuid-1', refKey: 'ch1', raw: {}})
+      refs.set('alertChannels', 'ch2', {id: 'ch-uuid-2', refKey: 'ch2', raw: {}})
+      refs.set('resourceGroups', 'G', {id: 'rg-1', refKey: 'G', raw: {
+        name: 'G', alertChannelIds: ['ch-uuid-1', 'ch-uuid-2'],
+      }})
+      const same = await diff({resourceGroups: [{name: 'G', alertChannels: ['ch2', 'ch1']}]}, refs)
+      expect(same.updates).toHaveLength(0)
+      const changed = await diff({resourceGroups: [{name: 'G', alertChannels: ['ch1']}]}, refs)
+      expect(changed.updates).toHaveLength(1)
+      const omitted = await diff({resourceGroups: [{name: 'G'}]}, refs)
+      expect(omitted.updates).toHaveLength(0)
     })
 
     it('detects update when webhook API has no subscribedEvents but YAML has events', async () => {

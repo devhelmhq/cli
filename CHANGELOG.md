@@ -9,6 +9,10 @@
 - `runs …`, `runtimes …`, `secrets values set|delete`, `account usage|entitlements`, `audit events`, `api-keys create --preset`, `api-keys rotate`, device-code `auth login`, `auth switch`, `workspaces list`, `regions list`, and incident and status-page commands over the shipped routes.
 - Frozen exit codes (see README), mapped from the error category; `X-DevHelm-Client` on every request and an `Idempotency-Key` on every POST. Keys are random per invocation and reused only for retries of that request, so a second identical command is a new request (as before), never a replay.
 
+### Fixed
+- `maintenance-windows update` keeps the window's monitor scope, repeat rule, `suppressAlerts` and reason when you do not pass them; a single-monitor window no longer becomes org-wide.
+- `deploy --prune-org-cli` deletes only resources the API reports as CLI- or Git-managed (alert channels, resource groups, status pages and monitors). Dashboard-made resources, resources with no owner, and types without owner tracking (tags, environments, secrets, notification policies, webhooks, dependencies) are only deleted via `.devhelm/state.json` or `--prune-all`.
+
 ### Changed
 - `deploy --prune` also deletes monitors this project owns (`ownerProject == project`) that are absent from the config, in addition to the resources in `.devhelm/state.json`. `--prune-org-cli` and `--prune-all` keep their wider scopes.
 - `state pull` pulls only this project's monitors when devhelm.yml sets `project:`; without `project:` it pulls every monitor, as before.

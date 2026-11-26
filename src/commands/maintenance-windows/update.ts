@@ -7,7 +7,7 @@ import type {components} from '../../lib/api.generated.js'
 import {fieldDescriptions} from '../../lib/descriptions.generated.js'
 import {parse as parseSchema} from '../../lib/response-validation.js'
 import {uuidArg, uuidFlag} from '../../lib/validators.js'
-import {buildMaintenanceWindowBody} from '../../lib/maintenance-windows.js'
+import {buildMaintenanceWindowUpdateBody} from '../../lib/maintenance-windows.js'
 
 type MaintenanceWindowDto = components['schemas']['MaintenanceWindowDto']
 
@@ -42,26 +42,24 @@ export default class MaintenanceWindowsUpdate extends Command {
     const client = buildClient(flags)
     const path = `/api/v1/maintenance-windows/${args.id}`
 
-    // The server's update DTO requires `startsAt` and `endsAt` (they're
-    // not nullish on UpdateMaintenanceWindowRequest), but partial updates
-    // are still useful — e.g. `--reason "Rescheduled"` alone. Fetch the
-    // current window and back-fill any timestamp the user didn't pass so
-    // the round-trip stays semantically a partial update.
+    // The API PUT is full-replace: an omitted monitorId becomes org-wide and
+    // omitted reason/repeatRule/suppressAlerts are cleared or reset. Fetch the
+    // current window and overlay only the flags the user passed.
     const existing = await apiGetSingle<MaintenanceWindowDto>(
       client,
       path,
       apiSchemas.MaintenanceWindowDto as ZodType<MaintenanceWindowDto>,
     )
 
-    const built = buildMaintenanceWindowBody({
-      start: flags.start ?? existing.startsAt,
-      end: flags.end ?? existing.endsAt,
+    const built = buildMaintenanceWindowUpdateBody(existing, {
+      start: flags.start,
+      end: flags.end,
       reason: flags.reason,
       monitor: flags.monitor,
       orgWide: flags['org-wide'],
       repeatRule: flags['repeat-rule'],
       suppressAlerts: flags['suppress-alerts'],
-    }, 'update')
+    })
 
     const body = parseSchema(
       apiSchemas.UpdateMaintenanceWindowRequest,
